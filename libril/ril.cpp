@@ -22,6 +22,7 @@
 #include <cutils/jstring.h>
 #include <cutils/record_stream.h>
 #include <utils/Log.h>
+#include <utils/SystemClock.h>
 #include <pthread.h>
 #include <utils/Parcel.h>
 #include <cutils/jstring.h>
@@ -211,6 +212,7 @@ static int responseCallForwards(Parcel &p, void *response, size_t responselen);
 static int responseContexts(Parcel &p, void *response, size_t responselen);
 static int responseRaw(Parcel &p, void *response, size_t responselen);
 static int responseSsn(Parcel &p, void *response, size_t responselen);
+static int responseCellList(Parcel &p, void *response, size_t responselen);
 
 extern "C" const char * requestToString(int request);
 extern "C" const char * failCauseToString(RIL_Errno);
@@ -1182,6 +1184,42 @@ static int responseSsn(Parcel &p, void *response, size_t responselen)
     return 0;
 }
 
+static int responseCellList(Parcel &p, void *response, size_t responselen)
+{
+    int num;
+
+    if (response == NULL && responselen != 0) {
+        LOGE("invalid response: NULL");
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    if (responselen % sizeof (RIL_NeighboringCell *) != 0) {
+        LOGE("invalid response length %d expected multiple of %d\n",
+            (int)responselen, (int)sizeof (RIL_NeighboringCell *));
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    startResponse;
+    /* number of cell info's */
+    num = responselen / sizeof(RIL_NeighboringCell *);
+    p.writeInt32(num);
+
+    for (int i = 0 ; i < num ; i++) {
+        RIL_NeighboringCell *p_cur = ((RIL_NeighboringCell **) response)[i];
+
+        /* each cell info */
+        p.writeInt32(p_cur->rssi);
+        writeStringToParcel (p, p_cur->cid);
+
+        appendPrintBuf("%s[cid=%s,rssi=%d],", printBuf,
+            p_cur->cid, p_cur->rssi);
+    }
+    removeLastChar;
+    closeResponse;
+
+    return 0;
+}
+
 /**
  * A write on the wakeup fd is done just to pop us out of select()
  * We empty the buffer here and then ril_event will reset the timers on the
@@ -1903,10 +1941,9 @@ void RIL_onUnsolicitedResponse(int unsolResponse, void *data,
 
 
         case RIL_UNSOL_NITZ_TIME_RECEIVED: 
-            // FIXME use monotonic system time instead
-            time_t timeReceived = time(NULL);
+            int64_t timeReceived = elapsedRealtime();
             // Store the time this was received in case it is delayed
-            p.writeInt32(timeReceived);            
+            p.writeInt64(timeReceived);
         break;
     }    
     

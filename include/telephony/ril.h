@@ -172,6 +172,16 @@ typedef struct {
     int             timeSeconds; /* for CF no reply only */
 }RIL_CallForwardInfo;
 
+typedef struct {
+   char * cid;         /* cell id in 2G,  Primary Scrambling Code in 3G
+                        * hexadecimal format.
+                        * Valid values are 0x00000000 - 0xffffffff.
+                        */
+   int    rssi;        /* Received RSSI in 2G,
+                        * Level index of CPICH Received Signal Code Power in 3G
+                        */
+} RIL_NeighboringCell;
+
 /* See RIL_REQUEST_LAST_CALL_FAIL_CAUSE */
 typedef enum {
     CALL_FAIL_NORMAL = 16,
@@ -1830,17 +1840,7 @@ typedef enum {
  * Request neighboring cell id in GSM network
  *
  * "data" is NULL
- * "response" is a char **
- * ((char *)response)[0] is the number of available cell ids, range from 0 to 6
- * ((char *)response)[1] is CID[0] if available or NULL if not
- * ((char *)response)[2] is CID[1] if available or NULL if not
- * ((char *)response)[3] is CID[2] if available or NULL if not
- * ((char *)response)[4] is CID[3] if available or NULL if not
- * ((char *)response)[5] is CID[4] if available or NULL if not
- * ((char *)response)[6] is CID[5] if available or NULL if not
- *
- * CIDs are in hexadecimal format.  Valid values are 0x00000000 - 0xffffffff.
- *
+ * "response" must be a " const RIL_NeighboringCell** "
  *
  * Valid errors:
  *  SUCCESS

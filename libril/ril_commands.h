@@ -89,5 +89,5 @@
     {RIL_REQUEST_EXPLICIT_CALL_TRANSFER, dispatchVoid, responseVoid},
     {RIL_REQUEST_SET_PREFERRED_NETWORK_TYPE, dispatchInts, responseVoid},
     {RIL_REQUEST_GET_PREFERRED_NETWORK_TYPE, dispatchVoid, responseInts},
-    {RIL_REQUEST_GET_NEIGHBORING_CELL_IDS, dispatchVoid, responseStrings},
+    {RIL_REQUEST_GET_NEIGHBORING_CELL_IDS, dispatchVoid, responseCellList},
     {RIL_REQUEST_SET_LOCATION_UPDATES, dispatchInts, responseVoid}

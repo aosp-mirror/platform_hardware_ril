@@ -34,6 +34,7 @@ static pthread_mutex_t listMutex;
 #define MUTEX_INIT() pthread_mutex_init(&listMutex, NULL)
 #define MUTEX_DESTROY() pthread_mutex_destroy(&listMutex)
 
+#ifndef timeradd
 #define timeradd(tvp, uvp, vvp)						\
 	do {								\
 		(vvp)->tv_sec = (tvp)->tv_sec + (uvp)->tv_sec;		\
@@ -43,6 +44,7 @@ static pthread_mutex_t listMutex;
 			(vvp)->tv_usec -= 1000000;			\
 		}							\
 	} while (0)
+#endif
 
 #ifndef timercmp
 #define timercmp(a, b, op)               \
