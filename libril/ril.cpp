@@ -1220,6 +1220,24 @@ static int responseCellList(Parcel &p, void *response, size_t responselen)
     return 0;
 }
 
+static void triggerEvLoop()
+{
+    int ret;
+    if (!pthread_equal(pthread_self(), s_tid_dispatch)) {
+        /* trigger event loop to wakeup. No reason to do this,
+         * if we're in the event loop thread */
+         do {
+            ret = write (s_fdWakeupWrite, " ", 1);
+         } while (ret < 0 && errno == EINTR);
+    }
+}
+
+static void rilEventAddWakeup(struct ril_event *ev)
+{
+    ril_event_add(ev);
+    triggerEvLoop();
+}
+
 /**
  * A write on the wakeup fd is done just to pop us out of select()
  * We empty the buffer here and then ril_event will reset the timers on the
@@ -1302,7 +1320,7 @@ static void processCommandsCallback(int fd, short flags, void *param)
         record_stream_free(p_rs);
 
         /* start listening for new connections again */
-        ril_event_add(&s_listen_event);
+        rilEventAddWakeup(&s_listen_event);
 
         onCommandsSocketClosed();
     }
@@ -1360,7 +1378,7 @@ static void listenCallback (int fd, short flags, void *param)
     if (s_fdCommand < 0 ) {
         LOGE("Error on accept() errno:%d", errno);
         /* start listening for new connections again */
-        ril_event_add(&s_listen_event);
+        rilEventAddWakeup(&s_listen_event);
 	return;
     }
 
@@ -1397,7 +1415,7 @@ static void listenCallback (int fd, short flags, void *param)
       onCommandsSocketClosed();
 
       /* start listening for new connections again */
-      ril_event_add(&s_listen_event);
+      rilEventAddWakeup(&s_listen_event);
 
       return;
     }
@@ -1415,7 +1433,7 @@ static void listenCallback (int fd, short flags, void *param)
     ril_event_set (&s_commands_event, s_fdCommand, 1, 
         processCommandsCallback, p_rs);
 
-    ril_event_add (&s_commands_event);
+    rilEventAddWakeup (&s_commands_event);
 
     onNewCommandConnect();
 }
@@ -1606,7 +1624,7 @@ eventLoop(void *param)
     ril_event_set (&s_wakeupfd_event, s_fdWakeupRead, true,
                 processWakeupCallback, NULL);
 
-    ril_event_add (&s_wakeupfd_event);
+    rilEventAddWakeup (&s_wakeupfd_event);
 
     // Only returns on error
     ril_event_loop();
@@ -1722,7 +1740,7 @@ RIL_register (const RIL_RadioFunctions *callbacks)
     ril_event_set (&s_listen_event, s_fdListen, false, 
                 listenCallback, NULL);
 
-    ril_event_add (&s_listen_event);
+    rilEventAddWakeup (&s_listen_event);
 
 #if 1
     // start debug interface socket
@@ -1744,7 +1762,7 @@ RIL_register (const RIL_RadioFunctions *callbacks)
     ril_event_set (&s_debug_event, s_fdDebug, true,
                 debugCallback, NULL);
 
-    ril_event_add (&s_debug_event);
+    rilEventAddWakeup (&s_debug_event);
 #endif
 
 }
@@ -2015,7 +2033,6 @@ internalRequestTimedCallback (RIL_TimedCallback callback, void *param,
 {
     struct timeval myRelativeTime;
     UserCallbackInfo *p_info;
-    int ret;
 
     p_info = (UserCallbackInfo *) malloc (sizeof(UserCallbackInfo));
 
@@ -2034,14 +2051,7 @@ internalRequestTimedCallback (RIL_TimedCallback callback, void *param,
 
     ril_timer_add(&(p_info->event), &myRelativeTime);
 
-    if (!pthread_equal(pthread_self(), s_tid_dispatch)) {
-        /* trigger event loop to wakeup 
-           No reason to to this if we're in the event loop thread */
-        do {        
-            ret = write (s_fdWakeupWrite, " ", 1);
-        } while (ret < 0 && errno == EINTR);
-    }    
-
+    triggerEvLoop();
     return p_info;
 }
 
