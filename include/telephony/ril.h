@@ -173,9 +173,10 @@ typedef struct {
 }RIL_CallForwardInfo;
 
 typedef struct {
-   char * cid;         /* cell id in 2G,  Primary Scrambling Code in 3G
-                        * hexadecimal format.
-                        * Valid values are 0x00000000 - 0xffffffff.
+   char * cid;         /* Cell Id (as described in TS 27.005) in 16 bits in GSM
+                        * Primary Scrambling Code (as described in TS 25.331)
+                        *         in 9 bits in UMTS 
+                        * Valid values are hexadecimal 0x0000 - 0xffff.
                         */
    int    rssi;        /* Received RSSI in 2G,
                         * Level index of CPICH Received Signal Code Power in 3G
@@ -637,7 +638,9 @@ typedef enum {
  *
  * LAC and CID are in hexadecimal format.
  * valid LAC are 0x0000 - 0xffff
- * valid CID are 0x00000000 - 0xffffffff
+ * valid CID are 0x00000000 - 0x0fffffff
+ *     In GSM, CID is Cell ID (as described in TS 27.007) in 16 bits
+ *     In UMTS, CID is UMTS Cell Identity (as described in TS 25.331) in 28 bits
  * 
  * Please note that registration state 4 ("unknown") is treated 
  * as "out of service" in the Android telephony system
@@ -667,7 +670,7 @@ typedef enum {
  *
  * LAC and CID are in hexadecimal format.
  * valid LAC are 0x0000 - 0xffff
- * valid CID are 0x00000000 - 0xffffffff
+ * valid CID are 0x00000000 - 0x0fffffff
  * 
  * Please note that registration state 4 ("unknown") is treated 
  * as "out of service" in the Android telephony system

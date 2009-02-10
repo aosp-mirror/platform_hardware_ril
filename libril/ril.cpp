@@ -17,6 +17,8 @@
 
 #define LOG_TAG "RILC"
 
+#include <hardware_legacy/power.h>
+
 #include <telephony/ril.h>
 #include <cutils/sockets.h>
 #include <cutils/jstring.h>
@@ -57,10 +59,6 @@ namespace android {
 
 #define ANDROID_WAKE_LOCK_NAME "radio-interface"
 
-
-#define ANDROID_PARTIAL_WAKE_LOCK_PATH "/sys/android_power/acquire_partial_wake_lock"
-#define ANDROID_FULL_WAKE_LOCK_PATH "/sys/android_power/acquire_full_wake_lock"
-#define ANDROID_WAKE_UNLOCK_PATH "/sys/android_power/release_wake_lock"
 
 #define PROPERTY_RIL_IMPL "gsm.version.ril-impl"
 
@@ -112,7 +110,7 @@ namespace android {
     #define appendPrintBuf(x...)
 #endif
 
-enum WakeType {DONT_WAKE, WAKE_PARTIAL, WAKE_FULL};
+enum WakeType {DONT_WAKE, WAKE_PARTIAL};
 
 typedef struct {
     int requestNumber;
@@ -1855,51 +1853,15 @@ done:
 
 
 static void
-grabFullWakeLock()
-{
-    int fd;
-
-    fd = open (ANDROID_FULL_WAKE_LOCK_PATH, O_WRONLY);
-
-    if (fd < 0) {
-        LOGW ("Cannot open " ANDROID_FULL_WAKE_LOCK_PATH);
-        return;
-    }
-
-    write (fd, ANDROID_WAKE_LOCK_NAME, strlen(ANDROID_WAKE_LOCK_NAME));
-    close (fd);
-}
-
-static void
 grabPartialWakeLock()
 {
-    int fd;
-
-    fd = open (ANDROID_PARTIAL_WAKE_LOCK_PATH, O_WRONLY);
-
-    if (fd < 0) {
-        LOGW ("Cannot open " ANDROID_PARTIAL_WAKE_LOCK_PATH);
-        return;
-    }
-
-    write (fd, ANDROID_WAKE_LOCK_NAME, strlen(ANDROID_WAKE_LOCK_NAME));
-    close (fd);
+    acquire_wake_lock(PARTIAL_WAKE_LOCK, ANDROID_WAKE_LOCK_NAME);
 }
 
 static void
 releaseWakeLock()
 {
-    int fd;
-
-    fd = open (ANDROID_WAKE_UNLOCK_PATH, O_WRONLY);
-
-    if (fd < 0) {
-        LOGW ("Cannot open " ANDROID_WAKE_UNLOCK_PATH);
-        return;
-    }
-
-    write (fd, ANDROID_WAKE_LOCK_NAME, strlen(ANDROID_WAKE_LOCK_NAME));
-    close (fd);
+    release_wake_lock(ANDROID_WAKE_LOCK_NAME);
 }
 
 /**
@@ -1995,11 +1957,6 @@ void RIL_onUnsolicitedResponse(int unsolResponse, void *data,
     switch (s_unsolResponses[unsolResponseIndex].wakeType) {
         case WAKE_PARTIAL:
             grabPartialWakeLock();
-            shouldScheduleTimeout = true;
-        break;
-
-        case WAKE_FULL:
-            grabFullWakeLock();
             shouldScheduleTimeout = true;
         break;
 
