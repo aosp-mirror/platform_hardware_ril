@@ -1881,28 +1881,54 @@ wakeTimeoutCallback (void *param)
 }
 
 extern "C"
-void RIL_onUnsolicitedResponse(int unsolResponse, void *data, 
+void RIL_onUnsolicitedResponse(int unsolResponse, void *data,
                                 size_t datalen)
 {
     int unsolResponseIndex;
     int ret;
+    int64_t timeReceived = 0;
+    bool shouldScheduleTimeout = false;
 
     if (s_registerCalled == 0) {
         // Ignore RIL_onUnsolicitedResponse before RIL_register
         LOGW("RIL_onUnsolicitedResponse called before RIL_register");
         return;
     }
-        
+
     unsolResponseIndex = unsolResponse - RIL_UNSOL_RESPONSE_BASE;
 
-    if (unsolResponseIndex < 0 
-        || unsolResponseIndex >= (int32_t)NUM_ELEMS(s_unsolResponses)) {
+    if ((unsolResponseIndex < 0)
+        || (unsolResponseIndex >= (int32_t)NUM_ELEMS(s_unsolResponses))) {
         LOGE("unsupported unsolicited response code %d", unsolResponse);
         return;
     }
 
+    // Grab a wake lock if needed for this reponse,
+    // as we exit we'll either release it immediately
+    // or set a timer to release it later.
+    switch (s_unsolResponses[unsolResponseIndex].wakeType) {
+        case WAKE_PARTIAL:
+            grabPartialWakeLock();
+            shouldScheduleTimeout = true;
+        break;
+
+        case DONT_WAKE:
+        default:
+            // No wake lock is grabed so don't set timeout
+            shouldScheduleTimeout = false;
+            break;
+    }
+
+    // Mark the time this was received, doing this
+    // after grabing the wakelock incase getting
+    // the elapsedRealTime might cause us to goto
+    // sleep.
+    if (unsolResponse == RIL_UNSOL_NITZ_TIME_RECEIVED) {
+        timeReceived = elapsedRealtime();
+    }
+
     appendPrintBuf("[UNSL]< %s", requestToString(unsolResponse));
-    
+
     Parcel p;
 
     p.writeInt32 (RESPONSE_UNSOLICITED);
@@ -1910,6 +1936,10 @@ void RIL_onUnsolicitedResponse(int unsolResponse, void *data,
 
     ret = s_unsolResponses[unsolResponseIndex]
                 .responseFunction(p, data, datalen);
+    if (ret != 0) {
+        // Problem with the response. Don't continue;
+        goto error_exit;
+    }
 
     // some things get more payload
     switch(unsolResponse) {
@@ -1920,28 +1950,24 @@ void RIL_onUnsolicitedResponse(int unsolResponse, void *data,
         break;
 
 
-        case RIL_UNSOL_NITZ_TIME_RECEIVED: 
-            int64_t timeReceived = elapsedRealtime();
-            // Store the time this was received in case it is delayed
+        case RIL_UNSOL_NITZ_TIME_RECEIVED:
+            // Store the time that this was received so the
+            // handler of this message can account for
+            // the time it takes to arrive and process. In
+            // particular the system has been known to sleep
+            // before this message can be processed.
             p.writeInt64(timeReceived);
         break;
-    }    
-    
-    if (ret != 0) {
-        // Problem with the response. Don't continue;        
-        return;
     }
 
-
     ret = sendResponse(p);
-
     if (ret != 0 && unsolResponse == RIL_UNSOL_NITZ_TIME_RECEIVED) {
 
         // Unfortunately, NITZ time is not poll/update like everything
         // else in the system. So, if the upstream client isn't connected,
         // keep a copy of the last NITZ response (with receive time noted
         // above) around so we can deliver it when it is connected
-        
+
         if (s_lastNITZTimeData != NULL) {
             free (s_lastNITZTimeData);
             s_lastNITZTimeData = NULL;
@@ -1952,19 +1978,6 @@ void RIL_onUnsolicitedResponse(int unsolResponse, void *data,
         memcpy(s_lastNITZTimeData, p.data(), p.dataSize());
     }
 
-    bool shouldScheduleTimeout = false;
-    
-    switch (s_unsolResponses[unsolResponseIndex].wakeType) {
-        case WAKE_PARTIAL:
-            grabPartialWakeLock();
-            shouldScheduleTimeout = true;
-        break;
-
-        case DONT_WAKE:
-        default:
-            break;
-    }
-
     // For now, we automatically go back to sleep after TIMEVAL_WAKE_TIMEOUT
     // FIXME The java code should handshake here to release wake lock
 
@@ -1973,10 +1986,19 @@ void RIL_onUnsolicitedResponse(int unsolResponse, void *data,
         if (s_last_wake_timeout_info != NULL) {
             s_last_wake_timeout_info->userParam = (void *)1;
         }
-        
-        s_last_wake_timeout_info 
-            = internalRequestTimedCallback(wakeTimeoutCallback, NULL, 
+
+        s_last_wake_timeout_info
+            = internalRequestTimedCallback(wakeTimeoutCallback, NULL,
                                             &TIMEVAL_WAKE_TIMEOUT);
+    }
+
+    // Normal exit
+    return;
+
+error_exit:
+    // There was an error and we've got the wake lock so release it.
+    if (shouldScheduleTimeout) {
+        releaseWakeLock();
     }
 }
 
