@@ -241,6 +241,17 @@ typedef enum {
     SIM_RESET = 2
 } RIL_SimRefreshResult;
 
+/* No restriction at all including voice/SMS/USSD/SS/AV64 and packet data. */
+#define RIL_RESTRICTED_STATE_NONE           0x00
+/* Block emergency call due to restriction. But allow all normal voice/SMS/USSD/SS/AV64. */
+#define RIL_RESTRICTED_STATE_CS_EMERGENCY   0x01
+/* Block all normal voice/SMS/USSD/SS/AV64 due to restriction. Only Emergency call allowed. */
+#define RIL_RESTRICTED_STATE_CS_NORMAL      0x02
+/* Block all voice/SMS/USSD/SS/AV64	including emergency call due to restriction.*/
+#define RIL_RESTRICTED_STATE_CS_ALL         0x04
+/* Block packet data access due to restriction. */
+#define RIL_RESTRICTED_STATE_PS_ALL         0x10
+
 /** 
  * RIL_REQUEST_GET_SIM_STATUS
  *
@@ -590,6 +601,9 @@ typedef enum {
  * "response" is a "int *"
  * ((int *)response)[0] is an integer cause code defined in TS 24.008
  *   Annex H or close approximation
+ *
+ * The implementation should return CALL_FAIL_ERROR_UNSPECIFIED for blocked
+ * MO calls by restricted state (See RIL_UNSOL_RESTRICTED_STATE_CHANGED)
  *
  * If the implementation does not have access to the exact cause codes,
  * then it should return one of the values listed in RIL_LastCallFailCause,
@@ -2145,6 +2159,71 @@ typedef enum {
  * "data" is null
  */
 #define RIL_UNSOL_CALL_RING 1018
+
+
+/*
+ * Import four CDMA notifications 1019 - 1022. Need fix when do real CDMA merge.
+ */
+
+/**
+ * RIL_UNSOL_RESPONSE_SIM_STATUS_CHANGED
+ *
+ * Indicates that SIM state changes.
+ *
+ * Callee will invoke RIL_REQUEST_GET_SIM_STATUS on main thread
+ * "data" is null
+ */
+#define RIL_UNSOL_RESPONSE_SIM_STATUS_CHANGED 1019
+
+/**
+ * RIL_UNSOL_RESPONSE_CDMA_NEW_SMS
+ *
+ * Called when new CDMA SMS is received
+ *
+ * "data" is const RIL_CDMA_SMS_Message *
+ *
+ * Callee will subsequently confirm the receipt of the SMS with
+ * a RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE
+ *
+ * No new RIL_UNSOL_RESPONSE_CDMA_NEW_SMS should be sent until
+ * RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE has been received
+ */
+#define RIL_UNSOL_RESPONSE_CDMA_NEW_SMS 1020
+
+/**
+ * RIL_UNSOL_RESPONSE_NEW_BROADCAST_SMS
+ *
+ * Called when new Broadcast SMS is received
+ *
+ * "data" is const char * of 88 bytes which indicates each page
+ * of a CBS Message sent to the MS by the BTS as coded in 3GPP
+ * 23.041 Section 9.4.1.1
+ */
+#define RIL_UNSOL_RESPONSE_NEW_BROADCAST_SMS 1021
+	
+/**
+ * RIL_UNSOL_CDMA_RUIM_SMS_STORAGE_FULL
+ *
+ * Indicates that SMS storage on the RUIM is full.  Messages
+ * cannot be saved on the RUIM until space is freed.
+ *
+ * "data" is null
+ */
+#define RIL_UNSOL_CDMA_RUIM_SMS_STORAGE_FULL 1022	
+	
+/**
+ * RIL_UNSOL_RESTRICTED_STATE_CHANGED
+ *
+ * Indicates a restricted state change (eg, for Domain Specific Access Control).
+ *
+ * Radio need send this msg after radio off/on cycle no matter it is changed or not.
+ *
+ * "data" is an int *
+ * ((int *)data)[0] contains a bitmask of RIL_RESTRICTED_STATE_* values.
+ */
+#define RIL_UNSOL_RESTRICTED_STATE_CHANGED 1023
+
+
 
 /***********************************************************************/
 

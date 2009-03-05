@@ -1894,7 +1894,7 @@ void RIL_onUnsolicitedResponse(int unsolResponse, void *data,
         LOGW("RIL_onUnsolicitedResponse called before RIL_register");
         return;
     }
-
+		
     unsolResponseIndex = unsolResponse - RIL_UNSOL_RESPONSE_BASE;
 
     if ((unsolResponseIndex < 0)
@@ -2195,6 +2195,7 @@ requestToString(int request)
         case RIL_UNSOL_SIM_REFRESH: return "UNSOL_SIM_REFRESH";
         case RIL_UNSOL_PDP_CONTEXT_LIST_CHANGED: return "UNSOL_PDP_CONTEXT_LIST_CHANGED";
         case RIL_UNSOL_CALL_RING: return "UNSOL_CALL_RING";
+        case RIL_UNSOL_RESTRICTED_STATE_CHANGED: return "UNSOL_RESTRICTED_STATE_CHANGED";
         default: return "<unknown request>";
     }
 }
