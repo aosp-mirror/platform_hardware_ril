@@ -1913,9 +1913,27 @@ mainLoop(void *param)
             if (s_port > 0) {
                 fd = socket_loopback_client(s_port, SOCK_STREAM);
             } else if (s_device_socket) {
-                fd = socket_local_client( s_device_path,
-                                          ANDROID_SOCKET_NAMESPACE_FILESYSTEM,
-                                          SOCK_STREAM );
+                if (!strcmp(s_device_path, "/dev/socket/qemud")) {
+                    /* Qemu-specific control socket */
+                    fd = socket_local_client( "qemud",
+                                              ANDROID_SOCKET_NAMESPACE_RESERVED,
+                                              SOCK_STREAM );
+                    if (fd >= 0 ) {
+                        char  answer[2];
+
+                        if ( write(fd, "gsm", 3) != 3 ||
+                             read(fd, answer, 2) != 2 ||
+                             memcmp(answer, "OK", 2) != 0)
+                        {
+                            close(fd);
+                            fd = -1;
+                        }
+                   }
+                }
+                else
+                    fd = socket_local_client( s_device_path,
+                                            ANDROID_SOCKET_NAMESPACE_FILESYSTEM,
+                                            SOCK_STREAM );
             } else if (s_device_path != NULL) {
                 fd = open (s_device_path, O_RDWR);
                 if ( fd >= 0 && !memcmp( s_device_path, "/dev/ttyS", 9 ) ) {
