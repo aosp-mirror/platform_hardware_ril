@@ -88,6 +88,10 @@ typedef struct {
     char            isVoice;    /* nonzero if this is is a voice call */
 
     char *          number;     /* phone number */
+    char            numberPresentation; /* 0 = Allowed, 
+                                           1 = Restricted,
+                                           2 = Not Specified/Unknown, 
+                                           3 = Payphone */
 } RIL_Call;
 
 typedef struct {
