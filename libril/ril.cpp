@@ -986,14 +986,17 @@ static int responseCallList(Parcel &p, void *response, size_t responselen)
         p.writeInt32(p_cur->als);
         p.writeInt32(p_cur->isVoice);
         writeStringToParcel (p, p_cur->number);
-        appendPrintBuf("%s[%s,id=%d,toa=%d,%s,%s,als=%d,%s,%s],", printBuf,
+        p.writeInt32(p_cur->numberPresentation);
+        appendPrintBuf("%s[%s,id=%d,toa=%d,%s,%s,als=%d,%s,%s,cli=%d],", 
+            printBuf,
             callStateToString(p_cur->state),
             p_cur->index, p_cur->toa,
             (p_cur->isMpty)?"mpty":"norm",
             (p_cur->isMT)?"mt":"mo",
             p_cur->als,
             (p_cur->isVoice)?"voc":"nonvoc",
-            (char*)p_cur->number);
+            (char*)p_cur->number,
+            p_cur->numberPresentation);
     }
     removeLastChar;
     closeResponse;

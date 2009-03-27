@@ -167,7 +167,7 @@ int main(int argc, char **argv)
             * give it some time to create its GSM socket
             */
             int  tries = 5;
-#define  QEMUD_SOCKET_NAME    "qemud_gsm"
+#define  QEMUD_SOCKET_NAME    "qemud"
 
             while (1) {
                 int  fd;
