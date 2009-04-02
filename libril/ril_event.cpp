@@ -2,16 +2,16 @@
 **
 ** Copyright 2008, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -89,8 +89,8 @@ static void dump_event(struct ril_event * ev)
     dlog("~~~~~~~~~~~~~~~~~~");
 }
 #else
-#define dlog(x...)
-#define dump_event(x)
+#define dlog(x...) do {} while(0)
+#define dump_event(x) do {} while(0)
 #endif
 
 static void getNow(struct timeval * tv)
@@ -151,7 +151,7 @@ static void removeWatch(struct ril_event * ev, int index)
                 n = rev->fd;
             }
         }
-        nfds = n + 1; 
+        nfds = n + 1;
         dlog("~~~~ nfds = %d ~~~~", nfds);
     }
 }
@@ -207,7 +207,7 @@ static void firePending()
     while (ev != &pending_list) {
         struct ril_event * next = ev->next;
         removeFromList(ev);
-        ev->func(ev->fd, 0, ev->param); 
+        ev->func(ev->fd, 0, ev->param);
         ev = next;
     }
     dlog("~~~~ -firePending ~~~~");
@@ -277,7 +277,7 @@ void ril_event_add(struct ril_event * ev)
             if (ev->fd >= nfds) nfds = ev->fd+1;
             dlog("~~~~ nfds = %d ~~~~", nfds);
             break;
-        } 
+        }
     }
     MUTEX_RELEASE();
     dlog("~~~~ -ril_event_add ~~~~");
@@ -306,7 +306,7 @@ void ril_timer_add(struct ril_event * ev, struct timeval * tv)
         }
         // list now points to the first event older than ev
         addToList(ev, list);
-    } 
+    }
 
     MUTEX_RELEASE();
     dlog("~~~~ -ril_timer_add ~~~~");
@@ -328,6 +328,20 @@ void ril_event_del(struct ril_event * ev)
     dlog("~~~~ -ril_event_del ~~~~");
 }
 
+#if DEBUG
+static void printReadies(fd_set * rfds)
+{
+    for (int i = 0; (i < MAX_FD_EVENTS); i++) {
+        struct ril_event * rev = watch_table[i];
+        if (rev != NULL && FD_ISSET(rev->fd, rfds)) {
+          dlog("DON: fd=%d is ready", rev->fd);
+        }
+    }
+}
+#else
+#define printReadies(rfds) do {} while(0)
+#endif
+
 void ril_event_loop()
 {
     int n;
@@ -348,7 +362,9 @@ void ril_event_loop()
             dlog("~~~~ blocking for %ds + %dus ~~~~", (int)tv.tv_sec, (int)tv.tv_usec);
             ptv = &tv;
         }
+        printReadies(&rfds);
         n = select(nfds, &rfds, NULL, NULL, ptv);
+        printReadies(&rfds);
         dlog("~~~~ %d events fired ~~~~", n);
         if (n < 0) {
             if (errno == EINTR) continue;
