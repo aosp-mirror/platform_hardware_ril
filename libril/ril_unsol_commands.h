@@ -24,7 +24,7 @@
     {RIL_UNSOL_ON_USSD_REQUEST, responseVoid, DONT_WAKE},
     {RIL_UNSOL_NITZ_TIME_RECEIVED, responseString, WAKE_PARTIAL},
     {RIL_UNSOL_SIGNAL_STRENGTH, responseInts, DONT_WAKE},
-    {RIL_UNSOL_PDP_CONTEXT_LIST_CHANGED, responseContexts, WAKE_PARTIAL},
+    {RIL_UNSOL_DATA_CALL_LIST_CHANGED, responseDataCallList, WAKE_PARTIAL},
     {RIL_UNSOL_SUPP_SVC_NOTIFICATION, responseSsn, WAKE_PARTIAL},
     {RIL_UNSOL_STK_SESSION_END, responseVoid, WAKE_PARTIAL},
     {RIL_UNSOL_STK_PROACTIVE_COMMAND, responseString, WAKE_PARTIAL},
@@ -33,6 +33,7 @@
     {RIL_UNSOL_SIM_SMS_STORAGE_FULL, responseVoid, WAKE_PARTIAL},
     {RIL_UNSOL_SIM_REFRESH, responseInts, WAKE_PARTIAL},
     {RIL_UNSOL_CALL_RING, responseVoid, WAKE_PARTIAL},
+
     /* import unsolicited CDMA notifications, need change response type
      * of CDMA_NEW_SMS when do real CDMA merge
      */
