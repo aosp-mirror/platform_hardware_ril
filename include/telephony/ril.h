@@ -2445,7 +2445,7 @@ typedef struct {
  *  RIL_E_SUBSCRIPTION_NOT_AVAILABLE
  */
 
-#define RIL_REQUEST_CDMA_SUBSCRIPTION 99
+#define RIL_REQUEST_CDMA_SUBSCRIPTION 95
 
 /**
  * RIL_REQUEST_CDMA_WRITE_SMS_TO_RUIM
@@ -2463,7 +2463,7 @@ typedef struct {
  *  GENERIC_FAILURE
  *
  */
-#define RIL_REQUEST_CDMA_WRITE_SMS_TO_RUIM 100
+#define RIL_REQUEST_CDMA_WRITE_SMS_TO_RUIM 96
 
 /**
  * RIL_REQUEST_CDMA_DELETE_SMS_ON_RUIM
@@ -2481,35 +2481,35 @@ typedef struct {
  *  GENERIC_FAILURE
  *
  */
-#define RIL_REQUEST_CDMA_DELETE_SMS_ON_RUIM 101
+#define RIL_REQUEST_CDMA_DELETE_SMS_ON_RUIM 97
 
 /**
  * RIL_REQUEST_DEVICE_IDENTITY
- * 
- * Request the device ESN / MEID / IMEI / IMEISV. 
- * 
+ *
+ * Request the device ESN / MEID / IMEI / IMEISV.
+ *
  * The request is always allowed and contains GSM and CDMA device identity;
- * it substitutes the deprecated requests RIL_REQUEST_GET_IMEI and 
+ * it substitutes the deprecated requests RIL_REQUEST_GET_IMEI and
  * RIL_REQUEST_GET_IMEISV.
- * 
- * If a NULL value is returned for any of the device id, it means that error 
+ *
+ * If a NULL value is returned for any of the device id, it means that error
  * accessing the device.
- * 
- * When CDMA subscription is changed the ESN/MEID may change.  The application 
+ *
+ * When CDMA subscription is changed the ESN/MEID may change.  The application
  * layer should re-issue the request to update the device identity in this case.
- * 
+ *
  * "response" is const char **
- * ((const char **)response)[0] is IMEI if GSM subscription is available 
- * ((const char **)response)[1] is IMEISV if GSM subscription is available 
- * ((const char **)response)[2] is ESN if CDMA subscription is available 
- * ((const char **)response)[3] is MEID if CDMA subscription is available 
- * 
+ * ((const char **)response)[0] is IMEI if GSM subscription is available
+ * ((const char **)response)[1] is IMEISV if GSM subscription is available
+ * ((const char **)response)[2] is ESN if CDMA subscription is available
+ * ((const char **)response)[3] is MEID if CDMA subscription is available
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  GENERIC_FAILURE
  */
-#define RIL_REQUEST_DEVICE_IDENTITY 102
+#define RIL_REQUEST_DEVICE_IDENTITY 98
 
 
 
@@ -3027,6 +3027,3 @@ void RIL_requestTimedCallback (RIL_TimedCallback callback,
 #endif
 
 #endif /*ANDROID_RIL_H*/
-
-
-
