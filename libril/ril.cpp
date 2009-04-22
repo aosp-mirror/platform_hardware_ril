@@ -853,9 +853,9 @@ dispatchCdmaSms(Parcel &p, RequestInfo *pRI) {
 
     startRequest;
     appendPrintBuf("%suTeleserviceID=%d, bIsServicePresent=%d, uServicecategory=%d, \
-            sAddress.digitmode=%d, sAddress.NumberMode=%d, sAddress.numberType=%d, ", 
+            sAddress.digit_mode=%d, sAddress.Number_mode=%d, sAddress.number_type=%d, ",
             printBuf, rcsm.uTeleserviceID,rcsm.bIsServicePresent,rcsm.uServicecategory,
-            rcsm.sAddress.digitMode, rcsm.sAddress.numberMode,rcsm.sAddress.numberType);
+            rcsm.sAddress.digit_mode, rcsm.sAddress.number_mode,rcsm.sAddress.number_type);
     closeRequest;
    
     printRequest(pRI->token, pRI->pCI->requestNumber);
@@ -893,8 +893,8 @@ dispatchCdmaSmsAck(Parcel &p, RequestInfo *pRI) {
     }
 
     startRequest;
-    appendPrintBuf("%suBearerReplySeq=%d, uErrorClass=%d, uTLStatus=%d, ",
-            printBuf, rcsa.uBearerReplySeq,rcsa.uErrorClass,rcsa.uSMSCauseCode);
+    appendPrintBuf("%suErrorClass=%d, uTLStatus=%d, ",
+            printBuf, rcsa.uErrorClass, rcsa.uSMSCauseCode);
     closeRequest;
 
     printRequest(pRI->token, pRI->pCI->requestNumber);
@@ -940,7 +940,7 @@ dispatchBrSmsCnf(Parcel &p, RequestInfo *pRI) {
     }
 
     startRequest;
-    appendPrintBuf("%ssize=%d, uServicecategory=%d, entries.uFromServiceID=%d, \
+    appendPrintBuf("%ssize=%d, entries.uFromServiceID=%d, \
             entries.uToserviceID=%d, entries.bSelected =%d, ", printBuf,
             rbsc.size,rbsc.entries->uFromServiceID, rbsc.entries->uToserviceID,
             rbsc.entries->bSelected);
@@ -989,8 +989,8 @@ dispatchCdmaBrSmsCnf(Parcel &p, RequestInfo *pRI) {
     }
 
     startRequest;
-    appendPrintBuf("%sbIsEnabled=%d, size=%d, entries.uServicecategory=%d, \
-            entries.uLanguage =%d, entries.bSelected =%d, ", printBuf, rcbsc.bIsEnabled,rcbsc.size,
+    appendPrintBuf("%ssize=%d, entries.uServicecategory=%d, \
+            entries.uLanguage =%d, entries.bSelected =%d, ", printBuf, rcbsc.size,
             rcbsc.entries->uServiceCategory,rcbsc.entries->uLanguage, rcbsc.entries->bSelected);
     closeRequest;
 
@@ -1079,14 +1079,14 @@ static void dispatchRilCdmaSmsWriteArgs(Parcel &p, RequestInfo *pRI) {
     }
 
     startRequest;
-    appendPrintBuf("%sstatus=%d, message.uTeleserviceID=%d, message.bIsServicePresent=%d, 
-            message.uServicecategory=%d, message.sAddress.digitmode=%d,
-            message.sAddress.NumberMode=%d,
-            message.sAddress.numberType=%d, ",
+    appendPrintBuf("%sstatus=%d, message.uTeleserviceID=%d, message.bIsServicePresent=%d, \
+            message.uServicecategory=%d, message.sAddress.digit_mode=%d, \
+            message.sAddress.number_mode=%d, \
+            message.sAddress.number_type=%d, ",
             printBuf, rcsw.status, rcsw.message.uTeleserviceID, rcsw.message.bIsServicePresent,
-            rcsw.message.uServicecategory, rcsw.message.sAddress.digitMode,
-            rcsw.message.sAddress.numberMode,
-            rcsw.message.sAddress.numberType);
+            rcsw.message.uServicecategory, rcsw.message.sAddress.digit_mode,
+            rcsw.message.sAddress.number_mode,
+            rcsw.message.sAddress.number_type);
     closeRequest;
 
     printRequest(pRI->token, pRI->pCI->requestNumber);
@@ -1287,6 +1287,9 @@ static int responseCallList(Parcel &p, void *response, size_t responselen) {
     p.writeInt32(num);
 
     for (int i = 0 ; i < num ; i++) {
+    /* NEWRIL:TODO Remove this conditional and the else clause when we have the new ril */
+#if NEWRIL
+        LOGD("Compilied for NEWRIL"); // NEWRIL:TODO remove when we have the new ril
         RIL_Call *p_cur = ((RIL_Call **) response)[i];
         /* each call info */
         p.writeInt32(p_cur->state);
@@ -1296,18 +1299,56 @@ static int responseCallList(Parcel &p, void *response, size_t responselen) {
         p.writeInt32(p_cur->isMT);
         p.writeInt32(p_cur->als);
         p.writeInt32(p_cur->isVoice);
-        writeStringToParcel (p, p_cur->number);
+        p.writeInt32(p_cur->isVoicePrivacy);
+        writeStringToParcel(p, p_cur->number);
         p.writeInt32(p_cur->numberPresentation);
-        appendPrintBuf("%s[%s,id=%d,toa=%d,%s,%s,als=%d,%s,%s,cli=%d],",
+        writeStringToParcel(p, p_cur->name);
+        p.writeInt32(p_cur->namePresentation);
+        appendPrintBuf("%s[id=%d,%s,toa=%d,%s,%s,als=%d,%s,%s,%s,cli=%d,name='%s',%d],",
             printBuf,
+            p_cur->index,
             callStateToString(p_cur->state),
-            p_cur->index, p_cur->toa,
-            (p_cur->isMpty)?"mpty":"norm",
+            p_cur->toa,
+            (p_cur->isMpty)?"conf":"norm",
             (p_cur->isMT)?"mt":"mo",
             p_cur->als,
             (p_cur->isVoice)?"voc":"nonvoc",
-            (char*)p_cur->number,
-            p_cur->numberPresentation);
+            (p_cur->isVoicePrivacy)?"evp":"noevp",
+            p_cur->number,
+            p_cur->numberPresentation,
+            p_cur->name,
+            p_cur->namePresentation);
+#else
+        LOGD("Old RIL");
+        RIL_CallOld *p_cur = ((RIL_CallOld **) response)[i];
+        /* each call info */
+        p.writeInt32(p_cur->state);
+        p.writeInt32(p_cur->index);
+        p.writeInt32(p_cur->toa);
+        p.writeInt32(p_cur->isMpty);
+        p.writeInt32(p_cur->isMT);
+        p.writeInt32(p_cur->als);
+        p.writeInt32(p_cur->isVoice);
+        p.writeInt32(0); // p_cur->isVoicePrivacy);
+        writeStringToParcel (p, p_cur->number);
+        p.writeInt32(p_cur->numberPresentation);
+        writeStringToParcel (p, "a-person");
+        p.writeInt32(2); // p_cur->namePresentation);
+        appendPrintBuf("%s[id=%d,%s,toa=%d,%s,%s,als=%d,%s,%s,%s,cli=%d,name='%s',%d],",
+            printBuf,
+            p_cur->index,
+            callStateToString(p_cur->state),
+            p_cur->toa,
+            (p_cur->isMpty)?"conf":"norm",
+            (p_cur->isMT)?"mt":"mo",
+            p_cur->als,
+            (p_cur->isVoice)?"voc":"nonvoc",
+            (p_cur->isVoicePrivacy)?"evp":"noevp",
+            p_cur->number,
+            p_cur->numberPresentation,
+            p_cur->name,
+            p_cur->namePresentation);
+#endif
     }
     removeLastChar;
     closeResponse;
@@ -1619,10 +1660,10 @@ static int responseBrSmsCnf(Parcel &p, void *response, size_t responselen) {
     p.write(&(p_cur->entries->bSelected),sizeof(p_cur->entries->bSelected));
     
     startResponse;
-    appendPrintBuf("%s size=%d, uServicecategory=%d, entries.uFromServiceID=%d, \
+    appendPrintBuf("%s size=%d, entries.uFromServiceID=%d, \
             entries.uToserviceID=%d, entries.bSelected =%d, ",
             printBuf, p_cur->size,p_cur->entries->uFromServiceID,
-            p_cur->.entries->uToserviceID,p_cur->entries->bSelected);
+            p_cur->entries->uToserviceID, p_cur->entries->bSelected);
     closeResponse;
 
     return 0;
@@ -1709,7 +1750,7 @@ static int responseCdmaSms(Parcel &p, void *response, size_t responselen) {
 
     startResponse;
     appendPrintBuf("%suTeleserviceID=%d, bIsServicePresent=%d, uServicecategory=%d, \
-            sAddress.digitmode=%d, sAddress.NumberMode=%d, sAddress.numberType=%d, ", 
+            sAddress.digit_mode=%d, sAddress.number_mode=%d, sAddress.number_type=%d, ",
             printBuf, p_cur->uTeleserviceID,p_cur->bIsServicePresent,p_cur->uServicecategory,
             p_cur->sAddress.digit_mode, p_cur->sAddress.number_mode,p_cur->sAddress.number_type);
     closeResponse;
@@ -1957,7 +1998,7 @@ static void debugCallback (int fd, short flags, void *param) {
         // +1 for null-term
         args[i] = (char *) malloc((sizeof(char) * len) + 1);
         if (recv(acceptFD, args[i], sizeof(char) * len, 0) 
-            != sizeof(char) * len) {
+            != (int)sizeof(char) * len) {
             LOGE ("error reading on socket: Args[%d] \n", i);
             freeDebugCallbackArgs(i, args);
             return;
