@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-/*
- * ISSUES:
+ /* ISSUES:
  * - SMS retransmit (specifying TP-Message-ID)
  *
  */
@@ -93,27 +92,50 @@ typedef enum {
     RADIO_STATE_NV_READY = 9               /* Radio is on and the NV interface is available */
 } RIL_RadioState;
 
+ /* CDMA Signal Information Record as defined in C.S0005 section 3.7.5.5 */
+typedef struct {
+  char isPresent;    /* non-zero if signal information record is present */
+  char signalType;   /* as defined 3.7.5.5-1 */
+  char alertPitch;   /* as defined 3.7.5.5-2 */
+  char signal;       /* as defined 3.7.5.5-3, 3.7.5.5-4 or 3.7.5.5-5 */
+} RIL_CDMA_SignalInfoRecord;
+
+// NEWRIL:TODO Remove #define NEWRIL and RIL_CallOld when we have the new ril
+#define NEWRIL 0
+#if !NEWRIL
 typedef struct {
     RIL_CallState   state;
     int             index;      /* Connection Index for use with, eg, AT+CHLD */
     int             toa;        /* type of address, eg 145 = intl */
     char            isMpty;     /* nonzero if is mpty call */
     char            isMT;       /* nonzero if call is mobile terminated */
-    char            als;        /* ALS line indicator if available 
+    char            als;        /* ALS line indicator if available
                                    (0 = line 1) */
-    char            isVoice;    /* nonzero if this is is a voice call 
-                                   "p" if the CDMA voice privacy mode is active */
+    char            isVoice;    /* nonzero if this is is a voice call */
+    char *          number;     /* Remote party number */
+    char            numberPresentation; /* 0=Allowed, 1=Restricted, 2=Not Specified/Unknown 3=Payphone */
+} RIL_CallOld;
+#endif
 
-    char *          number;     /* phone number */
-    char            numberPresentation; /* 0 = Allowed, 
-                                           1 = Restricted,
-                                           2 = Not Specified/Unknown, 
-                                           3 = Payphone */
+typedef struct {
+    RIL_CallState   state;
+    int             index;      /* Connection Index for use with, eg, AT+CHLD */
+    int             toa;        /* type of address, eg 145 = intl */
+    char            isMpty;     /* nonzero if is mpty call */
+    char            isMT;       /* nonzero if call is mobile terminated */
+    char            als;        /* ALS line indicator if available
+                                   (0 = line 1) */
+    char            isVoice;    /* nonzero if this is is a voice call */
+    char            isVoicePrivacy;     /* nonzero if CDMA voice privacy mode is active */
+    char *          number;     /* Remote party number */
+    int             numberPresentation; /* 0=Allowed, 1=Restricted, 2=Not Specified/Unknown 3=Payphone */
+    char *          name;       /* Remote party name */
+    int             namePresentation; /* 0=Allowed, 1=Restricted, 2=Not Specified/Unknown 3=Payphone */
 } RIL_Call;
 
 typedef struct {
     int             cid;        /* Context ID */
-    int             active;     /* nonzero if context is active */
+    int             active;     /* 0=inactive, 1=active/physical link down, 2=active/physical link up */
     char *          type;       /* X.25, IP, IPV6, etc. */
     char *          apn;
     char *          address;
@@ -145,7 +167,6 @@ typedef struct {
              * clir == 1 on "CLIR invocation" (restrict CLI presentation)
              * clir == 2 on "CLIR suppression" (allow CLI presentation)
              */
-
 } RIL_Dial;
 
 typedef struct {
@@ -153,6 +174,7 @@ typedef struct {
     int fileid;     /* EF id */
     char *path;     /* "pathid" from TS 27.007 +CRSM command.
                        Path is in hex asciii format eg "7f205f70"
+                       Path must always be provided.
                      */
     int p1;
     int p2;
@@ -186,7 +208,7 @@ typedef struct {
     int             reason;       /* from TS 27.007 7.11 "reason" */
     int             serviceClass; /* From 27.007 +CCFC/+CLCK "class"
                                      See table for Android mapping from
-                                     MMI service code 
+                                     MMI service code
                                      0 means user doesn't input class */
     int             toa;          /* "type" from TS 27.007 7.11 */
     char *          number;       /* "number" from TS 27.007 7.11. May be NULL */
@@ -212,6 +234,16 @@ typedef enum {
     CALL_FAIL_ACM_LIMIT_EXCEEDED = 68,
     CALL_FAIL_CALL_BARRED = 240,
     CALL_FAIL_FDN_BLOCKED = 241,
+    CALL_FAIL_CDMA_LOCKED_UNTIL_POWER_CYCLE = 1000,
+    CALL_FAIL_CDMA_DROP = 1001,
+    CALL_FAIL_CDMA_INTERCEPT = 1002,
+    CALL_FAIL_CDMA_REORDER = 1003,
+    CALL_FAIL_CDMA_SO_REJECT = 1004,
+    CALL_FAIL_CDMA_RETRY_ORDER = 1005,
+    CALL_FAIL_CDMA_ACCESS_FAILURE = 1006,
+    CALL_FAIL_CDMA_PREEMPTED = 1007,
+    CALL_FAIL_CDMA_NOT_EMERGENCY = 1008, /* For non-emergency number dialed
+                                            during emergency callback mode */
     CALL_FAIL_ERROR_UNSPECIFIED = 0xffff
 } RIL_LastCallFailCause;
 
@@ -352,6 +384,13 @@ typedef enum {
     SIM_RESET = 2
 } RIL_SimRefreshResult;
 
+typedef struct {
+    char *          number;             /* Remote party number */
+    int             numberPresentation; /* 0=Allowed, 1=Restricted, 2=Not Specified/Unknown */
+    char *          name;               /* Remote party name */
+    RIL_CDMA_SignalInfoRecord * signalInfoRecord;
+} RIL_CDMA_CallWaiting;
+
 /* Used by RIL_REQUEST_GET_BROADCAST_CONFIG and RIL_REQUEST_SET_BROADCAST_CONFIG */
 
 typedef struct {
@@ -376,6 +415,173 @@ typedef struct {
 #define RIL_RESTRICTED_STATE_CS_ALL         0x04
 /* Block packet data access due to restriction. */
 #define RIL_RESTRICTED_STATE_PS_ALL         0x10
+
+/* The status for an OTASP/OTAPA session */
+typedef enum {
+    CDMA_OTA_PROVISION_STATUS_SPL_UNLOCKED,
+    CDMA_OTA_PROVISION_STATUS_SPC_RETRIES_EXCEEDED,
+    CDMA_OTA_PROVISION_STATUS_A_KEY_EXCHANGED,
+    CDMA_OTA_PROVISION_STATUS_SSD_UPDATED,
+    CDMA_OTA_PROVISION_STATUS_NAM_DOWNLOADED,
+    CDMA_OTA_PROVISION_STATUS_MDN_DOWNLOADED,
+    CDMA_OTA_PROVISION_STATUS_IMSI_DOWNLOADED,
+    CDMA_OTA_PROVISION_STATUS_PRL_DOWNLOADED,
+    CDMA_OTA_PROVISION_STATUS_COMMITTED,
+    CDMA_OTA_PROVISION_STATUS_OTAPA_STARTED,
+    CDMA_OTA_PROVISION_STATUS_OTAPA_STOPPED,
+    CDMA_OTA_PROVISION_STATUS_OTAPA_ABORTED
+} RIL_CDMA_OTA_ProvisionStatus;
+
+typedef struct {
+    int signalStrength;  /* Valid values are (0-31, 99) as defined in TS 27.007 8.5 */
+    int bitErrorRate;    /* bit error rate (0-7, 99) as defined in TS 27.007 8.5 */
+} RIL_GW_SignalStrength;
+
+
+typedef struct {
+    int dbm;  /* Valid values are positive integers.  This value is the actual RSSI value
+               * multiplied by -1.  Example: If the actual RSSI is -75, then this response
+               * value will be 75.
+               */
+    int ecio; /* Valid values are positive integers.  This value is the actual Ec/Io multiplied
+               * by -10.  Example: If the actual Ec/Io is -12.5 dB, then this response value
+               * will be 125.
+               */
+} RIL_CDMA_SignalStrength;
+
+
+typedef struct {
+    int dbm;  /* Valid values are positive integers.  This value is the actual RSSI value
+               * multiplied by -1.  Example: If the actual RSSI is -75, then this response
+               * value will be 75.
+               */
+    int ecio; /* Valid values are positive integers.  This value is the actual Ec/Io multiplied
+               * by -10.  Example: If the actual Ec/Io is -12.5 dB, then this response value
+               * will be 125.
+               */
+    int signalNoiseRatio; /* Valid values are 0-8.  8 is the highest signal to noise ratio. */
+} RIL_EVDO_SignalStrength;
+
+
+typedef struct {
+    RIL_GW_SignalStrength   GW_SignalStrength;
+    RIL_CDMA_SignalStrength CDMA_SignalStrength;
+    RIL_EVDO_SignalStrength EVDO_SignalStrength;
+} RIL_SignalStrength;
+
+/* Names of the CDMA info records (C.S0005 section 3.7.5) */
+typedef enum {
+  RIL_CDMA_DISPLAY_INFO_REC,
+  RIL_CDMA_CALLED_PARTY_NUMBER_INFO_REC,
+  RIL_CDMA_CALLING_PARTY_NUMBER_INFO_REC,
+  RIL_CDMA_CONNECTED_NUMBER_INFO_REC,
+  RIL_CDMA_SIGNAL_INFO_REC,
+  RIL_CDMA_REDIRECTING_NUMBER_INFO_REC,
+  RIL_CDMA_LINE_CONTROL_INFO_REC,
+  RIL_CDMA_EXTENDED_DISPLAY_INFO_REC,
+  RIL_CDMA_T53_CLIR_INFO_REC,
+  RIL_CDMA_T53_RELEASE_INFO_REC,
+  RIL_CDMA_T53_AUDIO_CONTROL_INFO_REC
+} RIL_CDMA_InfoRecName;
+
+/* Display Info Rec as defined in C.S0005 section 3.7.5.1
+   Extended Display Info Rec as defined in C.S0005 section 3.7.5.16
+   Note: the Extended Display info rec contains multiple records of the
+   form: display_tag, display_len, and display_len occurrences of the
+   chari field if the display_tag is not 10000000 or 10000001.
+   To save space, the records are stored consecutively in a byte buffer.
+   The display_tag, display_len and chari fields are all 1 byte.
+*/
+
+typedef struct {
+  char alpha_len;
+  char alpha_buf[64];
+} RIL_CDMA_DisplayInfoRecord;
+
+/* Called Party Number Info Rec as defined in C.S0005 section 3.7.5.2
+   Calling Party Number Info Rec as defined in C.S0005 section 3.7.5.3
+   Connected Number Info Rec as defined in C.S0005 section 3.7.5.4
+*/
+
+typedef struct {
+  char len;
+  char buf[81];
+  char number_type;
+  char number_plan;
+  char pi;
+  char si;
+} RIL_CDMA_NumberInfoRecord;
+
+/* Redirecting Number Information Record as defined in C.S0005 section 3.7.5.11 */
+typedef enum {
+  RIL_REDIRECTING_REASON_UNKNOWN = 0,
+  RIL_REDIRECTING_REASON_CALL_FORWARDING_BUSY = 1,
+  RIL_REDIRECTING_REASON_CALL_FORWARDING_NO_REPLY = 2,
+  RIL_REDIRECTING_REASON_CALLED_DTE_OUT_OF_ORDER = 9,
+  RIL_REDIRECTING_REASON_CALL_FORWARDING_BY_THE_CALLED_DTE = 10,
+  RIL_REDIRECTING_REASON_CALL_FORWARDING_UNCONDITIONAL = 15,
+  RIL_REDIRECTING_REASON_RESERVED
+} RIL_CDMA_RedirectingReason;
+
+typedef struct {
+  RIL_CDMA_NumberInfoRecord redirectingNumber;
+  /* redirectingReason is set to RIL_REDIRECTING_REASON_UNKNOWN if not included */
+  RIL_CDMA_RedirectingReason redirectingReason;
+} RIL_CDMA_RedirectingNumberInfoRecord;
+
+/* Line Control Information Record as defined in C.S0005 section 3.7.5.15 */
+typedef struct {
+  char lineCtrlPolarityIncluded;
+  char lineCtrlToggle;
+  char lineCtrlReverse;
+  char lineCtrlPowerDenial;
+} RIL_CDMA_LineControlInfoRecord;
+
+/* T53 CLIR Information Record */
+typedef struct {
+  char cause;
+} RIL_CDMA_T53_CLIRInfoRecord;
+
+/* T53 Audio Control Information Record */
+typedef struct {
+  char upLink;
+  char downLink;
+} RIL_CDMA_T53_AudioControlInfoRecord;
+
+typedef struct {
+
+  RIL_CDMA_InfoRecName name;
+
+  union {
+    /* Display and Extended Display Info Rec */
+    RIL_CDMA_DisplayInfoRecord           display;
+
+    /* Called Party Number, Calling Party Number, Connected Number Info Rec */
+    RIL_CDMA_NumberInfoRecord            number;
+
+    /* Signal Info Rec */
+    RIL_CDMA_SignalInfoRecord            signal;
+
+    /* Redirecting Number Info Rec */
+    RIL_CDMA_RedirectingNumberInfoRecord redir;
+
+    /* Line Control Info Rec */
+    RIL_CDMA_LineControlInfoRecord       lineCtrl;
+
+    /* T53 CLIR Info Rec */
+    RIL_CDMA_T53_CLIRInfoRecord          clir;
+
+    /* T53 Audio Control Info Rec */
+    RIL_CDMA_T53_AudioControlInfoRecord  audioCtrl;
+  } rec;
+} RIL_CDMA_InformationRecord;
+
+#define RIL_CDMA_MAX_NUMBER_OF_INFO_RECS 10
+
+typedef struct {
+  char numberOfInfoRecs;
+  RIL_CDMA_InformationRecord infoRec[RIL_CDMA_MAX_NUMBER_OF_INFO_RECS];
+} RIL_CDMA_InformationRecords;
 
 /** 
  * RIL_REQUEST_GET_SIM_STATUS
@@ -724,8 +930,8 @@ typedef struct {
  *
  * "data" is NULL
  * "response" is a "int *"
- * ((int *)response)[0] is an integer cause code defined in TS 24.008
- *   Annex H or close approximation
+ * ((int *)response)[0] is RIL_LastCallFailCause.  GSM failure reasons are
+ * mapped to cause codes defined in TS 24.008 Annex H where possible.
  *
  * The implementation should return CALL_FAIL_ERROR_UNSPECIFIED for blocked
  * MO calls by restricted state (See RIL_UNSOL_RESTRICTED_STATE_CHANGED)
@@ -747,16 +953,13 @@ typedef struct {
 /**
  * RIL_REQUEST_SIGNAL_STRENGTH
  *
- * Requests current signal strength and bit error rate
+ * Requests current signal strength and associated information
  *
  * Must succeed if radio is on.
  *
  * "data" is NULL
- * "response" is an "int *"
- * ((int *)response)[0] is received signal strength (0-31, 99)
- * ((int *)response)[1] is bit error rate (0-7, 99)
- *  as defined in TS 27.007 8.5
- *  Other values (eg -1) are not legal
+ *
+ * "response" is a const RIL_SignalStrength *
  *
  * Valid errors:
  *  SUCCESS
@@ -772,36 +975,64 @@ typedef struct {
  * "data" is NULL
  * "response" is a "char **"
  * ((const char **)response)[0] is registration state 0-6,
- *              0 - Not registered, MT is not currently searching a new operator to register
+ *              0 - Not registered, MT is not currently searching
+ *                  a new operator to register
  *              1 - Registered, home network
- *              2 - Not registered, but MT is currently searching a new operator to register
+ *              2 - Not registered, but MT is currently searching
+ *                  a new operator to register
  *              3 - Registration denied
  *              4 - Unknown
  *              5 - Registered, roaming
- *              6 - Registered, roaming affiliates
- * ((const char **)response)[1] is LAC if registered on a GSM/WCDMA system or NULL if not. 
- *                                  Valid LAC are 0x0000 - 0xffff
- * ((const char **)response)[2] is CID if registered on a * GSM/WCDMA or NULL if not. 
- *                                  Valid CID are 0x00000000 - 0xffffffff
+ * ((const char **)response)[1] is LAC if registered on a GSM/WCDMA system or
+ *                              NULL if not.Valid LAC are 0x0000 - 0xffff
+ * ((const char **)response)[2] is CID if registered on a * GSM/WCDMA or
+ *                              NULL if not.
+ *                                 Valid CID are 0x00000000 - 0xffffffff
+ *                                    In GSM, CID is Cell ID (see TS 27.007)
+ *                                            in 16 bits
+ *                                    In UMTS, CID is UMTS Cell Identity
+ *                                             (see TS 25.331) in 28 bits
  * ((const char **)response)[3] indicates the available radio technology 0-7,
- *                                  0 - Unknown, 1 - GPRS, 2 - EDGE, 3 - UMTS, 4 - IS95A, 
- *                                  5 - IS95B, 6 - 1xRTT, 7 - EvDo Rev. 0, 8 - EvDo Rev. A
- * ((const char **)response)[4] is Base Station ID if registered on a CDMA system or NULL if not.
- *                                  Base Station ID in hexadecimal format
- * ((const char **)response)[5] is Base Station latitude if registered on a CDMA system or NULL
- *                                  if not. Base Station latitude in hexadecimal format
- * ((const char **)response)[6] is Base Station longitude if registered on a CDMA system or NULL
- *                                  if not. Base Station longitude in hexadecimal format
- * ((const char **)response)[7] is concurrent services support indicator if registered on a CDMA 
- *                                  system 0-1, 0 - Concurrent services not supported, 
- *                                              1 - Concurrent services supported
- * ((const char **)response)[8] is System ID if registered on a CDMA system or NULL if not.
- *                                  Valid System ID are 0 - 32767
- * ((const char **)response)[9] is Network ID if registered on a CDMA system or NULL if not.
- *                                  Valid System ID are 0 - 65535
- * 
- * Please note that registration state 4 ("unknown") is treated 
+ *                                  0 - Unknown, 1 - GPRS, 2 - EDGE, 3 - UMTS,
+ *                                  4 - IS95A, 5 - IS95B, 6 - 1xRTT,
+ *                                  7 - EvDo Rev. 0, 8 - EvDo Rev. A
+ * ((const char **)response)[4] is Base Station ID if registered on a CDMA
+ *                              system or NULL if not.  Base Station ID in
+ *                              hexadecimal format
+ * ((const char **)response)[5] is Base Station latitude if registered on a
+ *                              CDMA system or NULL if not. Base Station
+ *                              latitude in hexadecimal format
+ * ((const char **)response)[6] is Base Station longitude if registered on a
+ *                              CDMA system or NULL if not. Base Station
+ *                              longitude in hexadecimal format
+ * ((const char **)response)[7] is concurrent services support indicator if
+ *                              registered on a CDMA system 0-1.
+ *                                   0 - Concurrent services not supported,
+ *                                   1 - Concurrent services supported
+ * ((const char **)response)[8] is System ID if registered on a CDMA system or
+ *                              NULL if not. Valid System ID are 0 - 32767
+ * ((const char **)response)[9] is Network ID if registered on a CDMA system or
+ *                              NULL if not. Valid System ID are 0 - 65535
+ * ((const char **)response)[10] is the TSB-58 Roaming Indicator if registered
+ *                               on a CDMA system or NULL if not. Valid values
+ *                               are 0-255.
+ * ((const char **)response)[11] indicates whether the current system is in the
+ *                               PRL if registered on a CDMA system or NULL if
+ *                               not. 0=not in the PRL, 1=in the PRL
+ * ((const char **)response)[12] is the default Roaming Indicator from the PRL,
+ *                               if registered on a CDMA system or NULL if not.
+ *                               Valid values are 0-255.
+ * ((const char **)response)[13] if registration state is 3 (Registration
+ *                               denied) this is an enumerated reason why
+ *                               registration was denied.
+ *                                 0-General, 1-Authentication Failure
+ *
+ * Please note that registration state 4 ("unknown") is treated
  * as "out of service" in the Android telephony system
+ *
+ * Registration state 3 can be returned if Location Update Reject
+ * (with cause 17 - Network Failure) is received repeatedly from the network,
+ * to facilitate "managed roaming"
  *
  * Valid errors:
  *  SUCCESS
@@ -854,11 +1085,6 @@ typedef struct {
  *                                  or NULL if unregistered
  * ((const char **)response)[2] is 5 or 6 digit numeric code (MCC + MNC)
  *                                  or NULL if unregistered
- * ((const char **)response)[3] is system type, range from 0 to 3 or NULL if unregistered,
- *                                  0 - WCDMA system,
- *                                  1 - GSM system, 
- *                                  2 - 1x system,
- *                                  3 - EVDO system
  *                                  
  * Valid errors:
  *  SUCCESS
@@ -2156,7 +2382,9 @@ typedef struct {
  *
  * "data" is int *
  * ((int *)data)[0] is == 0 for TTY off
- * ((int *)data)[0] is == 1 for TTY on
+ * ((int *)data)[0] is == 1 for TTY Full
+ * ((int *)data)[0] is == 2 for TTY HCO (hearing carryover)
+ * ((int *)data)[0] is == 3 for TTY VCO (voice carryover)
  * 
  * "response" is NULL
  * 
@@ -2176,7 +2404,9 @@ typedef struct {
  * 
  * "response" is int *
  * ((int *)response)[0] is == 0 for TTY off
- * ((int *)response)[0] is == 1 for TTY on
+ * ((int *)response)[0] is == 1 for TTY Full
+ * ((int *)response)[0] is == 2 for TTY HCO (hearing carryover)
+ * ((int *)response)[0] is == 3 for TTY VCO (voice carryover)
  *
  * "response" is NULL
  * 
@@ -2292,6 +2522,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  SMS_SEND_FAIL_RETRY
  *  GENERIC_FAILURE
  *
  */
@@ -2438,7 +2669,8 @@ typedef struct {
  * "response" is const char **
  * ((const char **)response)[0] is MDN if CDMA subscription is available
  * ((const char **)response)[1] is H_SID (Home SID) if CDMA subscription is available
- * ((const char **)response)[2] is H_NID (Home SID) if CDMA subscription is available
+ * ((const char **)response)[2] is H_NID (Home NID) if CDMA subscription is available
+ * ((const char **)response)[3] is MIN (10 digits, MIN2+MIN1) if CDMA subscription is available
  *
  * Valid errors:
  *  SUCCESS
@@ -2511,6 +2743,24 @@ typedef struct {
  */
 #define RIL_REQUEST_DEVICE_IDENTITY 98
 
+/**
+ * RIL_REQUEST_EXIT_EMERGENCY_CALLBACK_MODE
+ *
+ * Request the radio's system selection module to exit emergency
+ * callback mode.  RIL will not respond with SUCCESS until the modem has
+ * completely exited from Emergency Callback Mode.
+ *
+ * "data" is NULL
+ * 
+ * "response" is NULL
+ * 
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_EXIT_EMERGENCY_CALLBACK_MODE 99
 
 
 /***********************************************************************/
@@ -2667,11 +2917,7 @@ typedef struct {
  *
  * Radio may report signal strength rather han have it polled.
  *
- * "data" is an "int *"
- * ((int *)response)[0] is received signal strength (0-31, 99)
- * ((int *)response)[1] is bit error rate (0-7, 99)
- *  as defined in TS 27.007 8.5
- *  Other values (eg -1) are not legal
+ * "data" is a const RIL_SignalStrength *
  */
 #define RIL_UNSOL_SIGNAL_STRENGTH  1009
 
@@ -2781,7 +3027,7 @@ typedef struct {
  *
  * Ring indication for an incoming call (eg, RING or CRING event).
  *
- * "data" is null
+ * "data" is const RIL_CDMA_SignalInfoRecord *
  */
 #define RIL_UNSOL_CALL_RING 1018
 
@@ -2847,7 +3093,49 @@ typedef struct {
  */
 #define RIL_UNSOL_RESTRICTED_STATE_CHANGED 1023
 
+/**
+ * RIL_UNSOL_ENTER_EMERGENCY_CALLBACK_MODE
+ *
+ * Indicates that the radio system selection module has
+ * autonomously entered emergency callback mode.
+ *
+ * "data" is null
+ *
+ */
+#define RIL_UNSOL_ENTER_EMERGENCY_CALLBACK_MODE 1024
 
+/**
+ * RIL_UNSOL_CDMA_CALL_WAITING
+ *
+ * Called when CDMA radio receives a call waiting indication.
+ *
+ * "data" is const RIL_CDMA_CallWaiting *
+ * 
+ */
+#define RIL_UNSOL_CDMA_CALL_WAITING 1025
+
+/**
+ * RIL_UNSOL_CDMA_OTA_PROVISION_STATUS
+ *
+ * Called when CDMA radio receives an update of the progress of an
+ * OTASP/OTAPA call.
+ *
+ * "data" is const int *
+ *  For CDMA this is an integer OTASP/OTAPA status listed in
+ *  RIL_CDMA_OTA_ProvisionStatus.
+ *
+ */
+#define RIL_UNSOL_CDMA_OTA_PROVISION_STATUS 1026
+
+/**
+ * RIL_UNSOL_CDMA_INFO_REC
+ *
+ * Called when CDMA radio receives one or more info recs.
+ *
+ * "data" is const RIL_CDMA_InformationRecords *
+ *
+ */
+#define RIL_UNSOL_CDMA_INFO_REC 1027
 
 /***********************************************************************/
 
