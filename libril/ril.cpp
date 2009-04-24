@@ -970,33 +970,44 @@ dispatchCdmaBrSmsCnf(Parcel &p, RequestInfo *pRI) {
     status_t status;
     int32_t digitCount;
 
-    memset(&rcbsc, 0, sizeof(rcbsc));
-
     status = p.readInt32(&t);
     rcbsc.size = (int) t;
 
-    status = p.readInt32(&t);
-    rcbsc.entries->uServiceCategory = (int) t;
+    LOGE("RIL_CPP: dispatchCdmaBrSmsCnf(), isize=%d", rcbsc.size);
 
-    status = p.readInt32(&t);
-    rcbsc.entries->uLanguage = (int) t;
+    if (rcbsc.size != 0) {
+        RIL_CDMA_BroadcastServiceInfo cdmaBsi[rcbsc.size];
+        for (int i = 0 ; i < rcbsc.size ; i++ ) {
+            status = p.readInt32(&t);
+            cdmaBsi[i].uServiceCategory = (int) t;
 
-    status = p.read(&ut, sizeof(ut));
-    rcbsc.entries->bSelected = (uint8_t) ut;
+            status = p.readInt32(&t);
+            cdmaBsi[i].uLanguage = (int) t;
+
+            status = p.readInt32(&t);
+            cdmaBsi[i].bSelected = (uint8_t) t;
+
+            startRequest;
+            appendPrintBuf("%sentries.uServicecategory=%d, entries.uLanguage =%d, \
+                entries.bSelected =%d, ", printBuf, cdmaBsi[i].uServiceCategory,
+                cdmaBsi[i].uLanguage, cdmaBsi[i].bSelected);
+            closeRequest;
+        }
+        rcbsc.entries = (RIL_CDMA_BroadcastServiceInfo *)calloc(rcbsc.size,
+                sizeof(RIL_CDMA_BroadcastServiceInfo));
+        memcpy(rcbsc.entries, cdmaBsi, (sizeof(RIL_CDMA_BroadcastServiceInfo) * rcbsc.size));
+    } else {
+        rcbsc.entries = NULL;
+    }
 
     if (status != NO_ERROR) {
         goto invalid;
     }
 
-    startRequest;
-    appendPrintBuf("%ssize=%d, entries.uServicecategory=%d, \
-            entries.uLanguage =%d, entries.bSelected =%d, ", printBuf, rcbsc.size,
-            rcbsc.entries->uServiceCategory,rcbsc.entries->uLanguage, rcbsc.entries->bSelected);
-    closeRequest;
-
-    printRequest(pRI->token, pRI->pCI->requestNumber);
-
-    s_callbacks.onRequest(pRI->pCI->requestNumber, &rcbsc, sizeof(rcbsc),pRI);
+    s_callbacks.onRequest(pRI->pCI->requestNumber,
+                          &rcbsc,
+                          (sizeof(RIL_CDMA_BroadcastServiceInfo) * rcbsc.size) + sizeof(int),
+                          pRI);
 
 #ifdef MEMSET_FREED
     memset(&rcbsc, 0, sizeof(rcbsc));
@@ -1643,9 +1654,9 @@ static int responseBrSmsCnf(Parcel &p, void *response, size_t responselen) {
         return RIL_ERRNO_INVALID_RESPONSE;
     }
 
-    if (responselen % sizeof(RIL_BroadcastSMSConfig *) != 0) {
+    if (responselen % sizeof(RIL_BroadcastSMSConfig) != 0) {
         LOGE("invalid response length %d expected multiple of %d", 
-                (int)responselen, (int)sizeof(RIL_BroadcastSMSConfig *));
+                (int)responselen, (int)sizeof(RIL_BroadcastSMSConfig));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
 
@@ -1670,34 +1681,47 @@ static int responseBrSmsCnf(Parcel &p, void *response, size_t responselen) {
 }
 
 static int responseCdmaBrCnf(Parcel &p, void *response, size_t responselen) {
-    int num;
+    int numServiceCategories;
 
     if (response == NULL && responselen != 0) {
         LOGE("invalid response: NULL");
         return RIL_ERRNO_INVALID_RESPONSE;
     }
 
-    if (responselen % sizeof(RIL_CDMA_BroadcastSMSConfig*) != 0) {
-        LOGE("invalid response length %d expected multiple of %d", 
-                (int)responselen, (int)sizeof(RIL_CDMA_BroadcastSMSConfig *));
+    if (responselen == 0) {
+        LOGE("invalid response length %d expected >= of %d",
+                (int)responselen, (int)sizeof(RIL_BroadcastSMSConfig));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
 
-    /* number of call info's */
-    num = responselen / sizeof(RIL_CDMA_BroadcastSMSConfig *);
-    p.writeInt32(num);
+    RIL_CDMA_BroadcastSMSConfig *p_cur = (RIL_CDMA_BroadcastSMSConfig *) response;
 
-    RIL_CDMA_BroadcastSMSConfig *p_cur = (RIL_CDMA_BroadcastSMSConfig * ) response;
+    numServiceCategories = p_cur->size;
     p.writeInt32(p_cur->size);
-    p.writeInt32(p_cur->entries->uServiceCategory);
-    p.writeInt32(p_cur->entries->uLanguage);
-    p.write(&(p_cur->entries->bSelected),sizeof(p_cur->entries->bSelected));
 
     startResponse;
-    appendPrintBuf("%ssize=%d, entries.uServicecategory=%d, entries.uLanguage =%d, \
-            entries.bSelected =%d, ", printBuf,p_cur->size, p_cur->entries->uServiceCategory,
-            p_cur->entries->uLanguage, p_cur->entries->bSelected);
+    appendPrintBuf("%ssize=%d ", printBuf,p_cur->size);
     closeResponse;
+
+    if (numServiceCategories != 0) {
+        RIL_CDMA_BroadcastServiceInfo cdmaBsi[numServiceCategories];
+        memcpy(cdmaBsi, p_cur->entries,
+                 sizeof(RIL_CDMA_BroadcastServiceInfo) * numServiceCategories);
+
+        for (int i = 0 ; i < numServiceCategories ; i++ ) {
+            p.writeInt32(cdmaBsi[i].uServiceCategory);
+            p.writeInt32(cdmaBsi[i].uLanguage);
+            p.writeInt32(cdmaBsi[i].bSelected);
+
+            startResponse;
+            appendPrintBuf("%sentries[%d].uServicecategory=%d, entries[%d].uLanguage =%d, \
+                entries[%d].bSelected =%d, ", printBuf, i, cdmaBsi[i].uServiceCategory, i,
+                cdmaBsi[i].uLanguage, i, cdmaBsi[i].bSelected);
+            closeResponse;
+        }
+    } else {
+        p.writeInt32(NULL);
+    }
 
     return 0;
 }
@@ -1709,14 +1733,16 @@ static int responseCdmaSms(Parcel &p, void *response, size_t responselen) {
     uint8_t uct;
     void* dest;
 
+    LOGD("Inside responseCdmaSms");
+
     if (response == NULL && responselen != 0) {
         LOGE("invalid response: NULL");
         return RIL_ERRNO_INVALID_RESPONSE;
     }
 
-    if (responselen != sizeof(RIL_CDMA_SMS_Message*)) {
+    if (responselen != sizeof(RIL_CDMA_SMS_Message)) {
         LOGE("invalid response length was %d expected %d",
-                (int)responselen, (int)sizeof(RIL_CDMA_SMS_Message *));
+                (int)responselen, (int)sizeof(RIL_CDMA_SMS_Message));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
 

@@ -100,14 +100,14 @@
     {RIL_REQUEST_CDMA_QUERY_PREFERRED_VOICE_PRIVACY_MODE, dispatchVoid, responseInts},
     {RIL_REQUEST_CDMA_FLASH, dispatchString, responseVoid},
     {RIL_REQUEST_CDMA_BURST_DTMF, dispatchString, responseVoid},
-    {RIL_REQUEST_CDMA_SEND_SMS, dispatchCdmaSms, responseVoid}, //new DISPATCH function
+    {RIL_REQUEST_CDMA_VALIDATE_AKEY, dispatchString, responseVoid},
+    {RIL_REQUEST_CDMA_SEND_SMS, dispatchCdmaSms, responseSMS}, //new DISPATCH function
     {RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE, dispatchCdmaSmsAck, responseVoid}, //new DISPATCH function
     {RIL_REQUEST_GET_BROADCAST_CONFIG, dispatchVoid, responseBrSmsCnf}, //new RESPONSE function
     {RIL_REQUEST_SET_BROADCAST_CONFIG, dispatchBrSmsCnf, responseVoid}, //new DISPATCH function
+    {RIL_REQUEST_BROADCAST_ACTIVATION, dispatchInts, responseVoid},
     {RIL_REQUEST_CDMA_GET_BROADCAST_CONFIG, dispatchVoid, responseCdmaBrCnf}, //new RESPONSE function
     {RIL_REQUEST_CDMA_SET_BROADCAST_CONFIG, dispatchCdmaBrSmsCnf, responseVoid}, //new DISPATCH unction
-    {RIL_REQUEST_BROADCAST_ACTIVATION, dispatchInts, responseVoid},
-    {RIL_REQUEST_CDMA_VALIDATE_AKEY, dispatchString, responseVoid},
     {RIL_REQUEST_CDMA_BROADCAST_ACTIVATION, dispatchInts, responseVoid},
     {RIL_REQUEST_CDMA_SUBSCRIPTION, dispatchVoid, responseStrings},//Assumption Made here to use DispatchVoid!
     {RIL_REQUEST_CDMA_WRITE_SMS_TO_RUIM, dispatchRilCdmaSmsWriteArgs, responseInts}, //new DISPATCH function
