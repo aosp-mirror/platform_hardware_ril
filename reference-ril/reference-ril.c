@@ -63,6 +63,8 @@ static void onCancel (RIL_Token t);
 static const char *getVersion();
 static int isRadioOn();
 static int getSIMStatus();
+static int getCardStatus(RIL_CardStatus **pp_card_status);
+static void freeCardStatus(RIL_CardStatus *p_card_status);
 static void onDataCallListChanged(void *param);
 
 extern const char * requestToString(int request);
@@ -1224,11 +1226,20 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
 
     switch (request) {
         case RIL_REQUEST_GET_SIM_STATUS: {
-            int simStatus;
+            RIL_CardStatus *p_card_status;
+            char *p_buffer;
+            int buffer_size;
 
-            simStatus = getSIMStatus();
-
-            RIL_onRequestComplete(t, RIL_E_SUCCESS, &simStatus, sizeof(simStatus));
+            int result = getCardStatus(&p_card_status);
+            if (result == RIL_E_SUCCESS) {
+                p_buffer = (char *)p_card_status;
+                buffer_size = sizeof(*p_card_status);
+            } else {
+                p_buffer = NULL;
+                buffer_size = 0;
+            }
+            RIL_onRequestComplete(t, result, p_buffer, buffer_size);
+            freeCardStatus(p_card_status);
             break;
         }
         case RIL_REQUEST_GET_CURRENT_CALLS:
@@ -1627,6 +1638,81 @@ done:
     return ret;
 }
 
+
+/**
+ * Get the current card status.
+ *
+ * This must be freed using freeCardStatus.
+ * @return: On success returns RIL_E_SUCCESS
+ */
+static int getCardStatus(RIL_CardStatus **pp_card_status) {
+    static RIL_AppStatus app_status_array[] = {
+        // RIL_SIM_ABSENT = 0
+        { RIL_APPTYPE_UNKNOWN, RIL_APPSTATE_UNKNOWN, RIL_PERSOSUBSTATE_UNKNOWN,
+          NULL, NULL, 0, RIL_PINSTATE_UNKNOWN, RIL_PINSTATE_UNKNOWN },
+        // RIL_SIM_NOT_READY = 1
+        { RIL_APPTYPE_SIM, RIL_APPSTATE_DETECTED, RIL_PERSOSUBSTATE_UNKNOWN,
+          NULL, NULL, 0, RIL_PINSTATE_UNKNOWN, RIL_PINSTATE_UNKNOWN },
+        // RIL_SIM_READY = 2
+        { RIL_APPTYPE_SIM, RIL_APPSTATE_READY, RIL_PERSOSUBSTATE_READY,
+          NULL, NULL, 0, RIL_PINSTATE_UNKNOWN, RIL_PINSTATE_UNKNOWN },
+        // RIL_SIM_PIN = 3
+        { RIL_APPTYPE_SIM, RIL_APPSTATE_PIN, RIL_PERSOSUBSTATE_UNKNOWN,
+          NULL, NULL, 0, RIL_PINSTATE_ENABLED_NOT_VERIFIED, RIL_PINSTATE_UNKNOWN },
+        // RIL_SIM_PUK = 4
+        { RIL_APPTYPE_SIM, RIL_APPSTATE_PUK, RIL_PERSOSUBSTATE_UNKNOWN,
+          NULL, NULL, 0, RIL_PINSTATE_ENABLED_BLOCKED, RIL_PINSTATE_UNKNOWN },
+        // RIL_SIM_NETWORK_PERSONALIZATION = 5
+        { RIL_APPTYPE_SIM, RIL_APPSTATE_SUBSCRIPTION_PERSO, RIL_PERSOSUBSTATE_SIM_NETWORK,
+          NULL, NULL, 0, RIL_PINSTATE_ENABLED_NOT_VERIFIED, RIL_PINSTATE_UNKNOWN }
+    };
+    RIL_CardState card_state;
+    int num_apps;
+
+    int sim_status = getSIMStatus();
+    if (sim_status == RIL_SIM_ABSENT) {
+        card_state = RIL_CARDSTATE_ABSENT;
+        num_apps = 0;
+    } else {
+        card_state = RIL_CARDSTATE_PRESENT;
+        num_apps = 1;
+    }
+
+    // Allocate and initialize base card status.
+    RIL_CardStatus *p_card_status = malloc(sizeof(RIL_CardStatus));
+    p_card_status->card_state = card_state;
+    p_card_status->universal_pin_state = RIL_PINSTATE_UNKNOWN;
+    p_card_status->gsm_umts_subscription_app_index = RIL_CARD_MAX_APPS;
+    p_card_status->cdma_subscription_app_index = RIL_CARD_MAX_APPS;
+    p_card_status->num_applications = num_apps;
+
+    // Initialize application status
+    int i;
+    for (i = 0; i < RIL_CARD_MAX_APPS; i++) {
+        p_card_status->applications[i] = app_status_array[RIL_SIM_ABSENT];
+    }
+
+    // Pickup the appropriate application status
+    // that reflects sim_status for gsm.
+    if (num_apps != 0) {
+        // Only support one app, gsm
+        p_card_status->num_applications = 1;
+        p_card_status->gsm_umts_subscription_app_index = 0;
+
+        // Get the correct app status
+        p_card_status->applications[0] = app_status_array[sim_status];
+    }
+
+    *pp_card_status = p_card_status;
+    return RIL_E_SUCCESS;
+}
+
+/**
+ * Free the card status returned by getCardStatus
+ */
+static void freeCardStatus(RIL_CardStatus *p_card_status) {
+    free(p_card_status);
+}
 
 /**
  * SIM ready means any commands that access the SIM will work, including:
