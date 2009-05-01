@@ -3137,6 +3137,15 @@ typedef struct {
  */
 #define RIL_UNSOL_CDMA_INFO_REC 1027
 
+/**
+ * RIL_UNSOL_OEM_HOOK_RAW
+ *
+ * This is for OEM specific use.
+ *
+ * "data" is a byte[]
+ */
+#define RIL_UNSOL_OEM_HOOK_RAW 1028
+
 /***********************************************************************/
 
 
