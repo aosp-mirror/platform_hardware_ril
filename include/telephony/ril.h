@@ -2762,6 +2762,40 @@ typedef struct {
  */
 #define RIL_REQUEST_EXIT_EMERGENCY_CALLBACK_MODE 99
 
+/**
+ * RIL_REQUEST_GET_SMSC_ADDRESS
+ *
+ * Queries the default Short Message Service Center address on the device.
+ *
+ * "data" is NULL
+ *
+ * "response" is const char * containing the SMSC address.
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_GET_SMSC_ADDRESS 100
+
+/**
+ * RIL_REQUEST_SET_SMSC_ADDRESS
+ *
+ * Sets the default Short Message Service Center address on the device.
+ *
+ * "data" is const char * containing the SMSC address.
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_SET_SMSC_ADDRESS 101
+
 
 /***********************************************************************/
 
