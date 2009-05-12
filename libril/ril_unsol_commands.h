@@ -38,7 +38,8 @@
     {RIL_UNSOL_RESPONSE_NEW_BROADCAST_SMS, responseString, WAKE_PARTIAL},
     {RIL_UNSOL_CDMA_RUIM_SMS_STORAGE_FULL, responseVoid, WAKE_PARTIAL},
     {RIL_UNSOL_RESTRICTED_STATE_CHANGED, responseInts, WAKE_PARTIAL},
-    // TODO(): The following 4 CDMA commands need to be implemented
+    // TODO(): Need to update the response func for the following 4 commands,
+    // once they've been implemented.
     {RIL_UNSOL_ENTER_EMERGENCY_CALLBACK_MODE, responseVoid, WAKE_PARTIAL},
     {RIL_UNSOL_CDMA_CALL_WAITING, responseVoid, WAKE_PARTIAL},
     {RIL_UNSOL_CDMA_OTA_PROVISION_STATUS, responseInts, WAKE_PARTIAL},
