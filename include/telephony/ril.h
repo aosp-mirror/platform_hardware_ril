@@ -153,7 +153,8 @@ typedef struct {
                     /*      1 = "REC READ"      */
                     /*      2 = "STO UNSENT"    */
                     /*      3 = "STO SENT"      */
-    char * pdu;     /* PDU of message to write, as a hex string. */
+    char * pdu;     /* PDU of message to write, as an ASCII hex string less the SMSC address,
+                       the TP-layer length is "strlen(pdu)/2". */
     char * smsc;    /* SMSC address in GSM BCD format prefixed by a length byte
                        (as expected by TS 27.005) or NULL for default SMSC */
 } RIL_SMS_WriteArgs;
@@ -1453,7 +1454,7 @@ typedef struct {
  *
  * Get the device IMEI, including check digit
  *
- * The request is DECRECATED, use RIL_REQUEST_DEVICE_IDENTITY
+ * The request is DEPRECATED, use RIL_REQUEST_DEVICE_IDENTITY
  * Valid when RadioState is not RADIO_STATE_UNAVAILABLE
  *
  * "data" is NULL
@@ -1472,7 +1473,7 @@ typedef struct {
  *
  * Get the device IMEISV, which should be two decimal digits
  *
- * The request is DECRECATED, use RIL_REQUEST_DEVICE_IDENTITY
+ * The request is DEPRECATED, use RIL_REQUEST_DEVICE_IDENTITY
  * Valid when RadioState is not RADIO_STATE_UNAVAILABLE
  *
  * "data" is NULL
@@ -1883,22 +1884,22 @@ typedef struct {
 #define RIL_REQUEST_DATA_CALL_LIST 57
 
 /**
- * RIL_REQUEST_RESET_RADIO
+ * RIL_REQUEST_RESET_RADIO - DEPRECATED
  *
  * Request a radio reset. The RIL implementation may postpone
  * the reset until after this request is responded to if the baseband
  * is presently busy.
  *
+ * The request is DEPRECATED, use RIL_REQUEST_RADIO_POWER
+ *
  * "data" is NULL
  * "response" is NULL
- *
- * The reset action could be delayed for a while
- * in case baseband modem is just busy.
  *
  * Valid errors:
  *  SUCCESS 
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
+ *  REQUEST_NOT_SUPPORTED
  */
 
 #define RIL_REQUEST_RESET_RADIO 58
