@@ -135,7 +135,7 @@ typedef struct RequestInfo {
     char local;         // responses to local commands do not go back to command process
 } RequestInfo;
 
-typedef struct UserCallbackInfo{
+typedef struct UserCallbackInfo {
     RIL_TimedCallback p_callback;
     void *userParam;
     struct ril_event event;
@@ -223,6 +223,11 @@ static int responseBrSmsCnf(Parcel &p, void *response, size_t responselen);
 static int responseCdmaBrCnf(Parcel &p, void *response, size_t responselen);
 static int responseCdmaSms(Parcel &p, void *response, size_t responselen);
 static int responseCellList(Parcel &p, void *response, size_t responselen);
+static int responseCdmaInformationRecords(Parcel &p,void *response, size_t responselen);
+static int responseRilSignalStrength(Parcel &p,void *response, size_t responselen);
+static int responseCallRing(Parcel &p, void *response, size_t responselen);
+static int responseCdmaSignalInfoRecord(Parcel &p,void *response, size_t responselen);
+static int responseCdmaCallWaiting(Parcel &p,void *response, size_t responselen);
 
 extern "C" const char * requestToString(int request);
 extern "C" const char * failCauseToString(RIL_Errno);
@@ -973,8 +978,6 @@ dispatchCdmaBrSmsCnf(Parcel &p, RequestInfo *pRI) {
     status = p.readInt32(&t);
     rcbsc.size = (int) t;
 
-    LOGE("RIL_CPP: dispatchCdmaBrSmsCnf(), isize=%d", rcbsc.size);
-
     if (rcbsc.size != 0) {
         RIL_CDMA_BroadcastServiceInfo cdmaBsi[rcbsc.size];
         for (int i = 0 ; i < rcbsc.size ; i++ ) {
@@ -1287,7 +1290,7 @@ static int responseCallList(Parcel &p, void *response, size_t responselen) {
     }
 
     if (responselen % sizeof (RIL_Call *) != 0) {
-        LOGE("invalid response length %d expected multiple of %d\n", 
+        LOGE("invalid response length %d expected multiple of %d\n",
             (int)responselen, (int)sizeof (RIL_Call *));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
@@ -1315,16 +1318,20 @@ static int responseCallList(Parcel &p, void *response, size_t responselen) {
         p.writeInt32(p_cur->numberPresentation);
         writeStringToParcel(p, p_cur->name);
         p.writeInt32(p_cur->namePresentation);
-        appendPrintBuf("%s[id=%d,%s,toa=%d,%s,%s,als=%d,%s,%s,%s,cli=%d,name='%s',%d],",
+        appendPrintBuf("%s[id=%d,%s,toa=%d,",
             printBuf,
             p_cur->index,
             callStateToString(p_cur->state),
-            p_cur->toa,
+            p_cur->toa);
+        appendPrintBuf("%s%s,%s,als=%d,%s,%s,",
+            printBuf,
             (p_cur->isMpty)?"conf":"norm",
             (p_cur->isMT)?"mt":"mo",
             p_cur->als,
             (p_cur->isVoice)?"voc":"nonvoc",
-            (p_cur->isVoicePrivacy)?"evp":"noevp",
+            (p_cur->isVoicePrivacy)?"evp":"noevp");
+        appendPrintBuf("%s%s,cli=%d,name='%s',%d]",
+            printBuf,
             p_cur->number,
             p_cur->numberPresentation,
             p_cur->name,
@@ -1345,20 +1352,21 @@ static int responseCallList(Parcel &p, void *response, size_t responselen) {
         p.writeInt32(p_cur->numberPresentation);
         writeStringToParcel (p, "a-person");
         p.writeInt32(2); // p_cur->namePresentation);
-        appendPrintBuf("%s[id=%d,%s,toa=%d,%s,%s,als=%d,%s,%s,%s,cli=%d,name='%s',%d],",
+        appendPrintBuf("%s[id=%d,%s,toa=%d,",
             printBuf,
             p_cur->index,
             callStateToString(p_cur->state),
-            p_cur->toa,
+            p_cur->toa);
+        appendPrintBuf("%s%s,%s,als=%d,%s,%s,",
+            printBuf,
             (p_cur->isMpty)?"conf":"norm",
             (p_cur->isMT)?"mt":"mo",
             p_cur->als,
-            (p_cur->isVoice)?"voc":"nonvoc",
-            (p_cur->isVoicePrivacy)?"evp":"noevp",
+            (p_cur->isVoice)?"voc":"nonvoc");
+        appendPrintBuf("%s%s,cli=%d]",
+            printBuf,
             p_cur->number,
-            p_cur->numberPresentation,
-            p_cur->name,
-            p_cur->namePresentation);
+            p_cur->numberPresentation);
 #endif
     }
     removeLastChar;
@@ -1543,8 +1551,7 @@ static int responseSsn(Parcel &p, void *response, size_t responselen) {
     return 0;
 }
 
-static int responseCellList(Parcel &p, void *response, size_t responselen)
-{
+static int responseCellList(Parcel &p, void *response, size_t responselen) {
     int num;
 
     if (response == NULL && responselen != 0) {
@@ -1559,14 +1566,13 @@ static int responseCellList(Parcel &p, void *response, size_t responselen)
     }
 
     startResponse;
-    /* number of cell info's */
+    /* number of records */
     num = responselen / sizeof(RIL_NeighboringCell *);
     p.writeInt32(num);
 
     for (int i = 0 ; i < num ; i++) {
         RIL_NeighboringCell *p_cur = ((RIL_NeighboringCell **) response)[i];
 
-        /* each cell info */
         p.writeInt32(p_cur->rssi);
         writeStringToParcel (p, p_cur->cid);
 
@@ -1579,8 +1585,317 @@ static int responseCellList(Parcel &p, void *response, size_t responselen)
     return 0;
 }
 
-static void triggerEvLoop()
-{
+/**
+ * Marshall the signalInfoRecord into the parcel if it exists.
+ */
+static void marshallSignalInfoRecord(Parcel &p, RIL_CDMA_SignalInfoRecord &p_signalInfoRecord) {
+    p.writeInt32(p_signalInfoRecord.isPresent);
+    p.writeInt32(p_signalInfoRecord.signalType);
+    p.writeInt32(p_signalInfoRecord.alertPitch);
+    p.writeInt32(p_signalInfoRecord.signal);
+}
+
+static int responseCdmaInformationRecords(Parcel &p,void *response, size_t responselen) {
+    int num;
+    int digitCount;
+    int digitLimit;
+
+    if (response == NULL && responselen != 0) {
+        LOGE("invalid response: NULL");
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    if (responselen != sizeof(RIL_CDMA_InformationRecords)) {
+        LOGE("invalid response length %d expected %d\n",
+            (int)responselen, (int)sizeof (RIL_CDMA_InformationRecords));
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+
+    /* TODO(Teleca): Wink believes this should be deleted? */
+//    num = responselen / sizeof(RIL_CDMA_InformationRecords *);
+//    p.writeInt32(num);
+
+    RIL_CDMA_InformationRecords *p_cur = ((RIL_CDMA_InformationRecords *) response);
+
+    /* Number of records */
+    p.writeInt32(p_cur->numberOfInfoRecs);
+
+    startResponse;
+
+    digitLimit = MIN((p_cur->numberOfInfoRecs),RIL_CDMA_MAX_NUMBER_OF_INFO_RECS);
+    for (digitCount = 0 ; digitCount < digitLimit; digitCount ++) {
+        switch(p_cur->infoRec[digitCount].name){
+            case RIL_CDMA_DISPLAY_INFO_REC:
+                p.writeInt32(p_cur->infoRec[digitCount].rec.display.alpha_len);
+                for(int i =0;i<(int)(p_cur->infoRec[digitCount].rec.display.alpha_len);i++){
+                    p.writeInt32(p_cur->infoRec[digitCount].rec.display.alpha_buf[i]);
+                }
+                appendPrintBuf("%s[rec.display.alpha_len%c, rec.display.alpha_buf%s],",
+                        printBuf,
+                    p_cur->infoRec[digitCount].rec.display.alpha_len,
+                    p_cur->infoRec[digitCount].rec.display.alpha_buf);
+                break;
+            case RIL_CDMA_CALLED_PARTY_NUMBER_INFO_REC:
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.len);
+                for(int i =0;i<(int)(p_cur->infoRec[digitCount].rec.number.len);i++){
+                    p.writeInt32(p_cur->infoRec[digitCount].rec.number.buf[i]);
+                }
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.number_type);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.number_plan);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.pi);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.si);
+                appendPrintBuf("%s[len=%c,buf=%s,number_type=%c,number_plan=%c,",
+                        printBuf,
+                        p_cur->infoRec[digitCount].rec.number.len,
+                        p_cur->infoRec[digitCount].rec.number.buf,
+                        p_cur->infoRec[digitCount].rec.number.number_type,
+                        p_cur->infoRec[digitCount].rec.number.number_plan);
+                appendPrintBuf("%spi=%c,si=%c]",
+                        printBuf,
+                        p_cur->infoRec[digitCount].rec.number.pi,
+                        p_cur->infoRec[digitCount].rec.number.si);
+                break;
+            case RIL_CDMA_CALLING_PARTY_NUMBER_INFO_REC:
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.len);
+                for (int i =0;i<(int)(p_cur->infoRec[digitCount].rec.number.len);i++) {
+                    p.writeInt32(p_cur->infoRec[digitCount].rec.number.buf[i]);
+                }
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.number_type);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.number_plan);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.pi);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.si);
+                appendPrintBuf("%s[len=%c,buf=%s,number_type=%c,number_plan=%c,",
+                        printBuf,
+                        p_cur->infoRec[digitCount].rec.number.len,
+                        p_cur->infoRec[digitCount].rec.number.buf,
+                        p_cur->infoRec[digitCount].rec.number.number_type,
+                        p_cur->infoRec[digitCount].rec.number.number_plan);
+                appendPrintBuf("%spi=%c,si=%c]",
+                        printBuf,
+                        p_cur->infoRec[digitCount].rec.number.pi,
+                        p_cur->infoRec[digitCount].rec.number.si);
+                break;
+            case RIL_CDMA_CONNECTED_NUMBER_INFO_REC:
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.len);
+                for(int i =0;i<(int)(p_cur->infoRec[digitCount].rec.number.len);i++){
+                    p.writeInt32(p_cur->infoRec[digitCount].rec.number.buf[i]);
+                }
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.number_type);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.number_plan);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.pi);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.number.si);
+                appendPrintBuf("%s[len=%c,buf=%s,number_type=%c,number_plan=%c,",
+                        printBuf,
+                        p_cur->infoRec[digitCount].rec.number.len,
+                        p_cur->infoRec[digitCount].rec.number.buf,
+                        p_cur->infoRec[digitCount].rec.number.number_type,
+                        p_cur->infoRec[digitCount].rec.number.number_plan);
+                appendPrintBuf("%spi=%c,si=%c]",
+                        printBuf,
+                        p_cur->infoRec[digitCount].rec.number.pi,
+                        p_cur->infoRec[digitCount].rec.number.si);
+                break;
+            case RIL_CDMA_SIGNAL_INFO_REC:
+                marshallSignalInfoRecord(p, p_cur->infoRec[digitCount].rec.signal);
+                appendPrintBuf("%s[isPresent=%c,signalType=%c,alertPitch=%c,signal=%c]",
+                        printBuf,
+                        p_cur->infoRec[digitCount].rec.signal.isPresent,
+                        p_cur->infoRec[digitCount].rec.signal.signalType,
+                        p_cur->infoRec[digitCount].rec.signal.alertPitch,
+                        p_cur->infoRec[digitCount].rec.signal.signal);
+                break;
+            case RIL_CDMA_REDIRECTING_NUMBER_INFO_REC:
+                p.writeInt32(p_cur->infoRec[digitCount].rec.redir.redirectingNumber.len);
+                for (int i =0;\
+                        i<(int)(p_cur->infoRec[digitCount].rec.redir.redirectingNumber.len);i++){
+                p.writeInt32(p_cur->infoRec[digitCount].rec.redir.redirectingNumber.buf[i]);
+                }
+                p.writeInt32(p_cur->infoRec[digitCount].rec.redir.redirectingNumber.number_type);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.redir.redirectingNumber.number_plan);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.redir.redirectingNumber.pi);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.redir.redirectingNumber.si);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.redir.redirectingReason);
+                appendPrintBuf("%s[len=%c,buf=%s,number_type=%c,number_plan=%c,",
+                        printBuf,
+                        p_cur->infoRec[digitCount].rec.number.len,
+                        p_cur->infoRec[digitCount].rec.number.buf,
+                        p_cur->infoRec[digitCount].rec.number.number_type,
+                        p_cur->infoRec[digitCount].rec.number.number_plan);
+                appendPrintBuf("%spi=%c,si=%c]",
+                        printBuf,
+                        p_cur->infoRec[digitCount].rec.number.pi,
+                        p_cur->infoRec[digitCount].rec.number.si);
+                break;
+            case RIL_CDMA_LINE_CONTROL_INFO_REC:
+                p.writeInt32(p_cur->infoRec[digitCount].rec.lineCtrl.lineCtrlPolarityIncluded);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.lineCtrl.lineCtrlToggle);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.lineCtrl.lineCtrlReverse);
+                p.writeInt32( p_cur->infoRec[digitCount].rec.lineCtrl.lineCtrlPowerDenial);
+                appendPrintBuf("%s[PolarityIncluded=%c,CtrlToggle=%c,CtrlReverse=%c,\
+                        CtrlPowerDenial=%c]",
+                        printBuf,
+                        p_cur->infoRec[digitCount].rec.lineCtrl.lineCtrlPolarityIncluded,
+                        p_cur->infoRec[digitCount].rec.lineCtrl.lineCtrlToggle,
+                        p_cur->infoRec[digitCount].rec.lineCtrl.lineCtrlReverse,
+                        p_cur->infoRec[digitCount].rec.lineCtrl.lineCtrlPowerDenial);
+                break;
+            case RIL_CDMA_EXTENDED_DISPLAY_INFO_REC:
+                break;
+            case RIL_CDMA_T53_CLIR_INFO_REC:
+                p.writeInt32(p_cur->infoRec[digitCount].rec.clir.cause);
+                appendPrintBuf("%s[cause=%c]",printBuf,p_cur->infoRec[digitCount].rec.clir.cause);
+                break;
+
+            case RIL_CDMA_T53_RELEASE_INFO_REC:
+                break;
+            case RIL_CDMA_T53_AUDIO_CONTROL_INFO_REC:
+                p.writeInt32(p_cur->infoRec[digitCount].rec.audioCtrl.upLink);
+                p.writeInt32(p_cur->infoRec[digitCount].rec.audioCtrl.downLink);
+                appendPrintBuf("%s[uplink=%c,downlink=%c]",
+                        printBuf,p_cur->infoRec[digitCount].rec.audioCtrl.upLink,
+                        p_cur->infoRec[digitCount].rec.audioCtrl.downLink);
+                 break;
+            default:
+                LOGE ("Invalid request");
+                break;
+        }
+    }
+
+
+   closeResponse;
+
+  return 0;
+}
+
+static int responseRilSignalStrength(Parcel &p, void *response, size_t responselen) {
+     if (response == NULL && responselen != 0) {
+        LOGE("invalid response: NULL");
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    if ((responselen != sizeof (RIL_SignalStrength))
+         && (responselen % sizeof (void *) == 0)) {
+        // Old RIL deprecated
+        RIL_GW_SignalStrength *p_cur = ((RIL_GW_SignalStrength *) response);
+
+        p.writeInt32(7);
+        p.writeInt32(p_cur->signalStrength);
+        p.writeInt32(p_cur->bitErrorRate);
+        for (int i = 0; i < 5; i++) {
+            p.writeInt32(0);
+        }
+    } else if (responselen == sizeof (RIL_SignalStrength)) {
+        // New RIL
+        RIL_SignalStrength *p_cur = ((RIL_SignalStrength *) response);
+
+        p.writeInt32(7);
+        p.writeInt32(p_cur->GW_SignalStrength.signalStrength);
+        p.writeInt32(p_cur->GW_SignalStrength.bitErrorRate);
+        p.writeInt32(p_cur->CDMA_SignalStrength.dbm);
+        p.writeInt32(p_cur->CDMA_SignalStrength.ecio);
+        p.writeInt32(p_cur->EVDO_SignalStrength.dbm);
+        p.writeInt32(p_cur->EVDO_SignalStrength.ecio);
+        p.writeInt32(p_cur->EVDO_SignalStrength.signalNoiseRatio);
+    } else {
+        LOGE("invalid response length");
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    startResponse;
+    appendPrintBuf("%s[signalStrength=%d,bitErrorRate=%d,\
+            CDMA_SignalStrength.dbm=%d,CDMA_SignalStrength.ecio=%d,\
+            EVDO_SignalStrength.dbm =%d,EVDO_SignalStrength.ecio=%d,\
+            EVDO_SignalStrength.signalNoiseRatio=%d]",
+            printBuf,
+            p_cur->GW_SignalStrength.signalStrength,
+            p_cur->GW_SignalStrength.bitErrorRate,
+            p_cur->CDMA_SignalStrength.dbm,
+            p_cur->CDMA_SignalStrength.ecio,
+            p_cur->EVDO_SignalStrength.dbm,
+            p_cur->EVDO_SignalStrength.ecio,
+            p_cur->EVDO_SignalStrength.signalNoiseRatio);
+
+    closeResponse;
+
+    return 0;
+}
+
+static int responseCallRing(Parcel &p, void *response, size_t responselen) {
+    if ((response == NULL) || (responselen == 0)) {
+        return responseVoid(p, response, responselen);
+    } else {
+        return responseCdmaSignalInfoRecord(p, response, responselen);
+    }
+}
+
+static int responseCdmaSignalInfoRecord(Parcel &p, void *response, size_t responselen) {
+    if (response == NULL || responselen == 0) {
+        LOGE("invalid response: NULL");
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    if (responselen != sizeof (RIL_CDMA_SignalInfoRecord)) {
+        LOGE("invalid response length %d expected sizeof (RIL_CDMA_SignalInfoRecord) of %d\n",
+            (int)responselen, (int)sizeof (RIL_CDMA_SignalInfoRecord));
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    startResponse;
+
+    RIL_CDMA_SignalInfoRecord *p_cur = ((RIL_CDMA_SignalInfoRecord *) response);
+    marshallSignalInfoRecord(p, *p_cur);
+
+    appendPrintBuf("%s[isPresent=%d,signalType=%d,alertPitch=%d\
+              signal=%d]",
+              printBuf,
+              p_cur->isPresent,
+              p_cur->signalType,
+              p_cur->alertPitch,
+              p_cur->signal);
+
+    closeResponse;
+    return 0;
+}
+
+static int responseCdmaCallWaiting(Parcel &p,void *response, size_t responselen) {
+    if (response == NULL && responselen != 0) {
+        LOGE("invalid response: NULL");
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    if (responselen != sizeof(RIL_CDMA_CallWaiting)) {
+        LOGE("invalid response length %d expected %d\n",
+            (int)responselen, (int)sizeof(RIL_CDMA_CallWaiting));
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    startResponse;
+    RIL_CDMA_CallWaiting *p_cur = ((RIL_CDMA_CallWaiting *) response);
+
+    writeStringToParcel (p, p_cur->number);
+    p.writeInt32(p_cur->numberPresentation);
+    writeStringToParcel (p, p_cur->name);
+    marshallSignalInfoRecord(p, p_cur->signalInfoRecord);
+
+    appendPrintBuf("%snumber=%s,numberPresentation=%d, name=%s,\
+            signalInfoRecord[isPresent=%d,signalType=%d,alertPitch=%d\
+            signal=%d]",
+            printBuf,
+            p_cur->number,
+            p_cur->numberPresentation,
+            p_cur->name,
+            p_cur->signalInfoRecord.isPresent,
+            p_cur->signalInfoRecord.signalType,
+            p_cur->signalInfoRecord.alertPitch,
+            p_cur->signalInfoRecord.signal);
+
+    closeResponse;
+
+    return 0;
+}
+
+static void triggerEvLoop() {
     int ret;
     if (!pthread_equal(pthread_self(), s_tid_dispatch)) {
         /* trigger event loop to wakeup. No reason to do this,
@@ -1591,8 +1906,7 @@ static void triggerEvLoop()
     }
 }
 
-static void rilEventAddWakeup(struct ril_event *ev)
-{
+static void rilEventAddWakeup(struct ril_event *ev) {
     ril_event_add(ev);
     triggerEvLoop();
 }
@@ -1606,7 +1920,7 @@ static int responseSimStatus(Parcel &p, void *response, size_t responselen) {
     }
 
     if (responselen % sizeof (RIL_CardStatus *) != 0) {
-        LOGE("invalid response length %d expected multiple of %d\n", 
+        LOGE("invalid response length %d expected multiple of %d\n",
             (int)responselen, (int)sizeof (RIL_CardStatus *));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
@@ -1644,7 +1958,7 @@ static int responseSimStatus(Parcel &p, void *response, size_t responselen) {
     closeResponse;
 
     return 0;
-} 
+}
 
 static int responseBrSmsCnf(Parcel &p, void *response, size_t responselen) {
     int num;
@@ -1655,7 +1969,7 @@ static int responseBrSmsCnf(Parcel &p, void *response, size_t responselen) {
     }
 
     if (responselen % sizeof(RIL_BroadcastSMSConfig) != 0) {
-        LOGE("invalid response length %d expected multiple of %d", 
+        LOGE("invalid response length %d expected multiple of %d",
                 (int)responselen, (int)sizeof(RIL_BroadcastSMSConfig));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
@@ -1669,7 +1983,7 @@ static int responseBrSmsCnf(Parcel &p, void *response, size_t responselen) {
     p.writeInt32(p_cur->entries->uFromServiceID);
     p.writeInt32(p_cur->entries->uToserviceID);
     p.write(&(p_cur->entries->bSelected),sizeof(p_cur->entries->bSelected));
-    
+
     startResponse;
     appendPrintBuf("%s size=%d, entries.uFromServiceID=%d, \
             entries.uToserviceID=%d, entries.bSelected =%d, ",
@@ -2529,7 +2843,6 @@ void RIL_onUnsolicitedResponse(int unsolResponse, void *data,
     return;
 
 error_exit:
-    // There was an error and we've got the wake lock so release it.
     if (shouldScheduleTimeout) {
         releaseWakeLock();
     }
@@ -2755,11 +3068,15 @@ requestToString(int request) {
         case RIL_UNSOL_SIM_REFRESH: return "UNSOL_SIM_REFRESH";
         case RIL_UNSOL_DATA_CALL_LIST_CHANGED: return "UNSOL_DATA_CALL_LIST_CHANGED";
         case RIL_UNSOL_CALL_RING: return "UNSOL_CALL_RING";
-        case RIL_UNSOL_RESTRICTED_STATE_CHANGED: return "UNSOL_RESTRICTED_STATE_CHANGED";
         case RIL_UNSOL_RESPONSE_SIM_STATUS_CHANGED: return "UNSOL_RESPONSE_SIM_STATUS_CHANGED";
         case RIL_UNSOL_RESPONSE_CDMA_NEW_SMS: return "UNSOL_NEW_CDMA_SMS";
         case RIL_UNSOL_RESPONSE_NEW_BROADCAST_SMS: return "UNSOL_NEW_BROADCAST_SMS";
         case RIL_UNSOL_CDMA_RUIM_SMS_STORAGE_FULL: return "UNSOL_CDMA_RUIM_SMS_STORAGE_FULL";
+        case RIL_UNSOL_RESTRICTED_STATE_CHANGED: return "UNSOL_RESTRICTED_STATE_CHANGED";
+        case RIL_UNSOL_ENTER_EMERGENCY_CALLBACK_MODE: return "UNSOL_ENTER_EMERGENCY_CALLBACK_MODE";
+        case RIL_UNSOL_CDMA_CALL_WAITING: return "UNSOL_CDMA_CALL_WAITING";
+        case RIL_UNSOL_CDMA_OTA_PROVISION_STATUS: return "UNSOL_CDMA_OTA_PROVISION_STATUS";
+        case RIL_UNSOL_CDMA_INFO_REC: return "UNSOL_CDMA_INFO_REC";
         case RIL_UNSOL_OEM_HOOK_RAW: return "UNSOL_OEM_HOOK_RAW";
         default: return "<unknown request>";
     }

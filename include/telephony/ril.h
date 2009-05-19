@@ -57,15 +57,13 @@ typedef enum {
                                                    call on a Class C GPRS device */
     RIL_E_OP_NOT_ALLOWED_BEFORE_REG_TO_NW = 9,  /* data ops are not allowed before device
                                                    registers in network */
-    RIL_E_SMS_SEND_FAIL_RETRY = 10,             /* fail to send sms and need retry */    
-    RIL_E_SIM_ABSENT = 11,                      /* fail to set the location where CDMA subscription 
-                                                   shall be retrieved because of SIM or RUIM 
+    RIL_E_SMS_SEND_FAIL_RETRY = 10,             /* fail to send sms and need retry */
+    RIL_E_SIM_ABSENT = 11,                      /* fail to set the location where CDMA subscription
+                                                   shall be retrieved because of SIM or RUIM
                                                    card absent */
-#ifdef FEATURE_MULTIMODE_ANDROID 
-    RIL_E_SUBSCRIPTION_NOT_AVAILABLE = 12,      /* fail to find CDMA subscription from specified 
+    RIL_E_SUBSCRIPTION_NOT_AVAILABLE = 12,      /* fail to find CDMA subscription from specified
                                                    location */
     RIL_E_MODE_NOT_SUPPORTED = 13               /* HW does not support preferred network type */
-#endif 
 } RIL_Errno;
 
 typedef enum {
@@ -206,14 +204,14 @@ typedef struct {
                                  * 4 = erasure
                                  */
 
-    int             reason;       /* from TS 27.007 7.11 "reason" */
-    int             serviceClass; /* From 27.007 +CCFC/+CLCK "class"
-                                     See table for Android mapping from
-                                     MMI service code
-                                     0 means user doesn't input class */
-    int             toa;          /* "type" from TS 27.007 7.11 */
-    char *          number;       /* "number" from TS 27.007 7.11. May be NULL */
-    int             timeSeconds;  /* for CF no reply only */
+    int             reason;      /* from TS 27.007 7.11 "reason" */
+    int             serviceClass;/* From 27.007 +CCFC/+CLCK "class"
+                                    See table for Android mapping from
+                                    MMI service code
+                                    0 means user doesn't input class */
+    int             toa;         /* "type" from TS 27.007 7.11 */
+    char *          number;      /* "number" from TS 27.007 7.11. May be NULL */
+    int             timeSeconds; /* for CF no reply only */
 }RIL_CallForwardInfo;
 
 typedef struct {
@@ -273,15 +271,15 @@ typedef struct {
                                    (MT only, may be NULL). */
 } RIL_SuppSvcNotification;
 
-#define RIL_SIM_ABSENT              0
-#define RIL_SIM_NOT_READY           1
+#define RIL_SIM_ABSENT                  0
+#define RIL_SIM_NOT_READY               1
 /* RIL_SIM_READY means that the radio state is RADIO_STATE_SIM_READY. 
  * This is more
  * than "+CPIN: READY". It also means the radio is ready for SIM I/O
  */
-#define RIL_SIM_READY               2
-#define RIL_SIM_PIN                 3
-#define RIL_SIM_PUK                 4
+#define RIL_SIM_READY                   2
+#define RIL_SIM_PIN                     3
+#define RIL_SIM_PUK                     4
 #define RIL_SIM_NETWORK_PERSONALIZATION 5
 
 /* see RIL_REQUEST_GET_SIM_STATUS */
@@ -389,7 +387,7 @@ typedef struct {
     char *          number;             /* Remote party number */
     int             numberPresentation; /* 0=Allowed, 1=Restricted, 2=Not Specified/Unknown */
     char *          name;               /* Remote party name */
-    RIL_CDMA_SignalInfoRecord * signalInfoRecord;
+    RIL_CDMA_SignalInfoRecord signalInfoRecord;
 } RIL_CDMA_CallWaiting;
 
 /* Used by RIL_REQUEST_GET_BROADCAST_CONFIG and RIL_REQUEST_SET_BROADCAST_CONFIG */
@@ -404,7 +402,6 @@ typedef struct {
   int size;
   RIL_BroadcastServiceInfo *entries;
 } RIL_BroadcastSMSConfig;
-
 
 /* No restriction at all including voice/SMS/USSD/SS/AV64 and packet data. */
 #define RIL_RESTRICTED_STATE_NONE           0x00
@@ -966,8 +963,8 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  */
-
 #define RIL_REQUEST_SIGNAL_STRENGTH 19
+
 /**
  * RIL_REQUEST_REGISTRATION_STATE
  *
@@ -1225,7 +1222,7 @@ typedef struct {
  *                          and NULL for CDMA
  *
  * FIXME may need way to configure QoS settings
- * 
+ *
  * replaces  RIL_REQUEST_SETUP_DEFAULT_PDP
  *
  * Valid errors:
@@ -2293,7 +2290,7 @@ typedef struct {
 
 /**
  * RIL_REQUEST_SET_LOCATION_UPDATES
- * 
+ *
  * Enables/disables network state change notifications due to changes in
  * LAC and/or CID (basically, +CREG=2 vs. +CREG=1).  
  *
@@ -2305,7 +2302,7 @@ typedef struct {
  * ((int *)data)[0] is == 0 for updates disabled (+CREG=1)
  *
  * "response" is NULL
- * 
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
@@ -3062,7 +3059,8 @@ typedef struct {
  *
  * Ring indication for an incoming call (eg, RING or CRING event).
  *
- * "data" is const RIL_CDMA_SignalInfoRecord *
+ * "data" is null for GSM
+ * "data" is const RIL_CDMA_SignalInfoRecord * if CDMA
  */
 #define RIL_UNSOL_CALL_RING 1018
 
@@ -3070,7 +3068,7 @@ typedef struct {
  * RIL_UNSOL_RESPONSE_SIM_STATUS_CHANGED
  *
  * Indicates that SIM state changes.
- * 
+ *
  * Callee will invoke RIL_REQUEST_GET_SIM_STATUS on main thread
 
  * "data" is null
@@ -3081,15 +3079,15 @@ typedef struct {
  * RIL_UNSOL_RESPONSE_CDMA_NEW_SMS
  *
  * Called when new CDMA SMS is received
- * 
+ *
  * "data" is const RIL_CDMA_SMS_Message *
- * 
+ *
  * Callee will subsequently confirm the receipt of the SMS with
  * a RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE
- * 
+ *
  * No new RIL_UNSOL_RESPONSE_CDMA_NEW_SMS should be sent until
  * RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE has been received
- * 
+ *
  */
 #define RIL_UNSOL_RESPONSE_CDMA_NEW_SMS 1020
 
@@ -3315,7 +3313,7 @@ void RIL_register (const RIL_RadioFunctions *callbacks);
  * RIL_onRequestComplete will return as soon as possible
  *
  * @param t is parameter passed in on previous call to RIL_Notification
- * routine.
+ *          routine.
  * @param e error code
  *          if "e" != SUCCESS, then response can be null/is ignored
  * @param response is owned by caller, and should not be modified or
