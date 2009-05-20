@@ -27,7 +27,7 @@
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 #include <pthread.h>
-#include <utils/Parcel.h>
+#include <binder/Parcel.h>
 #include <cutils/jstring.h>
 
 #include <sys/types.h>
