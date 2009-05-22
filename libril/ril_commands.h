@@ -33,7 +33,7 @@
     {RIL_REQUEST_CONFERENCE, dispatchVoid, responseVoid},
     {RIL_REQUEST_UDUB, dispatchVoid, responseVoid},
     {RIL_REQUEST_LAST_CALL_FAIL_CAUSE, dispatchVoid, responseInts},
-    {RIL_REQUEST_SIGNAL_STRENGTH, dispatchVoid, responseInts},
+    {RIL_REQUEST_SIGNAL_STRENGTH, dispatchVoid, responseRilSignalStrength},
     {RIL_REQUEST_REGISTRATION_STATE, dispatchVoid, responseStrings},
     {RIL_REQUEST_GPRS_REGISTRATION_STATE, dispatchVoid, responseStrings},
     {RIL_REQUEST_OPERATOR, dispatchVoid, responseStrings},
@@ -101,16 +101,16 @@
     {RIL_REQUEST_CDMA_FLASH, dispatchString, responseVoid},
     {RIL_REQUEST_CDMA_BURST_DTMF, dispatchString, responseVoid},
     {RIL_REQUEST_CDMA_VALIDATE_AKEY, dispatchString, responseVoid},
-    {RIL_REQUEST_CDMA_SEND_SMS, dispatchCdmaSms, responseSMS}, //new DISPATCH function
-    {RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE, dispatchCdmaSmsAck, responseVoid}, //new DISPATCH function
-    {RIL_REQUEST_GET_BROADCAST_CONFIG, dispatchVoid, responseBrSmsCnf}, //new RESPONSE function
-    {RIL_REQUEST_SET_BROADCAST_CONFIG, dispatchBrSmsCnf, responseVoid}, //new DISPATCH function
-    {RIL_REQUEST_BROADCAST_ACTIVATION, dispatchInts, responseVoid},
-    {RIL_REQUEST_CDMA_GET_BROADCAST_CONFIG, dispatchVoid, responseCdmaBrCnf}, //new RESPONSE function
-    {RIL_REQUEST_CDMA_SET_BROADCAST_CONFIG, dispatchCdmaBrSmsCnf, responseVoid}, //new DISPATCH unction
-    {RIL_REQUEST_CDMA_BROADCAST_ACTIVATION, dispatchInts, responseVoid},
-    {RIL_REQUEST_CDMA_SUBSCRIPTION, dispatchVoid, responseStrings},//Assumption Made here to use DispatchVoid!
-    {RIL_REQUEST_CDMA_WRITE_SMS_TO_RUIM, dispatchRilCdmaSmsWriteArgs, responseInts}, //new DISPATCH function
+    {RIL_REQUEST_CDMA_SEND_SMS, dispatchCdmaSms, responseSMS},
+    {RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE, dispatchCdmaSmsAck, responseVoid},
+    {RIL_REQUEST_GSM_GET_BROADCAST_SMS_CONFIG, dispatchVoid, responseGsmBrSmsCnf},
+    {RIL_REQUEST_GSM_SET_BROADCAST_SMS_CONFIG, dispatchGsmBrSmsCnf, responseVoid},
+    {RIL_REQUEST_GSM_SMS_BROADCAST_ACTIVATION, dispatchInts, responseVoid},
+    {RIL_REQUEST_CDMA_GET_BROADCAST_SMS_CONFIG, dispatchVoid, responseCdmaBrSmsCnf},
+    {RIL_REQUEST_CDMA_SET_BROADCAST_SMS_CONFIG, dispatchCdmaBrSmsCnf, responseVoid},
+    {RIL_REQUEST_CDMA_SMS_BROADCAST_ACTIVATION, dispatchInts, responseVoid},
+    {RIL_REQUEST_CDMA_SUBSCRIPTION, dispatchVoid, responseStrings},
+    {RIL_REQUEST_CDMA_WRITE_SMS_TO_RUIM, dispatchRilCdmaSmsWriteArgs, responseInts},
     {RIL_REQUEST_CDMA_DELETE_SMS_ON_RUIM, dispatchInts, responseVoid},
     {RIL_REQUEST_DEVICE_IDENTITY, dispatchVoid, responseStrings},
     {RIL_REQUEST_EXIT_EMERGENCY_CALLBACK_MODE, dispatchVoid, responseVoid},

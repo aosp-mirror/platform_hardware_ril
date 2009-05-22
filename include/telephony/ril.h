@@ -42,6 +42,9 @@ extern "C" {
 
 #define RIL_VERSION 2
 
+#define CDMA_ALPHA_INFO_BUFFER_LENGTH 64
+#define CDMA_NUMBER_INFO_BUFFER_LENGTH 81
+
 typedef void * RIL_Token;
 
 typedef enum {
@@ -373,18 +376,32 @@ typedef struct {
     RIL_CDMA_SignalInfoRecord signalInfoRecord;
 } RIL_CDMA_CallWaiting;
 
-/* Used by RIL_REQUEST_GET_BROADCAST_CONFIG and RIL_REQUEST_SET_BROADCAST_CONFIG */
-
+/**
+ * Which types of Cell Broadcast Message (CBM) are to be received by the ME
+ *
+ * uFromServiceID - uToServiceID defines a range of CBM message identifiers
+ * whose value is 0x0000 - 0xFFFF as defined in TS 23.041 9.4.1.2.2 for GMS
+ * and 9.4.4.2.2 for UMTS. All other values can be treated as empty
+ * CBM message ID.
+ *
+ * uFromCodeScheme - uToCodeScheme defines a range of CBM data coding schemes
+ * whose value is 0x00 - 0xFF as defined in TS 23.041 9.4.1.2.3 for GMS
+ * and 9.4.4.2.3 for UMTS.
+ * All other values can be treated as empty CBM data coding scheme.
+ *
+ * selected 0 means message types specified in <fromServiceId, toServiceId>
+ * and <fromCodeScheme, toCodeScheme>are not accepted, while 1 means accepted.
+ *
+ * Used by RIL_REQUEST_GSM_GET_BROADCAST_CONFIG and
+ * RIL_REQUEST_GSM_SET_BROADCAST_CONFIG.
+ */
 typedef struct {
-  int uFromServiceID;
-  int uToserviceID;
-  unsigned char bSelected;
-} RIL_BroadcastServiceInfo;
-
-typedef struct {
-  int size;
-  RIL_BroadcastServiceInfo *entries;
-} RIL_BroadcastSMSConfig;
+    int fromServiceId;
+    int toServiceId;
+    int fromCodeScheme;
+    int toCodeScheme;
+    unsigned char selected;
+} RIL_GSM_BroadcastSmsConfigInfo;
 
 /* No restriction at all including voice/SMS/USSD/SS/AV64 and packet data. */
 #define RIL_RESTRICTED_STATE_NONE           0x00
@@ -392,7 +409,7 @@ typedef struct {
 #define RIL_RESTRICTED_STATE_CS_EMERGENCY   0x01
 /* Block all normal voice/SMS/USSD/SS/AV64 due to restriction. Only Emergency call allowed. */
 #define RIL_RESTRICTED_STATE_CS_NORMAL      0x02
-/* Block all voice/SMS/USSD/SS/AV64	including emergency call due to restriction.*/
+/* Block all voice/SMS/USSD/SS/AV64 including emergency call due to restriction.*/
 #define RIL_RESTRICTED_STATE_CS_ALL         0x04
 /* Block packet data access due to restriction. */
 #define RIL_RESTRICTED_STATE_PS_ALL         0x10
@@ -476,7 +493,7 @@ typedef enum {
 
 typedef struct {
   char alpha_len;
-  char alpha_buf[64];
+  char alpha_buf[CDMA_ALPHA_INFO_BUFFER_LENGTH];
 } RIL_CDMA_DisplayInfoRecord;
 
 /* Called Party Number Info Rec as defined in C.S0005 section 3.7.5.2
@@ -486,7 +503,7 @@ typedef struct {
 
 typedef struct {
   char len;
-  char buf[81];
+  char buf[CDMA_NUMBER_INFO_BUFFER_LENGTH];
   char number_type;
   char number_plan;
   char pi;
@@ -2528,95 +2545,99 @@ typedef struct {
 #define RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE 88
 
 /**
- * RIL_REQUEST_GET_BROADCAST_CONFIG
+ * RIL_REQUEST_GSM_GET_BROADCAST_SMS_CONFIG
  *
- * Request the setting of GSM/WCDMA Cell Broadcast SMS config
- * 
+ * Request the setting of GSM/WCDMA Cell Broadcast SMS config.
+ *
  * "data" is NULL
- * 
- * "response" is const RIL_BroadcastSMSConfig *
- * 
+ *
+ * "response" is a const RIL_GSM_BroadcastSmsConfigInfo **
+ * "responselen" is count * sizeof (RIL_GSM_BroadcastSmsConfigInfo *)
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  GENERIC_FAILURE
  *
  */
-#define RIL_REQUEST_GET_BROADCAST_CONFIG 89
+#define RIL_REQUEST_GSM_GET_BROADCAST_SMS_CONFIG 89
 
 /**
- * RIL_REQUEST_SET_BROADCAST_CONFIG
+ * RIL_REQUEST_GSM_SET_BROADCAST_SMS_CONFIG
  *
  * Set GSM/WCDMA Cell Broadcast SMS config
  *
- * "data" is const RIL_BroadcastSMSConfig *
- * 
+ * "data" is a const RIL_GSM_BroadcastSmsConfigInfo **
+ * "datalen" is count * sizeof(RIL_GSM_BroadcastSmsConfigInfo *)
+ *
  * "response" is NULL
- * 
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  GENERIC_FAILURE
  *
  */
-#define RIL_REQUEST_SET_BROADCAST_CONFIG 90
+#define RIL_REQUEST_GSM_SET_BROADCAST_SMS_CONFIG 90
 
 /**
- * RIL_REQUEST_BROADCAST_ACTIVATION
+ * RIL_REQUEST_GSM_SMS_BROADCAST_ACTIVATION
  *
- * Enable or disable the reception of GSM/WCDMA Cell Broadcast SMS
+* Enable or disable the reception of GSM/WCDMA Cell Broadcast SMS
  *
  * "data" is const int *
  * (const int *)data[0] indicates to activate or turn off the
  * reception of GSM/WCDMA Cell Broadcast SMS, 0-1,
  *                       0 - Activate, 1 - Turn off
- * 
+ *
  * "response" is NULL
- * 
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  GENERIC_FAILURE
  *
  */
-#define RIL_REQUEST_BROADCAST_ACTIVATION 91
+#define RIL_REQUEST_GSM_SMS_BROADCAST_ACTIVATION 91
 
 /**
- * RIL_REQUEST_CDMA_GET_BROADCAST_CONFIG
+ * RIL_REQUEST_CDMA_GET_BROADCAST_SMS_CONFIG
  *
  * Request the setting of CDMA Broadcast SMS config
  *
  * "data" is NULL
- * 
- * "response" is const RIL_CDMA_BroadcastSMSConfig *
- * 
+ *
+ * "response" is a const RIL_CDMA_BroadcastSmsConfigInfo **
+ * "responselen" is count * sizeof (RIL_CDMA_BroadcastSmsConfigInfo *)
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  GENERIC_FAILURE
  *
  */
-#define RIL_REQUEST_CDMA_GET_BROADCAST_CONFIG 92
+#define RIL_REQUEST_CDMA_GET_BROADCAST_SMS_CONFIG 92
 
 /**
- * RIL_REQUEST_CDMA_SET_BROADCAST_CONFIG
+ * RIL_REQUEST_CDMA_SET_BROADCAST_SMS_CONFIG
  *
  * Set CDMA Broadcast SMS config
  *
- * "data" is const RIL_CDMA_BroadcastSMSConfig *
- * 
+ * "data" is an const RIL_CDMA_BroadcastSmsConfigInfo **
+ * "datalen" is count * sizeof(const RIL_CDMA_BroadcastSmsConfigInfo *)
+ *
  * "response" is NULL
- * 
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  GENERIC_FAILURE
  *
  */
-#define RIL_REQUEST_CDMA_SET_BROADCAST_CONFIG 93
+#define RIL_REQUEST_CDMA_SET_BROADCAST_SMS_CONFIG 93
 
 /**
- * RIL_REQUEST_CDMA_BROADCAST_ACTIVATION
+ * RIL_REQUEST_CDMA_SMS_BROADCAST_ACTIVATION
  *
  * Enable or disable the reception of CDMA Broadcast SMS
  *
@@ -2624,16 +2645,16 @@ typedef struct {
  * (const int *)data[0] indicates to activate or turn off the
  * reception of CDMA Broadcast SMS, 0-1,
  *                       0 - Activate, 1 - Turn off
- * 
+ *
  * "response" is NULL
- * 
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  GENERIC_FAILURE
  *
  */
-#define RIL_REQUEST_CDMA_BROADCAST_ACTIVATION 94
+#define RIL_REQUEST_CDMA_SMS_BROADCAST_ACTIVATION 94
 
 /**
  * RIL_REQUEST_CDMA_SUBSCRIPTION
