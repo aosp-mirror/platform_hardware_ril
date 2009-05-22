@@ -98,23 +98,6 @@ typedef struct {
   char signal;       /* as defined 3.7.5.5-3, 3.7.5.5-4 or 3.7.5.5-5 */
 } RIL_CDMA_SignalInfoRecord;
 
-// NEWRIL:TODO Remove #define NEWRIL and RIL_CallOld when we have the new ril
-#define NEWRIL 0
-#if !NEWRIL
-typedef struct {
-    RIL_CallState   state;
-    int             index;      /* Connection Index for use with, eg, AT+CHLD */
-    int             toa;        /* type of address, eg 145 = intl */
-    char            isMpty;     /* nonzero if is mpty call */
-    char            isMT;       /* nonzero if call is mobile terminated */
-    char            als;        /* ALS line indicator if available
-                                   (0 = line 1) */
-    char            isVoice;    /* nonzero if this is is a voice call */
-    char *          number;     /* Remote party number */
-    char            numberPresentation; /* 0=Allowed, 1=Restricted, 2=Not Specified/Unknown 3=Payphone */
-} RIL_CallOld;
-#endif
-
 typedef struct {
     RIL_CallState   state;
     int             index;      /* Connection Index for use with, eg, AT+CHLD */
