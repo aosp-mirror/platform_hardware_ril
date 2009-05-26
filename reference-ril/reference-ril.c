@@ -141,11 +141,7 @@ static int clccStateToRILState(int state, RIL_CallState *p_state)
  * Note: directly modified line and has *p_call point directly into
  * modified line
  */
-#if NEWRIL
 static int callFromCLCCLine(char *line, RIL_Call *p_call)
-#else
-static int callFromCLCCLine(char *line, RIL_CallOld *p_call)
-#endif
 {
         //+CLCC: 1,0,2,0,0,\"+18005551212\",145
         //     index,isMT,state,mode,isMpty(,number,TOA)?
@@ -474,13 +470,8 @@ static void requestGetCurrentCalls(void *data, size_t datalen, RIL_Token t)
     ATLine *p_cur;
     int countCalls;
     int countValidCalls;
-#if NEWRIL
     RIL_Call *p_calls;
     RIL_Call **pp_calls;
-#else
-    RIL_CallOld *p_calls;
-    RIL_CallOld **pp_calls;
-#endif
     int i;
     int needRepoll = 0;
 
@@ -508,15 +499,9 @@ static void requestGetCurrentCalls(void *data, size_t datalen, RIL_Token t)
 
     /* yes, there's an array of pointers and then an array of structures */
 
-#if NEWRIL
     pp_calls = (RIL_Call **)alloca(countCalls * sizeof(RIL_Call *));
     p_calls = (RIL_Call *)alloca(countCalls * sizeof(RIL_Call));
     memset (p_calls, 0, countCalls * sizeof(RIL_Call));
-#else
-    pp_calls = (RIL_CallOld **)alloca(countCalls * sizeof(RIL_CallOld *));
-    p_calls = (RIL_CallOld *)alloca(countCalls * sizeof(RIL_CallOld));
-    memset (p_calls, 0, countCalls * sizeof(RIL_CallOld));
-#endif
 
     /* init the pointer array */
     for(i = 0; i < countCalls ; i++) {
@@ -581,13 +566,8 @@ static void requestGetCurrentCalls(void *data, size_t datalen, RIL_Token t)
     s_repollCallsCount = 0;
 #endif /*WORKAROUND_ERRONEOUS_ANSWER*/
 
-#if NEWRIL
     RIL_onRequestComplete(t, RIL_E_SUCCESS, pp_calls,
             countValidCalls * sizeof (RIL_Call *));
-#else
-    RIL_onRequestComplete(t, RIL_E_SUCCESS, pp_calls,
-            countValidCalls * sizeof (RIL_CallOld *));
-#endif
 
     at_response_free(p_response);
 

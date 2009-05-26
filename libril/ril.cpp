@@ -1301,9 +1301,6 @@ static int responseCallList(Parcel &p, void *response, size_t responselen) {
     p.writeInt32(num);
 
     for (int i = 0 ; i < num ; i++) {
-    /* NEWRIL:TODO Remove this conditional and the else clause when we have the new ril */
-#if NEWRIL
-        LOGD("Compilied for NEWRIL"); // NEWRIL:TODO remove when we have the new ril
         RIL_Call *p_cur = ((RIL_Call **) response)[i];
         /* each call info */
         p.writeInt32(p_cur->state);
@@ -1336,38 +1333,6 @@ static int responseCallList(Parcel &p, void *response, size_t responselen) {
             p_cur->numberPresentation,
             p_cur->name,
             p_cur->namePresentation);
-#else
-        LOGD("Old RIL");
-        RIL_CallOld *p_cur = ((RIL_CallOld **) response)[i];
-        /* each call info */
-        p.writeInt32(p_cur->state);
-        p.writeInt32(p_cur->index);
-        p.writeInt32(p_cur->toa);
-        p.writeInt32(p_cur->isMpty);
-        p.writeInt32(p_cur->isMT);
-        p.writeInt32(p_cur->als);
-        p.writeInt32(p_cur->isVoice);
-        p.writeInt32(0); // p_cur->isVoicePrivacy);
-        writeStringToParcel (p, p_cur->number);
-        p.writeInt32(p_cur->numberPresentation);
-        writeStringToParcel (p, "a-person");
-        p.writeInt32(2); // p_cur->namePresentation);
-        appendPrintBuf("%s[id=%d,%s,toa=%d,",
-            printBuf,
-            p_cur->index,
-            callStateToString(p_cur->state),
-            p_cur->toa);
-        appendPrintBuf("%s%s,%s,als=%d,%s,%s,",
-            printBuf,
-            (p_cur->isMpty)?"conf":"norm",
-            (p_cur->isMT)?"mt":"mo",
-            p_cur->als,
-            (p_cur->isVoice)?"voc":"nonvoc");
-        appendPrintBuf("%s%s,cli=%d]",
-            printBuf,
-            p_cur->number,
-            p_cur->numberPresentation);
-#endif
     }
     removeLastChar;
     closeResponse;
@@ -1785,6 +1750,12 @@ static int responseRilSignalStrength(Parcel &p, void *response, size_t responsel
         for (int i = 0; i < 5; i++) {
             p.writeInt32(0);
         }
+
+        startResponse;
+        appendPrintBuf("%s[signalStrength=%d,bitErrorRate=%d]",
+                       printBuf,
+                       p_cur->signalStrength, p_cur->bitErrorRate);
+        closeResponse;
     } else if (responselen == sizeof (RIL_SignalStrength)) {
         // New RIL
         RIL_SignalStrength *p_cur = ((RIL_SignalStrength *) response);
@@ -1797,26 +1768,27 @@ static int responseRilSignalStrength(Parcel &p, void *response, size_t responsel
         p.writeInt32(p_cur->EVDO_SignalStrength.dbm);
         p.writeInt32(p_cur->EVDO_SignalStrength.ecio);
         p.writeInt32(p_cur->EVDO_SignalStrength.signalNoiseRatio);
+
+        startResponse;
+        appendPrintBuf("%s[signalStrength=%d,bitErrorRate=%d,
+                       CDMA_SignalStrength.dbm=%d,CDMA_SignalStrength.ecio=%d,
+                       EVDO_SignalStrength.dbm =%d,EVDO_SignalStrength.ecio=%d,
+                       EVDO_SignalStrength.signalNoiseRatio=%d]",
+                       printBuf,
+                       p_cur->GW_SignalStrength.signalStrength,
+                       p_cur->GW_SignalStrength.bitErrorRate,
+                       p_cur->CDMA_SignalStrength.dbm,
+                       p_cur->CDMA_SignalStrength.ecio,
+                       p_cur->EVDO_SignalStrength.dbm,
+                       p_cur->EVDO_SignalStrength.ecio,
+                       p_cur->EVDO_SignalStrength.signalNoiseRatio);
+        closeResponse;
     } else {
         LOGE("invalid response length");
         return RIL_ERRNO_INVALID_RESPONSE;
     }
 
-    startResponse;
-    appendPrintBuf("%s[signalStrength=%d,bitErrorRate=%d,\
-            CDMA_SignalStrength.dbm=%d,CDMA_SignalStrength.ecio=%d,\
-            EVDO_SignalStrength.dbm =%d,EVDO_SignalStrength.ecio=%d,\
-            EVDO_SignalStrength.signalNoiseRatio=%d]",
-            printBuf,
-            p_cur->GW_SignalStrength.signalStrength,
-            p_cur->GW_SignalStrength.bitErrorRate,
-            p_cur->CDMA_SignalStrength.dbm,
-            p_cur->CDMA_SignalStrength.ecio,
-            p_cur->EVDO_SignalStrength.dbm,
-            p_cur->EVDO_SignalStrength.ecio,
-            p_cur->EVDO_SignalStrength.signalNoiseRatio);
 
-    closeResponse;
 
     return 0;
 }
