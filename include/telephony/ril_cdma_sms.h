@@ -151,7 +151,9 @@ typedef enum {
 
 typedef struct {
     RIL_CDMA_SMS_ErrorClass uErrorClass;
-    int uSMSCauseCode;
+    int uSMSCauseCode;  /* As defined in N.S00005, 6.5.2.125.
+                           Currently, only 35 (resource shortage) and
+                           39 (other terminal problem) are reported. */
 } RIL_CDMA_SMS_Ack;
 
 /* Used by RIL_REQUEST_CDMA_SMS_GET_BROADCAST_CONFIG and

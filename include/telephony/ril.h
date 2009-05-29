@@ -1430,10 +1430,14 @@ typedef struct {
  * via RIL_UNSOL_RESPONSE_NEW_SMS 
  *
  * "data" is int *
- * ((int *)data)[0] is "1" on successful receipt 
+ * ((int *)data)[0] is 1 on successful receipt
  *                  (basically, AT+CNMA=1 from TS 27.005
- * ((int *)data)[0] is "0" on failed receipt 
+ *                  is 0 on failed receipt
  *                  (basically, AT+CNMA=2 from TS 27.005)
+ * ((int *)data)[1] if data[0] is 0, this contains the failure cause as defined
+ *                  in TS 23.040, 9.2.3.22. Currently only 0xD3 (memory
+ *                  capacity exceeded) and 0xFF (unspecified error) are
+ *                  reported.
  *
  * "response" is NULL
  *
@@ -2797,6 +2801,25 @@ typedef struct {
  *
  */
 #define RIL_REQUEST_SET_SMSC_ADDRESS 101
+
+/**
+ * RIL_REQUEST_REPORT_SMS_MEMORY_STATUS
+ *
+ * Indicates whether there is storage available for new SMS messages.
+ *
+ * "data" is int *
+ * ((int *)data)[0] is 1 if memory is available for storing new messages
+ *                  is 0 if memory capacity is exceeded
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_REPORT_SMS_MEMORY_STATUS 102
 
 
 /***********************************************************************/
