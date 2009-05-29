@@ -154,18 +154,14 @@ typedef struct {
     int uSMSCauseCode;
 } RIL_CDMA_SMS_Ack;
 
-/* Used by RIL_REQUEST_CDMA_GET_BROADCAST_CONFIG and RIL_REQUEST_CDMA_SET_BROADCAST_CONFIG */
+/* Used by RIL_REQUEST_CDMA_SMS_GET_BROADCAST_CONFIG and
+   RIL_REQUEST_CDMA_SMS_SET_BROADCAST_CONFIG */
 
 typedef struct {
-    int uServiceCategory;
-    int uLanguage;
-    unsigned char bSelected;
-} RIL_CDMA_BroadcastServiceInfo;
-
-typedef struct {
-    int size;
-    RIL_CDMA_BroadcastServiceInfo *entries;
-} RIL_CDMA_BroadcastSMSConfig;
+    int service_category;
+    int language;
+    unsigned char selected;
+} RIL_CDMA_BroadcastSmsConfigInfo;
 
 /* Used by RIL_REQUEST_CDMA_WRITE_SMS_TO_RUIM */
 
@@ -806,4 +802,3 @@ typedef struct {
 #endif
 
 #endif /*ANDROID_RIL_CDMA_SMS_H*/
-
