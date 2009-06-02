@@ -2621,8 +2621,8 @@ RIL_onRequestComplete(RIL_Token t, RIL_Errno e, void *response, size_t responsel
 
         p.writeInt32 (e);
 
-        if (e == RIL_E_SUCCESS) {
-            /* process response on success */
+        if (response != NULL) {
+            // there is a response payload, no matter success or not.
             ret = pRI->pCI->responseFunction(p, response, responselen);
 
             /* if an error occurred, rewind and mark it */
@@ -2630,8 +2630,10 @@ RIL_onRequestComplete(RIL_Token t, RIL_Errno e, void *response, size_t responsel
                 p.setDataPosition(errorOffset);
                 p.writeInt32 (ret);
             }
-        } else {
-            appendPrintBuf("%s returns %s", printBuf, failCauseToString(e));
+        }
+
+        if (e != RIL_E_SUCCESS) {
+            appendPrintBuf("%s fails by %s", printBuf, failCauseToString(e));
         }
 
         if (s_fdCommand < 0) {
