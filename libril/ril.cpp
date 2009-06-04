@@ -1365,10 +1365,11 @@ static int responseSMS(Parcel &p, void *response, size_t responselen) {
 
     p.writeInt32(p_cur->messageRef);
     writeStringToParcel(p, p_cur->ackPDU);
+    p.writeInt32(p_cur->errorCode);
 
     startResponse;
-    appendPrintBuf("%s%d,%s", printBuf, p_cur->messageRef,
-        (char*)p_cur->ackPDU);
+    appendPrintBuf("%s%d,%s,%d", printBuf, p_cur->messageRef,
+        (char*)p_cur->ackPDU, p_cur->errorCode);
     closeResponse;
 
     return 0;
