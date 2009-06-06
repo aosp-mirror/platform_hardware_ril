@@ -2677,6 +2677,7 @@ typedef struct {
  * ((const char **)response)[1] is H_SID (Home SID) if CDMA subscription is available
  * ((const char **)response)[2] is H_NID (Home NID) if CDMA subscription is available
  * ((const char **)response)[3] is MIN (10 digits, MIN2+MIN1) if CDMA subscription is available
+ * ((const char **)response)[4] is PRL version if CDMA subscription is available
  *
  * Valid errors:
  *  SUCCESS
