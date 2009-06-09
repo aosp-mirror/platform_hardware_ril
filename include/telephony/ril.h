@@ -2822,6 +2822,23 @@ typedef struct {
  */
 #define RIL_REQUEST_REPORT_SMS_MEMORY_STATUS 102
 
+/**
+ * RIL_REQUEST_REPORT_STK_SERVICE_IS_RUNNING
+ *
+ * Indicates that the StkSerivce is running and is
+ * ready to receive RIL_UNSOL_STK_XXXXX commands.
+ *
+ * "data" is NULL
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_REPORT_STK_SERVICE_IS_RUNNING 103
+
 
 /***********************************************************************/
 
