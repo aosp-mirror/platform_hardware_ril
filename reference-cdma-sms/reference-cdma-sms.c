@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2008 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ RIL_Errno wmsts_ril_cdma_decode_sms( RIL_CDMA_Encoded_SMS *  encoded_sms,
     return RIL_E_GENERIC_FAILURE;
   }
 
-RIL_Errno wmsts_ril_cdma_encode_sms(RIL_CDMA_SMS_ClientBd * client_bd, 
+RIL_Errno wmsts_ril_cdma_encode_sms(RIL_CDMA_SMS_ClientBd * client_bd,
         RIL_CDMA_Encoded_SMS *  encoded_sms) {
 
     LOGE("ril_cdma_encode_sms function not implemented\n");

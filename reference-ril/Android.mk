@@ -12,15 +12,15 @@ LOCAL_SRC_FILES:= \
     at_tok.c
 
 LOCAL_SHARED_LIBRARIES := \
-	libcutils libutils libril
+    libcutils libutils libril
 
-	# for asprinf
+# for asprinf
 LOCAL_CFLAGS := -D_GNU_SOURCE
 
 LOCAL_C_INCLUDES := $(KERNEL_HEADERS)
 
 ifeq ($(TARGET_DEVICE),sooner)
-  LOCAL_CFLAGS += -DOMAP_CSMI_POWER_CONTROL -DUSE_TI_COMMANDS 
+  LOCAL_CFLAGS += -DOMAP_CSMI_POWER_CONTROL -DUSE_TI_COMMANDS
 endif
 
 ifeq ($(TARGET_DEVICE),surf)
@@ -34,7 +34,7 @@ endif
 ifeq (foo,foo)
   #build shared library
   LOCAL_SHARED_LIBRARIES += \
-	libcutils libutils
+      libcutils libutils
   LOCAL_LDLIBS += -lpthread
   LOCAL_CFLAGS += -DRIL_SHLIB
   LOCAL_MODULE:= libreference-ril
@@ -42,7 +42,7 @@ ifeq (foo,foo)
 else
   #build executable
   LOCAL_SHARED_LIBRARIES += \
-	libril
+      libril
   LOCAL_MODULE:= reference-ril
   include $(BUILD_EXECUTABLE)
 endif
