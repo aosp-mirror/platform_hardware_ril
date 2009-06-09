@@ -115,4 +115,6 @@
     {RIL_REQUEST_DEVICE_IDENTITY, dispatchVoid, responseStrings},
     {RIL_REQUEST_EXIT_EMERGENCY_CALLBACK_MODE, dispatchVoid, responseVoid},
     {RIL_REQUEST_GET_SMSC_ADDRESS, dispatchVoid, responseString},
-    {RIL_REQUEST_SET_SMSC_ADDRESS, dispatchString, responseVoid}
+    {RIL_REQUEST_SET_SMSC_ADDRESS, dispatchString, responseVoid},
+    {RIL_REQUEST_REPORT_SMS_MEMORY_STATUS, dispatchInts, responseVoid},
+    {RIL_REQUEST_REPORT_STK_SERVICE_IS_RUNNING, dispatchVoid, responseVoid}
