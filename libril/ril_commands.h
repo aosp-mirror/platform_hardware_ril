@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
     {0, NULL, NULL},                   //none
@@ -24,7 +24,7 @@
     {RIL_REQUEST_CHANGE_SIM_PIN2, dispatchStrings, responseVoid},
     {RIL_REQUEST_ENTER_NETWORK_DEPERSONALIZATION, dispatchStrings, responseVoid},
     {RIL_REQUEST_GET_CURRENT_CALLS, dispatchVoid, responseCallList},
-    {RIL_REQUEST_DIAL, dispatchDial, responseVoid},   
+    {RIL_REQUEST_DIAL, dispatchDial, responseVoid},
     {RIL_REQUEST_GET_IMSI, dispatchVoid, responseString},
     {RIL_REQUEST_HANGUP, dispatchInts, responseVoid},
     {RIL_REQUEST_HANGUP_WAITING_OR_BACKGROUND, dispatchVoid, responseVoid},
@@ -56,7 +56,7 @@
     {RIL_REQUEST_GET_IMEISV, dispatchVoid, responseString},
     {RIL_REQUEST_ANSWER,dispatchVoid, responseVoid},
     {RIL_REQUEST_DEACTIVATE_DATA_CALL, dispatchStrings, responseVoid},
-    {RIL_REQUEST_QUERY_FACILITY_LOCK, dispatchStrings, responseInts},    
+    {RIL_REQUEST_QUERY_FACILITY_LOCK, dispatchStrings, responseInts},
     {RIL_REQUEST_SET_FACILITY_LOCK, dispatchStrings, responseVoid},
     {RIL_REQUEST_CHANGE_BARRING_PASSWORD, dispatchStrings, responseVoid},
     {RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE, dispatchVoid, responseInts},
@@ -71,7 +71,7 @@
     {RIL_REQUEST_GET_MUTE, dispatchVoid, responseInts},
     {RIL_REQUEST_QUERY_CLIP, dispatchVoid, responseInts},
     {RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE, dispatchVoid, responseInts},
-    {RIL_REQUEST_DATA_CALL_LIST, dispatchVoid, responseDataCallList}, 
+    {RIL_REQUEST_DATA_CALL_LIST, dispatchVoid, responseDataCallList},
     {RIL_REQUEST_RESET_RADIO, dispatchVoid, responseVoid},
     {RIL_REQUEST_OEM_HOOK_RAW, dispatchRaw, responseRaw},
     {RIL_REQUEST_OEM_HOOK_STRINGS, dispatchStrings, responseStrings},

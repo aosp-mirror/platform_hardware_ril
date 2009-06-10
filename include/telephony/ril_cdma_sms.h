@@ -22,11 +22,11 @@
 /**
  * TODO
  *
- *  
+ *
  */
 
 
-#ifndef ANDROID_RIL_CDMA_SMS_H 
+#ifndef ANDROID_RIL_CDMA_SMS_H
 #define ANDROID_RIL_CDMA_SMS_H 1
 
 #include <stdlib.h>
@@ -57,13 +57,13 @@ typedef enum {
     RIL_CDMA_SMS_NUMBER_TYPE_UNKNOWN                   = 0,
     RIL_CDMA_SMS_NUMBER_TYPE_INTERNATIONAL_OR_DATA_IP  = 1,
       /* INTERNATIONAL is used when number mode is not data network address.
-       * DATA_IP is used when the number mode is data network address 
+       * DATA_IP is used when the number mode is data network address
        */
     RIL_CDMA_SMS_NUMBER_TYPE_NATIONAL_OR_INTERNET_MAIL = 2,
       /* NATIONAL is used when the number mode is not data network address.
-       * INTERNET_MAIL is used when the number mode is data network address. 
-       * For INTERNET_MAIL, in the address data "digits", each byte contains 
-       * an ASCII character. Examples are "x@y.com,a@b.com - ref TIA/EIA-637A 3.4.3.3 
+       * INTERNET_MAIL is used when the number mode is data network address.
+       * For INTERNET_MAIL, in the address data "digits", each byte contains
+       * an ASCII character. Examples are "x@y.com,a@b.com - ref TIA/EIA-637A 3.4.3.3
        */
     RIL_CDMA_SMS_NUMBER_TYPE_NETWORK                   = 3,
     RIL_CDMA_SMS_NUMBER_TYPE_SUBSCRIBER                = 4,
@@ -77,20 +77,20 @@ typedef enum {
 typedef enum {
     RIL_CDMA_SMS_NUMBER_PLAN_UNKNOWN     = 0,
     RIL_CDMA_SMS_NUMBER_PLAN_TELEPHONY   = 1,      /* CCITT E.164 and E.163, including ISDN plan */
-    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_2  = 2,      
+    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_2  = 2,
     RIL_CDMA_SMS_NUMBER_PLAN_DATA        = 3,      /* CCITT X.121 */
     RIL_CDMA_SMS_NUMBER_PLAN_TELEX       = 4,      /* CCITT F.69 */
-    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_5  = 5,      
-    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_6  = 6,      
-    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_7  = 7,      
-    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_8  = 8,      
-    RIL_CDMA_SMS_NUMBER_PLAN_PRIVATE     = 9,      
-    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_10 = 10,      
-    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_11 = 11,      
-    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_12 = 12,      
-    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_13 = 13,      
-    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_14 = 14,      
-    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_15 = 15,      
+    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_5  = 5,
+    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_6  = 6,
+    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_7  = 7,
+    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_8  = 8,
+    RIL_CDMA_SMS_NUMBER_PLAN_PRIVATE     = 9,
+    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_10 = 10,
+    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_11 = 11,
+    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_12 = 12,
+    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_13 = 13,
+    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_14 = 14,
+    RIL_CDMA_SMS_NUMBER_PLAN_RESERVED_15 = 15,
     RIL_CDMA_SMS_NUMBER_PLAN_MAX32 = 0x10000000 /* Force constant ENUM size in structures */
 } RIL_CDMA_SMS_NumberPlan;
 
@@ -101,7 +101,7 @@ typedef struct {
       /* Used only when digitMode is 8-bit */
     RIL_CDMA_SMS_NumberType number_type;
       /* Used only when digitMode is 8-bit.
-       * To specify an international address, use the following: 
+       * To specify an international address, use the following:
        * digitMode = RIL_CDMA_SMS_DIGIT_MODE_8_BIT
        * numberMode = RIL_CDMA_SMS_NOT_DATA_NETWORK
        * numberType = RIL_CDMA_SMS_NUMBER_TYPE_INTERNATIONAL_OR_DATA_IP
@@ -113,7 +113,7 @@ typedef struct {
       /* Used only when digitMode is 8-bit */
     unsigned char number_of_digits;
     unsigned char digits[ RIL_CDMA_SMS_ADDRESS_MAX ];
-      /* Each byte in this array represnts a 40bit or 8-bit digit of address data */ 
+      /* Each byte in this array represnts a 40bit or 8-bit digit of address data */
 } RIL_CDMA_SMS_Address;
 
 typedef enum {
@@ -180,7 +180,7 @@ typedef struct {
 
 /* Used by RIL_REQUEST_ENCODE_CDMA_SMS and RIL_REQUEST_DECODE_CDMA_SMS*/
 
-#define RIL_CDMA_SMS_UDH_MAX_SND_SIZE           128 
+#define RIL_CDMA_SMS_UDH_MAX_SND_SIZE           128
 #define RIL_CDMA_SMS_UDH_EO_DATA_SEGMENT_MAX    131 /* 140 - 3 - 6 */
 #define RIL_CDMA_SMS_MAX_UD_HEADERS         7
 #define RIL_CDMA_SMS_USER_DATA_MAX     229
@@ -242,16 +242,16 @@ typedef struct {
     unsigned char       msg_ref;
 
     /*indicates the total number of short messages within the concatenated short message.
-     The value shall start at 1 and remain constant for every 
+     The value shall start at 1 and remain constant for every
      short message which makes up the concatenated short message.
      if it is 0 then the receiving entity shall ignore the whole Information Element*/
     unsigned char       total_sm;
 
-    /* 
-     * it indicates the sequence number of a particular short message within the concatenated short 
-     * message. The value shall start at 1 and increment by one for every short message sent 
-     * within the concatenated short message. If the value is zero or the value is 
-     * greater than the value in octet 2 then the receiving 
+    /*
+     * it indicates the sequence number of a particular short message within the concatenated short
+     * message. The value shall start at 1 and increment by one for every short message sent
+     * within the concatenated short message. If the value is zero or the value is
+     * greater than the value in octet 2 then the receiving
      * entity shall ignore the whole Information Element.
      */
     unsigned char      seq_num;
@@ -489,7 +489,7 @@ typedef struct {
 
     union {
         RIL_CDMA_SMS_UdhConcat8             concat_8;       // 00
-    
+
         RIL_CDMA_SMS_UdhSpecialSM           special_sm;     // 01
         RIL_CDMA_SMS_UdhWap8                wap_8;          // 04
         RIL_CDMA_SMS_UdhWap16               wap_16;         // 05
@@ -503,14 +503,14 @@ typedef struct {
         RIL_CDMA_SMS_UdhLargePictureData    large_picture;  // 10
         RIL_CDMA_SMS_UdhSmallPictureData    small_picture;  // 11
         RIL_CDMA_SMS_UdhVarPicture          var_picture;    // 12
-    
+
         RIL_CDMA_SMS_UdhUserPrompt          user_prompt;    // 13
         RIL_CDMA_SMS_UdhEo                  eo;             // 14
-    
+
         RIL_CDMA_SMS_UdhRfc822              rfc822;         // 20
         RIL_CDMA_SMS_UdhOther               other;
 
-    }u;   
+    }u;
 } RIL_CDMA_SMS_Udh;
 
 /* ----------------------------- */

@@ -1926,7 +1926,7 @@ static void onUnsolicited (const char *s, const char *sms_pdu)
             RIL_UNSOL_RESPONSE_NETWORK_STATE_CHANGED,
             NULL, 0);
 #ifdef WORKAROUND_FAKE_CGEV
-        RIL_requestTimedCallback (onDataCallListChanged, NULL, NULL); 
+        RIL_requestTimedCallback (onDataCallListChanged, NULL, NULL);
 #endif /* WORKAROUND_FAKE_CGEV */
     } else if (strStartsWith(s, "+CMT:")) {
         RIL_onUnsolicitedResponse (

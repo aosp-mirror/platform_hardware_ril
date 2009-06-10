@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2008 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef REFERENCE_CDMA_SMS_H 
+#ifndef REFERENCE_CDMA_SMS_H
 #define REFERENCE_CDMA_SMS_H 1
 
 #include <telephony/ril.h>
