@@ -237,12 +237,22 @@ typedef enum {
 
 /* See RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE */
 typedef enum {
-    PDP_FAIL_BARRED = 8,         /* no retry; prompt user */
-    PDP_FAIL_BAD_APN = 27,       /* no retry; prompt user */
-    PDP_FAIL_USER_AUTHENTICATION = 29, /* no retry; prompt user */
-    PDP_FAIL_SERVICE_OPTION_NOT_SUPPORTED = 32,  /*no retry; prompt user */
-    PDP_FAIL_SERVICE_OPTION_NOT_SUBSCRIBED = 33, /*no retry; prompt user */
-    PDP_FAIL_ERROR_UNSPECIFIED = 0xffff  /* This and all other cases: retry silently */
+    PDP_FAIL_OPERATOR_BARRED = 0x08,               /* no retry */
+    PDP_FAIL_INSUFFICIENT_RESOURCES = 0x1A,
+    PDP_FAIL_MISSING_UKNOWN_APN = 0x1B,            /* no retry */
+    PDP_FAIL_UNKNOWN_PDP_ADDRESS_TYPE = 0x1C,      /* no retry */
+    PDP_FAIL_USER_AUTHENTICATION = 0x1D,           /* no retry */
+    PDP_FAIL_ACTIVATION_REJECT_GGSN = 0x1E,        /* no retry */
+    PDP_FAIL_ACTIVATION_REJECT_UNSPECIFIED = 0x1F,
+    PDP_FAIL_SERVICE_OPTION_NOT_SUPPORTED = 0x20,  /* no retry */
+    PDP_FAIL_SERVICE_OPTION_NOT_SUBSCRIBED = 0x21, /* no retry */
+    PDP_FAIL_SERVICE_OPTION_OUT_OF_ORDER = 0x22,
+    PDP_FAIL_NSAPI_IN_USE      = 0x23,             /* no retry */
+    PDP_FAIL_PROTOCOL_ERRORS   = 0x6F,             /* no retry */
+    PDP_FAIL_ERROR_UNSPECIFIED = 0xffff,  /* This and all other cases: retry silently */
+    /* Not mentioned in the specification */
+    PDP_FAIL_REGISTRATION_FAIL = -1,
+    PDP_FAIL_GPRS_REGISTRATION_FAIL = -2,
 } RIL_LastDataCallActivateFailCause;
 
 /* Used by RIL_UNSOL_SUPP_SVC_NOTIFICATION */
