@@ -623,7 +623,8 @@ typedef struct {
  * "data" is const char **
  * ((const char **)data)[0] is PIN value
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
  *
@@ -645,7 +646,8 @@ typedef struct {
  * ((const char **)data)[0] is PUK value
  * ((const char **)data)[1] is new PIN value
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
  *
@@ -667,7 +669,8 @@ typedef struct {
  * "data" is const char **
  * ((const char **)data)[0] is PIN2 value
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
  *
@@ -688,7 +691,8 @@ typedef struct {
  * ((const char **)data)[0] is PUK2 value
  * ((const char **)data)[1] is new PIN2 value
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
  *
@@ -710,7 +714,8 @@ typedef struct {
  * ((const char **)data)[0] is old PIN value
  * ((const char **)data)[1] is new PIN value
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
  *
@@ -734,7 +739,8 @@ typedef struct {
  * ((const char **)data)[0] is old PIN2 value
  * ((const char **)data)[1] is new PIN2 value
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
  *
@@ -756,7 +762,8 @@ typedef struct {
  * "data" is const char **
  * ((const char **)(data))[0]] is network depersonlization code
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
  *
@@ -1588,7 +1595,8 @@ typedef struct {
  *                            service class bit vector. Eg, the string
  *                            "1" means "set this facility for voice services"
  *
- * "response" is NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
  *  SUCCESS
