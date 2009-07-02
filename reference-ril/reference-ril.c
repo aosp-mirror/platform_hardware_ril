@@ -816,8 +816,8 @@ static void requestRegistrationState(int request, void *data,
     }
 
     asprintf(&responseStr[0], "%d", response[0]);
-    asprintf(&responseStr[1], "%d", response[1]);
-    asprintf(&responseStr[2], "%d", response[2]);
+    asprintf(&responseStr[1], "%x", response[1]);
+    asprintf(&responseStr[2], "%x", response[2]);
 
     if (count > 3)
         asprintf(&responseStr[3], "%d", response[3]);
