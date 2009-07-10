@@ -66,7 +66,8 @@ typedef enum {
                                                    card absent */
     RIL_E_SUBSCRIPTION_NOT_AVAILABLE = 12,      /* fail to find CDMA subscription from specified
                                                    location */
-    RIL_E_MODE_NOT_SUPPORTED = 13               /* HW does not support preferred network type */
+    RIL_E_MODE_NOT_SUPPORTED = 13,              /* HW does not support preferred network type */
+    RIL_E_FDN_CHECK_FAILURE = 14                /* command failed because recipient is not on FDN list */
 } RIL_Errno;
 
 typedef enum {
@@ -222,6 +223,8 @@ typedef enum {
     CALL_FAIL_ACM_LIMIT_EXCEEDED = 68,
     CALL_FAIL_CALL_BARRED = 240,
     CALL_FAIL_FDN_BLOCKED = 241,
+    CALL_FAIL_IMSI_UNKNOWN_IN_VLR = 242,
+    CALL_FAIL_IMEI_NOT_ACCEPTED = 243,
     CALL_FAIL_CDMA_LOCKED_UNTIL_POWER_CYCLE = 1000,
     CALL_FAIL_CDMA_DROP = 1001,
     CALL_FAIL_CDMA_INTERCEPT = 1002,
@@ -255,6 +258,13 @@ typedef enum {
     PDP_FAIL_GPRS_REGISTRATION_FAIL = -2,
 } RIL_LastDataCallActivateFailCause;
 
+/* See RIL_REQUEST_SETUP_DATA_CALL */
+typedef enum {
+    RIL_DATA_PROFILE_DEFAULT    = 0,
+    RIL_DATA_PROFILE_TETHERED   = 1,
+    RIL_DATA_PROFILE_OEM_BASE   = 1000    /* Start of OEM-specific profiles */
+} RIL_DataProfile;
+
 /* Used by RIL_UNSOL_SUPP_SVC_NOTIFICATION */
 typedef struct {
     int     notificationType;   /*
@@ -270,6 +280,7 @@ typedef struct {
                                    (MT only, may be NULL). */
 } RIL_SuppSvcNotification;
 
+/* TODO: Remove these once reference-ril cleanup is done. */
 #define RIL_SIM_ABSENT                  0
 #define RIL_SIM_NOT_READY               1
 /* RIL_SIM_READY means that the radio state is RADIO_STATE_SIM_READY.
@@ -1042,8 +1053,19 @@ typedef struct {
  *                               Valid values are 0-255.
  * ((const char **)response)[13] if registration state is 3 (Registration
  *                               denied) this is an enumerated reason why
- *                               registration was denied.
- *                                 0-General, 1-Authentication Failure
+ *                               registration was denied.  See 3GPP TS 24.008,
+ *                               10.5.3.6 and Annex G.
+ *                                 0 - General
+ *                                 1 - Authentication Failure
+ *                                 2 - IMSI unknown in HLR
+ *                                 3 - Illegal MS
+ *                                 4 - Illegal ME
+ *                                 5 - PLMN not allowed
+ *                                 6 - Location area not allowed
+ *                                 7 - Roaming not allowed
+ *                                 8 - No Suitable Cells in this Location Area
+ *                                 9 - Network failure
+ *                                10 - Managed Roaming Specific Cause
  *
  * Please note that registration state 4 ("unknown") is treated
  * as "out of service" in the Android telephony system
@@ -1140,11 +1162,7 @@ typedef struct {
  * RIL_REQUEST_DTMF_START, that tone should be cancelled and the new tone
  * should be played instead
  *
- * "data" is a char *
- * ((char *)data)[0] is a single character with one of 12 values: 0-9,*,#
- * ((char *)data)[1] is a single character with one of 3 values:
- *    'S' -- tone should be played for a short time
- *    'L' -- tone should be played for a long time
+ * "data" is a char * containing a single character with one of 12 values: 0-9,*,#
  * "response" is NULL
  *
  * FIXME should this block/mute microphone?
@@ -1182,6 +1200,7 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  SMS_SEND_FAIL_RETRY
+ *  FDN_CHECK_FAILURE
  *  GENERIC_FAILURE
  *
  * FIXME how do we specify TP-Message-Reference if we need to resend?
@@ -1228,7 +1247,7 @@ typedef struct {
  * ((const char **)data)[0] indicates whether to setup connection on radio technology CDMA
  *                              or GSM/UMTS, 0-1. 0 - CDMA, 1-GSM/UMTS
  *
- * ((const char **)data)[1] Profile Number or NULL to indicate default profile
+ * ((const char **)data)[1] is a RIL_DataProfile (support is optional)
  * ((const char **)data)[2] is the APN to connect to if radio technology is GSM/UMTS. This APN will
  *                          override the one in the profile. NULL indicates no APN overrride.
  * ((const char **)data)[3] is the username for APN, or NULL
@@ -1310,6 +1329,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  FDN_CHECK_FAILURE
  *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_CANCEL_USSD, RIL_UNSOL_ON_USSD
@@ -2507,8 +2527,12 @@ typedef struct {
  *
  * Send DTMF string
  *
- * "data" is const char *
- * ((const char *)data)[0] is a DTMF string
+ * "data" is const char **
+ * ((const char **)data)[0] is a DTMF string
+ * ((const char **)data)[1] is the DTMF ON length in milliseconds, or 0 to use
+ *                          default
+ * ((const char **)data)[2] is the DTMF OFF length in milliseconds, or 0 to use
+ *                          default
  *
  * "response" is NULL
  *

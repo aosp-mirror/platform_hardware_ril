@@ -99,7 +99,7 @@
     {RIL_REQUEST_CDMA_SET_PREFERRED_VOICE_PRIVACY_MODE, dispatchInts, responseVoid},
     {RIL_REQUEST_CDMA_QUERY_PREFERRED_VOICE_PRIVACY_MODE, dispatchVoid, responseInts},
     {RIL_REQUEST_CDMA_FLASH, dispatchString, responseVoid},
-    {RIL_REQUEST_CDMA_BURST_DTMF, dispatchString, responseVoid},
+    {RIL_REQUEST_CDMA_BURST_DTMF, dispatchStrings, responseVoid},
     {RIL_REQUEST_CDMA_VALIDATE_AKEY, dispatchString, responseVoid},
     {RIL_REQUEST_CDMA_SEND_SMS, dispatchCdmaSms, responseSMS},
     {RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE, dispatchCdmaSmsAck, responseVoid},
