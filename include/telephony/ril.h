@@ -1027,7 +1027,7 @@ typedef struct {
  *                                  7 - EvDo Rev. 0, 8 - EvDo Rev. A
  * ((const char **)response)[4] is Base Station ID if registered on a CDMA
  *                              system or NULL if not.  Base Station ID in
- *                              hexadecimal format
+ *                              decimal format
  * ((const char **)response)[5] is Base Station latitude if registered on a
  *                              CDMA system or NULL if not. Base Station
  *                              latitude in hexadecimal format
@@ -1065,7 +1065,7 @@ typedef struct {
  *                                 7 - Roaming not allowed
  *                                 8 - No Suitable Cells in this Location Area
  *                                 9 - Network failure
- *                                10 - Managed Roaming Specific Cause
+ *                                10 - Persistent location update reject
  *
  * Please note that registration state 4 ("unknown") is treated
  * as "out of service" in the Android telephony system
@@ -1692,10 +1692,6 @@ typedef struct {
  *
  * Manually select a specified network.
  *
- * The radio baseband/RIL implementation is expected to fall back to
- * automatic selection mode if the manually selected network should go
- * out of range in the future.
- *
  * "data" is const char * specifying MCCMNC of network to select (eg "310170")
  * "response" is NULL
  *
@@ -2280,7 +2276,7 @@ typedef struct {
  * ((int *)data)[0] is == 0 for GSM/WCDMA (WCDMA preferred)
  * ((int *)data)[0] is == 1 for GSM only
  * ((int *)data)[0] is == 2 for WCDMA only
- * ((int *)data)[0] is == 3 for GSM/WCDMA (auto mode)
+ * ((int *)data)[0] is == 3 for GSM/WCDMA (auto mode, according to PRL)
  * ((int *)data)[0] is == 4 for CDMA and EvDo (auto mode, according to PRL)
  * ((int *)data)[0] is == 5 for CDMA only
  * ((int *)data)[0] is == 6 for EvDo only
@@ -2724,8 +2720,10 @@ typedef struct {
  *
  * "response" is const char **
  * ((const char **)response)[0] is MDN if CDMA subscription is available
- * ((const char **)response)[1] is H_SID (Home SID) if CDMA subscription is available
- * ((const char **)response)[2] is H_NID (Home NID) if CDMA subscription is available
+ * ((const char **)response)[1] is a comma separated list of H_SID (Home SID) if
+ *                              CDMA subscription is available, in decimal format
+ * ((const char **)response)[2] is a comma separated list of H_NID (Home NID) if
+ *                              CDMA subscription is available, in decimal format
  * ((const char **)response)[3] is MIN (10 digits, MIN2+MIN1) if CDMA subscription is available
  * ((const char **)response)[4] is PRL version if CDMA subscription is available
  *
