@@ -2721,9 +2721,9 @@ typedef struct {
  * "response" is const char **
  * ((const char **)response)[0] is MDN if CDMA subscription is available
  * ((const char **)response)[1] is a comma separated list of H_SID (Home SID) if
- *                              CDMA subscription is available, in decimal format
+ *                              CDMA subscription is available, in hexadecimal format
  * ((const char **)response)[2] is a comma separated list of H_NID (Home NID) if
- *                              CDMA subscription is available, in decimal format
+ *                              CDMA subscription is available, in hexadecimal format
  * ((const char **)response)[3] is MIN (10 digits, MIN2+MIN1) if CDMA subscription is available
  * ((const char **)response)[4] is PRL version if CDMA subscription is available
  *
