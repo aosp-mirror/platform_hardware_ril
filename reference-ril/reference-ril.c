@@ -39,7 +39,7 @@
 
 #define MAX_AT_RESPONSE 0x1000
 
-/* pathname returned from RIL_REQUEST_SETUP_DEFAULT_PDP */
+/* pathname returned from RIL_REQUEST_SETUP_DATA_CALL / RIL_REQUEST_SETUP_DEFAULT_PDP */
 #define PPP_TTY_PATH "/dev/omap_csmi_tty1"
 
 #ifdef USE_TI_COMMANDS
@@ -63,7 +63,9 @@ static void onCancel (RIL_Token t);
 static const char *getVersion();
 static int isRadioOn();
 static int getSIMStatus();
-static void onPDPContextListChanged(void *param);
+static int getCardStatus(RIL_CardStatus **pp_card_status);
+static void freeCardStatus(RIL_CardStatus *p_card_status);
+static void onDataCallListChanged(void *param);
 
 extern const char * requestToString(int request);
 
@@ -268,19 +270,19 @@ error:
     RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
 }
 
-static void requestOrSendPDPContextList(RIL_Token *t);
+static void requestOrSendDataCallList(RIL_Token *t);
 
-static void onPDPContextListChanged(void *param)
+static void onDataCallListChanged(void *param)
 {
-    requestOrSendPDPContextList(NULL);
+    requestOrSendDataCallList(NULL);
 }
 
-static void requestPDPContextList(void *data, size_t datalen, RIL_Token t)
+static void requestDataCallList(void *data, size_t datalen, RIL_Token t)
 {
-    requestOrSendPDPContextList(&t);
+    requestOrSendDataCallList(&t);
 }
 
-static void requestOrSendPDPContextList(RIL_Token *t)
+static void requestOrSendDataCallList(RIL_Token *t)
 {
     ATResponse *p_response;
     ATLine *p_cur;
@@ -293,7 +295,7 @@ static void requestOrSendPDPContextList(RIL_Token *t)
         if (t != NULL)
             RIL_onRequestComplete(*t, RIL_E_GENERIC_FAILURE, NULL, 0);
         else
-            RIL_onUnsolicitedResponse(RIL_UNSOL_PDP_CONTEXT_LIST_CHANGED,
+            RIL_onUnsolicitedResponse(RIL_UNSOL_DATA_CALL_LIST_CHANGED,
                                       NULL, 0);
         return;
     }
@@ -302,8 +304,8 @@ static void requestOrSendPDPContextList(RIL_Token *t)
          p_cur = p_cur->p_next)
         n++;
 
-    RIL_PDP_Context_Response *responses =
-        alloca(n * sizeof(RIL_PDP_Context_Response));
+    RIL_Data_Call_Response *responses =
+        alloca(n * sizeof(RIL_Data_Call_Response));
 
     int i;
     for (i = 0; i < n; i++) {
@@ -314,7 +316,7 @@ static void requestOrSendPDPContextList(RIL_Token *t)
         responses[i].address = "";
     }
 
-    RIL_PDP_Context_Response *response = responses;
+    RIL_Data_Call_Response *response = responses;
     for (p_cur = p_response->p_intermediates; p_cur != NULL;
          p_cur = p_cur->p_next) {
         char *line = p_cur->line;
@@ -341,7 +343,7 @@ static void requestOrSendPDPContextList(RIL_Token *t)
         if (t != NULL)
             RIL_onRequestComplete(*t, RIL_E_GENERIC_FAILURE, NULL, 0);
         else
-            RIL_onUnsolicitedResponse(RIL_UNSOL_PDP_CONTEXT_LIST_CHANGED,
+            RIL_onUnsolicitedResponse(RIL_UNSOL_DATA_CALL_LIST_CHANGED,
                                       NULL, 0);
         return;
     }
@@ -399,11 +401,11 @@ static void requestOrSendPDPContextList(RIL_Token *t)
 
     if (t != NULL)
         RIL_onRequestComplete(*t, RIL_E_SUCCESS, responses,
-                              n * sizeof(RIL_PDP_Context_Response));
+                              n * sizeof(RIL_Data_Call_Response));
     else
-        RIL_onUnsolicitedResponse(RIL_UNSOL_PDP_CONTEXT_LIST_CHANGED,
+        RIL_onUnsolicitedResponse(RIL_UNSOL_DATA_CALL_LIST_CHANGED,
                                   responses,
-                                  n * sizeof(RIL_PDP_Context_Response));
+                                  n * sizeof(RIL_Data_Call_Response));
 
     return;
 
@@ -411,7 +413,7 @@ error:
     if (t != NULL)
         RIL_onRequestComplete(*t, RIL_E_GENERIC_FAILURE, NULL, 0);
     else
-        RIL_onUnsolicitedResponse(RIL_UNSOL_PDP_CONTEXT_LIST_CHANGED,
+        RIL_onUnsolicitedResponse(RIL_UNSOL_DATA_CALL_LIST_CHANGED,
                                   NULL, 0);
 
     at_response_free(p_response);
@@ -814,8 +816,8 @@ static void requestRegistrationState(int request, void *data,
     }
 
     asprintf(&responseStr[0], "%d", response[0]);
-    asprintf(&responseStr[1], "%d", response[1]);
-    asprintf(&responseStr[2], "%d", response[2]);
+    asprintf(&responseStr[1], "%x", response[1]);
+    asprintf(&responseStr[2], "%x", response[2]);
 
     if (count > 3)
         asprintf(&responseStr[3], "%d", response[3]);
@@ -941,7 +943,7 @@ error:
     at_response_free(p_response);
 }
 
-static void requestSetupDefaultPDP(void *data, size_t datalen, RIL_Token t)
+static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
 {
     const char *apn;
     char *cmd;
@@ -949,7 +951,7 @@ static void requestSetupDefaultPDP(void *data, size_t datalen, RIL_Token t)
     ATResponse *p_response = NULL;
     char *response[2] = { "1", PPP_TTY_PATH };
 
-    apn = ((const char **)data)[0];
+    apn = ((const char **)data)[2];
 
 #ifdef USE_TI_COMMANDS
     // Config for multislot class 10 (probably default anyway eh?)
@@ -1224,11 +1226,20 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
 
     switch (request) {
         case RIL_REQUEST_GET_SIM_STATUS: {
-            int simStatus;
+            RIL_CardStatus *p_card_status;
+            char *p_buffer;
+            int buffer_size;
 
-            simStatus = getSIMStatus();
-
-            RIL_onRequestComplete(t, RIL_E_SUCCESS, &simStatus, sizeof(simStatus));
+            int result = getCardStatus(&p_card_status);
+            if (result == RIL_E_SUCCESS) {
+                p_buffer = (char *)p_card_status;
+                buffer_size = sizeof(*p_card_status);
+            } else {
+                p_buffer = NULL;
+                buffer_size = 0;
+            }
+            RIL_onRequestComplete(t, result, p_buffer, buffer_size);
+            freeCardStatus(p_card_status);
             break;
         }
         case RIL_REQUEST_GET_CURRENT_CALLS:
@@ -1347,8 +1358,8 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
         case RIL_REQUEST_SEND_SMS:
             requestSendSMS(data, datalen, t);
             break;
-        case RIL_REQUEST_SETUP_DEFAULT_PDP:
-            requestSetupDefaultPDP(data, datalen, t);
+        case RIL_REQUEST_SETUP_DATA_CALL:
+            requestSetupDataCall(data, datalen, t);
             break;
         case RIL_REQUEST_SMS_ACKNOWLEDGE:
             requestSMSAcknowledge(data, datalen, t);
@@ -1405,8 +1416,8 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
             at_send_command("AT+COPS=0", NULL);
             break;
 
-        case RIL_REQUEST_PDP_CONTEXT_LIST:
-            requestPDPContextList(data, datalen, t);
+        case RIL_REQUEST_DATA_CALL_LIST:
+            requestDataCallList(data, datalen, t);
             break;
 
         case RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE:
@@ -1629,6 +1640,81 @@ done:
 
 
 /**
+ * Get the current card status.
+ *
+ * This must be freed using freeCardStatus.
+ * @return: On success returns RIL_E_SUCCESS
+ */
+static int getCardStatus(RIL_CardStatus **pp_card_status) {
+    static RIL_AppStatus app_status_array[] = {
+        // RIL_SIM_ABSENT = 0
+        { RIL_APPTYPE_UNKNOWN, RIL_APPSTATE_UNKNOWN, RIL_PERSOSUBSTATE_UNKNOWN,
+          NULL, NULL, 0, RIL_PINSTATE_UNKNOWN, RIL_PINSTATE_UNKNOWN },
+        // RIL_SIM_NOT_READY = 1
+        { RIL_APPTYPE_SIM, RIL_APPSTATE_DETECTED, RIL_PERSOSUBSTATE_UNKNOWN,
+          NULL, NULL, 0, RIL_PINSTATE_UNKNOWN, RIL_PINSTATE_UNKNOWN },
+        // RIL_SIM_READY = 2
+        { RIL_APPTYPE_SIM, RIL_APPSTATE_READY, RIL_PERSOSUBSTATE_READY,
+          NULL, NULL, 0, RIL_PINSTATE_UNKNOWN, RIL_PINSTATE_UNKNOWN },
+        // RIL_SIM_PIN = 3
+        { RIL_APPTYPE_SIM, RIL_APPSTATE_PIN, RIL_PERSOSUBSTATE_UNKNOWN,
+          NULL, NULL, 0, RIL_PINSTATE_ENABLED_NOT_VERIFIED, RIL_PINSTATE_UNKNOWN },
+        // RIL_SIM_PUK = 4
+        { RIL_APPTYPE_SIM, RIL_APPSTATE_PUK, RIL_PERSOSUBSTATE_UNKNOWN,
+          NULL, NULL, 0, RIL_PINSTATE_ENABLED_BLOCKED, RIL_PINSTATE_UNKNOWN },
+        // RIL_SIM_NETWORK_PERSONALIZATION = 5
+        { RIL_APPTYPE_SIM, RIL_APPSTATE_SUBSCRIPTION_PERSO, RIL_PERSOSUBSTATE_SIM_NETWORK,
+          NULL, NULL, 0, RIL_PINSTATE_ENABLED_NOT_VERIFIED, RIL_PINSTATE_UNKNOWN }
+    };
+    RIL_CardState card_state;
+    int num_apps;
+
+    int sim_status = getSIMStatus();
+    if (sim_status == RIL_SIM_ABSENT) {
+        card_state = RIL_CARDSTATE_ABSENT;
+        num_apps = 0;
+    } else {
+        card_state = RIL_CARDSTATE_PRESENT;
+        num_apps = 1;
+    }
+
+    // Allocate and initialize base card status.
+    RIL_CardStatus *p_card_status = malloc(sizeof(RIL_CardStatus));
+    p_card_status->card_state = card_state;
+    p_card_status->universal_pin_state = RIL_PINSTATE_UNKNOWN;
+    p_card_status->gsm_umts_subscription_app_index = RIL_CARD_MAX_APPS;
+    p_card_status->cdma_subscription_app_index = RIL_CARD_MAX_APPS;
+    p_card_status->num_applications = num_apps;
+
+    // Initialize application status
+    int i;
+    for (i = 0; i < RIL_CARD_MAX_APPS; i++) {
+        p_card_status->applications[i] = app_status_array[RIL_SIM_ABSENT];
+    }
+
+    // Pickup the appropriate application status
+    // that reflects sim_status for gsm.
+    if (num_apps != 0) {
+        // Only support one app, gsm
+        p_card_status->num_applications = 1;
+        p_card_status->gsm_umts_subscription_app_index = 0;
+
+        // Get the correct app status
+        p_card_status->applications[0] = app_status_array[sim_status];
+    }
+
+    *pp_card_status = p_card_status;
+    return RIL_E_SUCCESS;
+}
+
+/**
+ * Free the card status returned by getCardStatus
+ */
+static void freeCardStatus(RIL_CardStatus *p_card_status) {
+    free(p_card_status);
+}
+
+/**
  * SIM ready means any commands that access the SIM will work, including:
  *  AT+CPIN, AT+CSMS, AT+CNMI, AT+CRSM
  *  (all SMS-related commands)
@@ -1831,7 +1917,7 @@ static void onUnsolicited (const char *s, const char *sms_pdu)
             RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED,
             NULL, 0);
 #ifdef WORKAROUND_FAKE_CGEV
-        RIL_requestTimedCallback (onPDPContextListChanged, NULL, NULL);
+        RIL_requestTimedCallback (onDataCallListChanged, NULL, NULL); //TODO use new function
 #endif /* WORKAROUND_FAKE_CGEV */
     } else if (strStartsWith(s,"+CREG:")
                 || strStartsWith(s,"+CGREG:")
@@ -1840,7 +1926,7 @@ static void onUnsolicited (const char *s, const char *sms_pdu)
             RIL_UNSOL_RESPONSE_NETWORK_STATE_CHANGED,
             NULL, 0);
 #ifdef WORKAROUND_FAKE_CGEV
-        RIL_requestTimedCallback (onPDPContextListChanged, NULL, NULL);
+        RIL_requestTimedCallback (onDataCallListChanged, NULL, NULL);
 #endif /* WORKAROUND_FAKE_CGEV */
     } else if (strStartsWith(s, "+CMT:")) {
         RIL_onUnsolicitedResponse (
@@ -1853,13 +1939,13 @@ static void onUnsolicited (const char *s, const char *sms_pdu)
     } else if (strStartsWith(s, "+CGEV:")) {
         /* Really, we can ignore NW CLASS and ME CLASS events here,
          * but right now we don't since extranous
-         * RIL_UNSOL_PDP_CONTEXT_LIST_CHANGED calls are tolerated
+         * RIL_UNSOL_DATA_CALL_LIST_CHANGED calls are tolerated
          */
         /* can't issue AT commands here -- call on main thread */
-        RIL_requestTimedCallback (onPDPContextListChanged, NULL, NULL);
+        RIL_requestTimedCallback (onDataCallListChanged, NULL, NULL);
 #ifdef WORKAROUND_FAKE_CGEV
     } else if (strStartsWith(s, "+CME ERROR: 150")) {
-        RIL_requestTimedCallback (onPDPContextListChanged, NULL, NULL);
+        RIL_requestTimedCallback (onDataCallListChanged, NULL, NULL);
 #endif /* WORKAROUND_FAKE_CGEV */
     }
 }

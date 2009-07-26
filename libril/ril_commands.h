@@ -2,29 +2,29 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
     {0, NULL, NULL},                   //none
-    {RIL_REQUEST_GET_SIM_STATUS,dispatchVoid, responseInts},
-    {RIL_REQUEST_ENTER_SIM_PIN, dispatchStrings, responseVoid},
-    {RIL_REQUEST_ENTER_SIM_PUK, dispatchStrings, responseVoid},
-    {RIL_REQUEST_ENTER_SIM_PIN2, dispatchStrings, responseVoid},
-    {RIL_REQUEST_ENTER_SIM_PUK2, dispatchStrings, responseVoid},
-    {RIL_REQUEST_CHANGE_SIM_PIN, dispatchStrings, responseVoid},
-    {RIL_REQUEST_CHANGE_SIM_PIN2, dispatchStrings, responseVoid},
-    {RIL_REQUEST_ENTER_NETWORK_DEPERSONALIZATION, dispatchStrings, responseVoid},
+    {RIL_REQUEST_GET_SIM_STATUS, dispatchVoid, responseSimStatus},
+    {RIL_REQUEST_ENTER_SIM_PIN, dispatchStrings, responseInts},
+    {RIL_REQUEST_ENTER_SIM_PUK, dispatchStrings, responseInts},
+    {RIL_REQUEST_ENTER_SIM_PIN2, dispatchStrings, responseInts},
+    {RIL_REQUEST_ENTER_SIM_PUK2, dispatchStrings, responseInts},
+    {RIL_REQUEST_CHANGE_SIM_PIN, dispatchStrings, responseInts},
+    {RIL_REQUEST_CHANGE_SIM_PIN2, dispatchStrings, responseInts},
+    {RIL_REQUEST_ENTER_NETWORK_DEPERSONALIZATION, dispatchStrings, responseInts},
     {RIL_REQUEST_GET_CURRENT_CALLS, dispatchVoid, responseCallList},
-    {RIL_REQUEST_DIAL, dispatchDial, responseVoid},   
+    {RIL_REQUEST_DIAL, dispatchDial, responseVoid},
     {RIL_REQUEST_GET_IMSI, dispatchVoid, responseString},
     {RIL_REQUEST_HANGUP, dispatchInts, responseVoid},
     {RIL_REQUEST_HANGUP_WAITING_OR_BACKGROUND, dispatchVoid, responseVoid},
@@ -33,7 +33,7 @@
     {RIL_REQUEST_CONFERENCE, dispatchVoid, responseVoid},
     {RIL_REQUEST_UDUB, dispatchVoid, responseVoid},
     {RIL_REQUEST_LAST_CALL_FAIL_CAUSE, dispatchVoid, responseInts},
-    {RIL_REQUEST_SIGNAL_STRENGTH, dispatchVoid, responseInts},
+    {RIL_REQUEST_SIGNAL_STRENGTH, dispatchVoid, responseRilSignalStrength},
     {RIL_REQUEST_REGISTRATION_STATE, dispatchVoid, responseStrings},
     {RIL_REQUEST_GPRS_REGISTRATION_STATE, dispatchVoid, responseStrings},
     {RIL_REQUEST_OPERATOR, dispatchVoid, responseStrings},
@@ -41,7 +41,7 @@
     {RIL_REQUEST_DTMF, dispatchString, responseVoid},
     {RIL_REQUEST_SEND_SMS, dispatchStrings, responseSMS},
     {RIL_REQUEST_SEND_SMS_EXPECT_MORE, dispatchStrings, responseSMS},
-    {RIL_REQUEST_SETUP_DEFAULT_PDP, dispatchStrings, responseStrings},
+    {RIL_REQUEST_SETUP_DATA_CALL, dispatchStrings, responseStrings},
     {RIL_REQUEST_SIM_IO, dispatchSIM_IO, responseSIM_IO},
     {RIL_REQUEST_SEND_USSD, dispatchString, responseVoid},
     {RIL_REQUEST_CANCEL_USSD, dispatchVoid, responseVoid},
@@ -55,9 +55,9 @@
     {RIL_REQUEST_GET_IMEI, dispatchVoid, responseString},
     {RIL_REQUEST_GET_IMEISV, dispatchVoid, responseString},
     {RIL_REQUEST_ANSWER,dispatchVoid, responseVoid},
-    {RIL_REQUEST_DEACTIVATE_DEFAULT_PDP, dispatchStrings, responseVoid},
-    {RIL_REQUEST_QUERY_FACILITY_LOCK, dispatchStrings, responseInts},    
-    {RIL_REQUEST_SET_FACILITY_LOCK, dispatchStrings, responseVoid},
+    {RIL_REQUEST_DEACTIVATE_DATA_CALL, dispatchStrings, responseVoid},
+    {RIL_REQUEST_QUERY_FACILITY_LOCK, dispatchStrings, responseInts},
+    {RIL_REQUEST_SET_FACILITY_LOCK, dispatchStrings, responseInts},
     {RIL_REQUEST_CHANGE_BARRING_PASSWORD, dispatchStrings, responseVoid},
     {RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE, dispatchVoid, responseInts},
     {RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC, dispatchVoid, responseVoid},
@@ -70,8 +70,8 @@
     {RIL_REQUEST_SET_MUTE, dispatchInts, responseVoid},
     {RIL_REQUEST_GET_MUTE, dispatchVoid, responseInts},
     {RIL_REQUEST_QUERY_CLIP, dispatchVoid, responseInts},
-    {RIL_REQUEST_LAST_PDP_FAIL_CAUSE, dispatchVoid, responseInts},
-    {RIL_REQUEST_PDP_CONTEXT_LIST, dispatchVoid, responseContexts},
+    {RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE, dispatchVoid, responseInts},
+    {RIL_REQUEST_DATA_CALL_LIST, dispatchVoid, responseDataCallList},
     {RIL_REQUEST_RESET_RADIO, dispatchVoid, responseVoid},
     {RIL_REQUEST_OEM_HOOK_RAW, dispatchRaw, responseRaw},
     {RIL_REQUEST_OEM_HOOK_STRINGS, dispatchStrings, responseStrings},
@@ -90,4 +90,31 @@
     {RIL_REQUEST_SET_PREFERRED_NETWORK_TYPE, dispatchInts, responseVoid},
     {RIL_REQUEST_GET_PREFERRED_NETWORK_TYPE, dispatchVoid, responseInts},
     {RIL_REQUEST_GET_NEIGHBORING_CELL_IDS, dispatchVoid, responseCellList},
-    {RIL_REQUEST_SET_LOCATION_UPDATES, dispatchInts, responseVoid}
+    {RIL_REQUEST_SET_LOCATION_UPDATES, dispatchInts, responseVoid},
+    {RIL_REQUEST_CDMA_SET_SUBSCRIPTION, dispatchInts, responseVoid},
+    {RIL_REQUEST_CDMA_SET_ROAMING_PREFERENCE, dispatchInts, responseVoid},
+    {RIL_REQUEST_CDMA_QUERY_ROAMING_PREFERENCE, dispatchVoid, responseInts},
+    {RIL_REQUEST_SET_TTY_MODE, dispatchInts, responseVoid},
+    {RIL_REQUEST_QUERY_TTY_MODE, dispatchVoid, responseInts},
+    {RIL_REQUEST_CDMA_SET_PREFERRED_VOICE_PRIVACY_MODE, dispatchInts, responseVoid},
+    {RIL_REQUEST_CDMA_QUERY_PREFERRED_VOICE_PRIVACY_MODE, dispatchVoid, responseInts},
+    {RIL_REQUEST_CDMA_FLASH, dispatchString, responseVoid},
+    {RIL_REQUEST_CDMA_BURST_DTMF, dispatchString, responseVoid},
+    {RIL_REQUEST_CDMA_VALIDATE_AKEY, dispatchString, responseVoid},
+    {RIL_REQUEST_CDMA_SEND_SMS, dispatchCdmaSms, responseSMS},
+    {RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE, dispatchCdmaSmsAck, responseVoid},
+    {RIL_REQUEST_GSM_GET_BROADCAST_SMS_CONFIG, dispatchVoid, responseGsmBrSmsCnf},
+    {RIL_REQUEST_GSM_SET_BROADCAST_SMS_CONFIG, dispatchGsmBrSmsCnf, responseVoid},
+    {RIL_REQUEST_GSM_SMS_BROADCAST_ACTIVATION, dispatchInts, responseVoid},
+    {RIL_REQUEST_CDMA_GET_BROADCAST_SMS_CONFIG, dispatchVoid, responseCdmaBrSmsCnf},
+    {RIL_REQUEST_CDMA_SET_BROADCAST_SMS_CONFIG, dispatchCdmaBrSmsCnf, responseVoid},
+    {RIL_REQUEST_CDMA_SMS_BROADCAST_ACTIVATION, dispatchInts, responseVoid},
+    {RIL_REQUEST_CDMA_SUBSCRIPTION, dispatchVoid, responseStrings},
+    {RIL_REQUEST_CDMA_WRITE_SMS_TO_RUIM, dispatchRilCdmaSmsWriteArgs, responseInts},
+    {RIL_REQUEST_CDMA_DELETE_SMS_ON_RUIM, dispatchInts, responseVoid},
+    {RIL_REQUEST_DEVICE_IDENTITY, dispatchVoid, responseStrings},
+    {RIL_REQUEST_EXIT_EMERGENCY_CALLBACK_MODE, dispatchVoid, responseVoid},
+    {RIL_REQUEST_GET_SMSC_ADDRESS, dispatchVoid, responseString},
+    {RIL_REQUEST_SET_SMSC_ADDRESS, dispatchString, responseVoid},
+    {RIL_REQUEST_REPORT_SMS_MEMORY_STATUS, dispatchInts, responseVoid},
+    {RIL_REQUEST_REPORT_STK_SERVICE_IS_RUNNING, dispatchVoid, responseVoid}

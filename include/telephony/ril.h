@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-/*
- * ISSUES:
+ /* ISSUES:
  * - SMS retransmit (specifying TP-Message-ID)
  *
  */
@@ -25,21 +24,26 @@
  *
  * Supp Service Notification (+CSSN)
  * GPRS PDP context deactivate notification
- *  
+ *
  */
 
 
-#ifndef ANDROID_RIL_H 
+#ifndef ANDROID_RIL_H
 #define ANDROID_RIL_H 1
 
 #include <stdlib.h>
+#ifndef FEATURE_UNIT_TEST
 #include <sys/time.h>
+#endif /* !FEATURE_UNIT_TEST */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define RIL_VERSION 2
+
+#define CDMA_ALPHA_INFO_BUFFER_LENGTH 64
+#define CDMA_NUMBER_INFO_BUFFER_LENGTH 81
 
 typedef void * RIL_Token;
 
@@ -56,7 +60,13 @@ typedef enum {
                                                    call on a Class C GPRS device */
     RIL_E_OP_NOT_ALLOWED_BEFORE_REG_TO_NW = 9,  /* data ops are not allowed before device
                                                    registers in network */
-    RIL_E_SMS_SEND_FAIL_RETRY = 10		/* fail to send sms and need retry */	
+    RIL_E_SMS_SEND_FAIL_RETRY = 10,             /* fail to send sms and need retry */
+    RIL_E_SIM_ABSENT = 11,                      /* fail to set the location where CDMA subscription
+                                                   shall be retrieved because of SIM or RUIM
+                                                   card absent */
+    RIL_E_SUBSCRIPTION_NOT_AVAILABLE = 12,      /* fail to find CDMA subscription from specified
+                                                   location */
+    RIL_E_MODE_NOT_SUPPORTED = 13               /* HW does not support preferred network type */
 } RIL_Errno;
 
 typedef enum {
@@ -69,42 +79,58 @@ typedef enum {
 } RIL_CallState;
 
 typedef enum {
-    RADIO_STATE_OFF = 0,          /* Radio explictly powered off (eg CFUN=0) */
-    RADIO_STATE_UNAVAILABLE = 1,  /* Radio unavailable (eg, resetting or not booted) */
-    RADIO_STATE_SIM_NOT_READY = 2,      /* Radio is on, but the SIM interface is not ready */
-    RADIO_STATE_SIM_LOCKED_OR_ABSENT = 3, /* SIM PIN locked, PUK required, network 
-                               personalization locked, or SIM absent */
-    RADIO_STATE_SIM_READY = 4           /* Radio is on and SIM interface is available */
+    RADIO_STATE_OFF = 0,                   /* Radio explictly powered off (eg CFUN=0) */
+    RADIO_STATE_UNAVAILABLE = 1,           /* Radio unavailable (eg, resetting or not booted) */
+    RADIO_STATE_SIM_NOT_READY = 2,         /* Radio is on, but the SIM interface is not ready */
+    RADIO_STATE_SIM_LOCKED_OR_ABSENT = 3,  /* SIM PIN locked, PUK required, network
+                                              personalization locked, or SIM absent */
+    RADIO_STATE_SIM_READY = 4,             /* Radio is on and SIM interface is available */
+    RADIO_STATE_RUIM_NOT_READY = 5,        /* Radio is on, but the RUIM interface is not ready */
+    RADIO_STATE_RUIM_READY = 6,            /* Radio is on and the RUIM interface is available */
+    RADIO_STATE_RUIM_LOCKED_OR_ABSENT = 7, /* RUIM PIN locked, PUK required, network
+                                              personalization locked, or RUIM absent */
+    RADIO_STATE_NV_NOT_READY = 8,          /* Radio is on, but the NV interface is not available */
+    RADIO_STATE_NV_READY = 9               /* Radio is on and the NV interface is available */
 } RIL_RadioState;
+
+ /* CDMA Signal Information Record as defined in C.S0005 section 3.7.5.5 */
+typedef struct {
+  char isPresent;    /* non-zero if signal information record is present */
+  char signalType;   /* as defined 3.7.5.5-1 */
+  char alertPitch;   /* as defined 3.7.5.5-2 */
+  char signal;       /* as defined 3.7.5.5-3, 3.7.5.5-4 or 3.7.5.5-5 */
+} RIL_CDMA_SignalInfoRecord;
 
 typedef struct {
     RIL_CallState   state;
-    int             index;      /* GSM Index for use with, eg, AT+CHLD */
+    int             index;      /* Connection Index for use with, eg, AT+CHLD */
     int             toa;        /* type of address, eg 145 = intl */
     char            isMpty;     /* nonzero if is mpty call */
     char            isMT;       /* nonzero if call is mobile terminated */
-    char            als;        /* ALS line indicator if available 
+    char            als;        /* ALS line indicator if available
                                    (0 = line 1) */
     char            isVoice;    /* nonzero if this is is a voice call */
-
-    char *          number;     /* phone number */
-    char            numberPresentation; /* 0 = Allowed, 
-                                           1 = Restricted,
-                                           2 = Not Specified/Unknown, 
-                                           3 = Payphone */
+    char            isVoicePrivacy;     /* nonzero if CDMA voice privacy mode is active */
+    char *          number;     /* Remote party number */
+    int             numberPresentation; /* 0=Allowed, 1=Restricted, 2=Not Specified/Unknown 3=Payphone */
+    char *          name;       /* Remote party name */
+    int             namePresentation; /* 0=Allowed, 1=Restricted, 2=Not Specified/Unknown 3=Payphone */
 } RIL_Call;
 
 typedef struct {
     int             cid;        /* Context ID */
-    int             active;     /* nonzero if context is active */
+    int             active;     /* 0=inactive, 1=active/physical link down, 2=active/physical link up */
     char *          type;       /* X.25, IP, IPV6, etc. */
     char *          apn;
     char *          address;
-} RIL_PDP_Context_Response;
+} RIL_Data_Call_Response;
 
 typedef struct {
     int messageRef;   /*TP-Message-Reference*/
     char *ackPDU;     /* or NULL if n/a */
+    int errorCode;    /* See 3GPP 27.005, 3.2.5 for GSM/UMTS,
+                         3GPP2 N.S0005 (IS-41C) Table 171 for CDMA,
+                         -1 if unknown or not applicable*/
 } RIL_SMS_Response;
 
 /** Used by RIL_REQUEST_WRITE_SMS_TO_SIM */
@@ -114,7 +140,8 @@ typedef struct {
                     /*      1 = "REC READ"      */
                     /*      2 = "STO UNSENT"    */
                     /*      3 = "STO SENT"      */
-    char * pdu;     /* PDU of message to write, as a hex string. */
+    char * pdu;     /* PDU of message to write, as an ASCII hex string less the SMSC address,
+                       the TP-layer length is "strlen(pdu)/2". */
     char * smsc;    /* SMSC address in GSM BCD format prefixed by a length byte
                        (as expected by TS 27.005) or NULL for default SMSC */
 } RIL_SMS_WriteArgs;
@@ -128,7 +155,6 @@ typedef struct {
              * clir == 1 on "CLIR invocation" (restrict CLI presentation)
              * clir == 2 on "CLIR suppression" (allow CLI presentation)
              */
-
 } RIL_Dial;
 
 typedef struct {
@@ -136,6 +162,7 @@ typedef struct {
     int fileid;     /* EF id */
     char *path;     /* "pathid" from TS 27.007 +CRSM command.
                        Path is in hex asciii format eg "7f205f70"
+                       Path must always be provided.
                      */
     int p1;
     int p2;
@@ -166,20 +193,20 @@ typedef struct {
                                  * 4 = erasure
                                  */
 
-    int             reason;     /* from TS 27.007 7.11 "reason" */
+    int             reason;      /* from TS 27.007 7.11 "reason" */
     int             serviceClass;/* From 27.007 +CCFC/+CLCK "class"
                                     See table for Android mapping from
-                                    MMI service code 
-				    0 means user doesn't input class */
-    int             toa;        /* "type" from TS 27.007 7.11 */
-    char *          number;     /* "number" from TS 27.007 7.11. May be NULL */
+                                    MMI service code
+                                    0 means user doesn't input class */
+    int             toa;         /* "type" from TS 27.007 7.11 */
+    char *          number;      /* "number" from TS 27.007 7.11. May be NULL */
     int             timeSeconds; /* for CF no reply only */
 }RIL_CallForwardInfo;
 
 typedef struct {
    char * cid;         /* Cell Id (as described in TS 27.005) in 16 bits in GSM
                         * Primary Scrambling Code (as described in TS 25.331)
-                        *         in 9 bits in UMTS 
+                        *         in 9 bits in UMTS
                         * Valid values are hexadecimal 0x0000 - 0xffff.
                         */
    int    rssi;        /* Received RSSI in 2G,
@@ -195,18 +222,38 @@ typedef enum {
     CALL_FAIL_ACM_LIMIT_EXCEEDED = 68,
     CALL_FAIL_CALL_BARRED = 240,
     CALL_FAIL_FDN_BLOCKED = 241,
+    CALL_FAIL_CDMA_LOCKED_UNTIL_POWER_CYCLE = 1000,
+    CALL_FAIL_CDMA_DROP = 1001,
+    CALL_FAIL_CDMA_INTERCEPT = 1002,
+    CALL_FAIL_CDMA_REORDER = 1003,
+    CALL_FAIL_CDMA_SO_REJECT = 1004,
+    CALL_FAIL_CDMA_RETRY_ORDER = 1005,
+    CALL_FAIL_CDMA_ACCESS_FAILURE = 1006,
+    CALL_FAIL_CDMA_PREEMPTED = 1007,
+    CALL_FAIL_CDMA_NOT_EMERGENCY = 1008, /* For non-emergency number dialed
+                                            during emergency callback mode */
     CALL_FAIL_ERROR_UNSPECIFIED = 0xffff
 } RIL_LastCallFailCause;
 
-/* See RIL_REQUEST_LAST_PDP_FAIL_CAUSE */
+/* See RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE */
 typedef enum {
-    PDP_FAIL_BARRED = 8,         /* no retry; prompt user */
-    PDP_FAIL_BAD_APN = 27,       /* no retry; prompt user */
-    PDP_FAIL_USER_AUTHENTICATION = 29, /* no retry; prompt user */
-    PDP_FAIL_SERVICE_OPTION_NOT_SUPPORTED = 32,  /*no retry; prompt user */
-    PDP_FAIL_SERVICE_OPTION_NOT_SUBSCRIBED = 33, /*no retry; prompt user */
-    PDP_FAIL_ERROR_UNSPECIFIED = 0xffff  /* This and all other cases: retry silently */
-} RIL_LastPDPActivateFailCause;
+    PDP_FAIL_OPERATOR_BARRED = 0x08,               /* no retry */
+    PDP_FAIL_INSUFFICIENT_RESOURCES = 0x1A,
+    PDP_FAIL_MISSING_UKNOWN_APN = 0x1B,            /* no retry */
+    PDP_FAIL_UNKNOWN_PDP_ADDRESS_TYPE = 0x1C,      /* no retry */
+    PDP_FAIL_USER_AUTHENTICATION = 0x1D,           /* no retry */
+    PDP_FAIL_ACTIVATION_REJECT_GGSN = 0x1E,        /* no retry */
+    PDP_FAIL_ACTIVATION_REJECT_UNSPECIFIED = 0x1F,
+    PDP_FAIL_SERVICE_OPTION_NOT_SUPPORTED = 0x20,  /* no retry */
+    PDP_FAIL_SERVICE_OPTION_NOT_SUBSCRIBED = 0x21, /* no retry */
+    PDP_FAIL_SERVICE_OPTION_OUT_OF_ORDER = 0x22,
+    PDP_FAIL_NSAPI_IN_USE      = 0x23,             /* no retry */
+    PDP_FAIL_PROTOCOL_ERRORS   = 0x6F,             /* no retry */
+    PDP_FAIL_ERROR_UNSPECIFIED = 0xffff,  /* This and all other cases: retry silently */
+    /* Not mentioned in the specification */
+    PDP_FAIL_REGISTRATION_FAIL = -1,
+    PDP_FAIL_GPRS_REGISTRATION_FAIL = -2,
+} RIL_LastDataCallActivateFailCause;
 
 /* Used by RIL_UNSOL_SUPP_SVC_NOTIFICATION */
 typedef struct {
@@ -223,17 +270,107 @@ typedef struct {
                                    (MT only, may be NULL). */
 } RIL_SuppSvcNotification;
 
-/* see RIL_REQUEST_GET_SIM_STATUS */
-#define RIL_SIM_ABSENT      		0
-#define RIL_SIM_NOT_READY   		1
-/* RIL_SIM_READY means that the radio state is RADIO_STATE_SIM_READY. 
+#define RIL_SIM_ABSENT                  0
+#define RIL_SIM_NOT_READY               1
+/* RIL_SIM_READY means that the radio state is RADIO_STATE_SIM_READY.
  * This is more
  * than "+CPIN: READY". It also means the radio is ready for SIM I/O
  */
-#define RIL_SIM_READY       		2
-#define RIL_SIM_PIN         		3
-#define RIL_SIM_PUK         		4
+#define RIL_SIM_READY                   2
+#define RIL_SIM_PIN                     3
+#define RIL_SIM_PUK                     4
 #define RIL_SIM_NETWORK_PERSONALIZATION 5
+
+/* see RIL_REQUEST_GET_SIM_STATUS */
+
+#define RIL_CARD_MAX_APPS     8
+
+typedef enum {
+    RIL_CARDSTATE_ABSENT   = 0,
+    RIL_CARDSTATE_PRESENT  = 1,
+    RIL_CARDSTATE_ERROR    = 2
+} RIL_CardState;
+
+typedef enum {
+    RIL_PERSOSUBSTATE_UNKNOWN                   = 0, /* initial state */
+    RIL_PERSOSUBSTATE_IN_PROGRESS               = 1, /* in between each lock transition */
+    RIL_PERSOSUBSTATE_READY                     = 2, /* when either SIM or RUIM Perso is finished
+                                                        since each app can only have 1 active perso
+                                                        involved */
+    RIL_PERSOSUBSTATE_SIM_NETWORK               = 3,
+    RIL_PERSOSUBSTATE_SIM_NETWORK_SUBSET        = 4,
+    RIL_PERSOSUBSTATE_SIM_CORPORATE             = 5,
+    RIL_PERSOSUBSTATE_SIM_SERVICE_PROVIDER      = 6,
+    RIL_PERSOSUBSTATE_SIM_SIM                   = 7,
+    RIL_PERSOSUBSTATE_SIM_NETWORK_PUK           = 8, /* The corresponding perso lock is blocked */
+    RIL_PERSOSUBSTATE_SIM_NETWORK_SUBSET_PUK    = 9,
+    RIL_PERSOSUBSTATE_SIM_CORPORATE_PUK         = 10,
+    RIL_PERSOSUBSTATE_SIM_SERVICE_PROVIDER_PUK  = 11,
+    RIL_PERSOSUBSTATE_SIM_SIM_PUK               = 12,
+    RIL_PERSOSUBSTATE_RUIM_NETWORK1             = 13,
+    RIL_PERSOSUBSTATE_RUIM_NETWORK2             = 14,
+    RIL_PERSOSUBSTATE_RUIM_HRPD                 = 15,
+    RIL_PERSOSUBSTATE_RUIM_CORPORATE            = 16,
+    RIL_PERSOSUBSTATE_RUIM_SERVICE_PROVIDER     = 17,
+    RIL_PERSOSUBSTATE_RUIM_RUIM                 = 18,
+    RIL_PERSOSUBSTATE_RUIM_NETWORK1_PUK         = 19, /* The corresponding perso lock is blocked */
+    RIL_PERSOSUBSTATE_RUIM_NETWORK2_PUK         = 20,
+    RIL_PERSOSUBSTATE_RUIM_HRPD_PUK             = 21,
+    RIL_PERSOSUBSTATE_RUIM_CORPORATE_PUK        = 22,
+    RIL_PERSOSUBSTATE_RUIM_SERVICE_PROVIDER_PUK = 23,
+    RIL_PERSOSUBSTATE_RUIM_RUIM_PUK             = 24
+} RIL_PersoSubstate;
+
+typedef enum {
+    RIL_APPSTATE_UNKNOWN               = 0,
+    RIL_APPSTATE_DETECTED              = 1,
+    RIL_APPSTATE_PIN                   = 2, /* If PIN1 or UPin is required */
+    RIL_APPSTATE_PUK                   = 3, /* If PUK1 or Puk for UPin is required */
+    RIL_APPSTATE_SUBSCRIPTION_PERSO    = 4, /* perso_substate should be look at
+                                               when app_state is assigned to this value */
+    RIL_APPSTATE_READY                 = 5
+} RIL_AppState;
+
+typedef enum {
+    RIL_PINSTATE_UNKNOWN              = 0,
+    RIL_PINSTATE_ENABLED_NOT_VERIFIED = 1,
+    RIL_PINSTATE_ENABLED_VERIFIED     = 2,
+    RIL_PINSTATE_DISABLED             = 3,
+    RIL_PINSTATE_ENABLED_BLOCKED      = 4,
+    RIL_PINSTATE_ENABLED_PERM_BLOCKED = 5
+} RIL_PinState;
+
+typedef enum {
+  RIL_APPTYPE_UNKNOWN = 0,
+  RIL_APPTYPE_SIM     = 1,
+  RIL_APPTYPE_USIM    = 2,
+  RIL_APPTYPE_RUIM    = 3,
+  RIL_APPTYPE_CSIM    = 4
+} RIL_AppType;
+
+typedef struct
+{
+  RIL_AppType      app_type;
+  RIL_AppState     app_state;
+  RIL_PersoSubstate perso_substate; /* applicable only if app_state ==
+                                       RIL_APPSTATE_SUBSCRIPTION_PERSO */
+  char             *aid_ptr;        /* null terminated string, e.g., from 0xA0, 0x00 -> 0x41,
+                                       0x30, 0x30, 0x30 */
+  char             *app_label_ptr;  /* null terminated string */
+  int              pin1_replaced;   /* applicable to USIM and CSIM */
+  RIL_PinState     pin1;
+  RIL_PinState     pin2;
+} RIL_AppStatus;
+
+typedef struct
+{
+  RIL_CardState card_state;
+  RIL_PinState  universal_pin_state;             /* applicable to USIM and CSIM: RIL_PINSTATE_xxx */
+  int           gsm_umts_subscription_app_index; /* value < RIL_CARD_MAX_APPS */
+  int           cdma_subscription_app_index;     /* value < RIL_CARD_MAX_APPS */
+  int           num_applications;                /* value <= RIL_CARD_MAX_APPS */
+  RIL_AppStatus applications[RIL_CARD_MAX_APPS];
+} RIL_CardStatus;
 
 /* The result of a SIM refresh, returned in data[0] of RIL_UNSOL_SIM_REFRESH */
 typedef enum {
@@ -245,31 +382,232 @@ typedef enum {
     SIM_RESET = 2
 } RIL_SimRefreshResult;
 
+typedef struct {
+    char *          number;             /* Remote party number */
+    int             numberPresentation; /* 0=Allowed, 1=Restricted, 2=Not Specified/Unknown */
+    char *          name;               /* Remote party name */
+    RIL_CDMA_SignalInfoRecord signalInfoRecord;
+} RIL_CDMA_CallWaiting;
+
+/**
+ * Which types of Cell Broadcast Message (CBM) are to be received by the ME
+ *
+ * uFromServiceID - uToServiceID defines a range of CBM message identifiers
+ * whose value is 0x0000 - 0xFFFF as defined in TS 23.041 9.4.1.2.2 for GMS
+ * and 9.4.4.2.2 for UMTS. All other values can be treated as empty
+ * CBM message ID.
+ *
+ * uFromCodeScheme - uToCodeScheme defines a range of CBM data coding schemes
+ * whose value is 0x00 - 0xFF as defined in TS 23.041 9.4.1.2.3 for GMS
+ * and 9.4.4.2.3 for UMTS.
+ * All other values can be treated as empty CBM data coding scheme.
+ *
+ * selected 0 means message types specified in <fromServiceId, toServiceId>
+ * and <fromCodeScheme, toCodeScheme>are not accepted, while 1 means accepted.
+ *
+ * Used by RIL_REQUEST_GSM_GET_BROADCAST_CONFIG and
+ * RIL_REQUEST_GSM_SET_BROADCAST_CONFIG.
+ */
+typedef struct {
+    int fromServiceId;
+    int toServiceId;
+    int fromCodeScheme;
+    int toCodeScheme;
+    unsigned char selected;
+} RIL_GSM_BroadcastSmsConfigInfo;
+
 /* No restriction at all including voice/SMS/USSD/SS/AV64 and packet data. */
 #define RIL_RESTRICTED_STATE_NONE           0x00
 /* Block emergency call due to restriction. But allow all normal voice/SMS/USSD/SS/AV64. */
 #define RIL_RESTRICTED_STATE_CS_EMERGENCY   0x01
 /* Block all normal voice/SMS/USSD/SS/AV64 due to restriction. Only Emergency call allowed. */
 #define RIL_RESTRICTED_STATE_CS_NORMAL      0x02
-/* Block all voice/SMS/USSD/SS/AV64	including emergency call due to restriction.*/
+/* Block all voice/SMS/USSD/SS/AV64 including emergency call due to restriction.*/
 #define RIL_RESTRICTED_STATE_CS_ALL         0x04
 /* Block packet data access due to restriction. */
 #define RIL_RESTRICTED_STATE_PS_ALL         0x10
 
-/** 
+/* The status for an OTASP/OTAPA session */
+typedef enum {
+    CDMA_OTA_PROVISION_STATUS_SPL_UNLOCKED,
+    CDMA_OTA_PROVISION_STATUS_SPC_RETRIES_EXCEEDED,
+    CDMA_OTA_PROVISION_STATUS_A_KEY_EXCHANGED,
+    CDMA_OTA_PROVISION_STATUS_SSD_UPDATED,
+    CDMA_OTA_PROVISION_STATUS_NAM_DOWNLOADED,
+    CDMA_OTA_PROVISION_STATUS_MDN_DOWNLOADED,
+    CDMA_OTA_PROVISION_STATUS_IMSI_DOWNLOADED,
+    CDMA_OTA_PROVISION_STATUS_PRL_DOWNLOADED,
+    CDMA_OTA_PROVISION_STATUS_COMMITTED,
+    CDMA_OTA_PROVISION_STATUS_OTAPA_STARTED,
+    CDMA_OTA_PROVISION_STATUS_OTAPA_STOPPED,
+    CDMA_OTA_PROVISION_STATUS_OTAPA_ABORTED
+} RIL_CDMA_OTA_ProvisionStatus;
+
+typedef struct {
+    int signalStrength;  /* Valid values are (0-31, 99) as defined in TS 27.007 8.5 */
+    int bitErrorRate;    /* bit error rate (0-7, 99) as defined in TS 27.007 8.5 */
+} RIL_GW_SignalStrength;
+
+
+typedef struct {
+    int dbm;  /* Valid values are positive integers.  This value is the actual RSSI value
+               * multiplied by -1.  Example: If the actual RSSI is -75, then this response
+               * value will be 75.
+               */
+    int ecio; /* Valid values are positive integers.  This value is the actual Ec/Io multiplied
+               * by -10.  Example: If the actual Ec/Io is -12.5 dB, then this response value
+               * will be 125.
+               */
+} RIL_CDMA_SignalStrength;
+
+
+typedef struct {
+    int dbm;  /* Valid values are positive integers.  This value is the actual RSSI value
+               * multiplied by -1.  Example: If the actual RSSI is -75, then this response
+               * value will be 75.
+               */
+    int ecio; /* Valid values are positive integers.  This value is the actual Ec/Io multiplied
+               * by -10.  Example: If the actual Ec/Io is -12.5 dB, then this response value
+               * will be 125.
+               */
+    int signalNoiseRatio; /* Valid values are 0-8.  8 is the highest signal to noise ratio. */
+} RIL_EVDO_SignalStrength;
+
+
+typedef struct {
+    RIL_GW_SignalStrength   GW_SignalStrength;
+    RIL_CDMA_SignalStrength CDMA_SignalStrength;
+    RIL_EVDO_SignalStrength EVDO_SignalStrength;
+} RIL_SignalStrength;
+
+/* Names of the CDMA info records (C.S0005 section 3.7.5) */
+typedef enum {
+  RIL_CDMA_DISPLAY_INFO_REC,
+  RIL_CDMA_CALLED_PARTY_NUMBER_INFO_REC,
+  RIL_CDMA_CALLING_PARTY_NUMBER_INFO_REC,
+  RIL_CDMA_CONNECTED_NUMBER_INFO_REC,
+  RIL_CDMA_SIGNAL_INFO_REC,
+  RIL_CDMA_REDIRECTING_NUMBER_INFO_REC,
+  RIL_CDMA_LINE_CONTROL_INFO_REC,
+  RIL_CDMA_EXTENDED_DISPLAY_INFO_REC,
+  RIL_CDMA_T53_CLIR_INFO_REC,
+  RIL_CDMA_T53_RELEASE_INFO_REC,
+  RIL_CDMA_T53_AUDIO_CONTROL_INFO_REC
+} RIL_CDMA_InfoRecName;
+
+/* Display Info Rec as defined in C.S0005 section 3.7.5.1
+   Extended Display Info Rec as defined in C.S0005 section 3.7.5.16
+   Note: the Extended Display info rec contains multiple records of the
+   form: display_tag, display_len, and display_len occurrences of the
+   chari field if the display_tag is not 10000000 or 10000001.
+   To save space, the records are stored consecutively in a byte buffer.
+   The display_tag, display_len and chari fields are all 1 byte.
+*/
+
+typedef struct {
+  char alpha_len;
+  char alpha_buf[CDMA_ALPHA_INFO_BUFFER_LENGTH];
+} RIL_CDMA_DisplayInfoRecord;
+
+/* Called Party Number Info Rec as defined in C.S0005 section 3.7.5.2
+   Calling Party Number Info Rec as defined in C.S0005 section 3.7.5.3
+   Connected Number Info Rec as defined in C.S0005 section 3.7.5.4
+*/
+
+typedef struct {
+  char len;
+  char buf[CDMA_NUMBER_INFO_BUFFER_LENGTH];
+  char number_type;
+  char number_plan;
+  char pi;
+  char si;
+} RIL_CDMA_NumberInfoRecord;
+
+/* Redirecting Number Information Record as defined in C.S0005 section 3.7.5.11 */
+typedef enum {
+  RIL_REDIRECTING_REASON_UNKNOWN = 0,
+  RIL_REDIRECTING_REASON_CALL_FORWARDING_BUSY = 1,
+  RIL_REDIRECTING_REASON_CALL_FORWARDING_NO_REPLY = 2,
+  RIL_REDIRECTING_REASON_CALLED_DTE_OUT_OF_ORDER = 9,
+  RIL_REDIRECTING_REASON_CALL_FORWARDING_BY_THE_CALLED_DTE = 10,
+  RIL_REDIRECTING_REASON_CALL_FORWARDING_UNCONDITIONAL = 15,
+  RIL_REDIRECTING_REASON_RESERVED
+} RIL_CDMA_RedirectingReason;
+
+typedef struct {
+  RIL_CDMA_NumberInfoRecord redirectingNumber;
+  /* redirectingReason is set to RIL_REDIRECTING_REASON_UNKNOWN if not included */
+  RIL_CDMA_RedirectingReason redirectingReason;
+} RIL_CDMA_RedirectingNumberInfoRecord;
+
+/* Line Control Information Record as defined in C.S0005 section 3.7.5.15 */
+typedef struct {
+  char lineCtrlPolarityIncluded;
+  char lineCtrlToggle;
+  char lineCtrlReverse;
+  char lineCtrlPowerDenial;
+} RIL_CDMA_LineControlInfoRecord;
+
+/* T53 CLIR Information Record */
+typedef struct {
+  char cause;
+} RIL_CDMA_T53_CLIRInfoRecord;
+
+/* T53 Audio Control Information Record */
+typedef struct {
+  char upLink;
+  char downLink;
+} RIL_CDMA_T53_AudioControlInfoRecord;
+
+typedef struct {
+
+  RIL_CDMA_InfoRecName name;
+
+  union {
+    /* Display and Extended Display Info Rec */
+    RIL_CDMA_DisplayInfoRecord           display;
+
+    /* Called Party Number, Calling Party Number, Connected Number Info Rec */
+    RIL_CDMA_NumberInfoRecord            number;
+
+    /* Signal Info Rec */
+    RIL_CDMA_SignalInfoRecord            signal;
+
+    /* Redirecting Number Info Rec */
+    RIL_CDMA_RedirectingNumberInfoRecord redir;
+
+    /* Line Control Info Rec */
+    RIL_CDMA_LineControlInfoRecord       lineCtrl;
+
+    /* T53 CLIR Info Rec */
+    RIL_CDMA_T53_CLIRInfoRecord          clir;
+
+    /* T53 Audio Control Info Rec */
+    RIL_CDMA_T53_AudioControlInfoRecord  audioCtrl;
+  } rec;
+} RIL_CDMA_InformationRecord;
+
+#define RIL_CDMA_MAX_NUMBER_OF_INFO_RECS 10
+
+typedef struct {
+  char numberOfInfoRecs;
+  RIL_CDMA_InformationRecord infoRec[RIL_CDMA_MAX_NUMBER_OF_INFO_RECS];
+} RIL_CDMA_InformationRecords;
+
+/**
  * RIL_REQUEST_GET_SIM_STATUS
  *
  * Requests status of the SIM interface and the SIM card
- * 
+ *
  * "data" is NULL
  *
- * "response" must be an int * pointing to RIL_SIM_* constant 
- * This should always succeed (RIL_SUCCESS)
+ * "response" is const RIL_CardStatus *
+
  *
- * If the radio is off or unavailable, return RIL_SIM_NOT_READY 
+ * If the radio is off or unavailable, return RIL_SIM_NOT_READY
  *
- * Please note: RIL_SIM_READY means that the radio state 
- * is RADIO_STATE_SIM_READY.   This is more than "+CPIN: READY". 
+ * Please note: RIL_SIM_READY means that the radio state
+ * is RADIO_STATE_SIM_READY.   This is more than "+CPIN: READY".
  * It also means the radio is ready for SIM I/O
  *
  * Valid errors:
@@ -285,11 +623,12 @@ typedef enum {
  * "data" is const char **
  * ((const char **)data)[0] is PIN value
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
- *  
- * SUCCESS 
+ *
+ * SUCCESS
  * RADIO_NOT_AVAILABLE (radio resetting)
  * GENERIC_FAILURE
  * PASSWORD_INCORRECT
@@ -301,17 +640,18 @@ typedef enum {
 /**
  * RIL_REQUEST_ENTER_SIM_PUK
  *
- * Supplies SIM PUK and new PIN. 
+ * Supplies SIM PUK and new PIN.
  *
  * "data" is const char **
  * ((const char **)data)[0] is PUK value
  * ((const char **)data)[1] is new PIN value
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
- *  
- *  SUCCESS 
+ *
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  *  PASSWORD_INCORRECT
@@ -329,11 +669,12 @@ typedef enum {
  * "data" is const char **
  * ((const char **)data)[0] is PIN2 value
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
- *  
- *  SUCCESS 
+ *
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  *  PASSWORD_INCORRECT
@@ -344,17 +685,18 @@ typedef enum {
 /**
  * RIL_REQUEST_ENTER_SIM_PUK2
  *
- * Supplies SIM PUK2 and new PIN2. 
+ * Supplies SIM PUK2 and new PIN2.
  *
  * "data" is const char **
  * ((const char **)data)[0] is PUK2 value
  * ((const char **)data)[1] is new PIN2 value
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
- *  
- *  SUCCESS 
+ *
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  *  PASSWORD_INCORRECT
@@ -366,22 +708,23 @@ typedef enum {
 /**
  * RIL_REQUEST_CHANGE_SIM_PIN
  *
- * Supplies old SIM PIN and new PIN. 
+ * Supplies old SIM PIN and new PIN.
  *
  * "data" is const char **
  * ((const char **)data)[0] is old PIN value
  * ((const char **)data)[1] is new PIN value
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
- *  
- *  SUCCESS 
+ *
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  *  PASSWORD_INCORRECT
  *     (old PIN is invalid)
- *      
+ *
  */
 
 #define RIL_REQUEST_CHANGE_SIM_PIN 6
@@ -390,22 +733,23 @@ typedef enum {
 /**
  * RIL_REQUEST_CHANGE_SIM_PIN2
  *
- * Supplies old SIM PIN2 and new PIN2. 
+ * Supplies old SIM PIN2 and new PIN2.
  *
  * "data" is const char **
  * ((const char **)data)[0] is old PIN2 value
  * ((const char **)data)[1] is new PIN2 value
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
- *  
- *  SUCCESS 
+ *
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  *  PASSWORD_INCORRECT
  *     (old PIN2 is invalid)
- *      
+ *
  */
 
 #define RIL_REQUEST_CHANGE_SIM_PIN2 7
@@ -418,11 +762,12 @@ typedef enum {
  * "data" is const char **
  * ((const char **)(data))[0]] is network depersonlization code
  *
- * "response" must be NULL
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
- *  
- *  SUCCESS 
+ *
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  *  PASSWORD_INCORRECT
@@ -432,17 +777,17 @@ typedef enum {
 #define RIL_REQUEST_ENTER_NETWORK_DEPERSONALIZATION 8
 
 /**
- * RIL_REQUEST_GET_CURRENT_CALLS 
+ * RIL_REQUEST_GET_CURRENT_CALLS
  *
  * Requests current call list
  *
  * "data" is NULL
  *
  * "response" must be a "const RIL_Call **"
- * 
+ *
  * Valid errors:
- *  
- *  SUCCESS 
+ *
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  *      (request will be made again in a few hundred msec)
@@ -451,18 +796,18 @@ typedef enum {
 #define RIL_REQUEST_GET_CURRENT_CALLS 9
 
 
-/** 
+/**
  * RIL_REQUEST_DIAL
  *
  * Initiate voice call
  *
  * "data" is const RIL_Dial *
  * "response" is NULL
- *  
+ *
  * This method is never used for supplementary service codes
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -479,7 +824,7 @@ typedef enum {
  * "response" is a const char * containing the IMSI
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -491,13 +836,13 @@ typedef enum {
  *
  * Hang up a specific line (like AT+CHLD=1x)
  *
- * "data" is an int * 
- * (int *)data)[0] contains GSM call index (value of 'x' in CHLD above)
+ * "data" is an int *
+ * (int *)data)[0] contains Connection index (value of 'x' in CHLD above)
  *
  * "response" is NULL
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -513,7 +858,7 @@ typedef enum {
  * "response" is NULL
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -529,7 +874,7 @@ typedef enum {
  * "response" is NULL
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -557,7 +902,7 @@ typedef enum {
  * "response" is NULL
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -574,7 +919,7 @@ typedef enum {
  * "response" is NULL
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -583,14 +928,14 @@ typedef enum {
 /**
  * RIL_REQUEST_UDUB
  *
- * Send UDUB (user determined used busy) to ringing or 
+ * Send UDUB (user determined used busy) to ringing or
  * waiting call answer)(RIL_BasicRequest r);
  *
  * "data" is NULL
  * "response" is NULL
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -603,8 +948,8 @@ typedef enum {
  *
  * "data" is NULL
  * "response" is a "int *"
- * ((int *)response)[0] is an integer cause code defined in TS 24.008
- *   Annex H or close approximation
+ * ((int *)response)[0] is RIL_LastCallFailCause.  GSM failure reasons are
+ * mapped to cause codes defined in TS 24.008 Annex H where possible.
  *
  * The implementation should return CALL_FAIL_ERROR_UNSPECIFIED for blocked
  * MO calls by restricted state (See RIL_UNSOL_RESTRICTED_STATE_CHANGED)
@@ -619,30 +964,27 @@ typedef enum {
  *  RADIO_NOT_AVAILABLE
  *  GENERIC_FAILURE
  *
- * See also: RIL_REQUEST_LAST_PDP_FAIL_CAUSE
+ * See also: RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE
  */
 #define RIL_REQUEST_LAST_CALL_FAIL_CAUSE 18
 
 /**
  * RIL_REQUEST_SIGNAL_STRENGTH
  *
- * Requests current signal strength and bit error rate
+ * Requests current signal strength and associated information
  *
  * Must succeed if radio is on.
  *
  * "data" is NULL
- * "response" is an "int *"
- * ((int *)response)[0] is received signal strength (0-31, 99)
- * ((int *)response)[1] is bit error rate (0-7, 99)
- *  as defined in TS 27.007 8.5
- *  Other values (eg -1) are not legal
+ *
+ * "response" is a const RIL_SignalStrength *
  *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  */
-
 #define RIL_REQUEST_SIGNAL_STRENGTH 19
+
 /**
  * RIL_REQUEST_REGISTRATION_STATE
  *
@@ -650,18 +992,65 @@ typedef enum {
  *
  * "data" is NULL
  * "response" is a "char **"
- * ((const char **)response)[0] is registration state 0-5 from TS 27.007 7.2
- * ((const char **)response)[1] is LAC if registered or NULL if not
- * ((const char **)response)[2] is CID if registered or NULL if not
+ * ((const char **)response)[0] is registration state 0-6,
+ *              0 - Not registered, MT is not currently searching
+ *                  a new operator to register
+ *              1 - Registered, home network
+ *              2 - Not registered, but MT is currently searching
+ *                  a new operator to register
+ *              3 - Registration denied
+ *              4 - Unknown
+ *              5 - Registered, roaming
+ * ((const char **)response)[1] is LAC if registered on a GSM/WCDMA system or
+ *                              NULL if not.Valid LAC are 0x0000 - 0xffff
+ * ((const char **)response)[2] is CID if registered on a * GSM/WCDMA or
+ *                              NULL if not.
+ *                                 Valid CID are 0x00000000 - 0xffffffff
+ *                                    In GSM, CID is Cell ID (see TS 27.007)
+ *                                            in 16 bits
+ *                                    In UMTS, CID is UMTS Cell Identity
+ *                                             (see TS 25.331) in 28 bits
+ * ((const char **)response)[3] indicates the available radio technology 0-7,
+ *                                  0 - Unknown, 1 - GPRS, 2 - EDGE, 3 - UMTS,
+ *                                  4 - IS95A, 5 - IS95B, 6 - 1xRTT,
+ *                                  7 - EvDo Rev. 0, 8 - EvDo Rev. A
+ * ((const char **)response)[4] is Base Station ID if registered on a CDMA
+ *                              system or NULL if not.  Base Station ID in
+ *                              hexadecimal format
+ * ((const char **)response)[5] is Base Station latitude if registered on a
+ *                              CDMA system or NULL if not. Base Station
+ *                              latitude in hexadecimal format
+ * ((const char **)response)[6] is Base Station longitude if registered on a
+ *                              CDMA system or NULL if not. Base Station
+ *                              longitude in hexadecimal format
+ * ((const char **)response)[7] is concurrent services support indicator if
+ *                              registered on a CDMA system 0-1.
+ *                                   0 - Concurrent services not supported,
+ *                                   1 - Concurrent services supported
+ * ((const char **)response)[8] is System ID if registered on a CDMA system or
+ *                              NULL if not. Valid System ID are 0 - 32767
+ * ((const char **)response)[9] is Network ID if registered on a CDMA system or
+ *                              NULL if not. Valid System ID are 0 - 65535
+ * ((const char **)response)[10] is the TSB-58 Roaming Indicator if registered
+ *                               on a CDMA system or NULL if not. Valid values
+ *                               are 0-255.
+ * ((const char **)response)[11] indicates whether the current system is in the
+ *                               PRL if registered on a CDMA system or NULL if
+ *                               not. 0=not in the PRL, 1=in the PRL
+ * ((const char **)response)[12] is the default Roaming Indicator from the PRL,
+ *                               if registered on a CDMA system or NULL if not.
+ *                               Valid values are 0-255.
+ * ((const char **)response)[13] if registration state is 3 (Registration
+ *                               denied) this is an enumerated reason why
+ *                               registration was denied.
+ *                                 0-General, 1-Authentication Failure
  *
- * LAC and CID are in hexadecimal format.
- * valid LAC are 0x0000 - 0xffff
- * valid CID are 0x00000000 - 0x0fffffff
- *     In GSM, CID is Cell ID (as described in TS 27.007) in 16 bits
- *     In UMTS, CID is UMTS Cell Identity (as described in TS 25.331) in 28 bits
- * 
- * Please note that registration state 4 ("unknown") is treated 
+ * Please note that registration state 4 ("unknown") is treated
  * as "out of service" in the Android telephony system
+ *
+ * Registration state 3 can be returned if Location Update Reject
+ * (with cause 17 - Network Failure) is received repeatedly from the network,
+ * to facilitate "managed roaming"
  *
  * Valid errors:
  *  SUCCESS
@@ -689,8 +1078,8 @@ typedef enum {
  * LAC and CID are in hexadecimal format.
  * valid LAC are 0x0000 - 0xffff
  * valid CID are 0x00000000 - 0x0fffffff
- * 
- * Please note that registration state 4 ("unknown") is treated 
+ *
+ * Please note that registration state 4 ("unknown") is treated
  * as "out of service" in the Android telephony system
  *
  * Valid errors:
@@ -707,14 +1096,14 @@ typedef enum {
  *
  * "data" is NULL
  * "response" is a "const char **"
- * ((const char **)response)[0] is long alpha ONS or EONS 
+ * ((const char **)response)[0] is long alpha ONS or EONS
  *                                  or NULL if unregistered
  *
- * ((const char **)response)[1] is short alpha ONS or EONS 
+ * ((const char **)response)[1] is short alpha ONS or EONS
  *                                  or NULL if unregistered
  * ((const char **)response)[2] is 5 or 6 digit numeric code (MCC + MNC)
  *                                  or NULL if unregistered
- *                                  
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
@@ -757,7 +1146,7 @@ typedef enum {
  *    'S' -- tone should be played for a short time
  *    'L' -- tone should be played for a long time
  * "response" is NULL
- * 
+ *
  * FIXME should this block/mute microphone?
  * How does this interact with local DTMF feedback?
  *
@@ -773,7 +1162,7 @@ typedef enum {
 
 /**
  * RIL_REQUEST_SEND_SMS
- * 
+ *
  * Send an SMS message
  *
  * "data" is const char **
@@ -786,7 +1175,7 @@ typedef enum {
  * "response" is a const RIL_SMS_Response *
  *
  * Based on the return error, caller decides to resend if sending sms
- * fails. SMS_SEND_FAIL_RETRY means retry (i.e. error cause is 332) 
+ * fails. SMS_SEND_FAIL_RETRY means retry (i.e. error cause is 332)
  * and GENERIC_FAILURE means no retry (i.e. error cause is 500)
  *
  * Valid errors:
@@ -802,7 +1191,7 @@ typedef enum {
 
 /**
  * RIL_REQUEST_SEND_SMS_EXPECT_MORE
- * 
+ *
  * Send an SMS message. Identical to RIL_REQUEST_SEND_SMS,
  * except that more messages are expected to be sent soon. If possible,
  * keep SMS relay protocol link open (eg TS 27.005 AT+CMMS command)
@@ -817,7 +1206,7 @@ typedef enum {
  * "response" is a const RIL_SMS_Response *
  *
  * Based on the return error, caller decides to resend if sending sms
- * fails. SMS_SEND_FAIL_RETRY means retry (i.e. error cause is 332) 
+ * fails. SMS_SEND_FAIL_RETRY means retry (i.e. error cause is 332)
  * and GENERIC_FAILURE means no retry (i.e. error cause is 500)
  *
  * Valid errors:
@@ -831,34 +1220,44 @@ typedef enum {
 
 
 /**
- * RIL_REQUEST_SETUP_DEFAULT_PDP
+ * RIL_REQUEST_SETUP_DATA_CALL
  *
- * Configure and activate PDP context (CID 1) for default IP connection 
- *
- * Android Telephony layer will start up pppd process on specified
- * tty when this request responded to.
+ * Setup a packet data connection
  *
  * "data" is a const char **
- * ((const char **)data)[0] is the APN to connect to
- * ((const char **)data)[1] is the username, or NULL
- * ((const char **)data)[2] is the password, or NULL
+ * ((const char **)data)[0] indicates whether to setup connection on radio technology CDMA
+ *                              or GSM/UMTS, 0-1. 0 - CDMA, 1-GSM/UMTS
+ *
+ * ((const char **)data)[1] Profile Number or NULL to indicate default profile
+ * ((const char **)data)[2] is the APN to connect to if radio technology is GSM/UMTS. This APN will
+ *                          override the one in the profile. NULL indicates no APN overrride.
+ * ((const char **)data)[3] is the username for APN, or NULL
+ * ((const char **)data)[4] is the password for APN, or NULL
+ * ((const char **)data)[5] is the PAP / CHAP auth type. Values:
+ *                          0 => PAP and CHAP is never performed.
+ *                          1 => PAP may be performed; CHAP is never performed.
+ *                          2 => CHAP may be performed; PAP is never performed.
+ *                          3 => PAP / CHAP may be performed - baseband dependent.
  *
  * "response" is a char **
- * ((char **)response)[0] indicating PDP CID, which is generated by RIL
- * ((char **)response)[1] indicating the network interface name
- * ((char **)response)[2] indicating the IP address for this interface
+ * ((char **)response)[0] indicating PDP CID, which is generated by RIL. This Connection ID is
+ *                          used in GSM/UMTS and CDMA
+ * ((char **)response)[1] indicating the network interface name for GSM/UMTS or CDMA
+ * ((char **)response)[2] indicating the IP address for this interface for GSM/UMTS
+ *                          and NULL for CDMA
  *
  * FIXME may need way to configure QoS settings
+ *
+ * replaces  RIL_REQUEST_SETUP_DEFAULT_PDP
  *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  GENERIC_FAILURE
  *
- * See also: RIL_REQUEST_DEACTIVATE_DEFAULT_PDP
+ * See also: RIL_REQUEST_DEACTIVATE_DATA_CALL
  */
-
-#define RIL_REQUEST_SETUP_DEFAULT_PDP 27
+#define RIL_REQUEST_SETUP_DATA_CALL 27
 
 
 
@@ -920,7 +1319,7 @@ typedef enum {
 
 /**
  * RIL_REQUEST_CANCEL_USSD
- * 
+ *
  * Cancel the current USSD session if one exists
  *
  * "data" is null
@@ -929,12 +1328,12 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE 
+ *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_CANCEL_USSD 30
 
-/**  
+/**
  * RIL_REQUEST_GET_CLIR
  *
  * Gets current CLIR status
@@ -976,7 +1375,7 @@ typedef enum {
  *
  * For example, if data is forwarded to +18005551212 and voice is forwarded
  * to +18005559999, then two separate RIL_CallForwardInfo's should be returned
- * 
+ *
  * If, however, both data and voice are forwarded to +18005551212, then
  * a single RIL_CallForwardInfo can be returned with the service class
  * set to "data + voice = 3")
@@ -996,7 +1395,7 @@ typedef enum {
  *
  * "data" is const RIL_CallForwardInfo *
  * "response" is NULL
- *  
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
@@ -1019,7 +1418,7 @@ typedef enum {
  * must follow, with the TS 27.007 service class bit vector of services
  * for which call waiting is enabled.
  *
- * For example, if ((const int *)response)[0]  is 1 and 
+ * For example, if ((const int *)response)[0]  is 1 and
  * ((const int *)response)[1] is 3, then call waiting is enabled for data
  * and voice and disabled for everything else
  *
@@ -1053,13 +1452,17 @@ typedef enum {
  * RIL_REQUEST_SMS_ACKNOWLEDGE
  *
  * Acknowledge successful or failed receipt of SMS previously indicated
- * via RIL_UNSOL_RESPONSE_NEW_SMS 
+ * via RIL_UNSOL_RESPONSE_NEW_SMS
  *
  * "data" is int *
- * ((int *)data)[0] is "1" on successful receipt 
+ * ((int *)data)[0] is 1 on successful receipt
  *                  (basically, AT+CNMA=1 from TS 27.005
- * ((int *)data)[0] is "0" on failed receipt 
+ *                  is 0 on failed receipt
  *                  (basically, AT+CNMA=2 from TS 27.005)
+ * ((int *)data)[1] if data[0] is 0, this contains the failure cause as defined
+ *                  in TS 23.040, 9.2.3.22. Currently only 0xD3 (memory
+ *                  capacity exceeded) and 0xFF (unspecified error) are
+ *                  reported.
  *
  * "response" is NULL
  *
@@ -1073,17 +1476,18 @@ typedef enum {
 #define RIL_REQUEST_SMS_ACKNOWLEDGE  37
 
 /**
- * RIL_REQUEST_GET_IMEI
+ * RIL_REQUEST_GET_IMEI - DEPRECATED
  *
  * Get the device IMEI, including check digit
  *
+ * The request is DEPRECATED, use RIL_REQUEST_DEVICE_IDENTITY
  * Valid when RadioState is not RADIO_STATE_UNAVAILABLE
  *
  * "data" is NULL
  * "response" is a const char * containing the IMEI
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -1091,17 +1495,18 @@ typedef enum {
 #define RIL_REQUEST_GET_IMEI 38
 
 /**
- * RIL_REQUEST_GET_IMEISV
+ * RIL_REQUEST_GET_IMEISV - DEPRECATED
  *
  * Get the device IMEISV, which should be two decimal digits
  *
+ * The request is DEPRECATED, use RIL_REQUEST_DEVICE_IDENTITY
  * Valid when RadioState is not RADIO_STATE_UNAVAILABLE
  *
  * "data" is NULL
  * "response" is a const char * containing the IMEISV
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -1122,7 +1527,7 @@ typedef enum {
  * "response" is NULL
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -1130,12 +1535,14 @@ typedef enum {
 #define RIL_REQUEST_ANSWER 40
 
 /**
- * RIL_REQUEST_DEACTIVATE_DEFAULT_PDP
+ * RIL_REQUEST_DEACTIVATE_DATA_CALL
  *
- * Deactivate PDP context created by RIL_REQUEST_SETUP_DEFAULT_PDP
+ * Deactivate packet data connection
+ * replaces RIL_REQUEST_DEACTIVATE_DEFAULT_PDP
  *
  * "data" is const char **
- * ((char**)data)[0] indicating PDP CID
+ * ((char**)data)[0] indicating CID
+ *
  * "response" is NULL
  *
  * Valid errors:
@@ -1143,10 +1550,9 @@ typedef enum {
  *  RADIO_NOT_AVAILABLE
  *  GENERIC_FAILURE
  *
- * See also: RIL_REQUEST_SETUP_DEFAULT_PDP
+ * See also: RIL_REQUEST_SETUP_DATA_CALL
  */
-
-#define RIL_REQUEST_DEACTIVATE_DEFAULT_PDP 41
+#define RIL_REQUEST_DEACTIVATE_DATA_CALL 41
 
 /**
  * RIL_REQUEST_QUERY_FACILITY_LOCK
@@ -1154,7 +1560,7 @@ typedef enum {
  * Query the status of a facility lock state
  *
  * "data" is const char **
- * ((const char **)data)[0] is the facility string code from TS 27.007 7.4  
+ * ((const char **)data)[0] is the facility string code from TS 27.007 7.4
  *                      (eg "AO" for BAOC, "SC" for SIM lock)
  * ((const char **)data)[1] is the password, or "" if not required
  * ((const char **)data)[2] is the TS 27.007 service class bit vector of
@@ -1162,9 +1568,9 @@ typedef enum {
  *
  * "response" is an int *
  * ((const int *)response) 0 is the TS 27.007 service class bit vector of
- *                           services for which the specified barring facility 
+ *                           services for which the specified barring facility
  *                           is active. "0" means "disabled for all"
- * 
+ *
  *
  * Valid errors:
  *  SUCCESS
@@ -1189,7 +1595,8 @@ typedef enum {
  *                            service class bit vector. Eg, the string
  *                            "1" means "set this facility for voice services"
  *
- * "response" is NULL 
+ * "response" is int *
+ * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
  *
  * Valid errors:
  *  SUCCESS
@@ -1211,7 +1618,7 @@ typedef enum {
  * ((const char **)data)[1] = old password
  * ((const char **)data)[2] = new password
  *
- * "response" is NULL 
+ * "response" is NULL
  *
  * Valid errors:
  *  SUCCESS
@@ -1249,7 +1656,7 @@ typedef enum {
  * "data" is NULL
  * "response" is NULL
  *
- * This request must not respond until the new operator is selected 
+ * This request must not respond until the new operator is selected
  * and registered
  *
  * Valid errors:
@@ -1265,14 +1672,14 @@ typedef enum {
  *
  * Manually select a specified network.
  *
- * The radio baseband/RIL implementation is expected to fall back to 
+ * The radio baseband/RIL implementation is expected to fall back to
  * automatic selection mode if the manually selected network should go
  * out of range in the future.
  *
  * "data" is const char * specifying MCCMNC of network to select (eg "310170")
  * "response" is NULL
  *
- * This request must not respond until the new operator is selected 
+ * This request must not respond until the new operator is selected
  * and registered
  *
  * Valid errors:
@@ -1293,8 +1700,8 @@ typedef enum {
  *    n is the number of available networks
  * For each available network:
  *
- * ((const char **)response)[n+0] is long alpha ONS or EONS 
- * ((const char **)response)[n+1] is short alpha ONS or EONS 
+ * ((const char **)response)[n+0] is long alpha ONS or EONS
+ * ((const char **)response)[n+1] is short alpha ONS or EONS
  * ((const char **)response)[n+2] is 5 or 6 digit numeric code (MCC + MNC)
  * ((const char **)response)[n+3] is a string value of the status:
  *           "unknown"
@@ -1302,7 +1709,7 @@ typedef enum {
  *           "current"
  *           "forbidden"
  *
- * This request must not respond until the new operator is selected 
+ * This request must not respond until the new operator is selected
  * and registered
  *
  * Valid errors:
@@ -1316,16 +1723,16 @@ typedef enum {
 /**
  * RIL_REQUEST_DTMF_START
  *
- * Start playing a DTMF tone. Continue playing DTMF tone until 
- * RIL_REQUEST_DTMF_STOP is received 
+ * Start playing a DTMF tone. Continue playing DTMF tone until
+ * RIL_REQUEST_DTMF_STOP is received
  *
  * If a RIL_REQUEST_DTMF_START is received while a tone is currently playing,
  * it should cancel the previous tone and play the new one.
- * 
+ *
  * "data" is a char *
  * ((char *)data)[0] is a single character with one of 12 values: 0-9,*,#
  * "response" is NULL
- * 
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
@@ -1339,10 +1746,10 @@ typedef enum {
  * RIL_REQUEST_DTMF_STOP
  *
  * Stop playing a currently playing DTMF tone.
- * 
+ *
  * "data" is NULL
  * "response" is NULL
- * 
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
@@ -1357,10 +1764,10 @@ typedef enum {
  *
  * Return string value indicating baseband version, eg
  * response from AT+CGMR
- * 
+ *
  * "data" is NULL
  * "response" is const char * containing version string for log reporting
- * 
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
@@ -1373,7 +1780,7 @@ typedef enum {
  * RIL_REQUEST_SEPARATE_CONNECTION
  *
  * Separate a party from a multiparty call placing the multiparty call
- * (less the specified party) on hold and leaving the specified party 
+ * (less the specified party) on hold and leaving the specified party
  * as the only other member of the current (active) call
  *
  * Like AT+CHLD=2x
@@ -1381,13 +1788,14 @@ typedef enum {
  * See TS 22.084 1.3.8.2 (iii)
  * TS 22.030 6.5.5 "Entering "2X followed by send"
  * TS 27.007 "AT+CHLD=2x"
- * 
- * "data" is an int * 
- * (int *)data)[0] contains GSM call index (value of 'x' in CHLD above)
+ *
+ * "data" is an int *
+ * (int *)data)[0] contains Connection index (value of 'x' in CHLD above) "response" is NULL
+ *
  * "response" is NULL
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -1408,7 +1816,7 @@ typedef enum {
  * "response" is NULL
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -1425,7 +1833,7 @@ typedef enum {
  * (int *)response)[0] is 1 for "mute enabled" and 0 for "mute disabled"
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -1441,12 +1849,12 @@ typedef enum {
  *
  * "data" is NULL
  * "response" is an int *
- * (int *)response)[0] is 1 for "CLIP provisioned" 
+ * (int *)response)[0] is 1 for "CLIP provisioned"
  *                           and 0 for "CLIP not provisioned"
- *                           and 2 for "unknown, e.g. no network etc" 
+ *                           and 2 for "unknown, e.g. no network etc"
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -1454,10 +1862,11 @@ typedef enum {
 #define RIL_REQUEST_QUERY_CLIP 55
 
 /**
- * RIL_REQUEST_LAST_PDP_FAIL_CAUSE
- * 
- * Requests the failure cause code for the most recently failed PDP 
- * context activate
+ * RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE
+ *
+ * Requests the failure cause code for the most recently failed PDP
+ * context or CDMA data connection active
+ * replaces RIL_REQUEST_LAST_PDP_FAIL_CAUSE
  *
  * "data" is NULL
  *
@@ -1466,8 +1875,8 @@ typedef enum {
  *   section 6.1.3.1.3 or close approximation
  *
  * If the implementation does not have access to the exact cause codes,
- * then it should return one of the values listed in 
- * RIL_LastPDPActivateFailCause, as the UI layer needs to distinguish these 
+ * then it should return one of the values listed in
+ * RIL_LastDataCallActivateFailCause, as the UI layer needs to distinguish these
  * cases for error notification
  * and potential retries.
  *
@@ -1477,46 +1886,47 @@ typedef enum {
  *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_LAST_CALL_FAIL_CAUSE
- *  
- */ 
+ *
+ */
 
-#define RIL_REQUEST_LAST_PDP_FAIL_CAUSE 56
+#define RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE 56
 
 /**
- * RIL_REQUEST_PDP_CONTEXT_LIST
+ * RIL_REQUEST_DATA_CALL_LIST
  *
  * Queries the status of PDP contexts, returning for each
  * its CID, whether or not it is active, and its PDP type,
  * APN, and PDP adddress.
+ * replaces RIL_REQUEST_PDP_CONTEXT_LIST
  *
  * "data" is NULL
- * "response" is an array of RIL_PDP_Context_Response
+ * "response" is an array of RIL_Data_Call_Response
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
 
-#define RIL_REQUEST_PDP_CONTEXT_LIST 57
+#define RIL_REQUEST_DATA_CALL_LIST 57
 
 /**
- * RIL_REQUEST_RESET_RADIO
+ * RIL_REQUEST_RESET_RADIO - DEPRECATED
  *
  * Request a radio reset. The RIL implementation may postpone
  * the reset until after this request is responded to if the baseband
  * is presently busy.
  *
+ * The request is DEPRECATED, use RIL_REQUEST_RADIO_POWER
+ *
  * "data" is NULL
  * "response" is NULL
  *
- * The reset action could be delayed for a while
- * in case baseband modem is just busy.
- *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
+ *  REQUEST_NOT_SUPPORTED
  */
 
 #define RIL_REQUEST_RESET_RADIO 58
@@ -1527,16 +1937,16 @@ typedef enum {
  * This request reserved for OEM-specific uses. It passes raw byte arrays
  * back and forth.
  *
- * It can be invoked on the Java side from 
+ * It can be invoked on the Java side from
  * com.android.internal.telephony.Phone.invokeOemRilRequestRaw()
  *
  * "data" is a char * of bytes copied from the byte[] data argument in java
  * "response" is a char * of bytes that will returned via the
- * caller's "response" Message here: 
+ * caller's "response" Message here:
  * (byte[])(((AsyncResult)response.obj).result)
  *
- * An error response here will result in 
- * (((AsyncResult)response.obj).result) == null and 
+ * An error response here will result in
+ * (((AsyncResult)response.obj).result) == null and
  * (((AsyncResult)response.obj).exception) being an instance of
  * com.android.internal.telephony.gsm.CommandException
  *
@@ -1552,7 +1962,7 @@ typedef enum {
  * This request reserved for OEM-specific uses. It passes strings
  * back and forth.
  *
- * It can be invoked on the Java side from 
+ * It can be invoked on the Java side from
  * com.android.internal.telephony.Phone.invokeOemRilRequestStrings()
  *
  * "data" is a const char **, representing an array of null-terminated UTF-8
@@ -1564,8 +1974,8 @@ typedef enum {
  *
  * (String[])(((AsyncResult)response.obj).result)
  *
- * An error response here will result in 
- * (((AsyncResult)response.obj).result) == null and 
+ * An error response here will result in
+ * (((AsyncResult)response.obj).result) == null and
  * (((AsyncResult)response.obj).exception) being an instance of
  * com.android.internal.telephony.gsm.CommandException
  *
@@ -1665,6 +2075,19 @@ typedef enum {
  * ((int *)data)[0] is == 3 for "JPN band" (WCDMA-800 / WCDMA-IMT-2000)
  * ((int *)data)[0] is == 4 for "AUS band" (GSM-900 / DCS-1800 / WCDMA-850 / WCDMA-IMT-2000)
  * ((int *)data)[0] is == 5 for "AUS band 2" (GSM-900 / DCS-1800 / WCDMA-850)
+ * ((int *)data)[0] is == 6 for "Cellular (800-MHz Band)"
+ * ((int *)data)[0] is == 7 for "PCS (1900-MHz Band)"
+ * ((int *)data)[0] is == 8 for "Band Class 3 (JTACS Band)"
+ * ((int *)data)[0] is == 9 for "Band Class 4 (Korean PCS Band)"
+ * ((int *)data)[0] is == 10 for "Band Class 5 (450-MHz Band)"
+ * ((int *)data)[0] is == 11 for "Band Class 6 (2-GMHz IMT2000 Band)"
+ * ((int *)data)[0] is == 12 for "Band Class 7 (Upper 700-MHz Band)"
+ * ((int *)data)[0] is == 13 for "Band Class 8 (1800-MHz Band)"
+ * ((int *)data)[0] is == 14 for "Band Class 9 (900-MHz Band)"
+ * ((int *)data)[0] is == 15 for "Band Class 10 (Secondary 800-MHz Band)"
+ * ((int *)data)[0] is == 16 for "Band Class 11 (400-MHz European PAMR Band)"
+ * ((int *)data)[0] is == 17 for "Band Class 15 (AWS Band)"
+ * ((int *)data)[0] is == 18 for "Band Class 16 (US 2.5-GHz Band)"
  *
  * "response" is NULL
  *
@@ -1692,6 +2115,19 @@ typedef enum {
  *  3 for "JPN band" (WCDMA-800 / WCDMA-IMT-2000)
  *  4 for "AUS band" (GSM-900 / DCS-1800 / WCDMA-850 / WCDMA-IMT-2000)
  *  5 for "AUS band 2" (GSM-900 / DCS-1800 / WCDMA-850)
+ *  6 for "Cellular (800-MHz Band)"
+ *  7 for "PCS (1900-MHz Band)"
+ *  8 for "Band Class 3 (JTACS Band)"
+ *  9 for "Band Class 4 (Korean PCS Band)"
+ *  10 for "Band Class 5 (450-MHz Band)"
+ *  11 for "Band Class 6 (2-GMHz IMT2000 Band)"
+ *  12 for "Band Class 7 (Upper 700-MHz Band)"
+ *  13 for "Band Class 8 (1800-MHz Band)"
+ *  14 for "Band Class 9 (900-MHz Band)"
+ *  15 for "Band Class 10 (Secondary 800-MHz Band)"
+ *  16 for "Band Class 11 (400-MHz European PAMR Band)"
+ *  17 for "Band Class 15 (AWS Band)"
+ *  18 for "Band Class 16 (US 2.5-GHz Band)"
  *
  * Valid errors:
  *  SUCCESS
@@ -1802,12 +2238,12 @@ typedef enum {
  * RIL_REQUEST_EXPLICIT_CALL_TRANSFER
  *
  * Connects the two calls and disconnects the subscriber from both calls.
- * 
+ *
  * "data" is NULL
  * "response" is NULL
  *
  * Valid errors:
- *  SUCCESS 
+ *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
  */
@@ -1820,16 +2256,23 @@ typedef enum {
  * (CS/PS domain, RAT, and operation mode)
  *
  * "data" is int *
- * ((int *)data)[0] is == 0 for WCDMA preferred (auto mode)
+ *
+ * ((int *)data)[0] is == 0 for GSM/WCDMA (WCDMA preferred)
  * ((int *)data)[0] is == 1 for GSM only
  * ((int *)data)[0] is == 2 for WCDMA only
+ * ((int *)data)[0] is == 3 for GSM/WCDMA (auto mode)
+ * ((int *)data)[0] is == 4 for CDMA and EvDo (auto mode, according to PRL)
+ * ((int *)data)[0] is == 5 for CDMA only
+ * ((int *)data)[0] is == 6 for EvDo only
+ * ((int *)data)[0] is == 7 for GSM/WCDMA, CDMA, and EvDo (auto mode, according to PRL)
  *
  * "response" is NULL
  *
  * Valid errors:
- *  RIL_E_SUCCESS
- *  RIL_E_RADIO_NOT_AVAILABLE (radio resetting)
- *  RIL_E_GENERIC_FAILURE
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  GENERIC_FAILURE
+ *  MODE_NOT_SUPPORTED
  */
 #define RIL_REQUEST_SET_PREFERRED_NETWORK_TYPE 73
 
@@ -1842,9 +2285,14 @@ typedef enum {
  * "data" is NULL
  *
  * "response" is int *
- * ((int *)response)[0] is == 0 for WCDMA preferred (auto mode)
+ * ((int *)response)[0] is == 0 for GSM/WCDMA (WCDMA preferred)
  * ((int *)response)[0] is == 1 for GSM only
  * ((int *)response)[0] is == 2 for WCDMA only
+ * ((int *)response)[0] is == 3 for GSM/WCDMA (auto mode, according to PRL)
+ * ((int *)response)[0] is == 4 for CDMA and EvDo (auto mode, according to PRL)
+ * ((int *)response)[0] is == 5 for CDMA only
+ * ((int *)response)[0] is == 6 for EvDo only
+ * ((int *)response)[0] is == 7 for GSM/WCDMA, CDMA, and EvDo (auto mode, according to PRL)
  *
  * Valid errors:
  *  SUCCESS
@@ -1874,7 +2322,7 @@ typedef enum {
  * RIL_REQUEST_SET_LOCATION_UPDATES
  *
  * Enables/disables network state change notifications due to changes in
- * LAC and/or CID (basically, +CREG=2 vs. +CREG=1).  
+ * LAC and/or CID (basically, +CREG=2 vs. +CREG=1).
  *
  * Note:  The RIL implementation should default to "updates enabled"
  * when the screen is on and "updates disabled" when the screen is off.
@@ -1894,7 +2342,532 @@ typedef enum {
  */
 #define RIL_REQUEST_SET_LOCATION_UPDATES 76
 
+/**
+ * RIL_REQUEST_CDMA_SET_SUBSCRIPTION
+ *
+ * Request to set the location where the CDMA subscription shall
+ * be retrieved
+ *
+ * "data" is int *
+ * ((int *)data)[0] is == 0 from RUIM/SIM (default)
+ * ((int *)data)[0] is == 1 from NV
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *  SIM_ABSENT
+ *  SUBSCRIPTION_NOT_AVAILABLE
+ */
+#define RIL_REQUEST_CDMA_SET_SUBSCRIPTION 77
+
+/**
+ * RIL_REQUEST_CDMA_SET_ROAMING_PREFERENCE
+ *
+ * Request to set the roaming preferences in CDMA
+ *
+ * "data" is int *
+ * ((int *)data)[0] is == 0 for Home Networks only, as defined in PRL
+ * ((int *)data)[0] is == 1 for Roaming on Affiliated networks, as defined in PRL
+ * ((int *)data)[0] is == 2 for Roaming on Any Network, as defined in the PRL
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_CDMA_SET_ROAMING_PREFERENCE 78
+
+/**
+ * RIL_REQUEST_CDMA_QUERY_ROAMING_PREFERENCE
+ *
+ * Request the actual setting of the roaming preferences in CDMA in the modem
+ *
+ * "data" is NULL
+ *
+ * "response" is int *
+ * ((int *)response)[0] is == 0 for Home Networks only, as defined in PRL
+ * ((int *)response)[0] is == 1 for Roaming on Affiliated networks, as defined in PRL
+ * ((int *)response)[0] is == 2 for Roaming on Any Network, as defined in the PRL
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_CDMA_QUERY_ROAMING_PREFERENCE 79
+
+/**
+ * RIL_REQUEST_SET_TTY_MODE
+ *
+ * Request to set the TTY mode
+ *
+ * "data" is int *
+ * ((int *)data)[0] is == 0 for TTY off
+ * ((int *)data)[0] is == 1 for TTY Full
+ * ((int *)data)[0] is == 2 for TTY HCO (hearing carryover)
+ * ((int *)data)[0] is == 3 for TTY VCO (voice carryover)
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_SET_TTY_MODE 80
+
+/**
+ * RIL_REQUEST_QUERY_TTY_MODE
+ *
+ * Request the setting of TTY mode
+ *
+ * "data" is NULL
+ *
+ * "response" is int *
+ * ((int *)response)[0] is == 0 for TTY off
+ * ((int *)response)[0] is == 1 for TTY Full
+ * ((int *)response)[0] is == 2 for TTY HCO (hearing carryover)
+ * ((int *)response)[0] is == 3 for TTY VCO (voice carryover)
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_QUERY_TTY_MODE 81
+
+/**
+ * RIL_REQUEST_CDMA_SET_PREFERRED_VOICE_PRIVACY_MODE
+ *
+ * Request to set the preferred voice privacy mode used in voice
+ * scrambling
+ *
+ * "data" is int *
+ * ((int *)data)[0] is == 0 for Standard Privacy Mode (Public Long Code Mask)
+ * ((int *)data)[0] is == 1 for Enhanced Privacy Mode (Private Long Code Mask)
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_CDMA_SET_PREFERRED_VOICE_PRIVACY_MODE 82
+
+/**
+ * RIL_REQUEST_CDMA_QUERY_PREFERRED_VOICE_PRIVACY_MODE
+ *
+ * Request the setting of preferred voice privacy mode
+ *
+ * "data" is NULL
+ *
+ * "response" is int *
+ * ((int *)response)[0] is == 0 for Standard Privacy Mode (Public Long Code Mask)
+ * ((int *)response)[0] is == 1 for Enhanced Privacy Mode (Private Long Code Mask)
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_CDMA_QUERY_PREFERRED_VOICE_PRIVACY_MODE 83
+
+/**
+ * RIL_REQUEST_CDMA_FLASH
+ *
+ * Send FLASH
+ *
+ * "data" is const char *
+ * ((const char *)data)[0] is a FLASH string
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_CDMA_FLASH 84
+
+/**
+ * RIL_REQUEST_CDMA_BURST_DTMF
+ *
+ * Send DTMF string
+ *
+ * "data" is const char *
+ * ((const char *)data)[0] is a DTMF string
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_CDMA_BURST_DTMF 85
+
+/**
+ * RIL_REQUEST_CDMA_VALIDATE_AKEY
+ *
+ * Validate AKey.
+ *
+ * "data" is const char *
+ * ((const char *)data)[0] is a AKey string
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_CDMA_VALIDATE_AKEY 86
+
+/**
+ * RIL_REQUEST_CDMA_SEND_SMS
+ *
+ * Send a CDMA SMS message
+ *
+ * "data" is const RIL_CDMA_SMS_Message *
+ *
+ * "response" is a const RIL_SMS_Response *
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  SMS_SEND_FAIL_RETRY
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_CDMA_SEND_SMS 87
+
+/**
+ * RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE
+ *
+ * Acknowledge the success or failure in the receipt of SMS
+ * previously indicated via RIL_UNSOL_RESPONSE_CDMA_NEW_SMS
+ *
+ * "data" is const RIL_CDMA_SMS_Ack *
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE 88
+
+/**
+ * RIL_REQUEST_GSM_GET_BROADCAST_SMS_CONFIG
+ *
+ * Request the setting of GSM/WCDMA Cell Broadcast SMS config.
+ *
+ * "data" is NULL
+ *
+ * "response" is a const RIL_GSM_BroadcastSmsConfigInfo **
+ * "responselen" is count * sizeof (RIL_GSM_BroadcastSmsConfigInfo *)
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_GSM_GET_BROADCAST_SMS_CONFIG 89
+
+/**
+ * RIL_REQUEST_GSM_SET_BROADCAST_SMS_CONFIG
+ *
+ * Set GSM/WCDMA Cell Broadcast SMS config
+ *
+ * "data" is a const RIL_GSM_BroadcastSmsConfigInfo **
+ * "datalen" is count * sizeof(RIL_GSM_BroadcastSmsConfigInfo *)
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_GSM_SET_BROADCAST_SMS_CONFIG 90
+
+/**
+ * RIL_REQUEST_GSM_SMS_BROADCAST_ACTIVATION
+ *
+* Enable or disable the reception of GSM/WCDMA Cell Broadcast SMS
+ *
+ * "data" is const int *
+ * (const int *)data[0] indicates to activate or turn off the
+ * reception of GSM/WCDMA Cell Broadcast SMS, 0-1,
+ *                       0 - Activate, 1 - Turn off
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_GSM_SMS_BROADCAST_ACTIVATION 91
+
+/**
+ * RIL_REQUEST_CDMA_GET_BROADCAST_SMS_CONFIG
+ *
+ * Request the setting of CDMA Broadcast SMS config
+ *
+ * "data" is NULL
+ *
+ * "response" is a const RIL_CDMA_BroadcastSmsConfigInfo **
+ * "responselen" is count * sizeof (RIL_CDMA_BroadcastSmsConfigInfo *)
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_CDMA_GET_BROADCAST_SMS_CONFIG 92
+
+/**
+ * RIL_REQUEST_CDMA_SET_BROADCAST_SMS_CONFIG
+ *
+ * Set CDMA Broadcast SMS config
+ *
+ * "data" is an const RIL_CDMA_BroadcastSmsConfigInfo **
+ * "datalen" is count * sizeof(const RIL_CDMA_BroadcastSmsConfigInfo *)
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_CDMA_SET_BROADCAST_SMS_CONFIG 93
+
+/**
+ * RIL_REQUEST_CDMA_SMS_BROADCAST_ACTIVATION
+ *
+ * Enable or disable the reception of CDMA Broadcast SMS
+ *
+ * "data" is const int *
+ * (const int *)data[0] indicates to activate or turn off the
+ * reception of CDMA Broadcast SMS, 0-1,
+ *                       0 - Activate, 1 - Turn off
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_CDMA_SMS_BROADCAST_ACTIVATION 94
+
+/**
+ * RIL_REQUEST_CDMA_SUBSCRIPTION
+ *
+ * Request the device MDN / H_SID / H_NID.
+ *
+ * The request is only allowed when CDMA subscription is available.  When CDMA
+ * subscription is changed, application layer should re-issue the request to
+ * update the subscription information.
+ *
+ * If a NULL value is returned for any of the device id, it means that error
+ * accessing the device.
+ *
+ * "response" is const char **
+ * ((const char **)response)[0] is MDN if CDMA subscription is available
+ * ((const char **)response)[1] is H_SID (Home SID) if CDMA subscription is available
+ * ((const char **)response)[2] is H_NID (Home NID) if CDMA subscription is available
+ * ((const char **)response)[3] is MIN (10 digits, MIN2+MIN1) if CDMA subscription is available
+ * ((const char **)response)[4] is PRL version if CDMA subscription is available
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RIL_E_SUBSCRIPTION_NOT_AVAILABLE
+ */
+
+#define RIL_REQUEST_CDMA_SUBSCRIPTION 95
+
+/**
+ * RIL_REQUEST_CDMA_WRITE_SMS_TO_RUIM
+ *
+ * Stores a CDMA SMS message to RUIM memory.
+ *
+ * "data" is RIL_CDMA_SMS_WriteArgs *
+ *
+ * "response" is int *
+ * ((const int *)response)[0] is the record index where the message is stored.
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_CDMA_WRITE_SMS_TO_RUIM 96
+
+/**
+ * RIL_REQUEST_CDMA_DELETE_SMS_ON_RUIM
+ *
+ * Deletes a CDMA SMS message from RUIM memory.
+ *
+ * "data" is int  *
+ * ((int *)data)[0] is the record index of the message to delete.
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_CDMA_DELETE_SMS_ON_RUIM 97
+
+/**
+ * RIL_REQUEST_DEVICE_IDENTITY
+ *
+ * Request the device ESN / MEID / IMEI / IMEISV.
+ *
+ * The request is always allowed and contains GSM and CDMA device identity;
+ * it substitutes the deprecated requests RIL_REQUEST_GET_IMEI and
+ * RIL_REQUEST_GET_IMEISV.
+ *
+ * If a NULL value is returned for any of the device id, it means that error
+ * accessing the device.
+ *
+ * When CDMA subscription is changed the ESN/MEID may change.  The application
+ * layer should re-issue the request to update the device identity in this case.
+ *
+ * "response" is const char **
+ * ((const char **)response)[0] is IMEI if GSM subscription is available
+ * ((const char **)response)[1] is IMEISV if GSM subscription is available
+ * ((const char **)response)[2] is ESN if CDMA subscription is available
+ * ((const char **)response)[3] is MEID if CDMA subscription is available
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_DEVICE_IDENTITY 98
+
+/**
+ * RIL_REQUEST_EXIT_EMERGENCY_CALLBACK_MODE
+ *
+ * Request the radio's system selection module to exit emergency
+ * callback mode.  RIL will not respond with SUCCESS until the modem has
+ * completely exited from Emergency Callback Mode.
+ *
+ * "data" is NULL
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_EXIT_EMERGENCY_CALLBACK_MODE 99
+
+/**
+ * RIL_REQUEST_GET_SMSC_ADDRESS
+ *
+ * Queries the default Short Message Service Center address on the device.
+ *
+ * "data" is NULL
+ *
+ * "response" is const char * containing the SMSC address.
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_GET_SMSC_ADDRESS 100
+
+/**
+ * RIL_REQUEST_SET_SMSC_ADDRESS
+ *
+ * Sets the default Short Message Service Center address on the device.
+ *
+ * "data" is const char * containing the SMSC address.
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_SET_SMSC_ADDRESS 101
+
+/**
+ * RIL_REQUEST_REPORT_SMS_MEMORY_STATUS
+ *
+ * Indicates whether there is storage available for new SMS messages.
+ *
+ * "data" is int *
+ * ((int *)data)[0] is 1 if memory is available for storing new messages
+ *                  is 0 if memory capacity is exceeded
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_REPORT_SMS_MEMORY_STATUS 102
+
+/**
+ * RIL_REQUEST_REPORT_STK_SERVICE_IS_RUNNING
+ *
+ * Indicates that the StkSerivce is running and is
+ * ready to receive RIL_UNSOL_STK_XXXXX commands.
+ *
+ * "data" is NULL
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+#define RIL_REQUEST_REPORT_STK_SERVICE_IS_RUNNING 103
+
+
 /***********************************************************************/
+
 
 #define RIL_UNSOL_RESPONSE_BASE 1000
 
@@ -1920,7 +2893,7 @@ typedef enum {
  *
  * "data" is NULL
  *
- * Response should be invoked on, for example, 
+ * Response should be invoked on, for example,
  * "RING", "BUSY", "NO CARRIER", and also call state
  * transitions (DIALING->ALERTING ALERTING->ACTIVE)
  *
@@ -1930,7 +2903,7 @@ typedef enum {
 
 
 /**
- * RIL_UNSOL_RESPONSE_NETWORK_STATE_CHANGED 
+ * RIL_UNSOL_RESPONSE_NETWORK_STATE_CHANGED
  *
  * Called when network state, operator name, or GPRS state has changed
  * Basically on, +CREG and +CGREG
@@ -1952,7 +2925,7 @@ typedef enum {
  * RIL_UNSOL_RESPONSE_NEW_SMS
  *
  * Called when new SMS is received.
- * 
+ *
  * "data" is const char *
  * This is a pointer to a string containing the PDU of an SMS-DELIVER
  * as an ascii string of hex digits. The PDU starts with the SMSC address
@@ -1961,7 +2934,7 @@ typedef enum {
  * Callee will subsequently confirm the receipt of thei SMS with a
  * RIL_REQUEST_SMS_ACKNOWLEDGE
  *
- * No new RIL_UNSOL_RESPONSE_NEW_SMS 
+ * No new RIL_UNSOL_RESPONSE_NEW_SMS
  * or RIL_UNSOL_RESPONSE_NEW_SMS_STATUS_REPORT messages should be sent until a
  * RIL_REQUEST_SMS_ACKNOWLEDGE has been received
  */
@@ -1972,7 +2945,7 @@ typedef enum {
  * RIL_UNSOL_RESPONSE_NEW_SMS_STATUS_REPORT
  *
  * Called when new SMS Status Report is received.
- * 
+ *
  * "data" is const char *
  * This is a pointer to a string containing the PDU of an SMS-STATUS-REPORT
  * as an ascii string of hex digits. The PDU starts with the SMSC address
@@ -1981,7 +2954,7 @@ typedef enum {
  * Callee will subsequently confirm the receipt of the SMS with a
  * RIL_REQUEST_SMS_ACKNOWLEDGE
  *
- * No new RIL_UNSOL_RESPONSE_NEW_SMS 
+ * No new RIL_UNSOL_RESPONSE_NEW_SMS
  * or RIL_UNSOL_RESPONSE_NEW_SMS_STATUS_REPORT messages should be sent until a
  * RIL_REQUEST_SMS_ACKNOWLEDGE has been received
  */
@@ -1992,7 +2965,7 @@ typedef enum {
  * RIL_UNSOL_RESPONSE_NEW_SMS_ON_SIM
  *
  * Called when new SMS has been stored on SIM card
- * 
+ *
  * "data" is const int *
  * ((const int *)data)[0] contains the slot index on the SIM that contains
  * the new message
@@ -2006,7 +2979,7 @@ typedef enum {
  * Called when a new USSD message is received.
  *
  * "data" is const char **
- * ((const char **)data)[0] points to a type code, which is 
+ * ((const char **)data)[0] points to a type code, which is
  *  one of these string values:
  *      "0"   USSD-Notify -- text in ((const char **)data)[1]
  *      "1"   USSD-Request -- text in ((const char **)data)[1]
@@ -2029,7 +3002,7 @@ typedef enum {
  *
  * Obsolete. Send via RIL_UNSOL_ON_USSD
  */
-#define RIL_UNSOL_ON_USSD_REQUEST 1007 
+#define RIL_UNSOL_ON_USSD_REQUEST 1007
 
 
 /**
@@ -2047,28 +3020,25 @@ typedef enum {
  *
  * Radio may report signal strength rather han have it polled.
  *
- * "data" is an "int *"
- * ((int *)response)[0] is received signal strength (0-31, 99)
- * ((int *)response)[1] is bit error rate (0-7, 99)
- *  as defined in TS 27.007 8.5
- *  Other values (eg -1) are not legal
+ * "data" is a const RIL_SignalStrength *
  */
 #define RIL_UNSOL_SIGNAL_STRENGTH  1009
 
 
 /**
- * RIL_UNSOL_PDP_CONTEXT_LIST_CHANGED
+ * RIL_UNSOL_DATA_CALL_LIST_CHANGED
  *
  * Indicate a PDP context state has changed, or a new context
  * has been activated or deactivated
+ * replaces RIL_UNSOL_PDP_CONTEXT_LIST_CHANGED
  *
- * "data" is an array of RIL_PDP_Context_Response identical to that
- * returned by RIL_REQUEST_PDP_CONTEXT_LIST
+ * "data" is an array of RIL_Data_Call_Response identical to that
+ * returned by RIL_REQUEST_DATA_CALL_LIST
  *
- * See also: RIL_REQUEST_PDP_CONTEXT_LIST
+ * See also: RIL_REQUEST_DATA_CALL_LIST
  */
 
-#define RIL_UNSOL_PDP_CONTEXT_LIST_CHANGED 1010
+#define RIL_UNSOL_DATA_CALL_LIST_CHANGED 1010
 
 /**
  * RIL_UNSOL_SUPP_SVC_NOTIFICATION
@@ -2160,14 +3130,10 @@ typedef enum {
  *
  * Ring indication for an incoming call (eg, RING or CRING event).
  *
- * "data" is null
+ * "data" is null for GSM
+ * "data" is const RIL_CDMA_SignalInfoRecord * if CDMA
  */
 #define RIL_UNSOL_CALL_RING 1018
-
-
-/*
- * Import four CDMA notifications 1019 - 1022. Need fix when do real CDMA merge.
- */
 
 /**
  * RIL_UNSOL_RESPONSE_SIM_STATUS_CHANGED
@@ -2175,6 +3141,7 @@ typedef enum {
  * Indicates that SIM state changes.
  *
  * Callee will invoke RIL_REQUEST_GET_SIM_STATUS on main thread
+
  * "data" is null
  */
 #define RIL_UNSOL_RESPONSE_SIM_STATUS_CHANGED 1019
@@ -2191,6 +3158,7 @@ typedef enum {
  *
  * No new RIL_UNSOL_RESPONSE_CDMA_NEW_SMS should be sent until
  * RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE has been received
+ *
  */
 #define RIL_UNSOL_RESPONSE_CDMA_NEW_SMS 1020
 
@@ -2202,9 +3170,10 @@ typedef enum {
  * "data" is const char * of 88 bytes which indicates each page
  * of a CBS Message sent to the MS by the BTS as coded in 3GPP
  * 23.041 Section 9.4.1.1
+ *
  */
 #define RIL_UNSOL_RESPONSE_NEW_BROADCAST_SMS 1021
-	
+
 /**
  * RIL_UNSOL_CDMA_RUIM_SMS_STORAGE_FULL
  *
@@ -2212,9 +3181,10 @@ typedef enum {
  * cannot be saved on the RUIM until space is freed.
  *
  * "data" is null
+ *
  */
-#define RIL_UNSOL_CDMA_RUIM_SMS_STORAGE_FULL 1022	
-	
+#define RIL_UNSOL_CDMA_RUIM_SMS_STORAGE_FULL 1022
+
 /**
  * RIL_UNSOL_RESTRICTED_STATE_CHANGED
  *
@@ -2227,7 +3197,58 @@ typedef enum {
  */
 #define RIL_UNSOL_RESTRICTED_STATE_CHANGED 1023
 
+/**
+ * RIL_UNSOL_ENTER_EMERGENCY_CALLBACK_MODE
+ *
+ * Indicates that the radio system selection module has
+ * autonomously entered emergency callback mode.
+ *
+ * "data" is null
+ *
+ */
+#define RIL_UNSOL_ENTER_EMERGENCY_CALLBACK_MODE 1024
 
+/**
+ * RIL_UNSOL_CDMA_CALL_WAITING
+ *
+ * Called when CDMA radio receives a call waiting indication.
+ *
+ * "data" is const RIL_CDMA_CallWaiting *
+ *
+ */
+#define RIL_UNSOL_CDMA_CALL_WAITING 1025
+
+/**
+ * RIL_UNSOL_CDMA_OTA_PROVISION_STATUS
+ *
+ * Called when CDMA radio receives an update of the progress of an
+ * OTASP/OTAPA call.
+ *
+ * "data" is const int *
+ *  For CDMA this is an integer OTASP/OTAPA status listed in
+ *  RIL_CDMA_OTA_ProvisionStatus.
+ *
+ */
+#define RIL_UNSOL_CDMA_OTA_PROVISION_STATUS 1026
+
+/**
+ * RIL_UNSOL_CDMA_INFO_REC
+ *
+ * Called when CDMA radio receives one or more info recs.
+ *
+ * "data" is const RIL_CDMA_InformationRecords *
+ *
+ */
+#define RIL_UNSOL_CDMA_INFO_REC 1027
+
+/**
+ * RIL_UNSOL_OEM_HOOK_RAW
+ *
+ * This is for OEM specific use.
+ *
+ * "data" is a byte[]
+ */
+#define RIL_UNSOL_OEM_HOOK_RAW 1028
 
 /***********************************************************************/
 
@@ -2242,7 +3263,7 @@ typedef enum {
  * @param datalen the length of data
  *
  */
-typedef void (*RIL_RequestFunc) (int request, void *data, 
+typedef void (*RIL_RequestFunc) (int request, void *data,
                                     size_t datalen, RIL_Token t);
 
 /**
@@ -2260,10 +3281,10 @@ typedef RIL_RadioState (*RIL_RadioStateRequest)();
 typedef int (*RIL_Supports)(int requestCode);
 
 /**
- * This function is called from a separate thread--not the 
+ * This function is called from a separate thread--not the
  * thread that calls RIL_RequestFunc--and indicates that a pending
  * request should be cancelled.
- * 
+ *
  * On cancel, the callee should do its best to abandon the request and
  * call RIL_onRequestComplete with RIL_Errno CANCELLED at some later point.
  *
@@ -2273,7 +3294,7 @@ typedef int (*RIL_Supports)(int requestCode);
  *
  * RIL_Cancel calls should return immediately, and not wait for cancellation
  *
- * Please see ITU v.250 5.6.1 for how one might implement this on a TS 27.007 
+ * Please see ITU v.250 5.6.1 for how one might implement this on a TS 27.007
  * interface
  *
  * @param t token wants to be canceled
@@ -2305,12 +3326,12 @@ struct RIL_Env {
      *
      * If "e" != SUCCESS, then response can be null/is ignored
      *
-     * "response" is owned by caller, and should not be modified or 
+     * "response" is owned by caller, and should not be modified or
      * freed by callee
      *
      * RIL_onRequestComplete will return as soon as possible
      */
-    void (*OnRequestComplete)(RIL_Token t, RIL_Errno e, 
+    void (*OnRequestComplete)(RIL_Token t, RIL_Errno e,
                            void *response, size_t responselen);
 
     /**
@@ -2320,24 +3341,24 @@ struct RIL_Env {
      * "data" is owned by caller, and should not be modified or freed by callee
      */
 
-    void (*OnUnsolicitedResponse)(int unsolResponse, const void *data, 
+    void (*OnUnsolicitedResponse)(int unsolResponse, const void *data,
                                     size_t datalen);
 
     /**
-     * Call user-specifed "callback" function on on the same thread that 
+     * Call user-specifed "callback" function on on the same thread that
      * RIL_RequestFunc is called. If "relativeTime" is specified, then it specifies
      * a relative time value at which the callback is invoked. If relativeTime is
      * NULL or points to a 0-filled structure, the callback will be invoked as
      * soon as possible
      */
 
-    void (*RequestTimedCallback) (RIL_TimedCallback callback, 
-                                   void *param, const struct timeval *relativeTime);   
+    void (*RequestTimedCallback) (RIL_TimedCallback callback,
+                                   void *param, const struct timeval *relativeTime);
 };
 
 
-/** 
- *  RIL implementations must defined RIL_Init 
+/**
+ *  RIL implementations must defined RIL_Init
  *  argc and argv will be command line arguments intended for the RIL implementation
  *  Return NULL on error
  *
@@ -2370,7 +3391,7 @@ void RIL_register (const RIL_RadioFunctions *callbacks);
  *                 freed by callee
  * @param responselen the length of response in byte
  */
-void RIL_onRequestComplete(RIL_Token t, RIL_Errno e, 
+void RIL_onRequestComplete(RIL_Token t, RIL_Errno e,
                            void *response, size_t responselen);
 
 /**
@@ -2380,12 +3401,12 @@ void RIL_onRequestComplete(RIL_Token t, RIL_Errno e,
  * @param datalen the length of data in byte
  */
 
-void RIL_onUnsolicitedResponse(int unsolResponse, const void *data, 
+void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
                                 size_t datalen);
 
 
 /**
- * Call user-specifed "callback" function on on the same thread that 
+ * Call user-specifed "callback" function on on the same thread that
  * RIL_RequestFunc is called. If "relativeTime" is specified, then it specifies
  * a relative time value at which the callback is invoked. If relativeTime is
  * NULL or points to a 0-filled structure, the callback will be invoked as
@@ -2396,7 +3417,7 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
  * @param relativeTime a relative time value at which the callback is invoked
  */
 
-void RIL_requestTimedCallback (RIL_TimedCallback callback, 
+void RIL_requestTimedCallback (RIL_TimedCallback callback,
                                void *param, const struct timeval *relativeTime);
 
 
@@ -2407,4 +3428,3 @@ void RIL_requestTimedCallback (RIL_TimedCallback callback,
 #endif
 
 #endif /*ANDROID_RIL_H*/
-

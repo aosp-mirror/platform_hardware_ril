@@ -12,7 +12,7 @@ LOCAL_SHARED_LIBRARIES := \
     libcutils \
     libhardware_legacy
 
-LOCAL_CFLAGS := 
+LOCAL_CFLAGS :=
 
 LOCAL_MODULE:= libril
 
@@ -33,7 +33,7 @@ LOCAL_STATIC_LIBRARIES := \
     libutils_static \
     libcutils
 
-LOCAL_CFLAGS := 
+LOCAL_CFLAGS :=
 
 LOCAL_MODULE:= libril_static
 
