@@ -56,13 +56,22 @@
 #define WORKAROUND_FAKE_CGEV 1
 #endif
 
+typedef enum {
+    SIM_ABSENT = 0,
+    SIM_NOT_READY = 1,
+    SIM_READY = 2, /* SIM_READY means the radio state is RADIO_STATE_SIM_READY */
+    SIM_PIN = 3,
+    SIM_PUK = 4,
+    SIM_NETWORK_PERSONALIZATION = 5
+} SIM_Status; 
+
 static void onRequest (int request, void *data, size_t datalen, RIL_Token t);
 static RIL_RadioState currentState();
 static int onSupports (int requestCode);
 static void onCancel (RIL_Token t);
 static const char *getVersion();
 static int isRadioOn();
-static int getSIMStatus();
+static SIM_Status getSIMStatus();
 static int getCardStatus(RIL_CardStatus **pp_card_status);
 static void freeCardStatus(RIL_CardStatus *p_card_status);
 static void onDataCallListChanged(void *param);
@@ -1561,8 +1570,8 @@ setRadioState(RIL_RadioState newState)
     }
 }
 
-/** returns one of RIM_SIM_*. Returns RIL_SIM_NOT_READY on error */
-static int
+/** Returns SIM_NOT_READY on error */
+static SIM_Status 
 getSIMStatus()
 {
     ATResponse *p_response = NULL;
@@ -1572,14 +1581,14 @@ getSIMStatus()
     char *cpinResult;
 
     if (sState == RADIO_STATE_OFF || sState == RADIO_STATE_UNAVAILABLE) {
-        ret = RIL_SIM_NOT_READY;
+        ret = SIM_NOT_READY;
         goto done;
     }
 
     err = at_send_command_singleline("AT+CPIN?", "+CPIN:", &p_response);
 
     if (err != 0) {
-        ret = RIL_SIM_NOT_READY;
+        ret = SIM_NOT_READY;
         goto done;
     }
 
@@ -1588,11 +1597,11 @@ getSIMStatus()
             break;
 
         case CME_SIM_NOT_INSERTED:
-            ret = RIL_SIM_ABSENT;
+            ret = SIM_ABSENT;
             goto done;
 
         default:
-            ret = RIL_SIM_NOT_READY;
+            ret = SIM_NOT_READY;
             goto done;
     }
 
@@ -1602,28 +1611,28 @@ getSIMStatus()
     err = at_tok_start (&cpinLine);
 
     if (err < 0) {
-        ret = RIL_SIM_NOT_READY;
+        ret = SIM_NOT_READY;
         goto done;
     }
 
     err = at_tok_nextstr(&cpinLine, &cpinResult);
 
     if (err < 0) {
-        ret = RIL_SIM_NOT_READY;
+        ret = SIM_NOT_READY;
         goto done;
     }
 
     if (0 == strcmp (cpinResult, "SIM PIN")) {
-        ret = RIL_SIM_PIN;
+        ret = SIM_PIN;
         goto done;
     } else if (0 == strcmp (cpinResult, "SIM PUK")) {
-        ret = RIL_SIM_PUK;
+        ret = SIM_PUK;
         goto done;
     } else if (0 == strcmp (cpinResult, "PH-NET PIN")) {
-        return RIL_SIM_NETWORK_PERSONALIZATION;
+        return SIM_NETWORK_PERSONALIZATION;
     } else if (0 != strcmp (cpinResult, "READY"))  {
         /* we're treating unsupported lock types as "sim absent" */
-        ret = RIL_SIM_ABSENT;
+        ret = SIM_ABSENT;
         goto done;
     }
 
@@ -1631,7 +1640,7 @@ getSIMStatus()
     p_response = NULL;
     cpinResult = NULL;
 
-    ret = RIL_SIM_READY;
+    ret = SIM_READY;
 
 done:
     at_response_free(p_response);
@@ -1647,22 +1656,22 @@ done:
  */
 static int getCardStatus(RIL_CardStatus **pp_card_status) {
     static RIL_AppStatus app_status_array[] = {
-        // RIL_SIM_ABSENT = 0
+        // SIM_ABSENT = 0
         { RIL_APPTYPE_UNKNOWN, RIL_APPSTATE_UNKNOWN, RIL_PERSOSUBSTATE_UNKNOWN,
           NULL, NULL, 0, RIL_PINSTATE_UNKNOWN, RIL_PINSTATE_UNKNOWN },
-        // RIL_SIM_NOT_READY = 1
+        // SIM_NOT_READY = 1
         { RIL_APPTYPE_SIM, RIL_APPSTATE_DETECTED, RIL_PERSOSUBSTATE_UNKNOWN,
           NULL, NULL, 0, RIL_PINSTATE_UNKNOWN, RIL_PINSTATE_UNKNOWN },
-        // RIL_SIM_READY = 2
+        // SIM_READY = 2
         { RIL_APPTYPE_SIM, RIL_APPSTATE_READY, RIL_PERSOSUBSTATE_READY,
           NULL, NULL, 0, RIL_PINSTATE_UNKNOWN, RIL_PINSTATE_UNKNOWN },
-        // RIL_SIM_PIN = 3
+        // SIM_PIN = 3
         { RIL_APPTYPE_SIM, RIL_APPSTATE_PIN, RIL_PERSOSUBSTATE_UNKNOWN,
           NULL, NULL, 0, RIL_PINSTATE_ENABLED_NOT_VERIFIED, RIL_PINSTATE_UNKNOWN },
-        // RIL_SIM_PUK = 4
+        // SIM_PUK = 4
         { RIL_APPTYPE_SIM, RIL_APPSTATE_PUK, RIL_PERSOSUBSTATE_UNKNOWN,
           NULL, NULL, 0, RIL_PINSTATE_ENABLED_BLOCKED, RIL_PINSTATE_UNKNOWN },
-        // RIL_SIM_NETWORK_PERSONALIZATION = 5
+        // SIM_NETWORK_PERSONALIZATION = 5
         { RIL_APPTYPE_SIM, RIL_APPSTATE_SUBSCRIPTION_PERSO, RIL_PERSOSUBSTATE_SIM_NETWORK,
           NULL, NULL, 0, RIL_PINSTATE_ENABLED_NOT_VERIFIED, RIL_PINSTATE_UNKNOWN }
     };
@@ -1670,7 +1679,7 @@ static int getCardStatus(RIL_CardStatus **pp_card_status) {
     int num_apps;
 
     int sim_status = getSIMStatus();
-    if (sim_status == RIL_SIM_ABSENT) {
+    if (sim_status == SIM_ABSENT) {
         card_state = RIL_CARDSTATE_ABSENT;
         num_apps = 0;
     } else {
@@ -1689,7 +1698,7 @@ static int getCardStatus(RIL_CardStatus **pp_card_status) {
     // Initialize application status
     int i;
     for (i = 0; i < RIL_CARD_MAX_APPS; i++) {
-        p_card_status->applications[i] = app_status_array[RIL_SIM_ABSENT];
+        p_card_status->applications[i] = app_status_array[SIM_ABSENT];
     }
 
     // Pickup the appropriate application status
@@ -1731,19 +1740,19 @@ static void pollSIMState (void *param)
     }
 
     switch(getSIMStatus()) {
-        case RIL_SIM_ABSENT:
-        case RIL_SIM_PIN:
-        case RIL_SIM_PUK:
-        case RIL_SIM_NETWORK_PERSONALIZATION:
+        case SIM_ABSENT:
+        case SIM_PIN:
+        case SIM_PUK:
+        case SIM_NETWORK_PERSONALIZATION:
         default:
             setRadioState(RADIO_STATE_SIM_LOCKED_OR_ABSENT);
         return;
 
-        case RIL_SIM_NOT_READY:
+        case SIM_NOT_READY:
             RIL_requestTimedCallback (pollSIMState, NULL, &TIMEVAL_SIMPOLL);
         return;
 
-        case RIL_SIM_READY:
+        case SIM_READY:
             setRadioState(RADIO_STATE_SIM_READY);
         return;
     }

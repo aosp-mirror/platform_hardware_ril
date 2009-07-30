@@ -280,20 +280,6 @@ typedef struct {
                                    (MT only, may be NULL). */
 } RIL_SuppSvcNotification;
 
-/* TODO: Remove these once reference-ril cleanup is done. */
-#define RIL_SIM_ABSENT                  0
-#define RIL_SIM_NOT_READY               1
-/* RIL_SIM_READY means that the radio state is RADIO_STATE_SIM_READY.
- * This is more
- * than "+CPIN: READY". It also means the radio is ready for SIM I/O
- */
-#define RIL_SIM_READY                   2
-#define RIL_SIM_PIN                     3
-#define RIL_SIM_PUK                     4
-#define RIL_SIM_NETWORK_PERSONALIZATION 5
-
-/* see RIL_REQUEST_GET_SIM_STATUS */
-
 #define RIL_CARD_MAX_APPS     8
 
 typedef enum {
@@ -613,13 +599,6 @@ typedef struct {
  * "data" is NULL
  *
  * "response" is const RIL_CardStatus *
-
- *
- * If the radio is off or unavailable, return RIL_SIM_NOT_READY
- *
- * Please note: RIL_SIM_READY means that the radio state
- * is RADIO_STATE_SIM_READY.   This is more than "+CPIN: READY".
- * It also means the radio is ready for SIM I/O
  *
  * Valid errors:
  *  Must never fail
@@ -629,7 +608,7 @@ typedef struct {
 /**
  * RIL_REQUEST_ENTER_SIM_PIN
  *
- * Supplies SIM PIN. Only called if SIM status is RIL_SIM_PIN
+ * Supplies SIM PIN. Only called if RIL_CardStatus has RIL_APPSTATE_PIN state
  *
  * "data" is const char **
  * ((const char **)data)[0] is PIN value
