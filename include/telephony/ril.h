@@ -1003,7 +1003,8 @@ typedef struct {
  * ((const char **)response)[3] indicates the available radio technology 0-7,
  *                                  0 - Unknown, 1 - GPRS, 2 - EDGE, 3 - UMTS,
  *                                  4 - IS95A, 5 - IS95B, 6 - 1xRTT,
- *                                  7 - EvDo Rev. 0, 8 - EvDo Rev. A
+ *                                  7 - EvDo Rev. 0, 8 - EvDo Rev. A,
+ *                                  9 - HSDPA, 10 - HSUPA, 11 - HSPA
  * ((const char **)response)[4] is Base Station ID if registered on a CDMA
  *                              system or NULL if not.  Base Station ID in
  *                              decimal format
@@ -1067,7 +1068,7 @@ typedef struct {
  *
  * "data" is NULL
  * "response" is a "char **"
- * ((const char **)response)[0] is registration state 0-5 from TS 27.007 7.2
+ * ((const char **)response)[0] is registration state 0-5 from TS 27.007 10.1.20 AT+CGREG
  * ((const char **)response)[1] is LAC if registered or NULL if not
  * ((const char **)response)[2] is CID if registered or NULL if not
  * ((const char **)response)[3] indicates the available radio technology, where:
@@ -1075,6 +1076,9 @@ typedef struct {
  *      1 == GPRS only
  *      2 == EDGE
  *      3 == UMTS
+ *      9 == HSDPA
+ *      10 == HSUPA
+ *      11 == HSPA
  *
  * LAC and CID are in hexadecimal format.
  * valid LAC are 0x0000 - 0xffff
