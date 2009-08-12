@@ -1184,7 +1184,7 @@ sendResponseRaw (const void *data, size_t dataSize) {
         return ret;
     }
 
-    blockingWrite(fd, data, dataSize);
+    ret = blockingWrite(fd, data, dataSize);
 
     if (ret < 0) {
         return ret;
