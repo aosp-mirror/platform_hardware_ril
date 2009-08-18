@@ -1171,9 +1171,6 @@ sendResponseRaw (const void *data, size_t dataSize) {
         return -1;
     }
 
-
-    // FIXME is blocking here ok? issue #550970
-
     pthread_mutex_lock(&s_writeMutex);
 
     header = htonl(dataSize);
@@ -1181,12 +1178,14 @@ sendResponseRaw (const void *data, size_t dataSize) {
     ret = blockingWrite(fd, (void *)&header, sizeof(header));
 
     if (ret < 0) {
+        pthread_mutex_unlock(&s_writeMutex);
         return ret;
     }
 
     ret = blockingWrite(fd, data, dataSize);
 
     if (ret < 0) {
+        pthread_mutex_unlock(&s_writeMutex);
         return ret;
     }
 
