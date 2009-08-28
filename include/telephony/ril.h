@@ -3134,6 +3134,15 @@ typedef struct {
  * RIL_UNSOL_CALL_RING
  *
  * Ring indication for an incoming call (eg, RING or CRING event).
+ * There must be at least one RIL_UNSOL_CALL_RING at the beginning
+ * of a call and sending multiple is optional. If the system property
+ * ro.telephony.call_ring.multiple is false then the upper layers
+ * will generate the multiple events internally. Otherwise the vendor
+ * ril must generate multiple RIL_UNSOL_CALL_RING if
+ * ro.telephony.call_ring.multiple is true or if it is absent.
+ *
+ * The rate of these events is controlled by ro.telephony.call_ring.delay
+ * and has a default value of 3000 (3 seconds) if absent.
  *
  * "data" is null for GSM
  * "data" is const RIL_CDMA_SignalInfoRecord * if CDMA
