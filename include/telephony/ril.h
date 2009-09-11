@@ -2552,6 +2552,12 @@ typedef struct {
  *
  * "response" is a const RIL_SMS_Response *
  *
+ * Based on the return error, caller decides to resend if sending sms
+ * fails. The CDMA error class is derived as follows,
+ * SUCCESS is error class 0 (no error)
+ * SMS_SEND_FAIL_RETRY is error class 2 (temporary failure)
+ * and GENERIC_FAILURE is error class 3 (permanent and no retry)
+ *
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
