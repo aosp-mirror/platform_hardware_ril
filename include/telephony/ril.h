@@ -127,7 +127,9 @@ typedef struct {
 } RIL_Data_Call_Response;
 
 typedef struct {
-    int messageRef;   /*TP-Message-Reference*/
+    int messageRef;   /* TP-Message-Reference for GSM,
+                         and BearerData MessageId for CDMA
+                         (See 3GPP2 C.S0015-B, v2.0, table 4.5-1). */
     char *ackPDU;     /* or NULL if n/a */
     int errorCode;    /* See 3GPP 27.005, 3.2.5 for GSM/UMTS,
                          3GPP2 N.S0005 (IS-41C) Table 171 for CDMA,
