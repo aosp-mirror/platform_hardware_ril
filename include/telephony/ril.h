@@ -3274,6 +3274,18 @@ typedef struct {
  */
 #define RIL_UNSOL_OEM_HOOK_RAW 1028
 
+/**
+ * RIL_UNSOL_RINGBACK_TONE
+ *
+ * Indicates that nework doesn't have in-band information,  need to
+ * play out-band tone.
+ *
+ * "data" is an int *
+ * ((int *)data)[0] == 0 for stop play ringback tone.
+ * ((int *)data)[0] == 1 for start play ringback tone.
+ */
+#define RIL_UNSOL_RINGBACK_TONE 1029
+
 /***********************************************************************/
 
 
