@@ -207,13 +207,15 @@ typedef struct {
 }RIL_CallForwardInfo;
 
 typedef struct {
-   char * cid;         /* Cell Id (as described in TS 27.005) in 16 bits in GSM
+   char * cid;         /* Combination of LAC and Cell Id in 32 bits in GSM.
+                        * Upper 16 bits is LAC and lower 16 bits
+                        * is CID (as described in TS 27.005)
                         * Primary Scrambling Code (as described in TS 25.331)
                         *         in 9 bits in UMTS
-                        * Valid values are hexadecimal 0x0000 - 0xffff.
+                        * Valid values are hexadecimal 0x0000 - 0xffffffff.
                         */
-   int    rssi;        /* Received RSSI in 2G,
-                        * Level index of CPICH Received Signal Code Power in 3G
+   int    rssi;        /* Received RSSI in GSM,
+                        * Level index of CPICH Received Signal Code Power in UMTS
                         */
 } RIL_NeighboringCell;
 
