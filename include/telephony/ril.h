@@ -239,6 +239,7 @@ typedef enum {
     CALL_FAIL_CDMA_PREEMPTED = 1007,
     CALL_FAIL_CDMA_NOT_EMERGENCY = 1008, /* For non-emergency number dialed
                                             during emergency callback mode */
+    CALL_FAIL_CDMA_ACCESS_BLOCKED = 1009, /* CDMA network access probes blocked */
     CALL_FAIL_ERROR_UNSPECIFIED = 0xffff
 } RIL_LastCallFailCause;
 
@@ -943,7 +944,9 @@ typedef struct {
  * "data" is NULL
  * "response" is a "int *"
  * ((int *)response)[0] is RIL_LastCallFailCause.  GSM failure reasons are
- * mapped to cause codes defined in TS 24.008 Annex H where possible.
+ * mapped to cause codes defined in TS 24.008 Annex H where possible. CDMA
+ * failure reasons are derived from the possible call failure scenarios
+ * described in the "CDMA IS-2000 Release A (C.S0005-A v6.0)" standard.
  *
  * The implementation should return CALL_FAIL_ERROR_UNSPECIFIED for blocked
  * MO calls by restricted state (See RIL_UNSOL_RESTRICTED_STATE_CHANGED)
@@ -1027,13 +1030,13 @@ typedef struct {
  * ((const char **)response)[9] is Network ID if registered on a CDMA system or
  *                              NULL if not. Valid System ID are 0 - 65535
  * ((const char **)response)[10] is the TSB-58 Roaming Indicator if registered
- *                               on a CDMA system or NULL if not. Valid values
+ *                               on a CDMA or EVDO system or NULL if not. Valid values
  *                               are 0-255.
  * ((const char **)response)[11] indicates whether the current system is in the
- *                               PRL if registered on a CDMA system or NULL if
+ *                               PRL if registered on a CDMA or EVDO system or NULL if
  *                               not. 0=not in the PRL, 1=in the PRL
  * ((const char **)response)[12] is the default Roaming Indicator from the PRL,
- *                               if registered on a CDMA system or NULL if not.
+ *                               if registered on a CDMA or EVDO system or NULL if not.
  *                               Valid values are 0-255.
  * ((const char **)response)[13] if registration state is 3 (Registration
  *                               denied) this is an enumerated reason why
@@ -2528,12 +2531,18 @@ typedef struct {
 #define RIL_REQUEST_CDMA_BURST_DTMF 85
 
 /**
- * RIL_REQUEST_CDMA_VALIDATE_AKEY
+ * RIL_REQUEST_CDMA_VALIDATE_AND_WRITE_AKEY
  *
- * Validate AKey.
+ * Takes a 26 digit string (20 digit AKEY + 6 digit checksum).
+ * If the checksum is valid the 20 digit AKEY is written to NV,
+ * replacing the existing AKEY no matter what it was before.
  *
  * "data" is const char *
- * ((const char *)data)[0] is a AKey string
+ * ((const char *)data)[0] is a 26 digit string (ASCII digits '0'-'9')
+ *                         where the last 6 digits are a checksum of the
+ *                         first 20, as specified in TR45.AHAG
+ *                         "Common Cryptographic Algorithms, Revision D.1
+ *                         Section 2.2"
  *
  * "response" is NULL
  *
@@ -2543,7 +2552,7 @@ typedef struct {
  *  GENERIC_FAILURE
  *
  */
-#define RIL_REQUEST_CDMA_VALIDATE_AKEY 86
+#define RIL_REQUEST_CDMA_VALIDATE_AND_WRITE_AKEY 86
 
 /**
  * RIL_REQUEST_CDMA_SEND_SMS
