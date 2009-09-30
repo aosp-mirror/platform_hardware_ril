@@ -1996,8 +1996,9 @@ typedef struct {
  *
  * Indicates the current state of the screen.  When the screen is off, the
  * RIL should notify the baseband to suppress certain notifications (eg,
- * signal strength and changes in LAC or CID) in an effort to conserve power.
- * These notifications should resume when the screen is on.
+ * signal strength and changes in LAC/CID or BID/SID/NID/latitude/longitude)
+ * in an effort to conserve power.  These notifications should resume when the
+ * screen is on.
  *
  * "data" is int *
  * ((int *)data)[0] is == 1 for "Screen On"
@@ -2328,7 +2329,8 @@ typedef struct {
  * RIL_REQUEST_SET_LOCATION_UPDATES
  *
  * Enables/disables network state change notifications due to changes in
- * LAC and/or CID (basically, +CREG=2 vs. +CREG=1).
+ * LAC and/or CID (for GSM) or BID/SID/NID/latitude/longitude (for CDMA).
+ * Basically +CREG=2 vs. +CREG=1 (TS 27.007).
  *
  * Note:  The RIL implementation should default to "updates enabled"
  * when the screen is on and "updates disabled" when the screen is off.
