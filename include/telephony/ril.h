@@ -1017,10 +1017,18 @@ typedef struct {
  *                              decimal format
  * ((const char **)response)[5] is Base Station latitude if registered on a
  *                              CDMA system or NULL if not. Base Station
- *                              latitude in hexadecimal format
+ *                              latitude is a decimal number as specified in
+ *                              3GPP2 C.S0005-A v6.0. It is represented in
+ *                              units of 0.25 seconds and ranges from -1296000
+ *                              to 1296000, both values inclusive (corresponding
+ *                              to a range of -90° to +90°).
  * ((const char **)response)[6] is Base Station longitude if registered on a
  *                              CDMA system or NULL if not. Base Station
- *                              longitude in hexadecimal format
+ *                              longitude is a decimal number as specified in
+ *                              3GPP2 C.S0005-A v6.0. It is represented in
+ *                              units of 0.25 seconds and ranges from -2592000
+ *                              to 2592000, both values inclusive (corresponding
+ *                              to a range of -180° to +180°).
  * ((const char **)response)[7] is concurrent services support indicator if
  *                              registered on a CDMA system 0-1.
  *                                   0 - Concurrent services not supported,
