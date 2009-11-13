@@ -27,7 +27,7 @@
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 #include <pthread.h>
-#include <utils/Parcel.h>
+#include <binder/Parcel.h>
 #include <cutils/jstring.h>
 
 #include <sys/types.h>
@@ -1171,9 +1171,6 @@ sendResponseRaw (const void *data, size_t dataSize) {
         return -1;
     }
 
-
-    // FIXME is blocking here ok? issue #550970
-
     pthread_mutex_lock(&s_writeMutex);
 
     header = htonl(dataSize);
@@ -1181,12 +1178,14 @@ sendResponseRaw (const void *data, size_t dataSize) {
     ret = blockingWrite(fd, (void *)&header, sizeof(header));
 
     if (ret < 0) {
+        pthread_mutex_unlock(&s_writeMutex);
         return ret;
     }
 
-    blockingWrite(fd, data, dataSize);
+    ret = blockingWrite(fd, data, dataSize);
 
     if (ret < 0) {
+        pthread_mutex_unlock(&s_writeMutex);
         return ret;
     }
 
@@ -2988,7 +2987,7 @@ requestToString(int request) {
         case RIL_REQUEST_CDMA_GET_BROADCAST_SMS_CONFIG:return "CDMA_GET_BROADCAST_SMS_CONFIG";
         case RIL_REQUEST_CDMA_SET_BROADCAST_SMS_CONFIG:return "CDMA_SET_BROADCAST_SMS_CONFIG";
         case RIL_REQUEST_CDMA_SMS_BROADCAST_ACTIVATION:return "CDMA_SMS_BROADCAST_ACTIVATION";
-        case RIL_REQUEST_CDMA_VALIDATE_AKEY: return"CDMA_VALIDATE_AKEY";
+        case RIL_REQUEST_CDMA_VALIDATE_AND_WRITE_AKEY: return"CDMA_VALIDATE_AND_WRITE_AKEY";
         case RIL_REQUEST_CDMA_SUBSCRIPTION: return"CDMA_SUBSCRIPTION";
         case RIL_REQUEST_CDMA_WRITE_SMS_TO_RUIM: return "CDMA_WRITE_SMS_TO_RUIM";
         case RIL_REQUEST_CDMA_DELETE_SMS_ON_RUIM: return "CDMA_DELETE_SMS_ON_RUIM";
@@ -3025,6 +3024,7 @@ requestToString(int request) {
         case RIL_UNSOL_CDMA_OTA_PROVISION_STATUS: return "UNSOL_CDMA_OTA_PROVISION_STATUS";
         case RIL_UNSOL_CDMA_INFO_REC: return "UNSOL_CDMA_INFO_REC";
         case RIL_UNSOL_OEM_HOOK_RAW: return "UNSOL_OEM_HOOK_RAW";
+        case RIL_UNSOL_RINGBACK_TONE: return "UNSOL_RINGBACK_TONE";
         default: return "<unknown request>";
     }
 }
