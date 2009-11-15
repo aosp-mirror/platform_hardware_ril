@@ -127,7 +127,9 @@ typedef struct {
 } RIL_Data_Call_Response;
 
 typedef struct {
-    int messageRef;   /*TP-Message-Reference*/
+    int messageRef;   /* TP-Message-Reference for GSM,
+                         and BearerData MessageId for CDMA
+                         (See 3GPP2 C.S0015-B, v2.0, table 4.5-1). */
     char *ackPDU;     /* or NULL if n/a */
     int errorCode;    /* See 3GPP 27.005, 3.2.5 for GSM/UMTS,
                          3GPP2 N.S0005 (IS-41C) Table 171 for CDMA,
@@ -205,13 +207,15 @@ typedef struct {
 }RIL_CallForwardInfo;
 
 typedef struct {
-   char * cid;         /* Cell Id (as described in TS 27.005) in 16 bits in GSM
+   char * cid;         /* Combination of LAC and Cell Id in 32 bits in GSM.
+                        * Upper 16 bits is LAC and lower 16 bits
+                        * is CID (as described in TS 27.005)
                         * Primary Scrambling Code (as described in TS 25.331)
                         *         in 9 bits in UMTS
-                        * Valid values are hexadecimal 0x0000 - 0xffff.
+                        * Valid values are hexadecimal 0x0000 - 0xffffffff.
                         */
-   int    rssi;        /* Received RSSI in 2G,
-                        * Level index of CPICH Received Signal Code Power in 3G
+   int    rssi;        /* Received RSSI in GSM,
+                        * Level index of CPICH Received Signal Code Power in UMTS
                         */
 } RIL_NeighboringCell;
 
@@ -235,6 +239,7 @@ typedef enum {
     CALL_FAIL_CDMA_PREEMPTED = 1007,
     CALL_FAIL_CDMA_NOT_EMERGENCY = 1008, /* For non-emergency number dialed
                                             during emergency callback mode */
+    CALL_FAIL_CDMA_ACCESS_BLOCKED = 1009, /* CDMA network access probes blocked */
     CALL_FAIL_ERROR_UNSPECIFIED = 0xffff
 } RIL_LastCallFailCause;
 
@@ -939,7 +944,9 @@ typedef struct {
  * "data" is NULL
  * "response" is a "int *"
  * ((int *)response)[0] is RIL_LastCallFailCause.  GSM failure reasons are
- * mapped to cause codes defined in TS 24.008 Annex H where possible.
+ * mapped to cause codes defined in TS 24.008 Annex H where possible. CDMA
+ * failure reasons are derived from the possible call failure scenarios
+ * described in the "CDMA IS-2000 Release A (C.S0005-A v6.0)" standard.
  *
  * The implementation should return CALL_FAIL_ERROR_UNSPECIFIED for blocked
  * MO calls by restricted state (See RIL_UNSOL_RESTRICTED_STATE_CHANGED)
@@ -1003,16 +1010,25 @@ typedef struct {
  * ((const char **)response)[3] indicates the available radio technology 0-7,
  *                                  0 - Unknown, 1 - GPRS, 2 - EDGE, 3 - UMTS,
  *                                  4 - IS95A, 5 - IS95B, 6 - 1xRTT,
- *                                  7 - EvDo Rev. 0, 8 - EvDo Rev. A
+ *                                  7 - EvDo Rev. 0, 8 - EvDo Rev. A,
+ *                                  9 - HSDPA, 10 - HSUPA, 11 - HSPA
  * ((const char **)response)[4] is Base Station ID if registered on a CDMA
  *                              system or NULL if not.  Base Station ID in
  *                              decimal format
  * ((const char **)response)[5] is Base Station latitude if registered on a
  *                              CDMA system or NULL if not. Base Station
- *                              latitude in hexadecimal format
+ *                              latitude is a decimal number as specified in
+ *                              3GPP2 C.S0005-A v6.0. It is represented in
+ *                              units of 0.25 seconds and ranges from -1296000
+ *                              to 1296000, both values inclusive (corresponding
+ *                              to a range of -90° to +90°).
  * ((const char **)response)[6] is Base Station longitude if registered on a
  *                              CDMA system or NULL if not. Base Station
- *                              longitude in hexadecimal format
+ *                              longitude is a decimal number as specified in
+ *                              3GPP2 C.S0005-A v6.0. It is represented in
+ *                              units of 0.25 seconds and ranges from -2592000
+ *                              to 2592000, both values inclusive (corresponding
+ *                              to a range of -180° to +180°).
  * ((const char **)response)[7] is concurrent services support indicator if
  *                              registered on a CDMA system 0-1.
  *                                   0 - Concurrent services not supported,
@@ -1022,13 +1038,13 @@ typedef struct {
  * ((const char **)response)[9] is Network ID if registered on a CDMA system or
  *                              NULL if not. Valid System ID are 0 - 65535
  * ((const char **)response)[10] is the TSB-58 Roaming Indicator if registered
- *                               on a CDMA system or NULL if not. Valid values
+ *                               on a CDMA or EVDO system or NULL if not. Valid values
  *                               are 0-255.
  * ((const char **)response)[11] indicates whether the current system is in the
- *                               PRL if registered on a CDMA system or NULL if
+ *                               PRL if registered on a CDMA or EVDO system or NULL if
  *                               not. 0=not in the PRL, 1=in the PRL
  * ((const char **)response)[12] is the default Roaming Indicator from the PRL,
- *                               if registered on a CDMA system or NULL if not.
+ *                               if registered on a CDMA or EVDO system or NULL if not.
  *                               Valid values are 0-255.
  * ((const char **)response)[13] if registration state is 3 (Registration
  *                               denied) this is an enumerated reason why
@@ -1067,7 +1083,7 @@ typedef struct {
  *
  * "data" is NULL
  * "response" is a "char **"
- * ((const char **)response)[0] is registration state 0-5 from TS 27.007 7.2
+ * ((const char **)response)[0] is registration state 0-5 from TS 27.007 10.1.20 AT+CGREG
  * ((const char **)response)[1] is LAC if registered or NULL if not
  * ((const char **)response)[2] is CID if registered or NULL if not
  * ((const char **)response)[3] indicates the available radio technology, where:
@@ -1075,6 +1091,9 @@ typedef struct {
  *      1 == GPRS only
  *      2 == EDGE
  *      3 == UMTS
+ *      9 == HSDPA
+ *      10 == HSUPA
+ *      11 == HSPA
  *
  * LAC and CID are in hexadecimal format.
  * valid LAC are 0x0000 - 0xffff
@@ -1985,8 +2004,9 @@ typedef struct {
  *
  * Indicates the current state of the screen.  When the screen is off, the
  * RIL should notify the baseband to suppress certain notifications (eg,
- * signal strength and changes in LAC or CID) in an effort to conserve power.
- * These notifications should resume when the screen is on.
+ * signal strength and changes in LAC/CID or BID/SID/NID/latitude/longitude)
+ * in an effort to conserve power.  These notifications should resume when the
+ * screen is on.
  *
  * "data" is int *
  * ((int *)data)[0] is == 1 for "Screen On"
@@ -2317,7 +2337,8 @@ typedef struct {
  * RIL_REQUEST_SET_LOCATION_UPDATES
  *
  * Enables/disables network state change notifications due to changes in
- * LAC and/or CID (basically, +CREG=2 vs. +CREG=1).
+ * LAC and/or CID (for GSM) or BID/SID/NID/latitude/longitude (for CDMA).
+ * Basically +CREG=2 vs. +CREG=1 (TS 27.007).
  *
  * Note:  The RIL implementation should default to "updates enabled"
  * when the screen is on and "updates disabled" when the screen is off.
@@ -2520,12 +2541,18 @@ typedef struct {
 #define RIL_REQUEST_CDMA_BURST_DTMF 85
 
 /**
- * RIL_REQUEST_CDMA_VALIDATE_AKEY
+ * RIL_REQUEST_CDMA_VALIDATE_AND_WRITE_AKEY
  *
- * Validate AKey.
+ * Takes a 26 digit string (20 digit AKEY + 6 digit checksum).
+ * If the checksum is valid the 20 digit AKEY is written to NV,
+ * replacing the existing AKEY no matter what it was before.
  *
  * "data" is const char *
- * ((const char *)data)[0] is a AKey string
+ * ((const char *)data)[0] is a 26 digit string (ASCII digits '0'-'9')
+ *                         where the last 6 digits are a checksum of the
+ *                         first 20, as specified in TR45.AHAG
+ *                         "Common Cryptographic Algorithms, Revision D.1
+ *                         Section 2.2"
  *
  * "response" is NULL
  *
@@ -2535,7 +2562,7 @@ typedef struct {
  *  GENERIC_FAILURE
  *
  */
-#define RIL_REQUEST_CDMA_VALIDATE_AKEY 86
+#define RIL_REQUEST_CDMA_VALIDATE_AND_WRITE_AKEY 86
 
 /**
  * RIL_REQUEST_CDMA_SEND_SMS
@@ -2545,6 +2572,12 @@ typedef struct {
  * "data" is const RIL_CDMA_SMS_Message *
  *
  * "response" is a const RIL_SMS_Response *
+ *
+ * Based on the return error, caller decides to resend if sending sms
+ * fails. The CDMA error class is derived as follows,
+ * SUCCESS is error class 0 (no error)
+ * SMS_SEND_FAIL_RETRY is error class 2 (temporary failure)
+ * and GENERIC_FAILURE is error class 3 (permanent and no retry)
  *
  * Valid errors:
  *  SUCCESS
@@ -3130,6 +3163,15 @@ typedef struct {
  * RIL_UNSOL_CALL_RING
  *
  * Ring indication for an incoming call (eg, RING or CRING event).
+ * There must be at least one RIL_UNSOL_CALL_RING at the beginning
+ * of a call and sending multiple is optional. If the system property
+ * ro.telephony.call_ring.multiple is false then the upper layers
+ * will generate the multiple events internally. Otherwise the vendor
+ * ril must generate multiple RIL_UNSOL_CALL_RING if
+ * ro.telephony.call_ring.multiple is true or if it is absent.
+ *
+ * The rate of these events is controlled by ro.telephony.call_ring.delay
+ * and has a default value of 3000 (3 seconds) if absent.
  *
  * "data" is null for GSM
  * "data" is const RIL_CDMA_SignalInfoRecord * if CDMA
@@ -3250,6 +3292,18 @@ typedef struct {
  * "data" is a byte[]
  */
 #define RIL_UNSOL_OEM_HOOK_RAW 1028
+
+/**
+ * RIL_UNSOL_RINGBACK_TONE
+ *
+ * Indicates that nework doesn't have in-band information,  need to
+ * play out-band tone.
+ *
+ * "data" is an int *
+ * ((int *)data)[0] == 0 for stop play ringback tone.
+ * ((int *)data)[0] == 1 for start play ringback tone.
+ */
+#define RIL_UNSOL_RINGBACK_TONE 1029
 
 /***********************************************************************/
 
