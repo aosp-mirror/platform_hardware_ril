@@ -200,6 +200,8 @@ static int callFromCLCCLine(char *line, RIL_Call *p_call)
         if (err < 0) goto error;
     }
 
+    p_call->uusInfo = NULL;
+
     return 0;
 
 error:
