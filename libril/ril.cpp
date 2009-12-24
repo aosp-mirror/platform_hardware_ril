@@ -587,6 +587,7 @@ dispatchDial (Parcel &p, RequestInfo *pRI) {
     }
 
     if (s_callbacks.version < 3) { // STOP_SHIP: Remove when partners upgrade to version 3
+        LOGE ("dispatchDial: STOP SHIP version < 3");
         uusPresent = 0;
     } else {
         status = p.readInt32(&uusPresent);
@@ -1373,6 +1374,7 @@ static int responseCallList(Parcel &p, void *response, size_t responselen) {
         p.writeInt32(p_cur->namePresentation);
         // STOP_SHIP: Remove when partners upgrade to version 3
         if ((s_callbacks.version < 3) || (p_cur->uusInfo == NULL || p_cur->uusInfo->uusData == NULL)) {
+            LOGE ("responseCallList: NO uusInfo (STOP SHIP remove version < 3 test)");
             p.writeInt32(0); /* UUS Information is absent */
         } else {
             RIL_UUS_Info *uusInfo = p_cur->uusInfo;
@@ -2523,7 +2525,7 @@ RIL_register (const RIL_RadioFunctions *callbacks) {
     int flags;
 
     if (callbacks == NULL || ((callbacks->version != RIL_VERSION)
-                && (callbacks->version != 2))) } // STOP_SHIP: Remove when partners upgrade to version 3
+                && (callbacks->version != 2))) { // STOP_SHIP: Remove when partners upgrade to version 3
         LOGE(
             "RIL_register: RIL_RadioFunctions * null or invalid version"
             " (expected %d)", RIL_VERSION);
