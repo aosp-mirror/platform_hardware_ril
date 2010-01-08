@@ -571,6 +571,7 @@ static void
 dispatchDial (Parcel &p, RequestInfo *pRI) {
     RIL_Dial dial;
     RIL_UUS_Info uusInfo;
+    int32_t sizeOfDial;
     int32_t t;
     int32_t uusPresent;
     status_t status;
@@ -589,6 +590,7 @@ dispatchDial (Parcel &p, RequestInfo *pRI) {
     if (s_callbacks.version < 3) { // STOP_SHIP: Remove when partners upgrade to version 3
         LOGE ("dispatchDial: STOP SHIP version < 3");
         uusPresent = 0;
+        sizeOfDial = sizeof(dial) - sizeof(RIL_UUS_Info *);
     } else {
         status = p.readInt32(&uusPresent);
 
@@ -625,6 +627,7 @@ dispatchDial (Parcel &p, RequestInfo *pRI) {
             uusInfo.uusLength = len;
             dial.uusInfo = &uusInfo;
         }
+        sizeOfDial = sizeof(dial);
     }
 
     startRequest;
@@ -637,7 +640,7 @@ dispatchDial (Parcel &p, RequestInfo *pRI) {
     closeRequest;
     printRequest(pRI->token, pRI->pCI->requestNumber);
 
-    s_callbacks.onRequest(pRI->pCI->requestNumber, &dial, sizeof(dial), pRI);
+    s_callbacks.onRequest(pRI->pCI->requestNumber, &dial, sizeOfDial, pRI);
 
 #ifdef MEMSET_FREED
     memsetString (dial.address);
