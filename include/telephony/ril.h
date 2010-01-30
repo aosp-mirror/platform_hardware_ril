@@ -3349,6 +3349,17 @@ typedef struct {
  */
 #define RIL_UNSOL_RINGBACK_TONE 1029
 
+/**
+ * RIL_UNSOL_RESEND_INCALL_MUTE
+ *
+ * Indicates that framework/application need reset the uplink mute state.
+ *
+ * There may be situations where the mute state becomes out of sync
+ * between the application and device in some GSM infrastructures.
+ *
+ * "data" is null
+ */
+#define RIL_UNSOL_RESEND_INCALL_MUTE 1030
 /***********************************************************************/
 
 
