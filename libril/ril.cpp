@@ -3025,6 +3025,7 @@ requestToString(int request) {
         case RIL_UNSOL_CDMA_INFO_REC: return "UNSOL_CDMA_INFO_REC";
         case RIL_UNSOL_OEM_HOOK_RAW: return "UNSOL_OEM_HOOK_RAW";
         case RIL_UNSOL_RINGBACK_TONE: return "UNSOL_RINGBACK_TONE";
+        case RIL_UNSOL_RESEND_INCALL_MUTE: return "UNSOL_RESEND_INCALL_MUTE";
         default: return "<unknown request>";
     }
 }
