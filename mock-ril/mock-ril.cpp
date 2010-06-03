@@ -33,7 +33,11 @@
 #include <cutils/sockets.h>
 #include <termios.h>
 
+#include <queue>
+
 #include <utils/Log.h>
+
+#include "t.pb.h"
 
 #define MOCK_RIL_VER_STRING "Android Mock-ril 0.1"
 
@@ -117,6 +121,31 @@ static const char * getVersion(void)
 
 static void * mainLoop(void *param)
 {
+
+    // Test using STLport
+    std::queue<void *> q;
+
+    LOGD("before push q.size=%d", q.size());
+    q.push(param);
+    LOGD("after push q.size=%d", q.size());
+    void *p = q.front();
+    if (p == param) {
+        LOGD("q.push succeeded");
+    } else {
+        LOGD("q.push failed");
+    }
+    q.pop();
+    LOGD("after pop q.size=%d", q.size());
+
+    // Test a simple protobuf
+    LOGD("create T");
+    T* t = new T();
+    LOGD("set_id(1)");
+    t->set_id(1);
+    int id = t->id();
+    LOGD("id=%d", id);
+    delete t;
+
     LOGD("mainLoop E");
 
     for (int i=0;;i++) {

@@ -25,4 +25,4 @@ Testing a new ril:
 
      $ adb shell kill 3212
 
-5) Goto step 3.
+5) Make modifications, go to step 3.

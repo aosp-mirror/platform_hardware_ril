@@ -1,0 +1,9 @@
+// Copyright 2010 Google Inc. All Rights Reserved.
+// Author: wink@google.com (Wink Saville)
+
+option optimize_for=LITE_RUNTIME;
+
+message T {
+  required int32 id = 1;
+  optional string os = 2;
+}

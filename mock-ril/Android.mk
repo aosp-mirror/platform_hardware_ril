@@ -4,15 +4,23 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
+    t.pb.cpp \
     mock-ril.cpp
 
 LOCAL_SHARED_LIBRARIES := \
-    libcutils libutils libril
+    libcutils libutils libril libstlport
+
+LOCAL_STATIC_LIBRARIES := \
+    libprotobuf-cpp-2.3.0-lite
 
 # for asprinf
-LOCAL_CFLAGS := -D_GNU_SOURCE -UNDEBUG
+LOCAL_CFLAGS := -D_GNU_SOURCE -UNDEBUG -DGOOGLE_PROTOBUF_NO_RTTI
 
-LOCAL_C_INCLUDES := $(KERNEL_HEADERS)
+LOCAL_C_INCLUDES := \
+    external/protobuf/src \
+    bionic \
+    external/stlport/stlport \
+    $(KERNEL_HEADERS)
 
 # build shared library but don't require it be prelinked
 LOCAL_PRELINK_MODULE := false
