@@ -8,7 +8,7 @@ LOCAL_SRC_FILES:= \
     mock-ril.cpp
 
 LOCAL_SHARED_LIBRARIES := \
-    libcutils libutils libril libstlport
+    libcutils libutils libril
 
 LOCAL_STATIC_LIBRARIES := \
     libprotobuf-cpp-2.3.0-lite
@@ -19,8 +19,13 @@ LOCAL_CFLAGS := -D_GNU_SOURCE -UNDEBUG -DGOOGLE_PROTOBUF_NO_RTTI
 LOCAL_C_INCLUDES := \
     external/protobuf/src \
     bionic \
-    external/stlport/stlport \
     $(KERNEL_HEADERS)
+
+# stlport conflicts with the host stl library
+ifneq ($(TARGET_SIMULATOR),true)
+LOCAL_SHARED_LIBRARIES += libstlport
+LOCAL_C_INCLUDES += external/stlport/stlport
+endif
 
 # build shared library but don't require it be prelinked
 LOCAL_PRELINK_MODULE := false
