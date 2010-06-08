@@ -2959,6 +2959,30 @@ typedef struct {
  */
 #define RIL_REQUEST_REPORT_STK_SERVICE_IS_RUNNING 103
 
+/**
+ * RIL_REQUEST_QUERY_CURRENT_CELL_PSC
+ *
+ * Fetches the Primary Scrambling Code of the current serving cell in a UMTS
+ * network.
+ *
+ * "data" is NULL
+ * "response" is a const char **
+ * ((const char **)response)[0] is the UMTS Cell Identity (CID) in hexadecimal
+ *                                  format (see TS 25.331), or NULL if not
+ *                                  registered to a UMTS network.
+ * ((const char **)response)[1] is the PSC as described in TS 25.331,
+ *                                  in hexadecimal format, or NULL if not
+ *                                  registered to a UMTS network.
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ * See also: RIL_REQUEST_REGISTRATION_STATE, RIL_REQUEST_NEIGHBORING_CELL_IDS
+ */
+#define RIL_REQUEST_QUERY_CURRENT_CELL_PSC 104
+
 
 /***********************************************************************/
 
