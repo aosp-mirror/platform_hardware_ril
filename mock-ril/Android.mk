@@ -11,13 +11,14 @@ LOCAL_SHARED_LIBRARIES := \
     libcutils libutils libril
 
 LOCAL_STATIC_LIBRARIES := \
-    libprotobuf-cpp-2.3.0-lite
+    libprotobuf-cpp-2.3.0-lite libv8
 
 # for asprinf
 LOCAL_CFLAGS := -D_GNU_SOURCE -UNDEBUG -DGOOGLE_PROTOBUF_NO_RTTI
 
 LOCAL_C_INCLUDES := \
     external/protobuf/src \
+    external/v8/include \
     bionic \
     $(KERNEL_HEADERS)
 

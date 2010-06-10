@@ -38,6 +38,7 @@
 #include <utils/Log.h>
 
 #include "t.pb.h"
+#include <v8.h>
 
 #define MOCK_RIL_VER_STRING "Android Mock-ril 0.1"
 
@@ -158,6 +159,89 @@ static void * mainLoop(void *param)
     return NULL;
 }
 
+// Extracts a C string from a V8 Utf8Value.
+const char* ToCString(const v8::String::Utf8Value& value) {
+  return *value ? *value : "<string conversion failed>";
+}
+
+// Report an exception
+void LogErrorMessage(v8::Handle<v8::Message> message, const char *alternate_message) {
+  v8::HandleScope handle_scope;
+  if (message.IsEmpty()) {
+    // V8 didn't provide any extra information about this error; just
+    // print the exception.
+    LOGD("%s", alternate_message);
+  } else {
+    v8::String::Utf8Value filename(message->GetScriptResourceName());
+    const char* filename_string = ToCString(filename);
+    int linenum = message->GetLineNumber();
+    LOGD("file:%s line:%i", filename_string, linenum);
+
+    // Print line of source code.
+    v8::String::Utf8Value sourceline(message->GetSourceLine());
+    const char* sourceline_string = ToCString(sourceline);
+    LOGD("%s", sourceline_string);
+
+    // Print location information under source line
+    int start = message->GetStartColumn();
+    int end = message->GetEndColumn();
+    char *error_string = new char[end];
+    memset(error_string, ' ', start);
+    memset(&error_string[start], '^', end - start);
+    error_string[end] = 0;
+    LOGD("%s", error_string);
+    delete [] error_string;
+  }
+}
+
+void ErrorCallback(v8::Handle<v8::Message> message, v8::Handle<v8::Value> data) {
+    LogErrorMessage(message, "");
+}
+
+// Report an exception
+void ReportException(v8::TryCatch* try_catch) {
+    v8::HandleScope handle_scope;
+
+    v8::String::Utf8Value exception(try_catch->Exception());
+    v8::Handle<v8::Message> msg = try_catch->Message();
+    if (msg.IsEmpty()) {
+       // Why is try_catch->Message empty?
+       // is always empty on compile errors
+    }
+    LogErrorMessage(msg, ToCString(exception));
+}
+
+void testV8() {
+    LOGD("testV8 E:");
+    v8::HandleScope handle_scope;
+    v8::TryCatch try_catch;
+
+    // Catch errors as they occur as using ReportException doesn't work??
+    v8::Handle<v8::Value> mydata(v8::String::New("hello"));
+    v8::V8::AddMessageListener(ErrorCallback, mydata);
+
+    // Create context and make it the current scope
+    v8::Handle<v8::Context> context = v8::Context::New();
+    v8::Context::Scope context_scope(context);
+
+    // Compile the source
+    v8::Handle<v8::String> source = v8::String::New("\n\n    'Hi\n\n");
+    v8::Handle<v8::Script> script = v8::Script::Compile(source);
+    if (script.IsEmpty()) {
+        ReportException(&try_catch);
+    } else {
+        // Run the resulting script
+        v8::Handle<v8::Value> result = script->Run();
+        if (result.IsEmpty()) {
+            ReportException(&try_catch);
+        } else {
+            v8::String::Utf8Value result_string(result);
+            LOGD("testV8 result=%s", ToCString(result_string));
+        }
+    }
+    LOGD("testV8 X:");
+}
+
 pthread_t s_tid_mainloop;
 
 const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc, char **argv)
@@ -166,6 +250,8 @@ const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc, char **a
     pthread_attr_t attr;
 
     LOGD("RIL_Init E");
+
+    testV8();
 
     s_rilenv = env;
 
