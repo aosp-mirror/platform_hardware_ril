@@ -35,6 +35,7 @@ endif
 LOCAL_PRELINK_MODULE := false
 LOCAL_LDLIBS += -lpthread
 LOCAL_CFLAGS += -DMOCK_RIL -DRIL_SHLIB
+LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE:= libmock_ril
 
 include $(BUILD_SHARED_LIBRARY)
