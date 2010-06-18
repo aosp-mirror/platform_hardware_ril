@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -149,7 +149,8 @@ v8::Handle<v8::Value> Print(const v8::Arguments& args) {
 }
 
 // Report an exception
-void LogErrorMessage(v8::Handle<v8::Message> message, const char *alternate_message) {
+void LogErrorMessage(v8::Handle<v8::Message> message,
+         const char *alternate_message) {
   v8::HandleScope handle_scope;
   if (message.IsEmpty()) {
     // V8 didn't provide any extra information about this error; just
@@ -178,7 +179,8 @@ void LogErrorMessage(v8::Handle<v8::Message> message, const char *alternate_mess
   }
 }
 
-void ErrorCallback(v8::Handle<v8::Message> message, v8::Handle<v8::Value> data) {
+void ErrorCallback(v8::Handle<v8::Message> message,
+        v8::Handle<v8::Value> data) {
     LogErrorMessage(message, "");
 }
 
@@ -195,7 +197,19 @@ void ReportException(v8::TryCatch* try_catch) {
     LogErrorMessage(msg, ToCString(exception));
 }
 
-bool callOnRequest(v8::Handle<v8::Context> context, int param) {
+v8::Handle<v8::Value> GetScreenState(v8::Local<v8::String> property,
+                               const v8::AccessorInfo &info) {
+    v8::Local<v8::Object> self = info.Holder();
+    v8::Local<v8::External> wrap =
+            v8::Local<v8::External>::Cast(self->GetInternalField(0));
+    void *p = wrap->Value();
+    int state = static_cast<int *>(p)[0];
+    LOGD("GetScreenState state=%d", state);
+    return v8::Integer::New(state);
+}
+
+bool callOnRequest(v8::Handle<v8::Context> context, int request,
+                   void *data, size_t datalen, RIL_Token t) {
     v8::HandleScope handle_scope;
     v8::TryCatch try_catch;
 
@@ -210,14 +224,43 @@ bool callOnRequest(v8::Handle<v8::Context> context, int param) {
     v8::Handle<v8::Function> onRequestFunction =
         v8::Handle<v8::Function>::Cast(onRequestFunctionValue);
 
-    // Create the parameter
-    v8::Handle<v8::Value> v8Param = v8::Number::New(param);
+    // Create the request
+    v8::Handle<v8::Value> v8RequestValue = v8::Number::New(request);
+
+    // Create the parameter for the request
+    v8::Handle<v8::Object> params_obj =
+            v8::ObjectTemplate::New()->NewInstance();
+    switch(request) {
+        case(RIL_REQUEST_SCREEN_STATE): {
+            LOGD("callOnRequest RIL_REQUEST_SCREEN_STATE");
+            if (datalen < sizeof(int)) {
+                LOGD("callOnRequest err size < sizeof int");
+            } else {
+                v8::Handle<v8::ObjectTemplate> params_obj_template =
+                        v8::ObjectTemplate::New();
+                params_obj_template->SetInternalFieldCount(1);
+                params_obj_template->SetAccessor(v8::String::New("ScreenState"),
+                                                 GetScreenState, NULL);
+                // How to not leak this pointer!!!
+                int *p = new int;
+                *p = ((int *)data)[0];
+                params_obj = params_obj_template->NewInstance();
+                params_obj->SetInternalField(0, v8::External::New(p));
+            }
+            break;
+        }
+        default: {
+            LOGD("callOnRequest X unknown request");
+            break;
+        }
+    }
 
     // Invoke onRequest
     bool retValue;
-    const int argc = 1;
-    v8::Handle<v8::Value> argv[argc] = { v8Param };
-    v8::Handle<v8::Value> result = onRequestFunction->Call(context->Global(), argc, argv);
+    const int argc = 2;
+    v8::Handle<v8::Value> argv[argc] = { v8RequestValue, params_obj };
+    v8::Handle<v8::Value> result =
+        onRequestFunction->Call(context->Global(), argc, argv);
     if (try_catch.HasCaught()) {
         ReportException(&try_catch);
         retValue = false;
@@ -265,8 +308,11 @@ void testV8() {
 
     // Compile the source
     v8::Handle<v8::String> source = v8::String::New(
-        "function onRequest(reqNum) {\n"
+        "function onRequest(reqNum, params) {\n"
         "  print(\"reqNum=\" + reqNum);\n"
+        "  if (reqNum == 61) {\n"
+        "      print(\"params.ScreenState=\" + params.ScreenState);\n"
+        "  }\n"
         "  return \"Hello World\";\n"
         "}\n");
     v8::Handle<v8::Script> script = v8::Script::Compile(source);
@@ -281,7 +327,9 @@ void testV8() {
             ReportException(&try_catch);
         } else {
             // Call the onRequest function
-            callOnRequest(context, 61);
+            int data[1] = { 0 };
+            callOnRequest(context, RIL_REQUEST_SCREEN_STATE, data,
+                    sizeof(data), NULL);
         }
     }
     LOGD("testV8 X:");
@@ -326,8 +374,8 @@ static void * mainLoop(void *param)
     return NULL;
 }
 
-const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc, char **argv)
-{
+const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc,
+        char **argv) {
     int ret;
     pthread_attr_t attr;
 
@@ -345,7 +393,8 @@ const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc, char **a
     }
     ret = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     if (ret != 0) {
-        LOGE("RIL_Init X: pthread_attr_setdetachstate failed err=%s", strerror(ret));
+        LOGE("RIL_Init X: pthread_attr_setdetachstate failed err=%s",
+                strerror(ret));
         return NULL;
     }
     ret = pthread_create(&s_tid_mainloop, &attr, mainLoop, NULL);
