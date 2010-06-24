@@ -117,5 +117,4 @@
     {RIL_REQUEST_GET_SMSC_ADDRESS, dispatchVoid, responseString},
     {RIL_REQUEST_SET_SMSC_ADDRESS, dispatchString, responseVoid},
     {RIL_REQUEST_REPORT_SMS_MEMORY_STATUS, dispatchInts, responseVoid},
-    {RIL_REQUEST_REPORT_STK_SERVICE_IS_RUNNING, dispatchVoid, responseVoid},
-    {RIL_REQUEST_QUERY_CURRENT_CELL_PSC, dispatchVoid, responseStrings}
+    {RIL_REQUEST_REPORT_STK_SERVICE_IS_RUNNING, dispatchVoid, responseVoid}
