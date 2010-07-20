@@ -1,0 +1,313 @@
+/**
+ * Copyright (C) 2010 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include <map>
+
+#include <v8.h>
+#include <telephony/ril.h>
+
+
+#include "ril.pb.h"
+
+#include "logging.h"
+#include "js_support.h"
+#include "mock_ril.h"
+#include "node_buffer.h"
+#include "node_object_wrap.h"
+#include "node_util.h"
+#include "protobuf_v8.h"
+#include "status.h"
+#include "util.h"
+#include "worker.h"
+
+#include "requests.h"
+
+//#define REQUESTS_DEBUG
+#ifdef  REQUESTS_DEBUG
+
+#define DBG(...) LOGD(__VA_ARGS__)
+
+#else
+
+#define DBG(...)
+
+#endif
+
+
+int cvrtReqEnterSimPinToBuffer(Buffer **pBuffer,
+        const void *data, const size_t datalen, const RIL_Token t) {
+    int status;
+    Buffer *buffer;
+
+    DBG("cvrtReqEnterSimPinToBuffer E");
+    if (datalen < sizeof(int)) {
+        LOGE("cvrtReqEnterSimPinToBuffer: data to small err size < sizeof int");
+        status = STATUS_BAD_DATA;
+    } else {
+        ril_proto::ReqEnterSimPin *req = new ril_proto::ReqEnterSimPin();
+        req->set_pin((((char **)data)[0]));
+        buffer = Buffer::New(req->ByteSize());
+        req->SerializeToArray(buffer->data(), buffer->length());
+        delete req;
+        *pBuffer = buffer;
+        status = STATUS_OK;
+    }
+    DBG("cvrtReqEnterSimPinToBuffer X status=%d", status);
+    return status;
+}
+
+int cvrtReqHangUpToBuffer(Buffer **pBuffer,
+        const void *data, const size_t datalen, const RIL_Token t) {
+    int status;
+    Buffer *buffer;
+
+    DBG("cvrtReqHangUpToBuffer E");
+    if (datalen < sizeof(int)) {
+        LOGE("cvrtReqHangUpToBuffer: data to small err size < sizeof int");
+        status = STATUS_BAD_DATA;
+    } else {
+        ril_proto::ReqHangUp *req = new ril_proto::ReqHangUp();
+        req->set_connection_index(((int *)data)[0]);
+        buffer = Buffer::New(req->ByteSize());
+        req->SerializeToArray(buffer->data(), buffer->length());
+        delete req;
+        *pBuffer = buffer;
+        status = STATUS_OK;
+    }
+    DBG("cvrtReqHangUpToBuffer X status=%d", status);
+    return status;
+}
+
+int cvrtReqScreenStateToBuffer(Buffer **pBuffer,
+        const void *data, const size_t datalen, const RIL_Token t) {
+    int status;
+    Buffer *buffer;
+    v8::HandleScope handle_scope;
+    v8::TryCatch try_catch;
+
+    DBG("cvrtReqScreenStateToBuffer E data=%p datalen=%d t=%p",
+         data, datalen, t);
+    if (datalen < sizeof(int)) {
+        LOGE("cvrtReqScreenStateToBuffer: data to small err size < sizeof int");
+        status = STATUS_BAD_DATA;
+    } else {
+        ril_proto::ReqScreenState *req = new ril_proto::ReqScreenState();
+        req->set_state(((int *)data)[0]);
+        if (try_catch.HasCaught()) {
+            ReportException(&try_catch);
+        }
+        buffer = Buffer::New(req->ByteSize());
+        DBG("cvrtReqScreenStateToBuffer: serialize");
+        req->SerializeToArray(buffer->data(), buffer->length());
+        delete req;
+        *pBuffer = buffer;
+        status = STATUS_OK;
+    }
+    DBG("cvrtReqScreenStateToBuffer X status=%d", status);
+    return status;
+}
+
+/**
+ * Map from indexed by cmd and used to convert Data to Protobuf.
+ */
+typedef int (*CvrtDataToBuffer)(Buffer** protobuf, const void *data,
+                const size_t datalen, const RIL_Token t);
+typedef std::map<int, CvrtDataToBuffer> RequestMap;
+RequestMap requestMap;
+
+
+int callOnRilRequest(v8::Handle<v8::Context> context, int cmd,
+                   const void *data, size_t datalen, RIL_Token t) {
+    DBG("callOnRilRequest E: cmd=%d", cmd);
+
+    int status;
+    v8::HandleScope handle_scope;
+    v8::TryCatch try_catch;
+
+    // Get the onRilRequest Function
+    v8::Handle<v8::String> name = v8::String::New("onRilRequest");
+    v8::Handle<v8::Value> onRilRequestFunctionValue = context->Global()->Get(name);
+    v8::Handle<v8::Function> onRilRequestFunction =
+        v8::Handle<v8::Function>::Cast(onRilRequestFunctionValue);
+
+    // Create the cmd and token
+    v8::Handle<v8::Value> v8RequestValue = v8::Number::New(cmd);
+    v8::Handle<v8::Value> v8TokenValue = v8::Number::New(int64_t(t));
+
+    // Convert the data to a protobuf Buffer
+    Buffer *buffer = NULL;
+    RequestMap::iterator itr;
+    itr = requestMap.find(cmd);
+    if (itr != requestMap.end()) {
+        status = itr->second(&buffer, data, datalen, t);
+    } else {
+        LOGE("callOnRilRequest X unknown request");
+        status = STATUS_UNSUPPORTED_REQUEST;
+    }
+
+    if (status == STATUS_OK) {
+        // Invoke onRilRequest
+        const int argc = 3;
+        v8::Handle<v8::Value> argv[argc] = {
+                v8RequestValue, v8TokenValue, buffer->handle_ };
+        v8::Handle<v8::Value> result =
+            onRilRequestFunction->Call(context->Global(), argc, argv);
+        if (try_catch.HasCaught()) {
+            LOGE("callOnRilRequest error");
+            ReportException(&try_catch);
+            status = STATUS_ERR;
+        } else {
+            v8::String::Utf8Value result_string(result);
+            DBG("callOnRilRequest result=%s", ToCString(result_string));
+            status = STATUS_OK;
+        }
+    }
+
+    if (status != STATUS_OK) {
+        // An error report complete now
+        RIL_Errno rilErrCode = (status == STATUS_UNSUPPORTED_REQUEST) ?
+                 RIL_E_REQUEST_NOT_SUPPORTED : RIL_E_GENERIC_FAILURE;
+        s_rilenv->OnRequestComplete(t, rilErrCode, NULL, 0);
+    }
+
+    DBG("callOnRilRequest X: status=%d", status);
+    return status;
+}
+
+RilRequestWorkerQueue::RilRequestWorkerQueue(v8::Handle<v8::Context> context) {
+    DBG("RilRequestWorkerQueue E:");
+
+    context_ = context;
+    pthread_mutex_init(&free_list_mutex_, NULL);
+
+    DBG("RilRequestWorkerQueue X:");
+}
+
+RilRequestWorkerQueue::~RilRequestWorkerQueue() {
+    DBG("~RilRequestWorkerQueue E:");
+    Request *req;
+    pthread_mutex_lock(&free_list_mutex_);
+    while(free_list_.size() != 0) {
+        req = free_list_.front();
+        delete req;
+        free_list_.pop();
+    }
+    pthread_mutex_unlock(&free_list_mutex_);
+    pthread_mutex_destroy(&free_list_mutex_);
+    DBG("~RilRequestWorkerQueue X:");
+}
+
+void RilRequestWorkerQueue::AddRequest (const int request,
+        const void *data, const size_t datalen, const RIL_Token token) {
+    Request *req;
+    pthread_mutex_lock(&free_list_mutex_);
+    if (free_list_.size() == 0) {
+        req = new Request(request, data, datalen, token);
+        pthread_mutex_unlock(&free_list_mutex_);
+    } else {
+        req = free_list_.front();
+        free_list_.pop();
+        pthread_mutex_unlock(&free_list_mutex_);
+        req->Set(request, data, datalen, token);
+    }
+    Add(req);
+    DBG("RilRequestWorkerQueue::AddRequest: X"
+         " request=%d data=%p datalen=%d token=%p",
+            request, data, datalen, token);
+}
+
+void RilRequestWorkerQueue::Process(void *p) {
+
+    Request *req = (Request *)p;
+    DBG("RilRequestWorkerQueue::Process: E"
+         " request=%d data=%p datalen=%d t=%p",
+            req->request_, req->data_, req->datalen_, req->token_);
+
+    v8::Locker locker;
+    v8::HandleScope handle_scope;
+    v8::Context::Scope context_scope(context_);
+    callOnRilRequest(context_, req->request_,
+                          req->data_, req->datalen_, req->token_);
+
+    DBG("RilRequestWorkerQueue::Process: X"
+         " request=%d data=%p datalen=%d t=%p",
+            req->request_, req->data_, req->datalen_, req->token_);
+
+    pthread_mutex_lock(&free_list_mutex_);
+    free_list_.push(req);
+    pthread_mutex_unlock(&free_list_mutex_);
+}
+
+int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
+    LOGD("requestsInit E");
+
+    requestMap[RIL_REQUEST_ENTER_SIM_PIN] = cvrtReqEnterSimPinToBuffer;
+    requestMap[RIL_REQUEST_HANGUP] = cvrtReqHangUpToBuffer;
+    requestMap[RIL_REQUEST_SCREEN_STATE] = cvrtReqScreenStateToBuffer;
+    RequestMap::iterator itr;
+
+    *rwq = new RilRequestWorkerQueue(context);
+    int status = (*rwq)->Run();
+
+    LOGD("requestsInit X: status=%d", status);
+    return status;
+}
+
+void testRequests(v8::Handle<v8::Context> context) {
+    LOGD("testRequests E: ********");
+
+    v8::TryCatch try_catch;
+
+    char *buffer;
+    const char *fileName= "/sdcard/data/mock_ril.js";
+    int status = ReadFile(fileName, &buffer);
+    if (status == 0) {
+        runJs(context, &try_catch, fileName, buffer);
+        if (!try_catch.HasCaught()) {
+            {
+                const char *data[1] = { "winks-pin" };
+                callOnRilRequest(context, RIL_REQUEST_ENTER_SIM_PIN, data,
+                        sizeof(data), (void *)0x12345678);
+            }
+            {
+                const int data[1] = { 1 };
+                callOnRilRequest(context, RIL_REQUEST_HANGUP, data,
+                        sizeof(data), (void *)0x12345679);
+            }
+            {
+                const int data[1] = { 1 };
+                callOnRilRequest(context, RIL_REQUEST_SCREEN_STATE, data,
+                        sizeof(data), (void *)0x1234567A);
+            }
+
+            {
+                RilRequestWorkerQueue *rwq = new RilRequestWorkerQueue(context);
+                if (rwq->Run() == STATUS_OK) {
+                    const int data[1] = { 1 };
+                    rwq->AddRequest(RIL_REQUEST_SCREEN_STATE,
+                                    data, sizeof(data), (void *)0x1234567A);
+                    // Sleep to let it be processed
+                    v8::Unlocker unlocker;
+                    sleep(3);
+                    v8::Locker locker;
+                }
+                delete rwq;
+            }
+        }
+    }
+
+    LOGD("testRequests X: ********\n");
+}
