@@ -59,6 +59,8 @@ LOCAL_MODULE:= libmock_ril
 
 include $(BUILD_SHARED_LIBRARY)
 
+endif
+
 # Java librilproto
 # =======================================================
 include $(CLEAR_VARS)
@@ -71,7 +73,5 @@ LOCAL_SRC_FILES := $(call all-java-files-under, com)
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 # =======================================================
-
-endif
 
 endif
