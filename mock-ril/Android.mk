@@ -1,9 +1,10 @@
 # Copyright 2010 The Android Open Source Project
 #
 # not currently building V8 for x86 targets
-ifeq ($(TARGET_ARCH),arm)
 
 LOCAL_PATH:= $(call my-dir)
+
+ifeq ($(TARGET_ARCH),arm)
 
 # Mock-ril only buid for debug variants
 ifneq ($(filter userdebug eng tests, $(TARGET_BUILD_VARIANT)),)
@@ -61,6 +62,8 @@ include $(BUILD_SHARED_LIBRARY)
 
 endif
 
+endif
+
 # Java librilproto
 # =======================================================
 include $(CLEAR_VARS)
@@ -73,5 +76,3 @@ LOCAL_SRC_FILES := $(call all-java-files-under, com)
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 # =======================================================
-
-endif
