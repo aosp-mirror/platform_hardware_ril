@@ -14,6 +14,7 @@ LOCAL_SRC_FILES:= \
     ctrl_server.cpp \
     experiments.cpp \
     js_support.cpp \
+    msgheader.pb.cpp \
     mock_ril.cpp \
     node_buffer.cpp \
     node_util.cpp \
@@ -57,6 +58,19 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE:= libmock_ril
 
 include $(BUILD_SHARED_LIBRARY)
+
+# Java librilproto
+# =======================================================
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := librilproto-java
+
+LOCAL_STATIC_JAVA_LIBRARIES := libprotobuf-java-2.3.0-micro
+
+LOCAL_SRC_FILES := $(call all-java-files-under, com)
+
+include $(BUILD_STATIC_JAVA_LIBRARY)
+# =======================================================
 
 endif
 

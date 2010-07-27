@@ -3,6 +3,9 @@
 
 package ril_proto;
 
+option java_package='com.android.internal.telephony.ril_proto';
+option java_outer_classname='RilCmds';
+
 enum RilCommand {
   CMD_GET_SIM_STATUS                        = 1;
   CMD_ENTER_SIM_PIN                         = 2;

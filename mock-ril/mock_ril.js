@@ -216,19 +216,19 @@ var ctrlServer = new Worker(function (req) {
 
         // Assume we will send a response and we are successful an empty responseProtobuf
         var sendTheResponse = true;
-        var ctrlStatus = 0; // ctrl_proto.CTRL_STATUS_OK;
+        var ctrlStatus = 0; // ril_proto.CTRL_STATUS_OK;
         var responseProtobuf = emptyProtobuf;
 
         switch (req.cmd) {
-            case 1: //ctrl_proto.CTRL_CMD_GET_RADIO_STATE:
+            case 1: //ril_proto.CTRL_CMD_GET_RADIO_STATE:
                 print('ctrlServer: CTRL_CMD_GET_RADIO_STATE');
                 rsp = Object();
                 rsp.state = radioState;
-                responseProtobuf = ctrlSchema['ctrl_proto.CtrlRspRadioState'].serialize(rsp);
+                responseProtobuf = ctrlSchema['ril_proto.CtrlRspRadioState'].serialize(rsp);
                 break;
             default:
                 print('ctrlServer: Unknown cmd ' + req.cmd);
-                ctrlStatus = 1; //ctrl_proto.CTRL_STATUS_ERR;
+                ctrlStatus = 1; //ril_proto.CTRL_STATUS_ERR;
                 break;
         }
 

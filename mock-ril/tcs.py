@@ -29,6 +29,7 @@ import time
 
 import ctrl_pb2
 import ril_pb2
+import msgheader_pb2
 
 def recvall(s, count):
   """Receive all of the data otherwise return none.
@@ -71,28 +72,8 @@ class MsgHeader:
     self.status = 0
     self.length_protobuf = 0
 
-  def packHeader(self):
-    """Return a packed string with the header information
-
-    Args:
-      s: socket
-      count: number of bytes
-
-    Returns:
-      Nothing
-    """
-    return struct.pack("<iqii", self.cmd, self.token, self.status, self.length_protobuf)
-
-  def unpackHeader(self, raw):
-    """Set the MsgHeader fields from raw which contains the packed header information."""
-    unpacked = struct.unpack("<iqii", raw)
-    self.cmd = unpacked[0]
-    self.token = unpacked[1]
-    self.status = unpacked[2]
-    self.length_protobuf = unpacked[3]
-
   def sendHeader(self, s):
-    """Send the header to the socket as packed data
+    """Send the header to the socket
 
     Args:
       s: socket
@@ -100,11 +81,27 @@ class MsgHeader:
     Returns
       nothing
     """
-    sendall(s, self.packHeader())
+    mh = msgheader_pb2.MsgHeader()
+    mh.cmd = self.cmd
+    mh.token = self.token
+    mh.status = self.status
+    mh.length_data = self.length_protobuf
+    mhser = mh.SerializeToString()
+    len_msg_header_raw = struct.pack('<i', len(mhser))
+    sendall(s, len_msg_header_raw)
+    sendall(s, mhser)
 
   def recvHeader(self, s):
-    """Receive the header from the socket and unpack"""
-    self.unpackHeader(recvall(s, 20))
+    """Receive the header from the socket"""
+    len_msg_header_raw = recvall(s, 4)
+    len_msg_hdr = struct.unpack('<i', len_msg_header_raw)
+    mh = msgheader_pb2.MsgHeader()
+    mh_raw = recvall(s, len_msg_hdr[0])
+    mh.ParseFromString(mh_raw)
+    self.cmd = mh.cmd
+    self.token = mh.token
+    self.status = mh.status
+    self.length_protobuf = mh.length_data;
 
 class Msg:
   """A message consists of a fixed length MsgHeader followed by a protobuf.

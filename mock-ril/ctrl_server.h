@@ -19,18 +19,6 @@
 
 #include <v8.h>
 
-/**
- * All Control messages start with a header followed
- * by an optional protobuf. If length_protobuf is 0
- * there is no protobuf following the header.
- */
-struct MsgHeader {
-    int32_t cmd;
-    int64_t token;
-    int32_t status;
-    int32_t length_protobuf;
-};
-
 extern v8::Handle<v8::Value> SendCtrlRequestComplete(const v8::Arguments& args);
 
 extern void ctrlServerInit(v8::Handle<v8::Context> context);

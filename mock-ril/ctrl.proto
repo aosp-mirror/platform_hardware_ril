@@ -1,7 +1,10 @@
 // Copyright 2010 Google Inc. All Rights Reserved.
 // Author: wink@google.com (Wink Saville)
 
-package ctrl_proto;
+package ril_proto;
+
+option java_package='com.android.internal.telephony.ril_proto';
+option java_outer_classname='RilCtrlCmds';
 
 import "ril.proto";
 

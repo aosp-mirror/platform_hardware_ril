@@ -10,7 +10,7 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 
-namespace ctrl_proto {
+namespace ril_proto {
 
 namespace {
 
@@ -77,12 +77,13 @@ void protobuf_AddDesc_ctrl_2eproto() {
 
   ::ril_proto::protobuf_AddDesc_ril_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\nctrl.proto\022\nctrl_proto\032\tril.proto\"9\n\021C"
-    "trlRspRadioState\022$\n\005state\030\001 \002(\0162\025.ril_pr"
-    "oto.RadioState*:\n\007CtrlCmd\022\021\n\rCTRL_CMD_EC"
-    "HO\020\000\022\034\n\030CTRL_CMD_GET_RADIO_STATE\020\001*5\n\nCt"
-    "rlStatus\022\022\n\016CTRL_STATUS_OK\020\000\022\023\n\017CTRL_STA"
-    "TUS_ERR\020\001", 209);
+    "\n\nctrl.proto\022\tril_proto\032\tril.proto\"9\n\021Ct"
+    "rlRspRadioState\022$\n\005state\030\001 \002(\0162\025.ril_pro"
+    "to.RadioState*:\n\007CtrlCmd\022\021\n\rCTRL_CMD_ECH"
+    "O\020\000\022\034\n\030CTRL_CMD_GET_RADIO_STATE\020\001*5\n\nCtr"
+    "lStatus\022\022\n\016CTRL_STATUS_OK\020\000\022\023\n\017CTRL_STAT"
+    "US_ERR\020\001B7\n(com.android.internal.telepho"
+    "ny.ril_protoB\013RilCtrlCmds", 265);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ctrl.proto", &protobuf_RegisterTypes);
   CtrlRspRadioState::default_instance_ = new CtrlRspRadioState();
@@ -342,6 +343,6 @@ void CtrlRspRadioState::Swap(CtrlRspRadioState* other) {
 
 // @@protoc_insertion_point(namespace_scope)
 
-}  // namespace ctrl_proto
+}  // namespace ril_proto
 
 // @@protoc_insertion_point(global_scope)

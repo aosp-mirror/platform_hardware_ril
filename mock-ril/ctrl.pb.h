@@ -26,7 +26,7 @@
 #include "ril.pb.h"
 // @@protoc_insertion_point(includes)
 
-namespace ctrl_proto {
+namespace ril_proto {
 
 // Internal implementation detail -- do not call these.
 void  protobuf_AddDesc_ctrl_2eproto();
@@ -136,7 +136,7 @@ class CtrlRspRadioState : public ::google::protobuf::Message {
   inline ril_proto::RadioState state() const;
   inline void set_state(ril_proto::RadioState value);
   
-  // @@protoc_insertion_point(class_scope:ctrl_proto.CtrlRspRadioState)
+  // @@protoc_insertion_point(class_scope:ril_proto.CtrlRspRadioState)
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
@@ -189,19 +189,19 @@ inline void CtrlRspRadioState::set_state(ril_proto::RadioState value) {
 
 // @@protoc_insertion_point(namespace_scope)
 
-}  // namespace ctrl_proto
+}  // namespace ril_proto
 
 #ifndef SWIG
 namespace google {
 namespace protobuf {
 
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ctrl_proto::CtrlCmd>() {
-  return ctrl_proto::CtrlCmd_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ril_proto::CtrlCmd>() {
+  return ril_proto::CtrlCmd_descriptor();
 }
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ctrl_proto::CtrlStatus>() {
-  return ctrl_proto::CtrlStatus_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ril_proto::CtrlStatus>() {
+  return ril_proto::CtrlStatus_descriptor();
 }
 
 }  // namespace google

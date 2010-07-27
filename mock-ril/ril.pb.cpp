@@ -316,7 +316,9 @@ void protobuf_AddDesc_ril_2eproto() {
     "ABLED_BLOCKED\020\004\022!\n\035PINSTATE_ENABLED_PERM"
     "_BLOCKED\020\005*h\n\nRilAppType\022\023\n\017APPTYPE_UNKN"
     "OWN\020\000\022\017\n\013APPTYPE_SIM\020\001\022\020\n\014APPTYPE_USIM\020\002"
-    "\022\020\n\014APPTYPE_RUIM\020\003\022\020\n\014APPTYPE_CSIM\020\004", 2636);
+    "\022\020\n\014APPTYPE_RUIM\020\003\022\020\n\014APPTYPE_CSIM\020\004B3\n("
+    "com.android.internal.telephony.ril_proto"
+    "B\007RilCmds", 2689);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ril.proto", &protobuf_RegisterTypes);
   RilAppStatus::default_instance_ = new RilAppStatus();

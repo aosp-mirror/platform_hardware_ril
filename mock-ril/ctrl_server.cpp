@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <alloca.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
@@ -29,6 +30,8 @@
 #include "status.h"
 #include "util.h"
 #include "worker.h"
+
+#include "msgheader.pb.h"
 
 #include "ctrl.pb.h"
 #include "ctrl_server.h"
@@ -46,6 +49,8 @@
 
 #define MOCK_RIL_CONTROL_SERVER_STOPPING_SOCKET 54311
 #define MOCK_RIL_CONTROL_SERVER_SOCKET 54312
+
+using communication::MsgHeader;
 
 class CtrlServerThread;
 static CtrlServerThread *g_ctrl_server;
@@ -110,36 +115,30 @@ class CtrlServerThread : public WorkerThread {
 
     int ReadMessage(MsgHeader *mh, Buffer **pBuffer) {
         int status;
+        int32_t len_msg_header;
 
-        status = ReadAll(server_to_client_socket_, &mh->cmd, 4);
-        mh->cmd = letoh32(mh->cmd);
-        DBG("rm: mh->cmd=%d status=%d", mh->cmd, status);
+        // Reader header length
+        status = ReadAll(server_to_client_socket_, &len_msg_header, sizeof(len_msg_header));
+        len_msg_header = letoh32(len_msg_header);
+        DBG("rm: read len_msg_header=%d  status=%d", len_msg_header, status);
         if (status != STATUS_OK) return status;
 
-        status = ReadAll(server_to_client_socket_, &mh->token, 8);
-        mh->token = letoh64(mh->token);
-        DBG("rm: mh->token=%lld status=%d", mh->token, status);
+        // Read header into an array allocated on the stack and unmarshall
+        uint8_t *msg_header_raw = (uint8_t *)alloca(len_msg_header);
+        status = ReadAll(server_to_client_socket_, msg_header_raw, len_msg_header);
+        DBG("rm: read msg_header_raw=%p  status=%d", msg_header_raw, status);
         if (status != STATUS_OK) return status;
+        mh->ParseFromArray(msg_header_raw, len_msg_header);
 
-        status = ReadAll(server_to_client_socket_, &mh->status, 4);
-        mh->status = letoh32(mh->status);
-        DBG("rm: mh->status=%d status=%d", mh->status, status);
-        if (status != STATUS_OK) return status;
-
-        status = ReadAll(server_to_client_socket_, &mh->length_protobuf, 4);
-        mh->length_protobuf = letoh32(mh->length_protobuf);
-        DBG("rm: mh->length_protobuf=%d status=%d", mh->length_protobuf, status);
-        if (status != STATUS_OK) return status;
-
+        // Read auxillary data
         Buffer *buffer;
-        if (mh->length_protobuf > 0) {
-            buffer = ObtainBuffer(mh->length_protobuf);
+        if (mh->length_data() > 0) {
+            buffer = ObtainBuffer(mh->length_data());
             status = ReadAll(server_to_client_socket_, buffer->data(), buffer->length());
             DBG("rm: read protobuf status=%d", status);
             if (status != STATUS_OK) return status;
         } else {
             DBG("rm: NO protobuf");
-            mh->length_protobuf = 0;
             buffer = NULL;
         }
 
@@ -153,37 +152,29 @@ class CtrlServerThread : public WorkerThread {
         uint32_t i;
         uint64_t l;
 
-        i = htole32(mh->cmd);
-        status = WriteAll(server_to_client_socket_, &i, 4);
-        DBG("wm: mh->cmd=%d status=%d", mh->cmd, status);
-        if (status != 0) return status;
-
-        l = htole64(mh->token);
-        status = WriteAll(server_to_client_socket_, &l, 8);
-        DBG("wm: mh->token=%lld status=%d", mh->token, status);
-        if (status != 0) return status;
-
-        i = htole32(mh->status);
-        status = WriteAll(server_to_client_socket_, &i, 4);
-        DBG("wm: mh->status=%d status=%d", mh->status, status);
-        if (status != 0) return status;
-
+        // Set length of data
         if (buffer == NULL) {
-            mh->length_protobuf = 0;
+            mh->set_length_data(0);
         } else {
-            mh->length_protobuf = buffer->length();
+            mh->set_length_data(buffer->length());
         }
-        if (mh->length_protobuf < 0) {
-            LOGE("wm: length_protobuf=zero");
-            mh->length_protobuf = 0;
-        }
-        i = htole32(mh->length_protobuf);
+
+        // Serialize header
+        uint32_t len_msg_header = mh->ByteSize();
+        uint8_t *msg_header_raw = (uint8_t *)alloca(len_msg_header);
+        mh->SerializeToArray(msg_header_raw, len_msg_header);
+
+        // Write length in little endian followed by the header
+        i = htole32(len_msg_header);
         status = WriteAll(server_to_client_socket_, &i, 4);
-        DBG("wm: mh->length_protobuf=%d status=%d",
-                   mh->length_protobuf, status);
+        DBG("wm: write len_msg_header=%d status=%d", len_msg_header, status);
+        if (status != 0) return status;
+        status = WriteAll(server_to_client_socket_, msg_header_raw, len_msg_header);
+        DBG("wm: write msg_header_raw=%p  status=%d", msg_header_raw, status);
         if (status != 0) return status;
 
-        if (mh->length_protobuf > 0) {
+        // Write data
+        if (mh->length_data() > 0) {
             status = WriteAll(server_to_client_socket_, buffer->data(), buffer->length());
             DBG("wm: protobuf data=%p len=%d status=%d",
                     buffer->data(), buffer->length(), status);
@@ -277,7 +268,7 @@ class CtrlServerThread : public WorkerThread {
     }
 
     int sendToCtrlServer(MsgHeader *mh, Buffer *buffer) {
-        DBG("sendToCtrlServer E: cmd=%d token=%lld", mh->cmd, mh->token);
+        DBG("sendToCtrlServer E: cmd=%d token=%lld", mh->cmd(), mh->token());
 
         int status = STATUS_OK;
         v8::HandleScope handle_scope;
@@ -292,13 +283,13 @@ class CtrlServerThread : public WorkerThread {
                 v8::Handle<v8::Function>::Cast(onCtrlServerCmdFunctionValue);
 
         // Create the CmdValue and TokenValue
-        v8::Handle<v8::Value> v8CmdValue = v8::Number::New(mh->cmd);
-        v8::Handle<v8::Value> v8TokenValue = v8::Number::New(mh->token);
+        v8::Handle<v8::Value> v8CmdValue = v8::Number::New(mh->cmd());
+        v8::Handle<v8::Value> v8TokenValue = v8::Number::New(mh->token());
 
         // Invoke onRilRequest
         const int argc = 3;
         v8::Handle<v8::Value> buf;
-        if (mh->length_protobuf == 0) {
+        if (mh->length_data() == 0) {
             buf = v8::Undefined();
         } else {
             buf = buffer->handle_;
@@ -319,8 +310,8 @@ class CtrlServerThread : public WorkerThread {
         if (status != STATUS_OK) {
             LOGE("sendToCtrlServer Error: status=%d", status);
             // An error report complete now
-            mh->length_protobuf = 0;
-            mh->status = ctrl_proto::CTRL_STATUS_ERR;
+            mh->set_length_data(0);
+            mh->set_status(ril_proto::CTRL_STATUS_ERR);
             g_ctrl_server->WriteMessage(mh, NULL);
         }
 
@@ -364,7 +355,7 @@ class CtrlServerThread : public WorkerThread {
                     status = ReadMessage(&mh, &buffer);
                     if (status != STATUS_OK) break;
 
-                    if (mh.cmd == ctrl_proto::CTRL_CMD_ECHO) {
+                    if (mh.cmd() == ril_proto::CTRL_CMD_ECHO) {
                         LOGD("CtrlServerThread::Worker echo");
                         status = WriteMessage(&mh, buffer);
                         if (status != STATUS_OK) break;
@@ -422,24 +413,24 @@ v8::Handle<v8::Value> SendCtrlRequestComplete(const v8::Arguments& args) {
         return v8::Undefined();
     }
     v8::Handle<v8::Value> v8CtrlStatus(args[0]->ToObject());
-    mh.status = ctrl_proto::CtrlStatus(v8CtrlStatus->NumberValue());
-    DBG("SendCtrlRequestComplete: status=%d", mh.status);
+    mh.set_status(ril_proto::CtrlStatus(v8CtrlStatus->NumberValue()));
+    DBG("SendCtrlRequestComplete: status=%d", mh.status());
 
     v8::Handle<v8::Value> v8ReqNum(args[1]->ToObject());
-    mh.cmd = int(v8ReqNum->NumberValue());
-    DBG("SendCtrlRequestComplete: cmd=%d", mh.cmd);
+    mh.set_cmd(int(v8ReqNum->NumberValue()));
+    DBG("SendCtrlRequestComplete: cmd=%d", mh.cmd());
 
     v8::Handle<v8::Value> v8Token(args[2]->ToObject());
-    mh.token = int64_t(v8Token->NumberValue());
-    DBG("SendCtrlRequestComplete: token=%lld", mh.token);
+    mh.set_token(int64_t(v8Token->NumberValue()));
+    DBG("SendCtrlRequestComplete: token=%lld", mh.token());
 
     if (args.Length() >= 4) {
         buffer = ObjectWrap::Unwrap<Buffer>(args[3]->ToObject());
-        mh.length_protobuf = buffer->length();
-        DBG("SendCtrlRequestComplete: mh.length_protobuf=%d",
-                mh.length_protobuf);
+        mh.set_length_data(buffer->length());
+        DBG("SendCtrlRequestComplete: mh.length_data=%d",
+                mh.length_data());
     } else {
-        mh.length_protobuf = 0;
+        mh.set_length_data(0);
         buffer = NULL;
         DBG("SendCtrlRequestComplete: NO PROTOBUF");
     }
