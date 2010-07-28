@@ -21,7 +21,7 @@
 #include <pthread.h>
 
 #include <v8.h>
-#include <worker.h>
+#include "worker.h"
 
 
 /**

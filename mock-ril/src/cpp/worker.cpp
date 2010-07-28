@@ -15,7 +15,7 @@
  */
 
 #include "logging.h"
-
+#include "status.h"
 #include "worker.h"
 
 //#define WORKER_DEBUG

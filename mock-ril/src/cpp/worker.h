@@ -18,7 +18,6 @@
 #define MOCK_RIL_WORKER_H_
 
 #include <queue>
-#include <status.h>
 #include <pthread.h>
 #include <cutils/atomic.h>
 
