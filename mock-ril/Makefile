@@ -123,6 +123,9 @@ copy_all : copy_js_desc copy_mockril
 .PHONY : copy_js_desc
 copy_js_desc :
 	adb push mock_ril.js /sdcard/data/
+	adb push simulated_radio.js /sdcard/data/
+	adb push simulated_icc.js /sdcard/data/
+	adb push ctrl_server.js /sdcard/data/
 	adb push ril_vars.js /sdcard/data/
 	adb push ril.desc /sdcard/data/
 	adb push ctrl.desc /sdcard/data/

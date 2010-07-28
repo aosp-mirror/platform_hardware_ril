@@ -47,14 +47,30 @@
 #endif
 
 
-int cvrtReqEnterSimPinToBuffer(Buffer **pBuffer,
+/**
+ * Request has no data so create an empty Buffer
+ */
+int ReqWithNoData(Buffer **pBuffer,
+        const void *data, const size_t datalen, const RIL_Token t) {
+    int status;
+    static Buffer *emptyBuffer = Buffer::New(0L);
+
+    DBG("ReqWithNoData E");
+    *pBuffer = emptyBuffer;
+    status = STATUS_OK;
+
+    DBG("ReqWithNoData X status=%d", status);
+    return status;
+}
+
+int ReqEnterSimPin(Buffer **pBuffer,
         const void *data, const size_t datalen, const RIL_Token t) {
     int status;
     Buffer *buffer;
 
-    DBG("cvrtReqEnterSimPinToBuffer E");
+    DBG("ReqEnterSimPin E");
     if (datalen < sizeof(int)) {
-        LOGE("cvrtReqEnterSimPinToBuffer: data to small err size < sizeof int");
+        LOGE("ReqEnterSimPin: data to small err size < sizeof int");
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqEnterSimPin *req = new ril_proto::ReqEnterSimPin();
@@ -65,18 +81,18 @@ int cvrtReqEnterSimPinToBuffer(Buffer **pBuffer,
         *pBuffer = buffer;
         status = STATUS_OK;
     }
-    DBG("cvrtReqEnterSimPinToBuffer X status=%d", status);
+    DBG("ReqEnterSimPin X status=%d", status);
     return status;
 }
 
-int cvrtReqHangUpToBuffer(Buffer **pBuffer,
+int ReqHangUp(Buffer **pBuffer,
         const void *data, const size_t datalen, const RIL_Token t) {
     int status;
     Buffer *buffer;
 
-    DBG("cvrtReqHangUpToBuffer E");
+    DBG("ReqHangUp E");
     if (datalen < sizeof(int)) {
-        LOGE("cvrtReqHangUpToBuffer: data to small err size < sizeof int");
+        LOGE("ReqHangUp: data to small err size < sizeof int");
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqHangUp *req = new ril_proto::ReqHangUp();
@@ -87,21 +103,21 @@ int cvrtReqHangUpToBuffer(Buffer **pBuffer,
         *pBuffer = buffer;
         status = STATUS_OK;
     }
-    DBG("cvrtReqHangUpToBuffer X status=%d", status);
+    DBG("ReqHangUp X status=%d", status);
     return status;
 }
 
-int cvrtReqScreenStateToBuffer(Buffer **pBuffer,
+int ReqScreenState(Buffer **pBuffer,
         const void *data, const size_t datalen, const RIL_Token t) {
     int status;
     Buffer *buffer;
     v8::HandleScope handle_scope;
     v8::TryCatch try_catch;
 
-    DBG("cvrtReqScreenStateToBuffer E data=%p datalen=%d t=%p",
+    DBG("ReqScreenState E data=%p datalen=%d t=%p",
          data, datalen, t);
     if (datalen < sizeof(int)) {
-        LOGE("cvrtReqScreenStateToBuffer: data to small err size < sizeof int");
+        LOGE("ReqScreenState: data to small err size < sizeof int");
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqScreenState *req = new ril_proto::ReqScreenState();
@@ -110,23 +126,23 @@ int cvrtReqScreenStateToBuffer(Buffer **pBuffer,
             ReportException(&try_catch);
         }
         buffer = Buffer::New(req->ByteSize());
-        DBG("cvrtReqScreenStateToBuffer: serialize");
+        DBG("ReqScreenState: serialize");
         req->SerializeToArray(buffer->data(), buffer->length());
         delete req;
         *pBuffer = buffer;
         status = STATUS_OK;
     }
-    DBG("cvrtReqScreenStateToBuffer X status=%d", status);
+    DBG("ReqScreenState X status=%d", status);
     return status;
 }
 
 /**
  * Map from indexed by cmd and used to convert Data to Protobuf.
  */
-typedef int (*CvrtDataToBuffer)(Buffer** protobuf, const void *data,
+typedef int (*ReqConversion)(Buffer** protobuf, const void *data,
                 const size_t datalen, const RIL_Token t);
-typedef std::map<int, CvrtDataToBuffer> RequestMap;
-RequestMap requestMap;
+typedef std::map<int, ReqConversion> ReqConversionMap;
+ReqConversionMap rilReqConversionMap;
 
 
 int callOnRilRequest(v8::Handle<v8::Context> context, int cmd,
@@ -149,12 +165,12 @@ int callOnRilRequest(v8::Handle<v8::Context> context, int cmd,
 
     // Convert the data to a protobuf Buffer
     Buffer *buffer = NULL;
-    RequestMap::iterator itr;
-    itr = requestMap.find(cmd);
-    if (itr != requestMap.end()) {
+    ReqConversionMap::iterator itr;
+    itr = rilReqConversionMap.find(cmd);
+    if (itr != rilReqConversionMap.end()) {
         status = itr->second(&buffer, data, datalen, t);
     } else {
-        LOGE("callOnRilRequest X unknown request");
+        LOGE("callOnRilRequest X unknown request %d", cmd);
         status = STATUS_UNSUPPORTED_REQUEST;
     }
 
@@ -254,10 +270,14 @@ void RilRequestWorkerQueue::Process(void *p) {
 int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
     LOGD("requestsInit E");
 
-    requestMap[RIL_REQUEST_ENTER_SIM_PIN] = cvrtReqEnterSimPinToBuffer;
-    requestMap[RIL_REQUEST_HANGUP] = cvrtReqHangUpToBuffer;
-    requestMap[RIL_REQUEST_SCREEN_STATE] = cvrtReqScreenStateToBuffer;
-    RequestMap::iterator itr;
+    rilReqConversionMap[RIL_REQUEST_GET_SIM_STATUS] = ReqWithNoData;
+    rilReqConversionMap[RIL_REQUEST_ENTER_SIM_PIN] = ReqEnterSimPin;
+    rilReqConversionMap[RIL_REQUEST_HANGUP] = ReqHangUp;
+    rilReqConversionMap[RIL_REQUEST_SCREEN_STATE] = ReqScreenState;
+    rilReqConversionMap[RIL_REQUEST_OPERATOR] = ReqWithNoData;
+    rilReqConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = ReqWithNoData;
+    rilReqConversionMap[RIL_REQUEST_REGISTRATION_STATE] = ReqWithNoData;
+    rilReqConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = ReqWithNoData;
 
     *rwq = new RilRequestWorkerQueue(context);
     int status = (*rwq)->Run();
