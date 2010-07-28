@@ -51,6 +51,11 @@
 
 #include "mock_ril.h"
 
+extern "C" {
+// Needed so we can call it prior to calling startMockRil
+extern void RIL_register(const RIL_RadioFunctions *callbacks);
+}
+
 //#define MOCK_RIL_DEBUG
 #ifdef  MOCK_RIL_DEBUG
 
@@ -242,7 +247,7 @@ class UnsolicitedThread : public WorkerThread {
 
         v8::Locker locker;
 
-        for (int i=0;!Stopping();i++) {
+        for (int i = 0; isRunning(); i++) {
             // Get access and setup scope
             v8::HandleScope handle_scope;
             v8::Context::Scope context_scope(context_);
@@ -262,6 +267,19 @@ class UnsolicitedThread : public WorkerThread {
     }
 };
 #endif
+
+void startMockRil(v8::Handle<v8::Context> context) {
+    v8::HandleScope handle_scope;
+
+    // Get handle to startMockRil and call it.
+    v8::Handle<v8::String> name = v8::String::New("startMockRil");
+    v8::Handle<v8::Value> functionValue = context->Global()->Get(name);
+    v8::Handle<v8::Function> start =
+            v8::Handle<v8::Function>::Cast(functionValue);
+
+    start->Call(context->Global(), 0, NULL);
+}
+
 
 const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc,
         char **argv) {
@@ -316,6 +334,14 @@ const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc,
     s_rilenv = env;
     requestsInit(context, &s_requestWorkerQueue);
     responsesInit(context);
+
+    // Register our call backs so when we startMockRil
+    // and it wants to send unsolicited messages the
+    // mock ril is registered
+    RIL_register(&s_callbacks);
+
+    // Start the mock ril
+    startMockRil(context);
 
 #if 0
     UnsolicitedThread *ut = new UnsolicitedThread(context);

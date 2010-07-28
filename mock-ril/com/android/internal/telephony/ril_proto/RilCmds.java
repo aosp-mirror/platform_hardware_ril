@@ -627,6 +627,226 @@ public final class RilCmds {
     
   }
   
+  public static final class RspStrings extends
+      com.google.protobuf.micro.MessageMicro {
+    public RspStrings() {}
+    
+    // repeated string strings = 1;
+    public static final int STRINGS_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.String> strings_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.String> getStringsList() {
+      return strings_;
+    }
+    public int getStringsCount() { return strings_.size(); }
+    public java.lang.String getStrings(int index) {
+      return strings_.get(index);
+    }
+    public RspStrings setStrings(int index, java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  strings_.set(index, value);
+      return this;
+    }
+    public RspStrings addStrings(java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  if (strings_.isEmpty()) {
+        strings_ = new java.util.ArrayList<java.lang.String>();
+      }
+      strings_.add(value);
+      return this;
+    }
+    public RspStrings clearStrings() {
+      strings_ = java.util.Collections.emptyList();
+      return this;
+    }
+    
+    public final RspStrings clear() {
+      clearStrings();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      for (java.lang.String element : getStringsList()) {
+        output.writeString(1, element);
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      {
+        int dataSize = 0;
+        for (java.lang.String element : getStringsList()) {
+          dataSize += com.google.protobuf.micro.CodedOutputStreamMicro
+            .computeStringSizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getStringsList().size();
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public RspStrings mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 10: {
+            addStrings(input.readString());
+            break;
+          }
+        }
+      }
+    }
+    
+    public static RspStrings parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (RspStrings) (new RspStrings().mergeFrom(data));
+    }
+    
+    public static RspStrings parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (RspStrings) (new RspStrings().mergeFrom(input));
+    }
+    
+  }
+  
+  public static final class RspIntegers extends
+      com.google.protobuf.micro.MessageMicro {
+    public RspIntegers() {}
+    
+    // repeated int32 integers = 1;
+    public static final int INTEGERS_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.Integer> integers_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.Integer> getIntegersList() {
+      return integers_;
+    }
+    public int getIntegersCount() { return integers_.size(); }
+    public int getIntegers(int index) {
+      return integers_.get(index);
+    }
+    public RspIntegers setIntegers(int index, int value) {
+      integers_.set(index, value);
+      return this;
+    }
+    public RspIntegers addIntegers(int value) {
+      if (integers_.isEmpty()) {
+        integers_ = new java.util.ArrayList<java.lang.Integer>();
+      }
+      integers_.add(value);
+      return this;
+    }
+    public RspIntegers clearIntegers() {
+      integers_ = java.util.Collections.emptyList();
+      return this;
+    }
+    
+    public final RspIntegers clear() {
+      clearIntegers();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      for (int element : getIntegersList()) {
+        output.writeInt32(1, element);
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      {
+        int dataSize = 0;
+        for (int element : getIntegersList()) {
+          dataSize += com.google.protobuf.micro.CodedOutputStreamMicro
+            .computeInt32SizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getIntegersList().size();
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public RspIntegers mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 8: {
+            addIntegers(input.readInt32());
+            break;
+          }
+        }
+      }
+    }
+    
+    public static RspIntegers parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (RspIntegers) (new RspIntegers().mergeFrom(data));
+    }
+    
+    public static RspIntegers parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (RspIntegers) (new RspIntegers().mergeFrom(input));
+    }
+    
+  }
+  
   public static final class ReqGetSimStatus extends
       com.google.protobuf.micro.MessageMicro {
     public ReqGetSimStatus() {}
@@ -1156,6 +1376,156 @@ public final class RilCmds {
             com.google.protobuf.micro.CodedInputStreamMicro input)
         throws java.io.IOException {
       return (ReqScreenState) (new ReqScreenState().mergeFrom(input));
+    }
+    
+  }
+  
+  public static final class RspOperator extends
+      com.google.protobuf.micro.MessageMicro {
+    public RspOperator() {}
+    
+    // optional string long_alpha_ons = 1;
+    public static final int LONG_ALPHA_ONS_FIELD_NUMBER = 1;
+    private boolean hasLongAlphaOns;
+    private java.lang.String longAlphaOns_ = "";
+    public java.lang.String getLongAlphaOns() { return longAlphaOns_; }
+    public boolean hasLongAlphaOns() { return hasLongAlphaOns; }
+    public RspOperator setLongAlphaOns(java.lang.String value) {
+      hasLongAlphaOns = true;
+      longAlphaOns_ = value;
+      return this;
+    }
+    public RspOperator clearLongAlphaOns() {
+      hasLongAlphaOns = false;
+      longAlphaOns_ = "";
+      return this;
+    }
+    
+    // optional string short_alpha_ons = 2;
+    public static final int SHORT_ALPHA_ONS_FIELD_NUMBER = 2;
+    private boolean hasShortAlphaOns;
+    private java.lang.String shortAlphaOns_ = "";
+    public java.lang.String getShortAlphaOns() { return shortAlphaOns_; }
+    public boolean hasShortAlphaOns() { return hasShortAlphaOns; }
+    public RspOperator setShortAlphaOns(java.lang.String value) {
+      hasShortAlphaOns = true;
+      shortAlphaOns_ = value;
+      return this;
+    }
+    public RspOperator clearShortAlphaOns() {
+      hasShortAlphaOns = false;
+      shortAlphaOns_ = "";
+      return this;
+    }
+    
+    // optional string mcc_mnc = 3;
+    public static final int MCC_MNC_FIELD_NUMBER = 3;
+    private boolean hasMccMnc;
+    private java.lang.String mccMnc_ = "";
+    public java.lang.String getMccMnc() { return mccMnc_; }
+    public boolean hasMccMnc() { return hasMccMnc; }
+    public RspOperator setMccMnc(java.lang.String value) {
+      hasMccMnc = true;
+      mccMnc_ = value;
+      return this;
+    }
+    public RspOperator clearMccMnc() {
+      hasMccMnc = false;
+      mccMnc_ = "";
+      return this;
+    }
+    
+    public final RspOperator clear() {
+      clearLongAlphaOns();
+      clearShortAlphaOns();
+      clearMccMnc();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasLongAlphaOns()) {
+        output.writeString(1, getLongAlphaOns());
+      }
+      if (hasShortAlphaOns()) {
+        output.writeString(2, getShortAlphaOns());
+      }
+      if (hasMccMnc()) {
+        output.writeString(3, getMccMnc());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasLongAlphaOns()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeStringSize(1, getLongAlphaOns());
+      }
+      if (hasShortAlphaOns()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeStringSize(2, getShortAlphaOns());
+      }
+      if (hasMccMnc()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeStringSize(3, getMccMnc());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public RspOperator mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 10: {
+            setLongAlphaOns(input.readString());
+            break;
+          }
+          case 18: {
+            setShortAlphaOns(input.readString());
+            break;
+          }
+          case 26: {
+            setMccMnc(input.readString());
+            break;
+          }
+        }
+      }
+    }
+    
+    public static RspOperator parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (RspOperator) (new RspOperator().mergeFrom(data));
+    }
+    
+    public static RspOperator parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (RspOperator) (new RspOperator().mergeFrom(input));
     }
     
   }

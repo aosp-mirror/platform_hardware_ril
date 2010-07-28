@@ -20,6 +20,12 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* RilCardStatus_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RilCardStatus_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RspStrings_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RspStrings_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RspIntegers_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RspIntegers_reflection_ = NULL;
 const ::google::protobuf::Descriptor* ReqGetSimStatus_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ReqGetSimStatus_reflection_ = NULL;
@@ -38,6 +44,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* ReqScreenState_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ReqScreenState_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RspOperator_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RspOperator_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* RilCommand_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* RadioState_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* RilCardState_descriptor_ = NULL;
@@ -97,7 +106,37 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RilCardStatus));
-  ReqGetSimStatus_descriptor_ = file->message_type(2);
+  RspStrings_descriptor_ = file->message_type(2);
+  static const int RspStrings_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspStrings, strings_),
+  };
+  RspStrings_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RspStrings_descriptor_,
+      RspStrings::default_instance_,
+      RspStrings_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspStrings, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspStrings, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RspStrings));
+  RspIntegers_descriptor_ = file->message_type(3);
+  static const int RspIntegers_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspIntegers, integers_),
+  };
+  RspIntegers_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RspIntegers_descriptor_,
+      RspIntegers::default_instance_,
+      RspIntegers_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspIntegers, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspIntegers, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RspIntegers));
+  ReqGetSimStatus_descriptor_ = file->message_type(4);
   static const int ReqGetSimStatus_offsets_[1] = {
   };
   ReqGetSimStatus_reflection_ =
@@ -111,7 +150,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ReqGetSimStatus));
-  RspGetSimStatus_descriptor_ = file->message_type(3);
+  RspGetSimStatus_descriptor_ = file->message_type(5);
   static const int RspGetSimStatus_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspGetSimStatus, card_status_),
   };
@@ -126,7 +165,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RspGetSimStatus));
-  ReqEnterSimPin_descriptor_ = file->message_type(4);
+  ReqEnterSimPin_descriptor_ = file->message_type(6);
   static const int ReqEnterSimPin_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqEnterSimPin, pin_),
   };
@@ -141,7 +180,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ReqEnterSimPin));
-  RspEnterSimPin_descriptor_ = file->message_type(5);
+  RspEnterSimPin_descriptor_ = file->message_type(7);
   static const int RspEnterSimPin_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspEnterSimPin, retries_remaining_),
   };
@@ -156,7 +195,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RspEnterSimPin));
-  ReqHangUp_descriptor_ = file->message_type(6);
+  ReqHangUp_descriptor_ = file->message_type(8);
   static const int ReqHangUp_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqHangUp, connection_index_),
   };
@@ -171,7 +210,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ReqHangUp));
-  ReqScreenState_descriptor_ = file->message_type(7);
+  ReqScreenState_descriptor_ = file->message_type(9);
   static const int ReqScreenState_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqScreenState, state_),
   };
@@ -186,6 +225,23 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ReqScreenState));
+  RspOperator_descriptor_ = file->message_type(10);
+  static const int RspOperator_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspOperator, long_alpha_ons_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspOperator, short_alpha_ons_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspOperator, mcc_mnc_),
+  };
+  RspOperator_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RspOperator_descriptor_,
+      RspOperator::default_instance_,
+      RspOperator_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspOperator, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspOperator, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RspOperator));
   RilCommand_descriptor_ = file->enum_type(0);
   RadioState_descriptor_ = file->enum_type(1);
   RilCardState_descriptor_ = file->enum_type(2);
@@ -210,6 +266,10 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RilCardStatus_descriptor_, &RilCardStatus::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RspStrings_descriptor_, &RspStrings::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RspIntegers_descriptor_, &RspIntegers::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ReqGetSimStatus_descriptor_, &ReqGetSimStatus::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RspGetSimStatus_descriptor_, &RspGetSimStatus::default_instance());
@@ -221,6 +281,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     ReqHangUp_descriptor_, &ReqHangUp::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ReqScreenState_descriptor_, &ReqScreenState::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RspOperator_descriptor_, &RspOperator::default_instance());
 }
 
 }  // namespace
@@ -230,6 +292,10 @@ void protobuf_ShutdownFile_ril_2eproto() {
   delete RilAppStatus_reflection_;
   delete RilCardStatus::default_instance_;
   delete RilCardStatus_reflection_;
+  delete RspStrings::default_instance_;
+  delete RspStrings_reflection_;
+  delete RspIntegers::default_instance_;
+  delete RspIntegers_reflection_;
   delete ReqGetSimStatus::default_instance_;
   delete ReqGetSimStatus_reflection_;
   delete RspGetSimStatus::default_instance_;
@@ -242,6 +308,8 @@ void protobuf_ShutdownFile_ril_2eproto() {
   delete ReqHangUp_reflection_;
   delete ReqScreenState::default_instance_;
   delete ReqScreenState_reflection_;
+  delete RspOperator::default_instance_;
+  delete RspOperator_reflection_;
 }
 
 void protobuf_AddDesc_ril_2eproto() {
@@ -265,78 +333,87 @@ void protobuf_AddDesc_ril_2eproto() {
     "cription_app_index\030\003 \001(\005\022#\n\033cdma_subscri"
     "ption_app_index\030\004 \001(\005\022\030\n\020num_application"
     "s\030\005 \001(\005\022-\n\014applications\030\006 \003(\0132\027.ril_prot"
-    "o.RilAppStatus\"\021\n\017ReqGetSimStatus\"@\n\017Rsp"
-    "GetSimStatus\022-\n\013card_status\030\001 \002(\0132\030.ril_"
-    "proto.RilCardStatus\"\035\n\016ReqEnterSimPin\022\013\n"
-    "\003pin\030\001 \002(\t\"+\n\016RspEnterSimPin\022\031\n\021retries_"
-    "remaining\030\001 \002(\005\"%\n\tReqHangUp\022\030\n\020connecti"
-    "on_index\030\001 \002(\005\"\037\n\016ReqScreenState\022\r\n\005stat"
-    "e\030\001 \002(\010*a\n\nRilCommand\022\026\n\022CMD_GET_SIM_STA"
-    "TUS\020\001\022\025\n\021CMD_ENTER_SIM_PIN\020\002\022\016\n\nCMD_HANG"
-    "UP\020\014\022\024\n\020CMD_SCREEN_STATE\020=*\271\002\n\nRadioStat"
-    "e\022\023\n\017RADIO_STATE_OFF\020\000\022\033\n\027RADIO_STATE_UN"
-    "AVAILABLE\020\001\022\035\n\031RADIO_STATE_SIM_NOT_READY"
-    "\020\002\022$\n RADIO_STATE_SIM_LOCKED_OR_ABSENT\020\003"
-    "\022\031\n\025RADIO_STATE_SIM_READY\020\004\022\036\n\032RADIO_STA"
-    "TE_RUIM_NOT_READY\020\005\022\032\n\026RADIO_STATE_RUIM_"
-    "READY\020\006\022%\n!RADIO_STATE_RUIM_LOCKED_OR_AB"
-    "SENT\020\007\022\034\n\030RADIO_STATE_NV_NOT_READY\020\010\022\030\n\024"
-    "RADIO_STATE_NV_READY\020\t*P\n\014RilCardState\022\024"
-    "\n\020CARDSTATE_ABSENT\020\000\022\025\n\021CARDSTATE_PRESEN"
-    "T\020\001\022\023\n\017CARDSTATE_ERROR\020\002*\361\006\n\020RilPersoSub"
-    "state\022\031\n\025PERSOSUBSTATE_UNKNOWN\020\000\022\035\n\031PERS"
-    "OSUBSTATE_IN_PROGRESS\020\001\022\027\n\023PERSOSUBSTATE"
-    "_READY\020\002\022\035\n\031PERSOSUBSTATE_SIM_NETWORK\020\003\022"
-    "$\n PERSOSUBSTATE_SIM_NETWORK_SUBSET\020\004\022\037\n"
-    "\033PERSOSUBSTATE_SIM_CORPORATE\020\005\022&\n\"PERSOS"
-    "UBSTATE_SIM_SERVICE_PROVIDER\020\006\022\031\n\025PERSOS"
-    "UBSTATE_SIM_SIM\020\007\022!\n\035PERSOSUBSTATE_SIM_N"
-    "ETWORK_PUK\020\010\022(\n$PERSOSUBSTATE_SIM_NETWOR"
-    "K_SUBSET_PUK\020\t\022#\n\037PERSOSUBSTATE_SIM_CORP"
-    "ORATE_PUK\020\n\022*\n&PERSOSUBSTATE_SIM_SERVICE"
-    "_PROVIDER_PUK\020\013\022\035\n\031PERSOSUBSTATE_SIM_SIM"
-    "_PUK\020\014\022\037\n\033PERSOSUBSTATE_RUIM_NETWORK1\020\r\022"
-    "\037\n\033PERSOSUBSTATE_RUIM_NETWORK2\020\016\022\033\n\027PERS"
-    "OSUBSTATE_RUIM_HRPD\020\017\022 \n\034PERSOSUBSTATE_R"
-    "UIM_CORPORATE\020\020\022\'\n#PERSOSUBSTATE_RUIM_SE"
-    "RVICE_PROVIDER\020\021\022\033\n\027PERSOSUBSTATE_RUIM_R"
-    "UIM\020\022\022#\n\037PERSOSUBSTATE_RUIM_NETWORK1_PUK"
-    "\020\023\022#\n\037PERSOSUBSTATE_RUIM_NETWORK2_PUK\020\024\022"
-    "\037\n\033PERSOSUBSTATE_RUIM_HRPD_PUK\020\025\022$\n PERS"
-    "OSUBSTATE_RUIM_CORPORATE_PUK\020\026\022+\n\'PERSOS"
-    "UBSTATE_RUIM_SERVICE_PROVIDER_PUK\020\027\022\037\n\033P"
-    "ERSOSUBSTATE_RUIM_RUIM_PUK\020\030*\223\001\n\013RilAppS"
-    "tate\022\024\n\020APPSTATE_UNKNOWN\020\000\022\025\n\021APPSTATE_D"
-    "ETECTED\020\001\022\020\n\014APPSTATE_PIN\020\002\022\020\n\014APPSTATE_"
-    "PUK\020\003\022\037\n\033APPSTATE_SUBSCRIPTION_PERSO\020\004\022\022"
-    "\n\016APPSTATE_READY\020\005*\275\001\n\013RilPinState\022\024\n\020PI"
-    "NSTATE_UNKNOWN\020\000\022!\n\035PINSTATE_ENABLED_NOT"
-    "_VERIFIED\020\001\022\035\n\031PINSTATE_ENABLED_VERIFIED"
-    "\020\002\022\025\n\021PINSTATE_DISABLED\020\003\022\034\n\030PINSTATE_EN"
-    "ABLED_BLOCKED\020\004\022!\n\035PINSTATE_ENABLED_PERM"
-    "_BLOCKED\020\005*h\n\nRilAppType\022\023\n\017APPTYPE_UNKN"
-    "OWN\020\000\022\017\n\013APPTYPE_SIM\020\001\022\020\n\014APPTYPE_USIM\020\002"
-    "\022\020\n\014APPTYPE_RUIM\020\003\022\020\n\014APPTYPE_CSIM\020\004B3\n("
-    "com.android.internal.telephony.ril_proto"
-    "B\007RilCmds", 2689);
+    "o.RilAppStatus\"\035\n\nRspStrings\022\017\n\007strings\030"
+    "\001 \003(\t\"\037\n\013RspIntegers\022\020\n\010integers\030\001 \003(\005\"\021"
+    "\n\017ReqGetSimStatus\"@\n\017RspGetSimStatus\022-\n\013"
+    "card_status\030\001 \002(\0132\030.ril_proto.RilCardSta"
+    "tus\"\035\n\016ReqEnterSimPin\022\013\n\003pin\030\001 \002(\t\"+\n\016Rs"
+    "pEnterSimPin\022\031\n\021retries_remaining\030\001 \002(\005\""
+    "%\n\tReqHangUp\022\030\n\020connection_index\030\001 \002(\005\"\037"
+    "\n\016ReqScreenState\022\r\n\005state\030\001 \002(\010\"O\n\013RspOp"
+    "erator\022\026\n\016long_alpha_ons\030\001 \001(\t\022\027\n\017short_"
+    "alpha_ons\030\002 \001(\t\022\017\n\007mcc_mnc\030\003 \001(\t*a\n\nRilC"
+    "ommand\022\026\n\022CMD_GET_SIM_STATUS\020\001\022\025\n\021CMD_EN"
+    "TER_SIM_PIN\020\002\022\016\n\nCMD_HANGUP\020\014\022\024\n\020CMD_SCR"
+    "EEN_STATE\020=*\271\002\n\nRadioState\022\023\n\017RADIO_STAT"
+    "E_OFF\020\000\022\033\n\027RADIO_STATE_UNAVAILABLE\020\001\022\035\n\031"
+    "RADIO_STATE_SIM_NOT_READY\020\002\022$\n RADIO_STA"
+    "TE_SIM_LOCKED_OR_ABSENT\020\003\022\031\n\025RADIO_STATE"
+    "_SIM_READY\020\004\022\036\n\032RADIO_STATE_RUIM_NOT_REA"
+    "DY\020\005\022\032\n\026RADIO_STATE_RUIM_READY\020\006\022%\n!RADI"
+    "O_STATE_RUIM_LOCKED_OR_ABSENT\020\007\022\034\n\030RADIO"
+    "_STATE_NV_NOT_READY\020\010\022\030\n\024RADIO_STATE_NV_"
+    "READY\020\t*P\n\014RilCardState\022\024\n\020CARDSTATE_ABS"
+    "ENT\020\000\022\025\n\021CARDSTATE_PRESENT\020\001\022\023\n\017CARDSTAT"
+    "E_ERROR\020\002*\361\006\n\020RilPersoSubstate\022\031\n\025PERSOS"
+    "UBSTATE_UNKNOWN\020\000\022\035\n\031PERSOSUBSTATE_IN_PR"
+    "OGRESS\020\001\022\027\n\023PERSOSUBSTATE_READY\020\002\022\035\n\031PER"
+    "SOSUBSTATE_SIM_NETWORK\020\003\022$\n PERSOSUBSTAT"
+    "E_SIM_NETWORK_SUBSET\020\004\022\037\n\033PERSOSUBSTATE_"
+    "SIM_CORPORATE\020\005\022&\n\"PERSOSUBSTATE_SIM_SER"
+    "VICE_PROVIDER\020\006\022\031\n\025PERSOSUBSTATE_SIM_SIM"
+    "\020\007\022!\n\035PERSOSUBSTATE_SIM_NETWORK_PUK\020\010\022(\n"
+    "$PERSOSUBSTATE_SIM_NETWORK_SUBSET_PUK\020\t\022"
+    "#\n\037PERSOSUBSTATE_SIM_CORPORATE_PUK\020\n\022*\n&"
+    "PERSOSUBSTATE_SIM_SERVICE_PROVIDER_PUK\020\013"
+    "\022\035\n\031PERSOSUBSTATE_SIM_SIM_PUK\020\014\022\037\n\033PERSO"
+    "SUBSTATE_RUIM_NETWORK1\020\r\022\037\n\033PERSOSUBSTAT"
+    "E_RUIM_NETWORK2\020\016\022\033\n\027PERSOSUBSTATE_RUIM_"
+    "HRPD\020\017\022 \n\034PERSOSUBSTATE_RUIM_CORPORATE\020\020"
+    "\022\'\n#PERSOSUBSTATE_RUIM_SERVICE_PROVIDER\020"
+    "\021\022\033\n\027PERSOSUBSTATE_RUIM_RUIM\020\022\022#\n\037PERSOS"
+    "UBSTATE_RUIM_NETWORK1_PUK\020\023\022#\n\037PERSOSUBS"
+    "TATE_RUIM_NETWORK2_PUK\020\024\022\037\n\033PERSOSUBSTAT"
+    "E_RUIM_HRPD_PUK\020\025\022$\n PERSOSUBSTATE_RUIM_"
+    "CORPORATE_PUK\020\026\022+\n\'PERSOSUBSTATE_RUIM_SE"
+    "RVICE_PROVIDER_PUK\020\027\022\037\n\033PERSOSUBSTATE_RU"
+    "IM_RUIM_PUK\020\030*\223\001\n\013RilAppState\022\024\n\020APPSTAT"
+    "E_UNKNOWN\020\000\022\025\n\021APPSTATE_DETECTED\020\001\022\020\n\014AP"
+    "PSTATE_PIN\020\002\022\020\n\014APPSTATE_PUK\020\003\022\037\n\033APPSTA"
+    "TE_SUBSCRIPTION_PERSO\020\004\022\022\n\016APPSTATE_READ"
+    "Y\020\005*\275\001\n\013RilPinState\022\024\n\020PINSTATE_UNKNOWN\020"
+    "\000\022!\n\035PINSTATE_ENABLED_NOT_VERIFIED\020\001\022\035\n\031"
+    "PINSTATE_ENABLED_VERIFIED\020\002\022\025\n\021PINSTATE_"
+    "DISABLED\020\003\022\034\n\030PINSTATE_ENABLED_BLOCKED\020\004"
+    "\022!\n\035PINSTATE_ENABLED_PERM_BLOCKED\020\005*h\n\nR"
+    "ilAppType\022\023\n\017APPTYPE_UNKNOWN\020\000\022\017\n\013APPTYP"
+    "E_SIM\020\001\022\020\n\014APPTYPE_USIM\020\002\022\020\n\014APPTYPE_RUI"
+    "M\020\003\022\020\n\014APPTYPE_CSIM\020\004B3\n(com.android.int"
+    "ernal.telephony.ril_protoB\007RilCmds", 2834);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ril.proto", &protobuf_RegisterTypes);
   RilAppStatus::default_instance_ = new RilAppStatus();
   RilCardStatus::default_instance_ = new RilCardStatus();
+  RspStrings::default_instance_ = new RspStrings();
+  RspIntegers::default_instance_ = new RspIntegers();
   ReqGetSimStatus::default_instance_ = new ReqGetSimStatus();
   RspGetSimStatus::default_instance_ = new RspGetSimStatus();
   ReqEnterSimPin::default_instance_ = new ReqEnterSimPin();
   RspEnterSimPin::default_instance_ = new RspEnterSimPin();
   ReqHangUp::default_instance_ = new ReqHangUp();
   ReqScreenState::default_instance_ = new ReqScreenState();
+  RspOperator::default_instance_ = new RspOperator();
   RilAppStatus::default_instance_->InitAsDefaultInstance();
   RilCardStatus::default_instance_->InitAsDefaultInstance();
+  RspStrings::default_instance_->InitAsDefaultInstance();
+  RspIntegers::default_instance_->InitAsDefaultInstance();
   ReqGetSimStatus::default_instance_->InitAsDefaultInstance();
   RspGetSimStatus::default_instance_->InitAsDefaultInstance();
   ReqEnterSimPin::default_instance_->InitAsDefaultInstance();
   RspEnterSimPin::default_instance_->InitAsDefaultInstance();
   ReqHangUp::default_instance_->InitAsDefaultInstance();
   ReqScreenState::default_instance_->InitAsDefaultInstance();
+  RspOperator::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_ril_2eproto);
 }
 
@@ -1459,6 +1536,425 @@ void RilCardStatus::Swap(RilCardStatus* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = RilCardStatus_descriptor_;
   metadata.reflection = RilCardStatus_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int RspStrings::kStringsFieldNumber;
+#endif  // !_MSC_VER
+
+RspStrings::RspStrings()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void RspStrings::InitAsDefaultInstance() {
+}
+
+RspStrings::RspStrings(const RspStrings& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void RspStrings::SharedCtor() {
+  _cached_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RspStrings::~RspStrings() {
+  SharedDtor();
+}
+
+void RspStrings::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void RspStrings::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RspStrings::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RspStrings_descriptor_;
+}
+
+const RspStrings& RspStrings::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ril_2eproto();  return *default_instance_;
+}
+
+RspStrings* RspStrings::default_instance_ = NULL;
+
+RspStrings* RspStrings::New() const {
+  return new RspStrings;
+}
+
+void RspStrings::Clear() {
+  strings_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool RspStrings::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated string strings = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_strings:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_strings()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->strings(0).data(), this->strings(0).length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(10)) goto parse_strings;
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void RspStrings::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // repeated string strings = 1;
+  for (int i = 0; i < this->strings_size(); i++) {
+  ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    this->strings(i).data(), this->strings(i).length(),
+    ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      1, this->strings(i), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* RspStrings::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // repeated string strings = 1;
+  for (int i = 0; i < this->strings_size(); i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->strings(i).data(), this->strings(i).length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(1, this->strings(i), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int RspStrings::ByteSize() const {
+  int total_size = 0;
+  
+  // repeated string strings = 1;
+  total_size += 1 * this->strings_size();
+  for (int i = 0; i < this->strings_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->strings(i));
+  }
+  
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RspStrings::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const RspStrings* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const RspStrings*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void RspStrings::MergeFrom(const RspStrings& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  strings_.MergeFrom(from.strings_);
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void RspStrings::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RspStrings::CopyFrom(const RspStrings& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RspStrings::IsInitialized() const {
+  
+  return true;
+}
+
+void RspStrings::Swap(RspStrings* other) {
+  if (other != this) {
+    strings_.Swap(&other->strings_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata RspStrings::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RspStrings_descriptor_;
+  metadata.reflection = RspStrings_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int RspIntegers::kIntegersFieldNumber;
+#endif  // !_MSC_VER
+
+RspIntegers::RspIntegers()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void RspIntegers::InitAsDefaultInstance() {
+}
+
+RspIntegers::RspIntegers(const RspIntegers& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void RspIntegers::SharedCtor() {
+  _cached_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RspIntegers::~RspIntegers() {
+  SharedDtor();
+}
+
+void RspIntegers::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void RspIntegers::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RspIntegers::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RspIntegers_descriptor_;
+}
+
+const RspIntegers& RspIntegers::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ril_2eproto();  return *default_instance_;
+}
+
+RspIntegers* RspIntegers::default_instance_ = NULL;
+
+RspIntegers* RspIntegers::New() const {
+  return new RspIntegers;
+}
+
+void RspIntegers::Clear() {
+  integers_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool RspIntegers::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated int32 integers = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_integers:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 1, 8, input, this->mutable_integers())));
+        } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
+                   == ::google::protobuf::internal::WireFormatLite::
+                      WIRETYPE_LENGTH_DELIMITED) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, this->mutable_integers())));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(8)) goto parse_integers;
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void RspIntegers::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // repeated int32 integers = 1;
+  for (int i = 0; i < this->integers_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(
+      1, this->integers(i), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* RspIntegers::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // repeated int32 integers = 1;
+  for (int i = 0; i < this->integers_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt32ToArray(1, this->integers(i), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int RspIntegers::ByteSize() const {
+  int total_size = 0;
+  
+  // repeated int32 integers = 1;
+  {
+    int data_size = 0;
+    for (int i = 0; i < this->integers_size(); i++) {
+      data_size += ::google::protobuf::internal::WireFormatLite::
+        Int32Size(this->integers(i));
+    }
+    total_size += 1 * this->integers_size() + data_size;
+  }
+  
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RspIntegers::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const RspIntegers* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const RspIntegers*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void RspIntegers::MergeFrom(const RspIntegers& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  integers_.MergeFrom(from.integers_);
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void RspIntegers::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RspIntegers::CopyFrom(const RspIntegers& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RspIntegers::IsInitialized() const {
+  
+  return true;
+}
+
+void RspIntegers::Swap(RspIntegers* other) {
+  if (other != this) {
+    integers_.Swap(&other->integers_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata RspIntegers::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RspIntegers_descriptor_;
+  metadata.reflection = RspIntegers_reflection_;
   return metadata;
 }
 
@@ -2675,6 +3171,347 @@ void ReqScreenState::Swap(ReqScreenState* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = ReqScreenState_descriptor_;
   metadata.reflection = ReqScreenState_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+const ::std::string RspOperator::_default_long_alpha_ons_;
+const ::std::string RspOperator::_default_short_alpha_ons_;
+const ::std::string RspOperator::_default_mcc_mnc_;
+#ifndef _MSC_VER
+const int RspOperator::kLongAlphaOnsFieldNumber;
+const int RspOperator::kShortAlphaOnsFieldNumber;
+const int RspOperator::kMccMncFieldNumber;
+#endif  // !_MSC_VER
+
+RspOperator::RspOperator()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void RspOperator::InitAsDefaultInstance() {
+}
+
+RspOperator::RspOperator(const RspOperator& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void RspOperator::SharedCtor() {
+  _cached_size_ = 0;
+  long_alpha_ons_ = const_cast< ::std::string*>(&_default_long_alpha_ons_);
+  short_alpha_ons_ = const_cast< ::std::string*>(&_default_short_alpha_ons_);
+  mcc_mnc_ = const_cast< ::std::string*>(&_default_mcc_mnc_);
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RspOperator::~RspOperator() {
+  SharedDtor();
+}
+
+void RspOperator::SharedDtor() {
+  if (long_alpha_ons_ != &_default_long_alpha_ons_) {
+    delete long_alpha_ons_;
+  }
+  if (short_alpha_ons_ != &_default_short_alpha_ons_) {
+    delete short_alpha_ons_;
+  }
+  if (mcc_mnc_ != &_default_mcc_mnc_) {
+    delete mcc_mnc_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void RspOperator::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RspOperator::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RspOperator_descriptor_;
+}
+
+const RspOperator& RspOperator::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ril_2eproto();  return *default_instance_;
+}
+
+RspOperator* RspOperator::default_instance_ = NULL;
+
+RspOperator* RspOperator::New() const {
+  return new RspOperator;
+}
+
+void RspOperator::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (_has_bit(0)) {
+      if (long_alpha_ons_ != &_default_long_alpha_ons_) {
+        long_alpha_ons_->clear();
+      }
+    }
+    if (_has_bit(1)) {
+      if (short_alpha_ons_ != &_default_short_alpha_ons_) {
+        short_alpha_ons_->clear();
+      }
+    }
+    if (_has_bit(2)) {
+      if (mcc_mnc_ != &_default_mcc_mnc_) {
+        mcc_mnc_->clear();
+      }
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool RspOperator::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string long_alpha_ons = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_long_alpha_ons()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->long_alpha_ons().data(), this->long_alpha_ons().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_short_alpha_ons;
+        break;
+      }
+      
+      // optional string short_alpha_ons = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_short_alpha_ons:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_short_alpha_ons()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->short_alpha_ons().data(), this->short_alpha_ons().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(26)) goto parse_mcc_mnc;
+        break;
+      }
+      
+      // optional string mcc_mnc = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_mcc_mnc:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_mcc_mnc()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->mcc_mnc().data(), this->mcc_mnc().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void RspOperator::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // optional string long_alpha_ons = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->long_alpha_ons().data(), this->long_alpha_ons().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      1, this->long_alpha_ons(), output);
+  }
+  
+  // optional string short_alpha_ons = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->short_alpha_ons().data(), this->short_alpha_ons().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      2, this->short_alpha_ons(), output);
+  }
+  
+  // optional string mcc_mnc = 3;
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->mcc_mnc().data(), this->mcc_mnc().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      3, this->mcc_mnc(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* RspOperator::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // optional string long_alpha_ons = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->long_alpha_ons().data(), this->long_alpha_ons().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->long_alpha_ons(), target);
+  }
+  
+  // optional string short_alpha_ons = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->short_alpha_ons().data(), this->short_alpha_ons().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->short_alpha_ons(), target);
+  }
+  
+  // optional string mcc_mnc = 3;
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->mcc_mnc().data(), this->mcc_mnc().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        3, this->mcc_mnc(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int RspOperator::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional string long_alpha_ons = 1;
+    if (has_long_alpha_ons()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->long_alpha_ons());
+    }
+    
+    // optional string short_alpha_ons = 2;
+    if (has_short_alpha_ons()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->short_alpha_ons());
+    }
+    
+    // optional string mcc_mnc = 3;
+    if (has_mcc_mnc()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->mcc_mnc());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RspOperator::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const RspOperator* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const RspOperator*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void RspOperator::MergeFrom(const RspOperator& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_long_alpha_ons(from.long_alpha_ons());
+    }
+    if (from._has_bit(1)) {
+      set_short_alpha_ons(from.short_alpha_ons());
+    }
+    if (from._has_bit(2)) {
+      set_mcc_mnc(from.mcc_mnc());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void RspOperator::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RspOperator::CopyFrom(const RspOperator& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RspOperator::IsInitialized() const {
+  
+  return true;
+}
+
+void RspOperator::Swap(RspOperator* other) {
+  if (other != this) {
+    std::swap(long_alpha_ons_, other->long_alpha_ons_);
+    std::swap(short_alpha_ons_, other->short_alpha_ons_);
+    std::swap(mcc_mnc_, other->mcc_mnc_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata RspOperator::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RspOperator_descriptor_;
+  metadata.reflection = RspOperator_reflection_;
   return metadata;
 }
 

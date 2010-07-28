@@ -64,16 +64,25 @@
  *      Worker::add(req);
  */
 
-print("mock_ril.js BOF");
+/**
+ * Globals
+ */
 
 include("ril_vars.js");
+
+var NULL_RESPONSE_STRING = '*magic-null*';
 
 // Initial value of radioState
 radioState = RADIO_STATE_UNAVAILABLE;
 
-/**
- * Get the ril description file and create a schema
- */
+// The state of the screen
+var screenState = 0;
+
+// Empty Protobuf, defined here so we don't have
+// to recreate an empty Buffer frequently
+var emptyProtobuf = new Buffer();
+
+// Get the ril description file and create a schema
 var packageNameAndSeperator = 'ril_proto.';
 var rilSchema = new Schema(readFileToBuffer('ril.desc'));
 var ctrlSchema = new Schema(readFileToBuffer('ctrl.desc'));
@@ -112,152 +121,13 @@ if (false) {
     printProperties(myObject, 3);
 }
 
-// Empty Protobuf, defined here so we don't have
-// to recreate an empty Buffer frequently
-var emptyProtobuf = new Buffer();
-
 /**
- * Construct a new request which is passed to the
- * Worker handler method.
+ * Include the components
  */
-function Request(reqNum, token, protobuf, schema, schemaName) {
-    req = new Object();
-    req.reqNum = reqNum;
-    req.token = token;
-    req.data = schema[packageNameAndSeperator + schemaName].parse(protobuf);
-    return req;
-}
 
-/**
- * Simulated Radio
- */
-var simulatedRadio = new Worker(function (req) {
-    try {
-        print('simulatedRadio E: req.reqNum=' + req.reqNum + ' req.token=' + req.token);
-
-        // Assume we will send a response and we are successful an empty responseProtobuf
-        var sendTheResponse = true;
-        var rilErrCode = RIL_E_SUCCESS;
-        var responseProtobuf = emptyProtobuf;
-
-        switch (req.reqNum) {
-            case RIL_REQUEST_HANGUP:
-                print('simulatedRadio: req.data.connection_index=' + req.data.connectionIndex);
-                break;
-            case RIL_REQUEST_SCREEN_STATE:
-                print('simulatedRadio: req.data.state=' + req.data.state);
-                break;
-            default:
-                print('simulatedRadio: Unknown reqNum ' + reqNum);
-                rilErrCode = RIL_E_REQUEST_NOT_SUPPORTED;
-                break;
-        }
-
-        if (sendTheResponse) {
-            sendRilRequestComplete(rilErrCode, req.reqNum, req.token, responseProtobuf);
-        }
-
-        print('simulatedRadio X: req.reqNum=' + req.reqNum);
-    } catch (err) {
-        print('simulatedRadio X: Exception err=' + err);
-    }
-});
-simulatedRadio.run();
-
-/**
- * Simulated Sim
- */
-var simulatedSim = new Worker(function (req) {
-    try {
-        print('simulatedSim E: req.reqNum=' + req.reqNum);
-
-        // Assume we will send a response and we are successful an empty responseProtobuf
-        var sendTheResponse = true;
-        var rilErrCode = RIL_E_SUCCESS;
-        var responseProtobuf = emptyProtobuf;
-
-        switch (req.reqNum) {
-            case RIL_REQUEST_ENTER_SIM_PIN:
-                print('simulatedSim: EnterSimPin req.data.pin=' + req.data.pin);
-                rsp = Object();
-                rsp.cmd = req.reqNum;
-                rsp.token = req.token;
-                rsp.retriesRemaining = 3;
-                responseProtobuf = rilSchema[packageNameAndSeperator +
-                                         'RspEnterSimPin'].serialize(rsp);
-            case RIL_REQUEST_SCREEN_STATE:
-                print('simulatedSim: req.data.state=' + req.data.state);
-                // Only one response, simulatedRadio will return it.
-                sendTheResponse = false;
-                break;
-            default:
-                print('simulatedSim: Unknown reqNum ' + reqNum);
-                rilErrCode = RIL_E_REQUEST_NOT_SUPPORTED;
-                break;
-        }
-
-        if (sendTheResponse) {
-            sendRilRequestComplete(rilErrCode, req.reqNum, req.token, responseProtobuf);
-        }
-
-        print('simulatedSim X: req.reqNum=' + req.reqNum);
-    } catch (err) {
-        print('simulatedSim X: Exception err=' + err);
-    }
-});
-simulatedSim.run();
-
-/**
- * Control Server
- */
-var ctrlServer = new Worker(function (req) {
-    try {
-        print('ctrlServer E: req.cmd=' + req.cmd);
-
-        // Assume we will send a response and we are successful an empty responseProtobuf
-        var sendTheResponse = true;
-        var ctrlStatus = 0; // ril_proto.CTRL_STATUS_OK;
-        var responseProtobuf = emptyProtobuf;
-
-        switch (req.cmd) {
-            case 1: //ril_proto.CTRL_CMD_GET_RADIO_STATE:
-                print('ctrlServer: CTRL_CMD_GET_RADIO_STATE');
-                rsp = Object();
-                rsp.state = radioState;
-                responseProtobuf = ctrlSchema['ril_proto.CtrlRspRadioState'].serialize(rsp);
-                break;
-            default:
-                print('ctrlServer: Unknown cmd ' + req.cmd);
-                ctrlStatus = 1; //ril_proto.CTRL_STATUS_ERR;
-                break;
-        }
-
-        if (sendTheResponse) {
-            sendCtrlRequestComplete(ctrlStatus, req.cmd, req.token, responseProtobuf);
-        }
-
-        print('ctrlServer X: req.cmd=' + req.cmd);
-    }  catch (err) {
-        print('ctrlServer X: Exception err=' + err);
-    }
-});
-ctrlServer.run();
-
-function onCtrlServerCmd(cmd, token, protobuf) {
-    try {
-        //print('onCtrlServerCmd E cmd=' + cmd + ' token=' + token);
-
-        req = new Object();
-        req.cmd = cmd;
-        req.token = token;
-        req.protobuf = protobuf;
-        ctrlServer.add(req);
-
-        //print('onCtrlServerCmd X cmd=' + cmd + ' token=' + token);
-    } catch (err) {
-        print('onCtrlServerCmd X Exception err=' + err);
-    }
-}
+include("simulated_radio.js");
+include("simulated_icc.js");
+include("ctrl_server.js");
 
 /**
  * Dispatch table for requests
@@ -273,18 +143,51 @@ function onCtrlServerCmd(cmd, token, protobuf) {
  */
 var dispatchTable = new Array();
 
+dispatchTable[RIL_REQUEST_GET_SIM_STATUS] = {
+    'components' : [simulatedIccWorker],
+    'schemaName' : 'ReqGetSimStatus',
+},
 dispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = {
-    'components' : [simulatedSim],
+    'components' : [simulatedIccWorker],
     'schemaName' : 'ReqEnterSimPin',
 },
 dispatchTable[RIL_REQUEST_HANGUP] = {
-    'components' : [simulatedSim],
+    'components' : [simulatedRadioWorker],
     'schemaName' : 'ReqHangUp',
 };
 dispatchTable[RIL_REQUEST_SCREEN_STATE] = {
-    'components' : [simulatedSim, simulatedRadio],
+    'components' : [simulatedRadioWorker],
     'schemaName' : 'ReqScreenState',
 };
+dispatchTable[RIL_REQUEST_OPERATOR] = {
+    'components' : [simulatedIccWorker],
+};
+dispatchTable[RIL_REQUEST_GPRS_REGISTRATION_STATE] = {
+    'components' : [simulatedRadioWorker],
+};
+dispatchTable[RIL_REQUEST_REGISTRATION_STATE] = {
+    'components' : [simulatedRadioWorker],
+};
+dispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = {
+    'components' : [simulatedRadioWorker],
+};
+
+/**
+ * Construct a new request which is passed to the
+ * Worker handler method.
+ */
+function Request(reqNum, token, protobuf, schema, schemaName) {
+    req = new Object();
+    req.reqNum = reqNum;
+    req.token = token;
+    try {
+        req.data = schema[packageNameAndSeperator + schemaName].parse(protobuf);
+    } catch (err) {
+        // not a valid protobuf in the request
+        req.data = null;
+    }
+    return req;
+}
 
 /**
  * Dispatch incoming requests from RIL to the appropriate component.
@@ -314,12 +217,6 @@ function onRilRequest(reqNum, token, requestProtobuf) {
             return 'onRilRequest X: invalid parameter';
         }
 
-        /**
-         * Assume we're going to send a response, rilErrCode is RIL_E_SUCCESS
-         * and there is no responseProtobuf.
-         */
-        sendTheResponse = true;
-        rilErrCode = RIL_E_SUCCESS;
         try {
             print('onRilRequest: get entry from dispatchTable reqNum=' + reqNum);
             entry = dispatchTable[reqNum];
@@ -328,7 +225,7 @@ function onRilRequest(reqNum, token, requestProtobuf) {
                 entry.components[i].add(req);
             }
         } catch (err) {
-            print('onRilRequest: Unknown reqNum ' + reqNum + ' err=' + err);
+            print('onRilRequest: Unknown reqNum=' + reqNum + ' err=' + err);
             sendRilRequestComplete(RIL_E_REQUEST_NOT_SUPPORTED, reqNum, token);
         }
         // print('onRilRequest X: reqNum=' + reqNum + ' token=' + token);
@@ -345,8 +242,15 @@ function onUnsolicitedTick(tick) {
 
 function setRadioState(newRadioState) {
     radioState = newRadioState;
-    sendRilUnsolicitedResponse(RIL_UNSOLICITED_STATE_CHANGED);
+    sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED);
 }
 
+/**
+ * Start the mock rill after loading
+ */
+function startMockRil() {
+    print("startMockRil E:");
+    setRadioState(RADIO_STATE_SIM_READY);
+    print("startMockRil X:");
+}
 
-print("mock_ril.js EOF");

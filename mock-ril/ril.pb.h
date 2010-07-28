@@ -34,12 +34,15 @@ void protobuf_ShutdownFile_ril_2eproto();
 
 class RilAppStatus;
 class RilCardStatus;
+class RspStrings;
+class RspIntegers;
 class ReqGetSimStatus;
 class RspGetSimStatus;
 class ReqEnterSimPin;
 class RspEnterSimPin;
 class ReqHangUp;
 class ReqScreenState;
+class RspOperator;
 
 enum RilCommand {
   CMD_GET_SIM_STATUS = 1,
@@ -505,6 +508,198 @@ class RilCardStatus : public ::google::protobuf::Message {
   
   void InitAsDefaultInstance();
   static RilCardStatus* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class RspStrings : public ::google::protobuf::Message {
+ public:
+  RspStrings();
+  virtual ~RspStrings();
+  
+  RspStrings(const RspStrings& from);
+  
+  inline RspStrings& operator=(const RspStrings& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RspStrings& default_instance();
+  
+  void Swap(RspStrings* other);
+  
+  // implements Message ----------------------------------------------
+  
+  RspStrings* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RspStrings& from);
+  void MergeFrom(const RspStrings& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // repeated string strings = 1;
+  inline int strings_size() const;
+  inline void clear_strings();
+  static const int kStringsFieldNumber = 1;
+  inline const ::std::string& strings(int index) const;
+  inline ::std::string* mutable_strings(int index);
+  inline void set_strings(int index, const ::std::string& value);
+  inline void set_strings(int index, const char* value);
+  inline void set_strings(int index, const char* value, size_t size);
+  inline ::std::string* add_strings();
+  inline void add_strings(const ::std::string& value);
+  inline void add_strings(const char* value);
+  inline void add_strings(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& strings() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_strings();
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.RspStrings)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::RepeatedPtrField< ::std::string> strings_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static RspStrings* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class RspIntegers : public ::google::protobuf::Message {
+ public:
+  RspIntegers();
+  virtual ~RspIntegers();
+  
+  RspIntegers(const RspIntegers& from);
+  
+  inline RspIntegers& operator=(const RspIntegers& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RspIntegers& default_instance();
+  
+  void Swap(RspIntegers* other);
+  
+  // implements Message ----------------------------------------------
+  
+  RspIntegers* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RspIntegers& from);
+  void MergeFrom(const RspIntegers& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // repeated int32 integers = 1;
+  inline int integers_size() const;
+  inline void clear_integers();
+  static const int kIntegersFieldNumber = 1;
+  inline ::google::protobuf::int32 integers(int index) const;
+  inline void set_integers(int index, ::google::protobuf::int32 value);
+  inline void add_integers(::google::protobuf::int32 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      integers() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_integers();
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.RspIntegers)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > integers_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static RspIntegers* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -1036,6 +1231,123 @@ class ReqScreenState : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static ReqScreenState* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class RspOperator : public ::google::protobuf::Message {
+ public:
+  RspOperator();
+  virtual ~RspOperator();
+  
+  RspOperator(const RspOperator& from);
+  
+  inline RspOperator& operator=(const RspOperator& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RspOperator& default_instance();
+  
+  void Swap(RspOperator* other);
+  
+  // implements Message ----------------------------------------------
+  
+  RspOperator* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RspOperator& from);
+  void MergeFrom(const RspOperator& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // optional string long_alpha_ons = 1;
+  inline bool has_long_alpha_ons() const;
+  inline void clear_long_alpha_ons();
+  static const int kLongAlphaOnsFieldNumber = 1;
+  inline const ::std::string& long_alpha_ons() const;
+  inline void set_long_alpha_ons(const ::std::string& value);
+  inline void set_long_alpha_ons(const char* value);
+  inline void set_long_alpha_ons(const char* value, size_t size);
+  inline ::std::string* mutable_long_alpha_ons();
+  
+  // optional string short_alpha_ons = 2;
+  inline bool has_short_alpha_ons() const;
+  inline void clear_short_alpha_ons();
+  static const int kShortAlphaOnsFieldNumber = 2;
+  inline const ::std::string& short_alpha_ons() const;
+  inline void set_short_alpha_ons(const ::std::string& value);
+  inline void set_short_alpha_ons(const char* value);
+  inline void set_short_alpha_ons(const char* value, size_t size);
+  inline ::std::string* mutable_short_alpha_ons();
+  
+  // optional string mcc_mnc = 3;
+  inline bool has_mcc_mnc() const;
+  inline void clear_mcc_mnc();
+  static const int kMccMncFieldNumber = 3;
+  inline const ::std::string& mcc_mnc() const;
+  inline void set_mcc_mnc(const ::std::string& value);
+  inline void set_mcc_mnc(const char* value);
+  inline void set_mcc_mnc(const char* value, size_t size);
+  inline ::std::string* mutable_mcc_mnc();
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.RspOperator)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::std::string* long_alpha_ons_;
+  static const ::std::string _default_long_alpha_ons_;
+  ::std::string* short_alpha_ons_;
+  static const ::std::string _default_short_alpha_ons_;
+  ::std::string* mcc_mnc_;
+  static const ::std::string _default_mcc_mnc_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static RspOperator* default_instance_;
+};
 // ===================================================================
 
 
@@ -1341,6 +1653,83 @@ RilCardStatus::mutable_applications() {
 
 // -------------------------------------------------------------------
 
+// RspStrings
+
+// repeated string strings = 1;
+inline int RspStrings::strings_size() const {
+  return strings_.size();
+}
+inline void RspStrings::clear_strings() {
+  strings_.Clear();
+}
+inline const ::std::string& RspStrings::strings(int index) const {
+  return strings_.Get(index);
+}
+inline ::std::string* RspStrings::mutable_strings(int index) {
+  return strings_.Mutable(index);
+}
+inline void RspStrings::set_strings(int index, const ::std::string& value) {
+  strings_.Mutable(index)->assign(value);
+}
+inline void RspStrings::set_strings(int index, const char* value) {
+  strings_.Mutable(index)->assign(value);
+}
+inline void RspStrings::set_strings(int index, const char* value, size_t size) {
+  strings_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* RspStrings::add_strings() {
+  return strings_.Add();
+}
+inline void RspStrings::add_strings(const ::std::string& value) {
+  strings_.Add()->assign(value);
+}
+inline void RspStrings::add_strings(const char* value) {
+  strings_.Add()->assign(value);
+}
+inline void RspStrings::add_strings(const char* value, size_t size) {
+  strings_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+RspStrings::strings() const {
+  return strings_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+RspStrings::mutable_strings() {
+  return &strings_;
+}
+
+// -------------------------------------------------------------------
+
+// RspIntegers
+
+// repeated int32 integers = 1;
+inline int RspIntegers::integers_size() const {
+  return integers_.size();
+}
+inline void RspIntegers::clear_integers() {
+  integers_.Clear();
+}
+inline ::google::protobuf::int32 RspIntegers::integers(int index) const {
+  return integers_.Get(index);
+}
+inline void RspIntegers::set_integers(int index, ::google::protobuf::int32 value) {
+  integers_.Set(index, value);
+}
+inline void RspIntegers::add_integers(::google::protobuf::int32 value) {
+  integers_.Add(value);
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+RspIntegers::integers() const {
+  return integers_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+RspIntegers::mutable_integers() {
+  return &integers_;
+}
+
+// -------------------------------------------------------------------
+
 // ReqGetSimStatus
 
 // -------------------------------------------------------------------
@@ -1468,6 +1857,136 @@ inline bool ReqScreenState::state() const {
 inline void ReqScreenState::set_state(bool value) {
   _set_bit(0);
   state_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// RspOperator
+
+// optional string long_alpha_ons = 1;
+inline bool RspOperator::has_long_alpha_ons() const {
+  return _has_bit(0);
+}
+inline void RspOperator::clear_long_alpha_ons() {
+  if (long_alpha_ons_ != &_default_long_alpha_ons_) {
+    long_alpha_ons_->clear();
+  }
+  _clear_bit(0);
+}
+inline const ::std::string& RspOperator::long_alpha_ons() const {
+  return *long_alpha_ons_;
+}
+inline void RspOperator::set_long_alpha_ons(const ::std::string& value) {
+  _set_bit(0);
+  if (long_alpha_ons_ == &_default_long_alpha_ons_) {
+    long_alpha_ons_ = new ::std::string;
+  }
+  long_alpha_ons_->assign(value);
+}
+inline void RspOperator::set_long_alpha_ons(const char* value) {
+  _set_bit(0);
+  if (long_alpha_ons_ == &_default_long_alpha_ons_) {
+    long_alpha_ons_ = new ::std::string;
+  }
+  long_alpha_ons_->assign(value);
+}
+inline void RspOperator::set_long_alpha_ons(const char* value, size_t size) {
+  _set_bit(0);
+  if (long_alpha_ons_ == &_default_long_alpha_ons_) {
+    long_alpha_ons_ = new ::std::string;
+  }
+  long_alpha_ons_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* RspOperator::mutable_long_alpha_ons() {
+  _set_bit(0);
+  if (long_alpha_ons_ == &_default_long_alpha_ons_) {
+    long_alpha_ons_ = new ::std::string;
+  }
+  return long_alpha_ons_;
+}
+
+// optional string short_alpha_ons = 2;
+inline bool RspOperator::has_short_alpha_ons() const {
+  return _has_bit(1);
+}
+inline void RspOperator::clear_short_alpha_ons() {
+  if (short_alpha_ons_ != &_default_short_alpha_ons_) {
+    short_alpha_ons_->clear();
+  }
+  _clear_bit(1);
+}
+inline const ::std::string& RspOperator::short_alpha_ons() const {
+  return *short_alpha_ons_;
+}
+inline void RspOperator::set_short_alpha_ons(const ::std::string& value) {
+  _set_bit(1);
+  if (short_alpha_ons_ == &_default_short_alpha_ons_) {
+    short_alpha_ons_ = new ::std::string;
+  }
+  short_alpha_ons_->assign(value);
+}
+inline void RspOperator::set_short_alpha_ons(const char* value) {
+  _set_bit(1);
+  if (short_alpha_ons_ == &_default_short_alpha_ons_) {
+    short_alpha_ons_ = new ::std::string;
+  }
+  short_alpha_ons_->assign(value);
+}
+inline void RspOperator::set_short_alpha_ons(const char* value, size_t size) {
+  _set_bit(1);
+  if (short_alpha_ons_ == &_default_short_alpha_ons_) {
+    short_alpha_ons_ = new ::std::string;
+  }
+  short_alpha_ons_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* RspOperator::mutable_short_alpha_ons() {
+  _set_bit(1);
+  if (short_alpha_ons_ == &_default_short_alpha_ons_) {
+    short_alpha_ons_ = new ::std::string;
+  }
+  return short_alpha_ons_;
+}
+
+// optional string mcc_mnc = 3;
+inline bool RspOperator::has_mcc_mnc() const {
+  return _has_bit(2);
+}
+inline void RspOperator::clear_mcc_mnc() {
+  if (mcc_mnc_ != &_default_mcc_mnc_) {
+    mcc_mnc_->clear();
+  }
+  _clear_bit(2);
+}
+inline const ::std::string& RspOperator::mcc_mnc() const {
+  return *mcc_mnc_;
+}
+inline void RspOperator::set_mcc_mnc(const ::std::string& value) {
+  _set_bit(2);
+  if (mcc_mnc_ == &_default_mcc_mnc_) {
+    mcc_mnc_ = new ::std::string;
+  }
+  mcc_mnc_->assign(value);
+}
+inline void RspOperator::set_mcc_mnc(const char* value) {
+  _set_bit(2);
+  if (mcc_mnc_ == &_default_mcc_mnc_) {
+    mcc_mnc_ = new ::std::string;
+  }
+  mcc_mnc_->assign(value);
+}
+inline void RspOperator::set_mcc_mnc(const char* value, size_t size) {
+  _set_bit(2);
+  if (mcc_mnc_ == &_default_mcc_mnc_) {
+    mcc_mnc_ = new ::std::string;
+  }
+  mcc_mnc_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* RspOperator::mutable_mcc_mnc() {
+  _set_bit(2);
+  if (mcc_mnc_ == &_default_mcc_mnc_) {
+    mcc_mnc_ = new ::std::string;
+  }
+  return mcc_mnc_;
 }
 
 

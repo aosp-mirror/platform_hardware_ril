@@ -17,7 +17,6 @@
 /**
  * variables from ril.h
  */
-print("ril-vars.js Beg");
 
 /**
  * RIL Error codes
@@ -204,5 +203,3 @@ var RIL_UNSOL_CDMA_INFO_REC = 1027
 var RIL_UNSOL_OEM_HOOK_RAW = 1028
 var RIL_UNSOL_RINGBACK_TONE = 1029
 var RIL_UNSOL_RESEND_INCALL_MUTE = 1030
-
-print("ril-vars.js End");
