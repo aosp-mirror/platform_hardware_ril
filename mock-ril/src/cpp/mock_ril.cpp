@@ -142,8 +142,8 @@ static void onRequest (int request, void *data, size_t datalen, RIL_Token t)
  */
 static RIL_RadioState currentState()
 {
-    DBG("currentState: RadioState=%d", RadioState);
-    return RadioState;
+    DBG("currentState: gRadioState=%d", gRadioState);
+    return gRadioState;
 }
 
 /**

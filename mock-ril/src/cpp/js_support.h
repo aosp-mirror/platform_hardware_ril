@@ -20,7 +20,8 @@
 #include <v8.h>
 #include <telephony/ril.h>
 
-extern RIL_RadioState RadioState;
+// The global value of radio state shared between cpp and js code.
+extern RIL_RadioState gRadioState;
 
 // A javascript print function
 extern v8::Handle<v8::Value> Print(const v8::Arguments& args);

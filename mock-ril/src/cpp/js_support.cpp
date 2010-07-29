@@ -45,16 +45,16 @@
 /**
  * Current Radio state
  */
-RIL_RadioState RadioState = RADIO_STATE_UNAVAILABLE;
+RIL_RadioState gRadioState = RADIO_STATE_UNAVAILABLE;
 
 v8::Handle<v8::Value> RadioStateGetter(v8::Local<v8::String> property,
         const v8::AccessorInfo& info) {
-    return v8::Integer::New((int)RadioState);
+    return v8::Integer::New((int)gRadioState);
 }
 
 void RadioStateSetter(v8::Local<v8::String> property,
         v8::Local<v8::Value> value, const v8::AccessorInfo& info) {
-    RadioState = RIL_RadioState(value->Int32Value());
+    gRadioState = RIL_RadioState(value->Int32Value());
 }
 
 // A javascript sleep for a number of milli-seconds
@@ -247,7 +247,7 @@ v8::Persistent<v8::Context> makeJsContext() {
     // Create a template for the global object and
     // add the function template for print to it.
     v8::Handle<v8::ObjectTemplate> global = v8::ObjectTemplate::New();
-    global->SetAccessor(v8::String::New("radioState"),
+    global->SetAccessor(v8::String::New("gRadioState"),
             RadioStateGetter, RadioStateSetter);
     global->Set(v8::String::New("msSleep"), v8::FunctionTemplate::New(MsSleep));
     global->Set(v8::String::New("print"), v8::FunctionTemplate::New(Print));
@@ -309,11 +309,11 @@ void testRadioState(v8::Handle<v8::Context> context) {
 
     runJs(context, &try_catch, "local-string",
         "for(i = 0; i < 10; i++) {\n"
-        "  radioState = i;\n"
-        "  print('radioState=' + radioState);\n"
+        "  gRadioState = i;\n"
+        "  print('gRadioState=' + gRadioState);\n"
         "}\n"
-        "radioState = 1;\n"
-        "print('last radioState=' + radioState);\n");
+        "gRadioState = 1;\n"
+        "print('last gRadioState=' + gRadioState);\n");
     LOGD("testRadioState X:");
 }
 

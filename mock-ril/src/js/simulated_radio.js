@@ -46,7 +46,7 @@ function SimulatedRadio() {
 
     this.rilRequestScreenState = function (req) {
         print('rilRequestScreenState: req.data.state=' + req.data.state);
-        screenState = req.data.state;
+        gScreenState = req.data.state;
         return result;
     }
 

@@ -72,11 +72,11 @@ include("ril_vars.js");
 
 var NULL_RESPONSE_STRING = '*magic-null*';
 
-// Initial value of radioState
-radioState = RADIO_STATE_UNAVAILABLE;
+// The state of the radio, needed by currentState()
+var gRadioState = RADIO_STATE_UNAVAILABLE;
 
 // The state of the screen
-var screenState = 0;
+var gScreenState = 0;
 
 // Empty Protobuf, defined here so we don't have
 // to recreate an empty Buffer frequently
@@ -241,7 +241,7 @@ function onUnsolicitedTick(tick) {
 }
 
 function setRadioState(newRadioState) {
-    radioState = newRadioState;
+    gRadioState = newRadioState;
     sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED);
 }
 

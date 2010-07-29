@@ -25,7 +25,7 @@ function CtrlServer() {
         print('ctrlGetRadioState');
 
         rsp = Object();
-        rsp.state = radioState;
+        rsp.state = gRadioState;
         result.responseProtobuf = ctrlSchema['ril_proto.CtrlRspRadioState'].serialize(rsp);
 
         return result;
