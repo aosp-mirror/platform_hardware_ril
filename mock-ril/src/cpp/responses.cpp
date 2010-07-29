@@ -89,6 +89,24 @@ RIL_Errno RspStrings(
 }
 
 /**
+ * Handle response for a string
+ */
+RIL_Errno RspString(
+        int cmd, RIL_Token token, RIL_Errno rilErrno, Buffer *buffer) {
+    DBG("RspString E");
+
+    ril_proto::RspStrings *rsp = new ril_proto::RspStrings();
+    rsp->ParseFromArray(buffer->data(), buffer->length());
+    const char *result = rsp->strings(0).c_str();
+
+    // Complete the request
+    s_rilenv->OnRequestComplete(token, rilErrno, (void *)result, strlen(result));
+
+    DBG("RspString X rilErrno=%d", rilErrno);
+    return rilErrno;
+}
+
+/**
  * Handle response for an array of integers
  */
 RIL_Errno RspIntegers(
@@ -347,6 +365,7 @@ int responsesInit(v8::Handle<v8::Context> context) {
     rilRspConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = RspStrings; // 21
     rilRspConversionMap[RIL_REQUEST_OPERATOR] = RspOperator; // 22
     rilRspConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = RspIntegers; // 45
+    rilRspConversionMap[RIL_REQUEST_BASEBAND_VERSION] = RspString; // 51
     rilRspConversionMap[RIL_REQUEST_SCREEN_STATE] = RspWithNoData; // 61
 
     LOGD("responsesInit X: status=%d", status);

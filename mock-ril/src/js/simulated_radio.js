@@ -17,7 +17,7 @@
 /**
  * Simulated Radio
  */
-function SimulatedRadio() {
+function Radio() {
     var registrationState = '1';
     var lac = '0';
     var cid = '0';
@@ -39,34 +39,13 @@ function SimulatedRadio() {
     // The result returned by the request handlers
     var result = new Object();
 
-    this.rilRequestHangUp = function(req) {
-        print('rilRequestHangUp data.connection_index=' + req.data.connectionIndex);
+    this.rilRequestHangUp = function(req) { // 12
+        print('Radio: rilRequestHangUp data.connection_index=' + req.data.connectionIndex);
         return result;
     }
 
-    this.rilRequestScreenState = function (req) {
-        print('rilRequestScreenState: req.data.state=' + req.data.state);
-        gScreenState = req.data.state;
-        return result;
-    }
-
-    this.rilRequestGprsRegistrationState = function(req) {
-        print('rilRequestGprsRegistrationState E');
-
-        var rsp = Object();
-        rsp.strings = Array();
-        rsp.strings[0] = registrationState;
-        rsp.strings[1] = lac;
-        rsp.strings[2] = cid;
-        rsp.strings[3] = radioTechnology;
-
-        result.responseProtobuf = rilSchema[packageNameAndSeperator +
-                                 'RspStrings'].serialize(rsp);
-        return result;
-    }
-
-    this.rilRequestRegistrationState = function(req) {
-        print('rilRequestRegistrationState');
+    this.rilRequestRegistrationState = function(req) { // 20
+        print('Radio: rilRequestRegistrationState');
 
         var rsp = Object();
         rsp.strings = Array();
@@ -91,8 +70,23 @@ function SimulatedRadio() {
         return result;
     }
 
-    this.rilRequestQueryNeworkSelectionMode = function(req) {
-        print('rilRequestQueryNeworkSelectionMode');
+    this.rilRequestGprsRegistrationState = function(req) { // 21
+        print('Radio: rilRequestGprsRegistrationState');
+
+        var rsp = Object();
+        rsp.strings = Array();
+        rsp.strings[0] = registrationState;
+        rsp.strings[1] = lac;
+        rsp.strings[2] = cid;
+        rsp.strings[3] = radioTechnology;
+
+        result.responseProtobuf = rilSchema[packageNameAndSeperator +
+                                 'RspStrings'].serialize(rsp);
+        return result;
+    }
+
+    this.rilRequestQueryNeworkSelectionMode = function(req) { // 45
+        print('Radio: rilRequestQueryNeworkSelectionMode');
 
         var rsp = Object();
         rsp.integers = Array();
@@ -103,12 +97,28 @@ function SimulatedRadio() {
         return result;
     }
 
+    this.rilRequestBaseBandVersion = function (req) { // 51
+        print('Radio: rilRequestBaseBandVersion');
+        var rsp = Object();
+        rsp.strings = Array();
+        rsp.strings[0] = gBaseBandVersion;
+
+        result.responseProtobuf = rilSchema[packageNameAndSeperator +
+                                 'RspStrings'].serialize(rsp);
+        return result;
+    }
+
+    this.rilRequestScreenState = function (req) { // 61
+        print('Radio: rilRequestScreenState: req.data.state=' + req.data.state);
+        screenState = req.data.state;
+        return result;
+    }
     /**
      * Process the request
      */
     this.process = function(req) {
         try {
-            print('SimulatedRadio E: req.reqNum=' + req.reqNum + ' req.token=' + req.token);
+            //print('Radio E: req.reqNum=' + req.reqNum + ' req.token=' + req.token);
 
             // Assume the result will be true, successful and nothing to return
             result.sendResponse = true;
@@ -118,7 +128,7 @@ function SimulatedRadio() {
             try {
                 result = this.radioDispatchTable[req.reqNum](req);
             } catch (err) {
-                print('SimulatedRadio: Unknown reqNum=' + req.reqNum);
+                print('Radio: Unknown reqNum=' + req.reqNum);
                 result.rilErrCode = RIL_E_REQUEST_NOT_SUPPORTED;
             }
 
@@ -127,14 +137,14 @@ function SimulatedRadio() {
                         req.token, result.responseProtobuf);
             }
 
-            print('SimulatedRadio X: req.reqNum=' + req.reqNum + ' req.token=' + req.token);
+            //print('Radio X: req.reqNum=' + req.reqNum + ' req.token=' + req.token);
         } catch (err) {
-            print('SimulatedRadio X: Exception req.reqNum=' +
+            print('Radio: Exception req.reqNum=' +
                     req.reqNum + ' req.token=' + req.token + ' err=' + err);
         }
     }
 
-    print('SimulatedRadio() ctor E');
+    print('Radio: constructor E');
     this.radioDispatchTable = new Array();
     this.radioDispatchTable[RIL_REQUEST_HANGUP] = // 12
                 this.rilRequestHangUp;
@@ -144,13 +154,15 @@ function SimulatedRadio() {
                 this.rilRequestGprsRegistrationState;
     this.radioDispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = // 45
                 this.rilRequestQueryNeworkSelectionMode;
+    this.radioDispatchTable[RIL_REQUEST_BASEBAND_VERSION] = // 51
+                this.rilRequestBaseBandVersion;
     this.radioDispatchTable[RIL_REQUEST_SCREEN_STATE] = // 61
                 this.rilRequestScreenState;
-    print('SimulatedRadio() ctor X');
+    print('Radio: constructor X');
 }
 
 // The simulated radio instance and its associated Worker
-var simulatedRadio = new SimulatedRadio()
+var simulatedRadio = new Radio()
 var simulatedRadioWorker = new Worker(function (req) {
     simulatedRadio.process(req);
 });

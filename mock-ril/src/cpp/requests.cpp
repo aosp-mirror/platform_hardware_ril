@@ -277,6 +277,7 @@ int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
     rilReqConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = ReqWithNoData; // 21
     rilReqConversionMap[RIL_REQUEST_OPERATOR] = ReqWithNoData; // 22
     rilReqConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = ReqWithNoData; // 45
+    rilReqConversionMap[RIL_REQUEST_BASEBAND_VERSION] = ReqWithNoData; // 51
     rilReqConversionMap[RIL_REQUEST_SCREEN_STATE] = ReqScreenState; // 61
 
     *rwq = new RilRequestWorkerQueue(context);

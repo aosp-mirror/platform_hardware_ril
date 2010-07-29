@@ -78,6 +78,9 @@ var gRadioState = RADIO_STATE_UNAVAILABLE;
 // The state of the screen
 var gScreenState = 0;
 
+// The base band version
+var gBaseBandVersion = 'mock-ril 0.1';
+
 // Empty Protobuf, defined here so we don't have
 // to recreate an empty Buffer frequently
 var emptyProtobuf = new Buffer();
@@ -146,11 +149,11 @@ var dispatchTable = new Array();
 dispatchTable[RIL_REQUEST_GET_SIM_STATUS] = { // 1
     'components' : [simulatedIccWorker],
     'schemaName' : 'ReqGetSimStatus',
-},
+};
 dispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = { // 2
     'components' : [simulatedIccWorker],
     'schemaName' : 'ReqEnterSimPin',
-},
+};
 dispatchTable[RIL_REQUEST_HANGUP] = { // 12
     'components' : [simulatedRadioWorker],
     'schemaName' : 'ReqHangUp',
@@ -165,6 +168,9 @@ dispatchTable[RIL_REQUEST_OPERATOR] = { // 22
     'components' : [simulatedIccWorker],
 };
 dispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = { // 45
+    'components' : [simulatedRadioWorker],
+};
+dispatchTable[RIL_REQUEST_BASEBAND_VERSION ] = { // 51
     'components' : [simulatedRadioWorker],
 };
 dispatchTable[RIL_REQUEST_SCREEN_STATE] = { // 61
@@ -218,7 +224,7 @@ function onRilRequest(reqNum, token, requestProtobuf) {
         }
 
         try {
-            print('onRilRequest: get entry from dispatchTable reqNum=' + reqNum);
+            // print('onRilRequest: get entry from dispatchTable reqNum=' + reqNum);
             entry = dispatchTable[reqNum];
             req = new Request(reqNum, token, requestProtobuf, rilSchema, entry.schemaName);
             for(i = 0; i < entry.components.length; i++) {
@@ -231,6 +237,7 @@ function onRilRequest(reqNum, token, requestProtobuf) {
         // print('onRilRequest X: reqNum=' + reqNum + ' token=' + token);
     } catch (err) {
         print('onRilRequest X: Exception err=' + err);
+        return('onRilRequest X: Exception err=' + err);
     }
     return 'onRilRequest X';
 }
