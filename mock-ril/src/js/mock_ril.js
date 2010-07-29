@@ -143,33 +143,33 @@ include("ctrl_server.js");
  */
 var dispatchTable = new Array();
 
-dispatchTable[RIL_REQUEST_GET_SIM_STATUS] = {
+dispatchTable[RIL_REQUEST_GET_SIM_STATUS] = { // 1
     'components' : [simulatedIccWorker],
     'schemaName' : 'ReqGetSimStatus',
 },
-dispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = {
+dispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = { // 2
     'components' : [simulatedIccWorker],
     'schemaName' : 'ReqEnterSimPin',
 },
-dispatchTable[RIL_REQUEST_HANGUP] = {
+dispatchTable[RIL_REQUEST_HANGUP] = { // 12
     'components' : [simulatedRadioWorker],
     'schemaName' : 'ReqHangUp',
 };
-dispatchTable[RIL_REQUEST_SCREEN_STATE] = {
+dispatchTable[RIL_REQUEST_REGISTRATION_STATE] = { // 20
     'components' : [simulatedRadioWorker],
-    'schemaName' : 'ReqScreenState',
 };
-dispatchTable[RIL_REQUEST_OPERATOR] = {
+dispatchTable[RIL_REQUEST_GPRS_REGISTRATION_STATE] = { // 21
+    'components' : [simulatedRadioWorker],
+};
+dispatchTable[RIL_REQUEST_OPERATOR] = { // 22
     'components' : [simulatedIccWorker],
 };
-dispatchTable[RIL_REQUEST_GPRS_REGISTRATION_STATE] = {
+dispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = { // 45
     'components' : [simulatedRadioWorker],
 };
-dispatchTable[RIL_REQUEST_REGISTRATION_STATE] = {
+dispatchTable[RIL_REQUEST_SCREEN_STATE] = { // 61
     'components' : [simulatedRadioWorker],
-};
-dispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = {
-    'components' : [simulatedRadioWorker],
+    'schemaName' : 'ReqScreenState',
 };
 
 /**

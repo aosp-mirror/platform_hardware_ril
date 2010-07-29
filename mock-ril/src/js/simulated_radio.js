@@ -136,16 +136,16 @@ function SimulatedRadio() {
 
     print('SimulatedRadio() ctor E');
     this.radioDispatchTable = new Array();
-    this.radioDispatchTable[RIL_REQUEST_HANGUP] =
+    this.radioDispatchTable[RIL_REQUEST_HANGUP] = // 12
                 this.rilRequestHangUp;
-    this.radioDispatchTable[RIL_REQUEST_SCREEN_STATE] =
-                this.rilRequestScreenState;
-    this.radioDispatchTable[RIL_REQUEST_GPRS_REGISTRATION_STATE] =
-                this.rilRequestGprsRegistrationState;
-    this.radioDispatchTable[RIL_REQUEST_REGISTRATION_STATE] =
+    this.radioDispatchTable[RIL_REQUEST_REGISTRATION_STATE] = // 20
                 this.rilRequestRegistrationState;
-    this.radioDispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] =
+    this.radioDispatchTable[RIL_REQUEST_GPRS_REGISTRATION_STATE] = // 21
+                this.rilRequestGprsRegistrationState;
+    this.radioDispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = // 45
                 this.rilRequestQueryNeworkSelectionMode;
+    this.radioDispatchTable[RIL_REQUEST_SCREEN_STATE] = // 61
+                this.rilRequestScreenState;
     print('SimulatedRadio() ctor X');
 }
 

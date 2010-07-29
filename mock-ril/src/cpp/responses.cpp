@@ -340,13 +340,14 @@ int responsesInit(v8::Handle<v8::Context> context) {
     LOGD("responsesInit E");
     int status = STATUS_OK;
 
-    rilRspConversionMap[RIL_REQUEST_GET_SIM_STATUS] = RspGetSimStatus;
-    rilRspConversionMap[RIL_REQUEST_ENTER_SIM_PIN] = RspEnterSimPinData;
-    rilRspConversionMap[RIL_REQUEST_SCREEN_STATE] = RspWithNoData;
-    rilRspConversionMap[RIL_REQUEST_OPERATOR] = RspOperator;
-    rilRspConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = RspStrings;
-    rilRspConversionMap[RIL_REQUEST_REGISTRATION_STATE] = RspStrings;
-    rilRspConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = RspIntegers;
+    rilRspConversionMap[RIL_REQUEST_GET_SIM_STATUS] = RspGetSimStatus; // 1
+    rilRspConversionMap[RIL_REQUEST_ENTER_SIM_PIN] = RspEnterSimPinData; // 2
+    rilRspConversionMap[RIL_REQUEST_HANGUP] = RspWithNoData; // 12
+    rilRspConversionMap[RIL_REQUEST_REGISTRATION_STATE] = RspStrings; // 20
+    rilRspConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = RspStrings; // 21
+    rilRspConversionMap[RIL_REQUEST_OPERATOR] = RspOperator; // 22
+    rilRspConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = RspIntegers; // 45
+    rilRspConversionMap[RIL_REQUEST_SCREEN_STATE] = RspWithNoData; // 61
 
     LOGD("responsesInit X: status=%d", status);
     return STATUS_OK;

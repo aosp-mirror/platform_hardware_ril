@@ -97,9 +97,9 @@ function SimulatedIcc() {
 
     print('SimulatedIcc() ctor E');
     this.simDispatchTable = new Array();
-    this.simDispatchTable[RIL_REQUEST_GET_SIM_STATUS] = this.rilRequestGetSimStatus;
-    this.simDispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = this.rilRequestEnterSimPin;
-    this.simDispatchTable[RIL_REQUEST_OPERATOR] = this.rilRequestOperator;
+    this.simDispatchTable[RIL_REQUEST_GET_SIM_STATUS] = this.rilRequestGetSimStatus; // 1
+    this.simDispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = this.rilRequestEnterSimPin; // 2
+    this.simDispatchTable[RIL_REQUEST_OPERATOR] = this.rilRequestOperator; // 22
     print('SimulatedIcc() ctor X');
 }
 

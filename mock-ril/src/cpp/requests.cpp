@@ -270,14 +270,14 @@ void RilRequestWorkerQueue::Process(void *p) {
 int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
     LOGD("requestsInit E");
 
-    rilReqConversionMap[RIL_REQUEST_GET_SIM_STATUS] = ReqWithNoData;
-    rilReqConversionMap[RIL_REQUEST_ENTER_SIM_PIN] = ReqEnterSimPin;
-    rilReqConversionMap[RIL_REQUEST_HANGUP] = ReqHangUp;
-    rilReqConversionMap[RIL_REQUEST_SCREEN_STATE] = ReqScreenState;
-    rilReqConversionMap[RIL_REQUEST_OPERATOR] = ReqWithNoData;
-    rilReqConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = ReqWithNoData;
-    rilReqConversionMap[RIL_REQUEST_REGISTRATION_STATE] = ReqWithNoData;
-    rilReqConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = ReqWithNoData;
+    rilReqConversionMap[RIL_REQUEST_GET_SIM_STATUS] = ReqWithNoData; // 1
+    rilReqConversionMap[RIL_REQUEST_ENTER_SIM_PIN] = ReqEnterSimPin; // 2
+    rilReqConversionMap[RIL_REQUEST_HANGUP] = ReqHangUp; // 12
+    rilReqConversionMap[RIL_REQUEST_REGISTRATION_STATE] = ReqWithNoData; // 20
+    rilReqConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = ReqWithNoData; // 21
+    rilReqConversionMap[RIL_REQUEST_OPERATOR] = ReqWithNoData; // 22
+    rilReqConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = ReqWithNoData; // 45
+    rilReqConversionMap[RIL_REQUEST_SCREEN_STATE] = ReqScreenState; // 61
 
     *rwq = new RilRequestWorkerQueue(context);
     int status = (*rwq)->Run();
