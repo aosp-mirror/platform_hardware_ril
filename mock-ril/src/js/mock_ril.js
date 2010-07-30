@@ -133,52 +133,6 @@ include("simulated_icc.js");
 include("ctrl_server.js");
 
 /**
- * Dispatch table for requests
- *
- * Each table entry is index by the RIL_REQUEST_xxxx
- * and contains an array of components this request
- * is to be sent to and the name of the schema
- * that converts the incoming protobuf to the
- * appropriate request data.
- *
- * DispatchTable[RIL_REQUEST_xxx].components = Array of components
- * DisptachTable[RIL_REQUEST_xxx].Entry.schemaName = 'Name-of-schema';
- */
-var dispatchTable = new Array();
-
-dispatchTable[RIL_REQUEST_GET_SIM_STATUS] = { // 1
-    'components' : [simulatedIccWorker],
-    'schemaName' : 'ReqGetSimStatus',
-};
-dispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = { // 2
-    'components' : [simulatedIccWorker],
-    'schemaName' : 'ReqEnterSimPin',
-};
-dispatchTable[RIL_REQUEST_HANGUP] = { // 12
-    'components' : [simulatedRadioWorker],
-    'schemaName' : 'ReqHangUp',
-};
-dispatchTable[RIL_REQUEST_REGISTRATION_STATE] = { // 20
-    'components' : [simulatedRadioWorker],
-};
-dispatchTable[RIL_REQUEST_GPRS_REGISTRATION_STATE] = { // 21
-    'components' : [simulatedRadioWorker],
-};
-dispatchTable[RIL_REQUEST_OPERATOR] = { // 22
-    'components' : [simulatedIccWorker],
-};
-dispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = { // 45
-    'components' : [simulatedRadioWorker],
-};
-dispatchTable[RIL_REQUEST_BASEBAND_VERSION ] = { // 51
-    'components' : [simulatedRadioWorker],
-};
-dispatchTable[RIL_REQUEST_SCREEN_STATE] = { // 61
-    'components' : [simulatedRadioWorker],
-    'schemaName' : 'ReqScreenState',
-};
-
-/**
  * Construct a new request which is passed to the
  * Worker handler method.
  */
@@ -224,11 +178,15 @@ function onRilRequest(reqNum, token, requestProtobuf) {
         }
 
         try {
-            // print('onRilRequest: get entry from dispatchTable reqNum=' + reqNum);
+            //print('onRilRequest: get entry from dispatchTable reqNum=' + reqNum);
             entry = dispatchTable[reqNum];
-            req = new Request(reqNum, token, requestProtobuf, rilSchema, entry.schemaName);
-            for(i = 0; i < entry.components.length; i++) {
-                entry.components[i].add(req);
+            if (typeof entry == 'undefined') {
+                throw ('entry = dispatchTable[' + reqNum + '] was undefined');
+            } else {
+                req = new Request(reqNum, token, requestProtobuf, rilSchema, entry.schemaName);
+                for(i = 0; i < entry.components.length; i++) {
+                    entry.components[i].add(req);
+                }
             }
         } catch (err) {
             print('onRilRequest: Unknown reqNum=' + reqNum + ' err=' + err);
@@ -253,6 +211,58 @@ function setRadioState(newRadioState) {
 }
 
 /**
+ * Dispatch table for requests
+ *
+ * Each table entry is index by the RIL_REQUEST_xxxx
+ * and contains an array of components this request
+ * is to be sent to and the name of the schema
+ * that converts the incoming protobuf to the
+ * appropriate request data.
+ *
+ * DispatchTable[RIL_REQUEST_xxx].components = Array of components
+ * DisptachTable[RIL_REQUEST_xxx].Entry.schemaName = 'Name-of-schema';
+ */
+var dispatchTable = new Array();
+
+dispatchTable[RIL_REQUEST_GET_SIM_STATUS] = { // 1
+    'components' : [simulatedIccWorker],
+    'schemaName' : 'ReqGetSimStatus',
+};
+dispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = { // 2
+    'components' : [simulatedIccWorker],
+    'schemaName' : 'ReqEnterSimPin',
+};
+dispatchTable[RIL_REQUEST_HANGUP] = { // 12
+    'components' : [simulatedRadioWorker],
+    'schemaName' : 'ReqHangUp',
+};
+dispatchTable[RIL_REQUEST_REGISTRATION_STATE] = { // 20
+    'components' : [simulatedRadioWorker],
+};
+dispatchTable[RIL_REQUEST_GPRS_REGISTRATION_STATE] = { // 21
+    'components' : [simulatedRadioWorker],
+};
+dispatchTable[RIL_REQUEST_OPERATOR] = { // 22
+    'components' : [simulatedIccWorker],
+};
+dispatchTable[RIL_REQUEST_GET_IMEI] = { // 38
+    'components' : [simulatedIccWorker],
+};
+dispatchTable[RIL_REQUEST_GET_IMEISV] = { // 39
+    'components' : [simulatedIccWorker],
+};
+dispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = { // 45
+    'components' : [simulatedRadioWorker],
+};
+dispatchTable[RIL_REQUEST_BASEBAND_VERSION ] = { // 51
+    'components' : [simulatedRadioWorker],
+};
+dispatchTable[RIL_REQUEST_SCREEN_STATE] = { // 61
+    'components' : [simulatedRadioWorker],
+    'schemaName' : 'ReqScreenState',
+};
+
+/**
  * Start the mock rill after loading
  */
 function startMockRil() {
@@ -260,4 +270,3 @@ function startMockRil() {
     setRadioState(RADIO_STATE_SIM_READY);
     print("startMockRil X:");
 }
-

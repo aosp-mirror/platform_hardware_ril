@@ -64,6 +64,28 @@ function Icc() {
         return result;
     }
 
+    this.rilRequestGetImei = function(req) { // 38
+        print('Icc: rilRequestGetImei');
+
+        var rsp = Object();
+        rsp.strings = Array();
+        rsp.strings[0] = '123456789012345';
+        result.responseProtobuf = rilSchema[packageNameAndSeperator +
+                                 'RspStrings'].serialize(rsp);
+        return result;
+    }
+
+    this.rilRequestGetImeisv = function(req) { // 39
+        print('Icc: rilRequestGetImeisv');
+
+        var rsp = Object();
+        rsp.strings = Array();
+        rsp.strings[0] = '00';
+        result.responseProtobuf = rilSchema[packageNameAndSeperator +
+                                 'RspStrings'].serialize(rsp);
+        return result;
+    }
+
     /**
      * Process the request
      */
@@ -79,7 +101,7 @@ function Icc() {
             try {
                 result = this.simDispatchTable[req.reqNum](req);
             } catch (err) {
-                print('Icc: Unknown reqNum=' + reqNum);
+                print('Icc: Unknown reqNum=' + req.reqNum);
                 result.rilErrCode = RIL_E_REQUEST_NOT_SUPPORTED;
             }
 
@@ -100,6 +122,8 @@ function Icc() {
     this.simDispatchTable[RIL_REQUEST_GET_SIM_STATUS] = this.rilRequestGetSimStatus; // 1
     this.simDispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = this.rilRequestEnterSimPin; // 2
     this.simDispatchTable[RIL_REQUEST_OPERATOR] = this.rilRequestOperator; // 22
+    this.simDispatchTable[RIL_REQUEST_GET_IMEI] = this.rilRequestGetImei; // 38
+    this.simDispatchTable[RIL_REQUEST_GET_IMEISV] = this.rilRequestGetImeisv; // 39
     print('Icc: constructor X');
 }
 
