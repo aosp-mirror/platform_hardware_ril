@@ -364,6 +364,8 @@ int responsesInit(v8::Handle<v8::Context> context) {
     rilRspConversionMap[RIL_REQUEST_REGISTRATION_STATE] = RspStrings; // 20
     rilRspConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = RspStrings; // 21
     rilRspConversionMap[RIL_REQUEST_OPERATOR] = RspOperator; // 22
+    rilRspConversionMap[RIL_REQUEST_GET_IMEI] = RspString; // 38
+    rilRspConversionMap[RIL_REQUEST_GET_IMEISV] = RspString; // 39
     rilRspConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = RspIntegers; // 45
     rilRspConversionMap[RIL_REQUEST_BASEBAND_VERSION] = RspString; // 51
     rilRspConversionMap[RIL_REQUEST_SCREEN_STATE] = RspWithNoData; // 61
