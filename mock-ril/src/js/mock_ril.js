@@ -232,6 +232,9 @@ dispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = { // 2
     'components' : [simulatedIccWorker],
     'schemaName' : 'ReqEnterSimPin',
 };
+dispatchTable[RIL_REQUEST_GET_IMSI] = { // 11
+    'components' : [simulatedIccWorker],
+};
 dispatchTable[RIL_REQUEST_HANGUP] = { // 12
     'components' : [simulatedRadioWorker],
     'schemaName' : 'ReqHangUp',
@@ -255,8 +258,8 @@ dispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = { // 45
     'components' : [simulatedRadioWorker],
 };
 dispatchTable[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = { // 46
-	    'components' : [simulatedRadioWorker],
-	};
+    'components' : [simulatedRadioWorker],
+};
 dispatchTable[RIL_REQUEST_BASEBAND_VERSION ] = { // 51
     'components' : [simulatedRadioWorker],
 };

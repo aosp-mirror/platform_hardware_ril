@@ -19,7 +19,13 @@
  */
 function Icc() {
 
-     function RilCardStatus() {
+    var MCC = '310';
+    var MNC = '260';
+    var MSN = '123456789';
+    var IMEI = '123456789012345';
+    var IMEISV = '00';
+
+    function RilCardStatus() {
         this.cardState = 0;
         this.universalPinState = 0;
         this.gsmUmtsSubscriptionAppIndex = 0;
@@ -52,13 +58,24 @@ function Icc() {
         return result;
     }
 
+    this.rilRequestGetImsi = function(req) { // 11
+        print('Icc: rilRequestGetImsi');
+
+        var rsp = Object();
+        rsp.strings = Array();
+        rsp.strings[0] = MCC + MNC + MSN;
+        result.responseProtobuf = rilSchema[packageNameAndSeperator +
+                                 'RspStrings'].serialize(rsp);
+        return result;
+    }
+
     this.rilRequestOperator = function(req) { // 22
         print('Icc: rilRequestOperator');
 
         var rsp = Object();
         rsp.longAlphaOns = 'Mock-Ril long Alpha Ons';
         rsp.shortAlphaOns = 'Mock-Ril';
-        rsp.mccMnc = '310260';
+        rsp.mccMnc = MCC + MNC;
         result.responseProtobuf = rilSchema[packageNameAndSeperator +
                                  'RspOperator'].serialize(rsp);
         return result;
@@ -69,7 +86,7 @@ function Icc() {
 
         var rsp = Object();
         rsp.strings = Array();
-        rsp.strings[0] = '123456789012345';
+        rsp.strings[0] = IMEI;
         result.responseProtobuf = rilSchema[packageNameAndSeperator +
                                  'RspStrings'].serialize(rsp);
         return result;
@@ -80,7 +97,7 @@ function Icc() {
 
         var rsp = Object();
         rsp.strings = Array();
-        rsp.strings[0] = '00';
+        rsp.strings[0] = IMEISV;
         result.responseProtobuf = rilSchema[packageNameAndSeperator +
                                  'RspStrings'].serialize(rsp);
         return result;
@@ -121,6 +138,7 @@ function Icc() {
     this.simDispatchTable = new Array();
     this.simDispatchTable[RIL_REQUEST_GET_SIM_STATUS] = this.rilRequestGetSimStatus; // 1
     this.simDispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = this.rilRequestEnterSimPin; // 2
+    this.simDispatchTable[RIL_REQUEST_GET_IMSI] = this.rilRequestGetImsi; // 11
     this.simDispatchTable[RIL_REQUEST_OPERATOR] = this.rilRequestOperator; // 22
     this.simDispatchTable[RIL_REQUEST_GET_IMEI] = this.rilRequestGetImei; // 38
     this.simDispatchTable[RIL_REQUEST_GET_IMEISV] = this.rilRequestGetImeisv; // 39

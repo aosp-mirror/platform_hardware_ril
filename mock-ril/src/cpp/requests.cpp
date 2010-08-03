@@ -272,6 +272,7 @@ int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
 
     rilReqConversionMap[RIL_REQUEST_GET_SIM_STATUS] = ReqWithNoData; // 1
     rilReqConversionMap[RIL_REQUEST_ENTER_SIM_PIN] = ReqEnterSimPin; // 2
+    rilReqConversionMap[RIL_REQUEST_GET_IMSI] = ReqWithNoData; // 11
     rilReqConversionMap[RIL_REQUEST_HANGUP] = ReqHangUp; // 12
     rilReqConversionMap[RIL_REQUEST_REGISTRATION_STATE] = ReqWithNoData; // 20
     rilReqConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = ReqWithNoData; // 21

@@ -360,6 +360,7 @@ int responsesInit(v8::Handle<v8::Context> context) {
 
     rilRspConversionMap[RIL_REQUEST_GET_SIM_STATUS] = RspGetSimStatus; // 1
     rilRspConversionMap[RIL_REQUEST_ENTER_SIM_PIN] = RspEnterSimPinData; // 2
+    rilRspConversionMap[RIL_REQUEST_GET_IMSI] = RspString; // 11
     rilRspConversionMap[RIL_REQUEST_HANGUP] = RspWithNoData; // 12
     rilRspConversionMap[RIL_REQUEST_REGISTRATION_STATE] = RspStrings; // 20
     rilRspConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = RspStrings; // 21
