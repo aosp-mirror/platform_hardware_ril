@@ -34,7 +34,9 @@ function Radio() {
     var registrationDeniedReason = NULL_RESPONSE_STRING;
     var primaryScrambingCode = NULL_RESPONSE_STRING;
 
-    var networkSelectionMode = 0;
+    var NETWORK_SELECTION_MODE_AUTOMATIC = 0;
+    var NETWORK_SELECTION_MODE_MANUAL = 1;
+    var networkSelectionMode = NETWORK_SELECTION_MODE_AUTOMATIC;
 
     // The result returned by the request handlers
     var result = new Object();
@@ -97,6 +99,14 @@ function Radio() {
         return result;
     }
 
+    this.rilRequestSetNeworkSelectionAutomatic = function(req) { // 46
+        print('Radio: rilRequestSetNeworkSelectionAutomatic');
+
+        networkSelectionMode = NETWORK_SELECTION_MODE_AUTOMATIC;
+
+        return result;
+    }
+
     this.rilRequestBaseBandVersion = function (req) { // 51
         print('Radio: rilRequestBaseBandVersion');
         var rsp = Object();
@@ -154,6 +164,8 @@ function Radio() {
                 this.rilRequestGprsRegistrationState;
     this.radioDispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = // 45
                 this.rilRequestQueryNeworkSelectionMode;
+    this.radioDispatchTable[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = // 46
+        this.rilRequestSetNeworkSelectionAutomatic;
     this.radioDispatchTable[RIL_REQUEST_BASEBAND_VERSION] = // 51
                 this.rilRequestBaseBandVersion;
     this.radioDispatchTable[RIL_REQUEST_SCREEN_STATE] = // 61

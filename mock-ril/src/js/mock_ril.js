@@ -254,6 +254,9 @@ dispatchTable[RIL_REQUEST_GET_IMEISV] = { // 39
 dispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = { // 45
     'components' : [simulatedRadioWorker],
 };
+dispatchTable[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = { // 46
+	    'components' : [simulatedRadioWorker],
+	};
 dispatchTable[RIL_REQUEST_BASEBAND_VERSION ] = { // 51
     'components' : [simulatedRadioWorker],
 };

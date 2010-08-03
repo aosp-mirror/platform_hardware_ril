@@ -279,6 +279,7 @@ int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
     rilReqConversionMap[RIL_REQUEST_GET_IMEI] = ReqWithNoData; // 38
     rilReqConversionMap[RIL_REQUEST_GET_IMEISV] = ReqWithNoData; // 39
     rilReqConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = ReqWithNoData; // 45
+    rilReqConversionMap[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = ReqWithNoData; // 46
     rilReqConversionMap[RIL_REQUEST_BASEBAND_VERSION] = ReqWithNoData; // 51
     rilReqConversionMap[RIL_REQUEST_SCREEN_STATE] = ReqScreenState; // 61
 

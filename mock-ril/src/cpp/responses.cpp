@@ -367,6 +367,7 @@ int responsesInit(v8::Handle<v8::Context> context) {
     rilRspConversionMap[RIL_REQUEST_GET_IMEI] = RspString; // 38
     rilRspConversionMap[RIL_REQUEST_GET_IMEISV] = RspString; // 39
     rilRspConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = RspIntegers; // 45
+    rilRspConversionMap[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = RspWithNoData; // 46
     rilRspConversionMap[RIL_REQUEST_BASEBAND_VERSION] = RspString; // 51
     rilRspConversionMap[RIL_REQUEST_SCREEN_STATE] = RspWithNoData; // 61
 
