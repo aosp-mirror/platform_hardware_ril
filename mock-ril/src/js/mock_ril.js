@@ -137,16 +137,14 @@ include("ctrl_server.js");
  * Worker handler method.
  */
 function Request(reqNum, token, protobuf, schema, schemaName) {
-    req = new Object();
-    req.reqNum = reqNum;
-    req.token = token;
+    this.reqNum = reqNum;
+    this.token = token;
     try {
-        req.data = schema[packageNameAndSeperator + schemaName].parse(protobuf);
+        this.data = schema[packageNameAndSeperator + schemaName].parse(protobuf);
     } catch (err) {
         // not a valid protobuf in the request
-        req.data = null;
+        this.data = null;
     }
-    return req;
 }
 
 /**

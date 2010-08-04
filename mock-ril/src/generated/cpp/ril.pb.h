@@ -36,50 +36,28 @@ class RilAppStatus;
 class RilCardStatus;
 class RspStrings;
 class RspIntegers;
-class ReqGetSimStatus;
 class RspGetSimStatus;
 class ReqEnterSimPin;
 class RspEnterSimPin;
 class ReqHangUp;
-class ReqScreenState;
 class RspOperator;
+class ReqScreenState;
 
-enum RilCommand {
-  CMD_GET_SIM_STATUS = 1,
-  CMD_ENTER_SIM_PIN = 2,
-  CMD_HANGUP = 12,
-  CMD_SCREEN_STATE = 61
-};
-bool RilCommand_IsValid(int value);
-const RilCommand RilCommand_MIN = CMD_GET_SIM_STATUS;
-const RilCommand RilCommand_MAX = CMD_SCREEN_STATE;
-const int RilCommand_ARRAYSIZE = RilCommand_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* RilCommand_descriptor();
-inline const ::std::string& RilCommand_Name(RilCommand value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    RilCommand_descriptor(), value);
-}
-inline bool RilCommand_Parse(
-    const ::std::string& name, RilCommand* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<RilCommand>(
-    RilCommand_descriptor(), name, value);
-}
 enum RadioState {
-  RADIO_STATE_OFF = 0,
-  RADIO_STATE_UNAVAILABLE = 1,
-  RADIO_STATE_SIM_NOT_READY = 2,
-  RADIO_STATE_SIM_LOCKED_OR_ABSENT = 3,
-  RADIO_STATE_SIM_READY = 4,
-  RADIO_STATE_RUIM_NOT_READY = 5,
-  RADIO_STATE_RUIM_READY = 6,
-  RADIO_STATE_RUIM_LOCKED_OR_ABSENT = 7,
-  RADIO_STATE_NV_NOT_READY = 8,
-  RADIO_STATE_NV_READY = 9
+  RADIOSTATE_OFF = 0,
+  RADIOSTATE_UNAVAILABLE = 1,
+  RADIOSTATE_SIM_NOT_READY = 2,
+  RADIOSTATE_SIM_LOCKED_OR_ABSENT = 3,
+  RADIOSTATE_SIM_READY = 4,
+  RADIOSTATE_RUIM_NOT_READY = 5,
+  RADIOSTATE_RUIM_READY = 6,
+  RADIOSTATE_RUIM_LOCKED_OR_ABSENT = 7,
+  RADIOSTATE_NV_NOT_READY = 8,
+  RADIOSTATE_NV_READY = 9
 };
 bool RadioState_IsValid(int value);
-const RadioState RadioState_MIN = RADIO_STATE_OFF;
-const RadioState RadioState_MAX = RADIO_STATE_NV_READY;
+const RadioState RadioState_MIN = RADIOSTATE_OFF;
+const RadioState RadioState_MAX = RADIOSTATE_NV_READY;
 const int RadioState_ARRAYSIZE = RadioState_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* RadioState_descriptor();
@@ -703,87 +681,6 @@ class RspIntegers : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class ReqGetSimStatus : public ::google::protobuf::Message {
- public:
-  ReqGetSimStatus();
-  virtual ~ReqGetSimStatus();
-  
-  ReqGetSimStatus(const ReqGetSimStatus& from);
-  
-  inline ReqGetSimStatus& operator=(const ReqGetSimStatus& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-  
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-  
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const ReqGetSimStatus& default_instance();
-  
-  void Swap(ReqGetSimStatus* other);
-  
-  // implements Message ----------------------------------------------
-  
-  ReqGetSimStatus* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ReqGetSimStatus& from);
-  void MergeFrom(const ReqGetSimStatus& from);
-  void Clear();
-  bool IsInitialized() const;
-  
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  
-  ::google::protobuf::Metadata GetMetadata() const;
-  
-  // nested types ----------------------------------------------------
-  
-  // accessors -------------------------------------------------------
-  
-  // @@protoc_insertion_point(class_scope:ril_proto.ReqGetSimStatus)
- private:
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-  mutable int _cached_size_;
-  
-  friend void  protobuf_AddDesc_ril_2eproto();
-  friend void protobuf_AssignDesc_ril_2eproto();
-  friend void protobuf_ShutdownFile_ril_2eproto();
-  
-  ::google::protobuf::uint32 _has_bits_[1];
-  
-  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
-  inline bool _has_bit(int index) const {
-    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
-  }
-  inline void _set_bit(int index) {
-    _has_bits_[index / 32] |= (1u << (index % 32));
-  }
-  inline void _clear_bit(int index) {
-    _has_bits_[index / 32] &= ~(1u << (index % 32));
-  }
-  
-  void InitAsDefaultInstance();
-  static ReqGetSimStatus* default_instance_;
-};
-// -------------------------------------------------------------------
-
 class RspGetSimStatus : public ::google::protobuf::Message {
  public:
   RspGetSimStatus();
@@ -1144,95 +1041,6 @@ class ReqHangUp : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class ReqScreenState : public ::google::protobuf::Message {
- public:
-  ReqScreenState();
-  virtual ~ReqScreenState();
-  
-  ReqScreenState(const ReqScreenState& from);
-  
-  inline ReqScreenState& operator=(const ReqScreenState& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-  
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-  
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const ReqScreenState& default_instance();
-  
-  void Swap(ReqScreenState* other);
-  
-  // implements Message ----------------------------------------------
-  
-  ReqScreenState* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ReqScreenState& from);
-  void MergeFrom(const ReqScreenState& from);
-  void Clear();
-  bool IsInitialized() const;
-  
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  
-  ::google::protobuf::Metadata GetMetadata() const;
-  
-  // nested types ----------------------------------------------------
-  
-  // accessors -------------------------------------------------------
-  
-  // required bool state = 1;
-  inline bool has_state() const;
-  inline void clear_state();
-  static const int kStateFieldNumber = 1;
-  inline bool state() const;
-  inline void set_state(bool value);
-  
-  // @@protoc_insertion_point(class_scope:ril_proto.ReqScreenState)
- private:
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-  mutable int _cached_size_;
-  
-  bool state_;
-  friend void  protobuf_AddDesc_ril_2eproto();
-  friend void protobuf_AssignDesc_ril_2eproto();
-  friend void protobuf_ShutdownFile_ril_2eproto();
-  
-  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
-  
-  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
-  inline bool _has_bit(int index) const {
-    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
-  }
-  inline void _set_bit(int index) {
-    _has_bits_[index / 32] |= (1u << (index % 32));
-  }
-  inline void _clear_bit(int index) {
-    _has_bits_[index / 32] &= ~(1u << (index % 32));
-  }
-  
-  void InitAsDefaultInstance();
-  static ReqScreenState* default_instance_;
-};
-// -------------------------------------------------------------------
-
 class RspOperator : public ::google::protobuf::Message {
  public:
   RspOperator();
@@ -1347,6 +1155,95 @@ class RspOperator : public ::google::protobuf::Message {
   
   void InitAsDefaultInstance();
   static RspOperator* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class ReqScreenState : public ::google::protobuf::Message {
+ public:
+  ReqScreenState();
+  virtual ~ReqScreenState();
+  
+  ReqScreenState(const ReqScreenState& from);
+  
+  inline ReqScreenState& operator=(const ReqScreenState& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ReqScreenState& default_instance();
+  
+  void Swap(ReqScreenState* other);
+  
+  // implements Message ----------------------------------------------
+  
+  ReqScreenState* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ReqScreenState& from);
+  void MergeFrom(const ReqScreenState& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required bool state = 1;
+  inline bool has_state() const;
+  inline void clear_state();
+  static const int kStateFieldNumber = 1;
+  inline bool state() const;
+  inline void set_state(bool value);
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.ReqScreenState)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  bool state_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static ReqScreenState* default_instance_;
 };
 // ===================================================================
 
@@ -1730,10 +1627,6 @@ RspIntegers::mutable_integers() {
 
 // -------------------------------------------------------------------
 
-// ReqGetSimStatus
-
-// -------------------------------------------------------------------
-
 // RspGetSimStatus
 
 // required .ril_proto.RilCardStatus card_status = 1;
@@ -1837,26 +1730,6 @@ inline ::google::protobuf::int32 ReqHangUp::connection_index() const {
 inline void ReqHangUp::set_connection_index(::google::protobuf::int32 value) {
   _set_bit(0);
   connection_index_ = value;
-}
-
-// -------------------------------------------------------------------
-
-// ReqScreenState
-
-// required bool state = 1;
-inline bool ReqScreenState::has_state() const {
-  return _has_bit(0);
-}
-inline void ReqScreenState::clear_state() {
-  state_ = false;
-  _clear_bit(0);
-}
-inline bool ReqScreenState::state() const {
-  return state_;
-}
-inline void ReqScreenState::set_state(bool value) {
-  _set_bit(0);
-  state_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -1989,6 +1862,26 @@ inline ::std::string* RspOperator::mutable_mcc_mnc() {
   return mcc_mnc_;
 }
 
+// -------------------------------------------------------------------
+
+// ReqScreenState
+
+// required bool state = 1;
+inline bool ReqScreenState::has_state() const {
+  return _has_bit(0);
+}
+inline void ReqScreenState::clear_state() {
+  state_ = false;
+  _clear_bit(0);
+}
+inline bool ReqScreenState::state() const {
+  return state_;
+}
+inline void ReqScreenState::set_state(bool value) {
+  _set_bit(0);
+  state_ = value;
+}
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -1998,10 +1891,6 @@ inline ::std::string* RspOperator::mutable_mcc_mnc() {
 namespace google {
 namespace protobuf {
 
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ril_proto::RilCommand>() {
-  return ril_proto::RilCommand_descriptor();
-}
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ril_proto::RadioState>() {
   return ril_proto::RadioState_descriptor();

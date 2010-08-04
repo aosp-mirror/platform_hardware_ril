@@ -19,7 +19,7 @@ public final class RilCtrlCmds {
     // required .ril_proto.RadioState state = 1;
     public static final int STATE_FIELD_NUMBER = 1;
     private boolean hasState;
-    private int state_ = com.android.internal.telephony.ril_proto.RilCmds.RADIO_STATE_OFF;
+    private int state_ = com.android.internal.telephony.ril_proto.RilCmds.RADIOSTATE_OFF;
     public boolean hasState() { return hasState; }
     public int getState() { return state_; }
     public CtrlRspRadioState setState(int value) {
@@ -29,7 +29,7 @@ public final class RilCtrlCmds {
     }
     public CtrlRspRadioState clearState() {
       hasState = false;
-      state_ = com.android.internal.telephony.ril_proto.RilCmds.RADIO_STATE_OFF;
+      state_ = com.android.internal.telephony.ril_proto.RilCmds.RADIOSTATE_OFF;
       return this;
     }
     

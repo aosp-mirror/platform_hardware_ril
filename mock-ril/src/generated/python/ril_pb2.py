@@ -10,37 +10,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = descriptor.FileDescriptor(
   name='ril.proto',
   package='ril_proto',
-  serialized_pb='\n\tril.proto\x12\tril_proto\"\x9a\x02\n\x0cRilAppStatus\x12\'\n\x08\x61pp_type\x18\x01 \x01(\x0e\x32\x15.ril_proto.RilAppType\x12)\n\tapp_state\x18\x02 \x01(\x0e\x32\x16.ril_proto.RilAppState\x12\x33\n\x0eperso_substate\x18\x03 \x01(\x0e\x32\x1b.ril_proto.RilPersoSubstate\x12\x0b\n\x03\x61id\x18\x04 \x01(\t\x12\x11\n\tapp_label\x18\x05 \x01(\t\x12\x15\n\rpin1_replaced\x18\x06 \x01(\x05\x12$\n\x04pin1\x18\x07 \x01(\x0e\x32\x16.ril_proto.RilPinState\x12$\n\x04pin2\x18\x08 \x01(\x0e\x32\x16.ril_proto.RilPinState\"\x88\x02\n\rRilCardStatus\x12+\n\ncard_state\x18\x01 \x01(\x0e\x32\x17.ril_proto.RilCardState\x12\x33\n\x13universal_pin_state\x18\x02 \x01(\x0e\x32\x16.ril_proto.RilPinState\x12\'\n\x1fgsm_umts_subscription_app_index\x18\x03 \x01(\x05\x12#\n\x1b\x63\x64ma_subscription_app_index\x18\x04 \x01(\x05\x12\x18\n\x10num_applications\x18\x05 \x01(\x05\x12-\n\x0c\x61pplications\x18\x06 \x03(\x0b\x32\x17.ril_proto.RilAppStatus\"\x1d\n\nRspStrings\x12\x0f\n\x07strings\x18\x01 \x03(\t\"\x1f\n\x0bRspIntegers\x12\x10\n\x08integers\x18\x01 \x03(\x05\"\x11\n\x0fReqGetSimStatus\"@\n\x0fRspGetSimStatus\x12-\n\x0b\x63\x61rd_status\x18\x01 \x02(\x0b\x32\x18.ril_proto.RilCardStatus\"\x1d\n\x0eReqEnterSimPin\x12\x0b\n\x03pin\x18\x01 \x02(\t\"+\n\x0eRspEnterSimPin\x12\x19\n\x11retries_remaining\x18\x01 \x02(\x05\"%\n\tReqHangUp\x12\x18\n\x10\x63onnection_index\x18\x01 \x02(\x05\"\x1f\n\x0eReqScreenState\x12\r\n\x05state\x18\x01 \x02(\x08\"O\n\x0bRspOperator\x12\x16\n\x0elong_alpha_ons\x18\x01 \x01(\t\x12\x17\n\x0fshort_alpha_ons\x18\x02 \x01(\t\x12\x0f\n\x07mcc_mnc\x18\x03 \x01(\t*a\n\nRilCommand\x12\x16\n\x12\x43MD_GET_SIM_STATUS\x10\x01\x12\x15\n\x11\x43MD_ENTER_SIM_PIN\x10\x02\x12\x0e\n\nCMD_HANGUP\x10\x0c\x12\x14\n\x10\x43MD_SCREEN_STATE\x10=*\xb9\x02\n\nRadioState\x12\x13\n\x0fRADIO_STATE_OFF\x10\x00\x12\x1b\n\x17RADIO_STATE_UNAVAILABLE\x10\x01\x12\x1d\n\x19RADIO_STATE_SIM_NOT_READY\x10\x02\x12$\n RADIO_STATE_SIM_LOCKED_OR_ABSENT\x10\x03\x12\x19\n\x15RADIO_STATE_SIM_READY\x10\x04\x12\x1e\n\x1aRADIO_STATE_RUIM_NOT_READY\x10\x05\x12\x1a\n\x16RADIO_STATE_RUIM_READY\x10\x06\x12%\n!RADIO_STATE_RUIM_LOCKED_OR_ABSENT\x10\x07\x12\x1c\n\x18RADIO_STATE_NV_NOT_READY\x10\x08\x12\x18\n\x14RADIO_STATE_NV_READY\x10\t*P\n\x0cRilCardState\x12\x14\n\x10\x43\x41RDSTATE_ABSENT\x10\x00\x12\x15\n\x11\x43\x41RDSTATE_PRESENT\x10\x01\x12\x13\n\x0f\x43\x41RDSTATE_ERROR\x10\x02*\xf1\x06\n\x10RilPersoSubstate\x12\x19\n\x15PERSOSUBSTATE_UNKNOWN\x10\x00\x12\x1d\n\x19PERSOSUBSTATE_IN_PROGRESS\x10\x01\x12\x17\n\x13PERSOSUBSTATE_READY\x10\x02\x12\x1d\n\x19PERSOSUBSTATE_SIM_NETWORK\x10\x03\x12$\n PERSOSUBSTATE_SIM_NETWORK_SUBSET\x10\x04\x12\x1f\n\x1bPERSOSUBSTATE_SIM_CORPORATE\x10\x05\x12&\n\"PERSOSUBSTATE_SIM_SERVICE_PROVIDER\x10\x06\x12\x19\n\x15PERSOSUBSTATE_SIM_SIM\x10\x07\x12!\n\x1dPERSOSUBSTATE_SIM_NETWORK_PUK\x10\x08\x12(\n$PERSOSUBSTATE_SIM_NETWORK_SUBSET_PUK\x10\t\x12#\n\x1fPERSOSUBSTATE_SIM_CORPORATE_PUK\x10\n\x12*\n&PERSOSUBSTATE_SIM_SERVICE_PROVIDER_PUK\x10\x0b\x12\x1d\n\x19PERSOSUBSTATE_SIM_SIM_PUK\x10\x0c\x12\x1f\n\x1bPERSOSUBSTATE_RUIM_NETWORK1\x10\r\x12\x1f\n\x1bPERSOSUBSTATE_RUIM_NETWORK2\x10\x0e\x12\x1b\n\x17PERSOSUBSTATE_RUIM_HRPD\x10\x0f\x12 \n\x1cPERSOSUBSTATE_RUIM_CORPORATE\x10\x10\x12\'\n#PERSOSUBSTATE_RUIM_SERVICE_PROVIDER\x10\x11\x12\x1b\n\x17PERSOSUBSTATE_RUIM_RUIM\x10\x12\x12#\n\x1fPERSOSUBSTATE_RUIM_NETWORK1_PUK\x10\x13\x12#\n\x1fPERSOSUBSTATE_RUIM_NETWORK2_PUK\x10\x14\x12\x1f\n\x1bPERSOSUBSTATE_RUIM_HRPD_PUK\x10\x15\x12$\n PERSOSUBSTATE_RUIM_CORPORATE_PUK\x10\x16\x12+\n\'PERSOSUBSTATE_RUIM_SERVICE_PROVIDER_PUK\x10\x17\x12\x1f\n\x1bPERSOSUBSTATE_RUIM_RUIM_PUK\x10\x18*\x93\x01\n\x0bRilAppState\x12\x14\n\x10\x41PPSTATE_UNKNOWN\x10\x00\x12\x15\n\x11\x41PPSTATE_DETECTED\x10\x01\x12\x10\n\x0c\x41PPSTATE_PIN\x10\x02\x12\x10\n\x0c\x41PPSTATE_PUK\x10\x03\x12\x1f\n\x1b\x41PPSTATE_SUBSCRIPTION_PERSO\x10\x04\x12\x12\n\x0e\x41PPSTATE_READY\x10\x05*\xbd\x01\n\x0bRilPinState\x12\x14\n\x10PINSTATE_UNKNOWN\x10\x00\x12!\n\x1dPINSTATE_ENABLED_NOT_VERIFIED\x10\x01\x12\x1d\n\x19PINSTATE_ENABLED_VERIFIED\x10\x02\x12\x15\n\x11PINSTATE_DISABLED\x10\x03\x12\x1c\n\x18PINSTATE_ENABLED_BLOCKED\x10\x04\x12!\n\x1dPINSTATE_ENABLED_PERM_BLOCKED\x10\x05*h\n\nRilAppType\x12\x13\n\x0f\x41PPTYPE_UNKNOWN\x10\x00\x12\x0f\n\x0b\x41PPTYPE_SIM\x10\x01\x12\x10\n\x0c\x41PPTYPE_USIM\x10\x02\x12\x10\n\x0c\x41PPTYPE_RUIM\x10\x03\x12\x10\n\x0c\x41PPTYPE_CSIM\x10\x04\x42\x33\n(com.android.internal.telephony.ril_protoB\x07RilCmds')
-
-_RILCOMMAND = descriptor.EnumDescriptor(
-  name='RilCommand',
-  full_name='ril_proto.RilCommand',
-  filename=None,
-  file=DESCRIPTOR,
-  values=[
-    descriptor.EnumValueDescriptor(
-      name='CMD_GET_SIM_STATUS', index=0, number=1,
-      options=None,
-      type=None),
-    descriptor.EnumValueDescriptor(
-      name='CMD_ENTER_SIM_PIN', index=1, number=2,
-      options=None,
-      type=None),
-    descriptor.EnumValueDescriptor(
-      name='CMD_HANGUP', index=2, number=12,
-      options=None,
-      type=None),
-    descriptor.EnumValueDescriptor(
-      name='CMD_SCREEN_STATE', index=3, number=61,
-      options=None,
-      type=None),
-  ],
-  containing_type=None,
-  options=None,
-  serialized_start=954,
-  serialized_end=1051,
-)
-
+  serialized_pb='\n\tril.proto\x12\tril_proto\"\x9a\x02\n\x0cRilAppStatus\x12\'\n\x08\x61pp_type\x18\x01 \x01(\x0e\x32\x15.ril_proto.RilAppType\x12)\n\tapp_state\x18\x02 \x01(\x0e\x32\x16.ril_proto.RilAppState\x12\x33\n\x0eperso_substate\x18\x03 \x01(\x0e\x32\x1b.ril_proto.RilPersoSubstate\x12\x0b\n\x03\x61id\x18\x04 \x01(\t\x12\x11\n\tapp_label\x18\x05 \x01(\t\x12\x15\n\rpin1_replaced\x18\x06 \x01(\x05\x12$\n\x04pin1\x18\x07 \x01(\x0e\x32\x16.ril_proto.RilPinState\x12$\n\x04pin2\x18\x08 \x01(\x0e\x32\x16.ril_proto.RilPinState\"\x88\x02\n\rRilCardStatus\x12+\n\ncard_state\x18\x01 \x01(\x0e\x32\x17.ril_proto.RilCardState\x12\x33\n\x13universal_pin_state\x18\x02 \x01(\x0e\x32\x16.ril_proto.RilPinState\x12\'\n\x1fgsm_umts_subscription_app_index\x18\x03 \x01(\x05\x12#\n\x1b\x63\x64ma_subscription_app_index\x18\x04 \x01(\x05\x12\x18\n\x10num_applications\x18\x05 \x01(\x05\x12-\n\x0c\x61pplications\x18\x06 \x03(\x0b\x32\x17.ril_proto.RilAppStatus\"\x1d\n\nRspStrings\x12\x0f\n\x07strings\x18\x01 \x03(\t\"\x1f\n\x0bRspIntegers\x12\x10\n\x08integers\x18\x01 \x03(\x05\"@\n\x0fRspGetSimStatus\x12-\n\x0b\x63\x61rd_status\x18\x01 \x02(\x0b\x32\x18.ril_proto.RilCardStatus\"\x1d\n\x0eReqEnterSimPin\x12\x0b\n\x03pin\x18\x01 \x02(\t\"+\n\x0eRspEnterSimPin\x12\x19\n\x11retries_remaining\x18\x01 \x02(\x05\"%\n\tReqHangUp\x12\x18\n\x10\x63onnection_index\x18\x01 \x02(\x05\"O\n\x0bRspOperator\x12\x16\n\x0elong_alpha_ons\x18\x01 \x01(\t\x12\x17\n\x0fshort_alpha_ons\x18\x02 \x01(\t\x12\x0f\n\x07mcc_mnc\x18\x03 \x01(\t\"\x1f\n\x0eReqScreenState\x12\r\n\x05state\x18\x01 \x02(\x08*\xaf\x02\n\nRadioState\x12\x12\n\x0eRADIOSTATE_OFF\x10\x00\x12\x1a\n\x16RADIOSTATE_UNAVAILABLE\x10\x01\x12\x1c\n\x18RADIOSTATE_SIM_NOT_READY\x10\x02\x12#\n\x1fRADIOSTATE_SIM_LOCKED_OR_ABSENT\x10\x03\x12\x18\n\x14RADIOSTATE_SIM_READY\x10\x04\x12\x1d\n\x19RADIOSTATE_RUIM_NOT_READY\x10\x05\x12\x19\n\x15RADIOSTATE_RUIM_READY\x10\x06\x12$\n RADIOSTATE_RUIM_LOCKED_OR_ABSENT\x10\x07\x12\x1b\n\x17RADIOSTATE_NV_NOT_READY\x10\x08\x12\x17\n\x13RADIOSTATE_NV_READY\x10\t*P\n\x0cRilCardState\x12\x14\n\x10\x43\x41RDSTATE_ABSENT\x10\x00\x12\x15\n\x11\x43\x41RDSTATE_PRESENT\x10\x01\x12\x13\n\x0f\x43\x41RDSTATE_ERROR\x10\x02*\xf1\x06\n\x10RilPersoSubstate\x12\x19\n\x15PERSOSUBSTATE_UNKNOWN\x10\x00\x12\x1d\n\x19PERSOSUBSTATE_IN_PROGRESS\x10\x01\x12\x17\n\x13PERSOSUBSTATE_READY\x10\x02\x12\x1d\n\x19PERSOSUBSTATE_SIM_NETWORK\x10\x03\x12$\n PERSOSUBSTATE_SIM_NETWORK_SUBSET\x10\x04\x12\x1f\n\x1bPERSOSUBSTATE_SIM_CORPORATE\x10\x05\x12&\n\"PERSOSUBSTATE_SIM_SERVICE_PROVIDER\x10\x06\x12\x19\n\x15PERSOSUBSTATE_SIM_SIM\x10\x07\x12!\n\x1dPERSOSUBSTATE_SIM_NETWORK_PUK\x10\x08\x12(\n$PERSOSUBSTATE_SIM_NETWORK_SUBSET_PUK\x10\t\x12#\n\x1fPERSOSUBSTATE_SIM_CORPORATE_PUK\x10\n\x12*\n&PERSOSUBSTATE_SIM_SERVICE_PROVIDER_PUK\x10\x0b\x12\x1d\n\x19PERSOSUBSTATE_SIM_SIM_PUK\x10\x0c\x12\x1f\n\x1bPERSOSUBSTATE_RUIM_NETWORK1\x10\r\x12\x1f\n\x1bPERSOSUBSTATE_RUIM_NETWORK2\x10\x0e\x12\x1b\n\x17PERSOSUBSTATE_RUIM_HRPD\x10\x0f\x12 \n\x1cPERSOSUBSTATE_RUIM_CORPORATE\x10\x10\x12\'\n#PERSOSUBSTATE_RUIM_SERVICE_PROVIDER\x10\x11\x12\x1b\n\x17PERSOSUBSTATE_RUIM_RUIM\x10\x12\x12#\n\x1fPERSOSUBSTATE_RUIM_NETWORK1_PUK\x10\x13\x12#\n\x1fPERSOSUBSTATE_RUIM_NETWORK2_PUK\x10\x14\x12\x1f\n\x1bPERSOSUBSTATE_RUIM_HRPD_PUK\x10\x15\x12$\n PERSOSUBSTATE_RUIM_CORPORATE_PUK\x10\x16\x12+\n\'PERSOSUBSTATE_RUIM_SERVICE_PROVIDER_PUK\x10\x17\x12\x1f\n\x1bPERSOSUBSTATE_RUIM_RUIM_PUK\x10\x18*\x93\x01\n\x0bRilAppState\x12\x14\n\x10\x41PPSTATE_UNKNOWN\x10\x00\x12\x15\n\x11\x41PPSTATE_DETECTED\x10\x01\x12\x10\n\x0c\x41PPSTATE_PIN\x10\x02\x12\x10\n\x0c\x41PPSTATE_PUK\x10\x03\x12\x1f\n\x1b\x41PPSTATE_SUBSCRIPTION_PERSO\x10\x04\x12\x12\n\x0e\x41PPSTATE_READY\x10\x05*\xbd\x01\n\x0bRilPinState\x12\x14\n\x10PINSTATE_UNKNOWN\x10\x00\x12!\n\x1dPINSTATE_ENABLED_NOT_VERIFIED\x10\x01\x12\x1d\n\x19PINSTATE_ENABLED_VERIFIED\x10\x02\x12\x15\n\x11PINSTATE_DISABLED\x10\x03\x12\x1c\n\x18PINSTATE_ENABLED_BLOCKED\x10\x04\x12!\n\x1dPINSTATE_ENABLED_PERM_BLOCKED\x10\x05*h\n\nRilAppType\x12\x13\n\x0f\x41PPTYPE_UNKNOWN\x10\x00\x12\x0f\n\x0b\x41PPTYPE_SIM\x10\x01\x12\x10\n\x0c\x41PPTYPE_USIM\x10\x02\x12\x10\n\x0c\x41PPTYPE_RUIM\x10\x03\x12\x10\n\x0c\x41PPTYPE_CSIM\x10\x04\x42\x33\n(com.android.internal.telephony.ril_protoB\x07RilCmds')
 
 _RADIOSTATE = descriptor.EnumDescriptor(
   name='RadioState',
@@ -49,50 +19,50 @@ _RADIOSTATE = descriptor.EnumDescriptor(
   file=DESCRIPTOR,
   values=[
     descriptor.EnumValueDescriptor(
-      name='RADIO_STATE_OFF', index=0, number=0,
+      name='RADIOSTATE_OFF', index=0, number=0,
       options=None,
       type=None),
     descriptor.EnumValueDescriptor(
-      name='RADIO_STATE_UNAVAILABLE', index=1, number=1,
+      name='RADIOSTATE_UNAVAILABLE', index=1, number=1,
       options=None,
       type=None),
     descriptor.EnumValueDescriptor(
-      name='RADIO_STATE_SIM_NOT_READY', index=2, number=2,
+      name='RADIOSTATE_SIM_NOT_READY', index=2, number=2,
       options=None,
       type=None),
     descriptor.EnumValueDescriptor(
-      name='RADIO_STATE_SIM_LOCKED_OR_ABSENT', index=3, number=3,
+      name='RADIOSTATE_SIM_LOCKED_OR_ABSENT', index=3, number=3,
       options=None,
       type=None),
     descriptor.EnumValueDescriptor(
-      name='RADIO_STATE_SIM_READY', index=4, number=4,
+      name='RADIOSTATE_SIM_READY', index=4, number=4,
       options=None,
       type=None),
     descriptor.EnumValueDescriptor(
-      name='RADIO_STATE_RUIM_NOT_READY', index=5, number=5,
+      name='RADIOSTATE_RUIM_NOT_READY', index=5, number=5,
       options=None,
       type=None),
     descriptor.EnumValueDescriptor(
-      name='RADIO_STATE_RUIM_READY', index=6, number=6,
+      name='RADIOSTATE_RUIM_READY', index=6, number=6,
       options=None,
       type=None),
     descriptor.EnumValueDescriptor(
-      name='RADIO_STATE_RUIM_LOCKED_OR_ABSENT', index=7, number=7,
+      name='RADIOSTATE_RUIM_LOCKED_OR_ABSENT', index=7, number=7,
       options=None,
       type=None),
     descriptor.EnumValueDescriptor(
-      name='RADIO_STATE_NV_NOT_READY', index=8, number=8,
+      name='RADIOSTATE_NV_NOT_READY', index=8, number=8,
       options=None,
       type=None),
     descriptor.EnumValueDescriptor(
-      name='RADIO_STATE_NV_READY', index=9, number=9,
+      name='RADIOSTATE_NV_READY', index=9, number=9,
       options=None,
       type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=1054,
-  serialized_end=1367,
+  serialized_start=936,
+  serialized_end=1239,
 )
 
 
@@ -117,8 +87,8 @@ _RILCARDSTATE = descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1369,
-  serialized_end=1449,
+  serialized_start=1241,
+  serialized_end=1321,
 )
 
 
@@ -231,8 +201,8 @@ _RILPERSOSUBSTATE = descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1452,
-  serialized_end=2333,
+  serialized_start=1324,
+  serialized_end=2205,
 )
 
 
@@ -269,8 +239,8 @@ _RILAPPSTATE = descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2336,
-  serialized_end=2483,
+  serialized_start=2208,
+  serialized_end=2355,
 )
 
 
@@ -307,8 +277,8 @@ _RILPINSTATE = descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2486,
-  serialized_end=2675,
+  serialized_start=2358,
+  serialized_end=2547,
 )
 
 
@@ -341,25 +311,21 @@ _RILAPPTYPE = descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2677,
-  serialized_end=2781,
+  serialized_start=2549,
+  serialized_end=2653,
 )
 
 
-CMD_GET_SIM_STATUS = 1
-CMD_ENTER_SIM_PIN = 2
-CMD_HANGUP = 12
-CMD_SCREEN_STATE = 61
-RADIO_STATE_OFF = 0
-RADIO_STATE_UNAVAILABLE = 1
-RADIO_STATE_SIM_NOT_READY = 2
-RADIO_STATE_SIM_LOCKED_OR_ABSENT = 3
-RADIO_STATE_SIM_READY = 4
-RADIO_STATE_RUIM_NOT_READY = 5
-RADIO_STATE_RUIM_READY = 6
-RADIO_STATE_RUIM_LOCKED_OR_ABSENT = 7
-RADIO_STATE_NV_NOT_READY = 8
-RADIO_STATE_NV_READY = 9
+RADIOSTATE_OFF = 0
+RADIOSTATE_UNAVAILABLE = 1
+RADIOSTATE_SIM_NOT_READY = 2
+RADIOSTATE_SIM_LOCKED_OR_ABSENT = 3
+RADIOSTATE_SIM_READY = 4
+RADIOSTATE_RUIM_NOT_READY = 5
+RADIOSTATE_RUIM_READY = 6
+RADIOSTATE_RUIM_LOCKED_OR_ABSENT = 7
+RADIOSTATE_NV_NOT_READY = 8
+RADIOSTATE_NV_READY = 9
 CARDSTATE_ABSENT = 0
 CARDSTATE_PRESENT = 1
 CARDSTATE_ERROR = 2
@@ -604,27 +570,6 @@ _RSPINTEGERS = descriptor.Descriptor(
 )
 
 
-_REQGETSIMSTATUS = descriptor.Descriptor(
-  name='ReqGetSimStatus',
-  full_name='ril_proto.ReqGetSimStatus',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  extension_ranges=[],
-  serialized_start=640,
-  serialized_end=657,
-)
-
-
 _RSPGETSIMSTATUS = descriptor.Descriptor(
   name='RspGetSimStatus',
   full_name='ril_proto.RspGetSimStatus',
@@ -648,8 +593,8 @@ _RSPGETSIMSTATUS = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=659,
-  serialized_end=723,
+  serialized_start=640,
+  serialized_end=704,
 )
 
 
@@ -676,8 +621,8 @@ _REQENTERSIMPIN = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=725,
-  serialized_end=754,
+  serialized_start=706,
+  serialized_end=735,
 )
 
 
@@ -704,8 +649,8 @@ _RSPENTERSIMPIN = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=756,
-  serialized_end=799,
+  serialized_start=737,
+  serialized_end=780,
 )
 
 
@@ -732,36 +677,8 @@ _REQHANGUP = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=801,
-  serialized_end=838,
-)
-
-
-_REQSCREENSTATE = descriptor.Descriptor(
-  name='ReqScreenState',
-  full_name='ril_proto.ReqScreenState',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    descriptor.FieldDescriptor(
-      name='state', full_name='ril_proto.ReqScreenState.state', index=0,
-      number=1, type=8, cpp_type=7, label=2,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  extension_ranges=[],
-  serialized_start=840,
-  serialized_end=871,
+  serialized_start=782,
+  serialized_end=819,
 )
 
 
@@ -802,8 +719,36 @@ _RSPOPERATOR = descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=873,
-  serialized_end=952,
+  serialized_start=821,
+  serialized_end=900,
+)
+
+
+_REQSCREENSTATE = descriptor.Descriptor(
+  name='ReqScreenState',
+  full_name='ril_proto.ReqScreenState',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    descriptor.FieldDescriptor(
+      name='state', full_name='ril_proto.ReqScreenState.state', index=0,
+      number=1, type=8, cpp_type=7, label=2,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=902,
+  serialized_end=933,
 )
 
 
@@ -841,12 +786,6 @@ class RspIntegers(message.Message):
   
   # @@protoc_insertion_point(class_scope:ril_proto.RspIntegers)
 
-class ReqGetSimStatus(message.Message):
-  __metaclass__ = reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _REQGETSIMSTATUS
-  
-  # @@protoc_insertion_point(class_scope:ril_proto.ReqGetSimStatus)
-
 class RspGetSimStatus(message.Message):
   __metaclass__ = reflection.GeneratedProtocolMessageType
   DESCRIPTOR = _RSPGETSIMSTATUS
@@ -871,16 +810,16 @@ class ReqHangUp(message.Message):
   
   # @@protoc_insertion_point(class_scope:ril_proto.ReqHangUp)
 
-class ReqScreenState(message.Message):
-  __metaclass__ = reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _REQSCREENSTATE
-  
-  # @@protoc_insertion_point(class_scope:ril_proto.ReqScreenState)
-
 class RspOperator(message.Message):
   __metaclass__ = reflection.GeneratedProtocolMessageType
   DESCRIPTOR = _RSPOPERATOR
   
   # @@protoc_insertion_point(class_scope:ril_proto.RspOperator)
+
+class ReqScreenState(message.Message):
+  __metaclass__ = reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _REQSCREENSTATE
+  
+  # @@protoc_insertion_point(class_scope:ril_proto.ReqScreenState)
 
 # @@protoc_insertion_point(module_scope)

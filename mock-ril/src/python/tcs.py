@@ -189,7 +189,7 @@ def main(argv):
 
   # Create an object which is serializable to a protobuf
   rrs = ctrl_pb2.CtrlRspRadioState()
-  rrs.state = ril_pb2.RADIO_STATE_UNAVAILABLE
+  rrs.state = ril_pb2.RADIOSTATE_UNAVAILABLE
   print "rrs.state=%d" % (rrs.state)
 
   # Serialize

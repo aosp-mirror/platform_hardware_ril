@@ -4,23 +4,17 @@ package com.android.internal.telephony.ril_proto;
 
 public final class RilCmds {
   private RilCmds() {}
-  // enum RilCommand
-  public static final int CMD_GET_SIM_STATUS = 1;
-  public static final int CMD_ENTER_SIM_PIN = 2;
-  public static final int CMD_HANGUP = 12;
-  public static final int CMD_SCREEN_STATE = 61;
-  
   // enum RadioState
-  public static final int RADIO_STATE_OFF = 0;
-  public static final int RADIO_STATE_UNAVAILABLE = 1;
-  public static final int RADIO_STATE_SIM_NOT_READY = 2;
-  public static final int RADIO_STATE_SIM_LOCKED_OR_ABSENT = 3;
-  public static final int RADIO_STATE_SIM_READY = 4;
-  public static final int RADIO_STATE_RUIM_NOT_READY = 5;
-  public static final int RADIO_STATE_RUIM_READY = 6;
-  public static final int RADIO_STATE_RUIM_LOCKED_OR_ABSENT = 7;
-  public static final int RADIO_STATE_NV_NOT_READY = 8;
-  public static final int RADIO_STATE_NV_READY = 9;
+  public static final int RADIOSTATE_OFF = 0;
+  public static final int RADIOSTATE_UNAVAILABLE = 1;
+  public static final int RADIOSTATE_SIM_NOT_READY = 2;
+  public static final int RADIOSTATE_SIM_LOCKED_OR_ABSENT = 3;
+  public static final int RADIOSTATE_SIM_READY = 4;
+  public static final int RADIOSTATE_RUIM_NOT_READY = 5;
+  public static final int RADIOSTATE_RUIM_READY = 6;
+  public static final int RADIOSTATE_RUIM_LOCKED_OR_ABSENT = 7;
+  public static final int RADIOSTATE_NV_NOT_READY = 8;
+  public static final int RADIOSTATE_NV_READY = 9;
   
   // enum RilCardState
   public static final int CARDSTATE_ABSENT = 0;
@@ -847,69 +841,6 @@ public final class RilCmds {
     
   }
   
-  public static final class ReqGetSimStatus extends
-      com.google.protobuf.micro.MessageMicro {
-    public ReqGetSimStatus() {}
-    
-    public final ReqGetSimStatus clear() {
-      cachedSize = -1;
-      return this;
-    }
-    
-    public final boolean isInitialized() {
-      return true;
-    }
-    
-    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
-                        throws java.io.IOException {
-    }
-    
-    private int cachedSize = -1;
-    public int getCachedSize() {
-      if (cachedSize < 0) {
-        // getSerializedSize sets cachedSize
-        getSerializedSize();
-      }
-      return cachedSize;
-    }
-    
-    public int getSerializedSize() {
-      int size = 0;
-      cachedSize = size;
-      return size;
-    }
-    
-    public ReqGetSimStatus mergeFrom(
-        com.google.protobuf.micro.CodedInputStreamMicro input)
-        throws java.io.IOException {
-      while (true) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            return this;
-          default: {
-            if (!parseUnknownField(input, tag)) {
-              return this;
-            }
-            break;
-          }
-        }
-      }
-    }
-    
-    public static ReqGetSimStatus parseFrom(byte[] data)
-        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
-      return (ReqGetSimStatus) (new ReqGetSimStatus().mergeFrom(data));
-    }
-    
-    public static ReqGetSimStatus parseFrom(
-            com.google.protobuf.micro.CodedInputStreamMicro input)
-        throws java.io.IOException {
-      return (ReqGetSimStatus) (new ReqGetSimStatus().mergeFrom(input));
-    }
-    
-  }
-  
   public static final class RspGetSimStatus extends
       com.google.protobuf.micro.MessageMicro {
     public RspGetSimStatus() {}
@@ -1287,99 +1218,6 @@ public final class RilCmds {
     
   }
   
-  public static final class ReqScreenState extends
-      com.google.protobuf.micro.MessageMicro {
-    public ReqScreenState() {}
-    
-    // required bool state = 1;
-    public static final int STATE_FIELD_NUMBER = 1;
-    private boolean hasState;
-    private boolean state_ = false;
-    public boolean getState() { return state_; }
-    public boolean hasState() { return hasState; }
-    public ReqScreenState setState(boolean value) {
-      hasState = true;
-      state_ = value;
-      return this;
-    }
-    public ReqScreenState clearState() {
-      hasState = false;
-      state_ = false;
-      return this;
-    }
-    
-    public final ReqScreenState clear() {
-      clearState();
-      cachedSize = -1;
-      return this;
-    }
-    
-    public final boolean isInitialized() {
-      if (!hasState) return false;
-      return true;
-    }
-    
-    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
-                        throws java.io.IOException {
-      if (hasState()) {
-        output.writeBool(1, getState());
-      }
-    }
-    
-    private int cachedSize = -1;
-    public int getCachedSize() {
-      if (cachedSize < 0) {
-        // getSerializedSize sets cachedSize
-        getSerializedSize();
-      }
-      return cachedSize;
-    }
-    
-    public int getSerializedSize() {
-      int size = 0;
-      if (hasState()) {
-        size += com.google.protobuf.micro.CodedOutputStreamMicro
-          .computeBoolSize(1, getState());
-      }
-      cachedSize = size;
-      return size;
-    }
-    
-    public ReqScreenState mergeFrom(
-        com.google.protobuf.micro.CodedInputStreamMicro input)
-        throws java.io.IOException {
-      while (true) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            return this;
-          default: {
-            if (!parseUnknownField(input, tag)) {
-              return this;
-            }
-            break;
-          }
-          case 8: {
-            setState(input.readBool());
-            break;
-          }
-        }
-      }
-    }
-    
-    public static ReqScreenState parseFrom(byte[] data)
-        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
-      return (ReqScreenState) (new ReqScreenState().mergeFrom(data));
-    }
-    
-    public static ReqScreenState parseFrom(
-            com.google.protobuf.micro.CodedInputStreamMicro input)
-        throws java.io.IOException {
-      return (ReqScreenState) (new ReqScreenState().mergeFrom(input));
-    }
-    
-  }
-  
   public static final class RspOperator extends
       com.google.protobuf.micro.MessageMicro {
     public RspOperator() {}
@@ -1526,6 +1364,99 @@ public final class RilCmds {
             com.google.protobuf.micro.CodedInputStreamMicro input)
         throws java.io.IOException {
       return (RspOperator) (new RspOperator().mergeFrom(input));
+    }
+    
+  }
+  
+  public static final class ReqScreenState extends
+      com.google.protobuf.micro.MessageMicro {
+    public ReqScreenState() {}
+    
+    // required bool state = 1;
+    public static final int STATE_FIELD_NUMBER = 1;
+    private boolean hasState;
+    private boolean state_ = false;
+    public boolean getState() { return state_; }
+    public boolean hasState() { return hasState; }
+    public ReqScreenState setState(boolean value) {
+      hasState = true;
+      state_ = value;
+      return this;
+    }
+    public ReqScreenState clearState() {
+      hasState = false;
+      state_ = false;
+      return this;
+    }
+    
+    public final ReqScreenState clear() {
+      clearState();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      if (!hasState) return false;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasState()) {
+        output.writeBool(1, getState());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasState()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeBoolSize(1, getState());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public ReqScreenState mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 8: {
+            setState(input.readBool());
+            break;
+          }
+        }
+      }
+    }
+    
+    public static ReqScreenState parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (ReqScreenState) (new ReqScreenState().mergeFrom(data));
+    }
+    
+    public static ReqScreenState parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (ReqScreenState) (new ReqScreenState().mergeFrom(input));
     }
     
   }

@@ -6,26 +6,19 @@ package ril_proto;
 option java_package='com.android.internal.telephony.ril_proto';
 option java_outer_classname='RilCmds';
 
-enum RilCommand {
-  CMD_GET_SIM_STATUS                        = 1;
-  CMD_ENTER_SIM_PIN                         = 2;
-  CMD_HANGUP                                = 12;
-  CMD_SCREEN_STATE                          = 61;
-}
-
 enum RadioState {
-    RADIO_STATE_OFF                         = 0; /* Radio explictly powered off (eg CFUN=0) */
-    RADIO_STATE_UNAVAILABLE                 = 1; /* Radio unavailable (eg, resetting or not booted) */
-    RADIO_STATE_SIM_NOT_READY               = 2; /* Radio is on, but the SIM interface is not ready */
-    RADIO_STATE_SIM_LOCKED_OR_ABSENT        = 3; /* SIM PIN locked, PUK required, network
-                                                    personalization locked, or SIM absent */
-    RADIO_STATE_SIM_READY                   = 4; /* Radio is on and SIM interface is available */
-    RADIO_STATE_RUIM_NOT_READY              = 5; /* Radio is on, but the RUIM interface is not ready */
-    RADIO_STATE_RUIM_READY                  = 6; /* Radio is on and the RUIM interface is available */
-    RADIO_STATE_RUIM_LOCKED_OR_ABSENT       = 7; /* RUIM PIN locked, PUK required, network
-                                                    personalization locked, or RUIM absent */
-    RADIO_STATE_NV_NOT_READY                = 8; /* Radio is on, but the NV interface is not available */
-    RADIO_STATE_NV_READY                    = 9; /* Radio is on and the NV interface is available */
+    RADIOSTATE_OFF                      = 0; /* Radio explictly powered off (eg CFUN=0) */
+    RADIOSTATE_UNAVAILABLE              = 1; /* Radio unavailable (eg, resetting or not booted) */
+    RADIOSTATE_SIM_NOT_READY            = 2; /* Radio is on, but the SIM interface is not ready */
+    RADIOSTATE_SIM_LOCKED_OR_ABSENT     = 3; /* SIM PIN locked, PUK required, network
+                                                personalization locked, or SIM absent */
+    RADIOSTATE_SIM_READY                = 4; /* Radio is on and SIM interface is available */
+    RADIOSTATE_RUIM_NOT_READY           = 5; /* Radio is on, but the RUIM interface is not ready */
+    RADIOSTATE_RUIM_READY               = 6; /* Radio is on and the RUIM interface is available */
+    RADIOSTATE_RUIM_LOCKED_OR_ABSENT    = 7; /* RUIM PIN locked, PUK required, network
+                                                personalization locked, or RUIM absent */
+    RADIOSTATE_NV_NOT_READY             = 8; /* Radio is on, but the NV interface is not available */
+    RADIOSTATE_NV_READY                 = 9; /* Radio is on and the NV interface is available */
 }
 
 enum RilCardState {
@@ -114,7 +107,6 @@ message RilCardStatus {
   repeated RilAppStatus applications                    = 6; /* CARD_MAX_APPS == 8 */
 }
 
-
 // Response is an array of strings.
 //
 // If a strings(i) is "*magic-null*" then that value will be returned as null.
@@ -127,33 +119,34 @@ message RspIntegers{
   repeated int32 integers                   = 1;
 }
 
-message ReqGetSimStatus {
-}
+//  1 RIL_REQUEST_GET_SIM_STATUS
 message RspGetSimStatus {
   required RilCardStatus card_status        = 1;
 }
 
-
+//  2 RIL_REQUEST_ENTER_SIM_PIN
 message ReqEnterSimPin {
   required string pin                       = 1;
 }
+//    RIL_REQUEST_ENTER_SIM_PIN response
 message RspEnterSimPin {
   required int32 retries_remaining          = 1;
 }
 
-
+// 12 RIL_REQUEST_HANG_UP
 message ReqHangUp {
   required int32 connection_index           = 1;
 }
 
-
-message ReqScreenState {
-  required bool state                       = 1; // true screen is on, false screen is off
-}
-
-// RIL_REQUEST_OPERATOR response
+// 22 RIL_REQUEST_OPERATOR response
 message RspOperator{
   optional string long_alpha_ons            = 1; // The long alpha ons or eons
   optional string short_alpha_ons           = 2; // The short alpha ons or eons
   optional string mcc_mnc                   = 3; // the 5 or 6 digit mcc + mnc
 }
+
+// 61 RIL_REQUEST_SCREEN_STATE
+message ReqScreenState {
+  required bool state                       = 1; // true screen is on, false screen is off
+}
+

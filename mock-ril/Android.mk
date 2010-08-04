@@ -52,8 +52,8 @@ LOCAL_STATIC_LIBRARIES := \
 LOCAL_CFLAGS := -D_GNU_SOURCE -UNDEBUG -DGOOGLE_PROTOBUF_NO_RTTI -DRIL_SHLIB
 
 LOCAL_C_INCLUDES := \
-    $(src_cpp) \
-    $(gen_src_cpp) \
+    $(LOCAL_PATH)/$(src_cpp) \
+    $(LOCAL_PATH)/$(gen_src_cpp) \
     external/protobuf/src \
     external/v8/include \
     bionic \
