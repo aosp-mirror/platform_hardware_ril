@@ -71,6 +71,30 @@ public final class RilCmds {
   public static final int APPTYPE_RUIM = 3;
   public static final int APPTYPE_CSIM = 4;
   
+  // enum RilUusType
+  public static final int RILUUSTYPE1_IMPLICIT = 0;
+  public static final int RILUUSTYPE1_REQUIRED = 1;
+  public static final int RILUUSTYPE1_NOT_REQUIRED = 2;
+  public static final int RILUUSTYPE2_REQUIRED = 3;
+  public static final int RILUUSTYPE2_NOT_REQUIRED = 4;
+  public static final int RILUUSTYPE3_REQUIRED = 5;
+  public static final int RILUUSTYPE3_NOT_REQUIRED = 6;
+  
+  // enum RilUusDcs
+  public static final int RILUUSDCS_USP = 0;
+  public static final int RILUUSDCS_OSIHLP = 1;
+  public static final int RILUUSDCS_X244 = 2;
+  public static final int RILUUSDCS_RMCF = 3;
+  public static final int RILUUSDCS_IA5c = 4;
+  
+  // enum RilCallState
+  public static final int CALLSTATE_ACTIVE = 0;
+  public static final int CALLSTATE_HOLDING = 1;
+  public static final int CALLSTATE_DIALING = 2;
+  public static final int CALLSTATE_ALERTING = 3;
+  public static final int CALLSTATE_INCOMING = 4;
+  public static final int CALLSTATE_WAITING = 5;
+  
   public static final class RilAppStatus extends
       com.google.protobuf.micro.MessageMicro {
     public RilAppStatus() {}
@@ -621,6 +645,630 @@ public final class RilCmds {
     
   }
   
+  public static final class RilUusInfo extends
+      com.google.protobuf.micro.MessageMicro {
+    public RilUusInfo() {}
+    
+    // optional .ril_proto.RilUusType uus_type = 1;
+    public static final int UUS_TYPE_FIELD_NUMBER = 1;
+    private boolean hasUusType;
+    private int uusType_ = com.android.internal.telephony.ril_proto.RilCmds.RILUUSTYPE1_IMPLICIT;
+    public boolean hasUusType() { return hasUusType; }
+    public int getUusType() { return uusType_; }
+    public RilUusInfo setUusType(int value) {
+      hasUusType = true;
+      uusType_ = value;
+      return this;
+    }
+    public RilUusInfo clearUusType() {
+      hasUusType = false;
+      uusType_ = com.android.internal.telephony.ril_proto.RilCmds.RILUUSTYPE1_IMPLICIT;
+      return this;
+    }
+    
+    // optional .ril_proto.RilUusDcs uus_dcs = 2;
+    public static final int UUS_DCS_FIELD_NUMBER = 2;
+    private boolean hasUusDcs;
+    private int uusDcs_ = com.android.internal.telephony.ril_proto.RilCmds.RILUUSDCS_USP;
+    public boolean hasUusDcs() { return hasUusDcs; }
+    public int getUusDcs() { return uusDcs_; }
+    public RilUusInfo setUusDcs(int value) {
+      hasUusDcs = true;
+      uusDcs_ = value;
+      return this;
+    }
+    public RilUusInfo clearUusDcs() {
+      hasUusDcs = false;
+      uusDcs_ = com.android.internal.telephony.ril_proto.RilCmds.RILUUSDCS_USP;
+      return this;
+    }
+    
+    // optional int32 uus_length = 3;
+    public static final int UUS_LENGTH_FIELD_NUMBER = 3;
+    private boolean hasUusLength;
+    private int uusLength_ = 0;
+    public int getUusLength() { return uusLength_; }
+    public boolean hasUusLength() { return hasUusLength; }
+    public RilUusInfo setUusLength(int value) {
+      hasUusLength = true;
+      uusLength_ = value;
+      return this;
+    }
+    public RilUusInfo clearUusLength() {
+      hasUusLength = false;
+      uusLength_ = 0;
+      return this;
+    }
+    
+    // optional string uus_data = 4;
+    public static final int UUS_DATA_FIELD_NUMBER = 4;
+    private boolean hasUusData;
+    private java.lang.String uusData_ = "";
+    public java.lang.String getUusData() { return uusData_; }
+    public boolean hasUusData() { return hasUusData; }
+    public RilUusInfo setUusData(java.lang.String value) {
+      hasUusData = true;
+      uusData_ = value;
+      return this;
+    }
+    public RilUusInfo clearUusData() {
+      hasUusData = false;
+      uusData_ = "";
+      return this;
+    }
+    
+    public final RilUusInfo clear() {
+      clearUusType();
+      clearUusDcs();
+      clearUusLength();
+      clearUusData();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasUusType()) {
+        output.writeInt32(1, getUusType());
+      }
+      if (hasUusDcs()) {
+        output.writeInt32(2, getUusDcs());
+      }
+      if (hasUusLength()) {
+        output.writeInt32(3, getUusLength());
+      }
+      if (hasUusData()) {
+        output.writeString(4, getUusData());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasUusType()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(1, getUusType());
+      }
+      if (hasUusDcs()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(2, getUusDcs());
+      }
+      if (hasUusLength()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(3, getUusLength());
+      }
+      if (hasUusData()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeStringSize(4, getUusData());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public RilUusInfo mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 8: {
+              setUusType(input.readInt32());
+            break;
+          }
+          case 16: {
+              setUusDcs(input.readInt32());
+            break;
+          }
+          case 24: {
+            setUusLength(input.readInt32());
+            break;
+          }
+          case 34: {
+            setUusData(input.readString());
+            break;
+          }
+        }
+      }
+    }
+    
+    public static RilUusInfo parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (RilUusInfo) (new RilUusInfo().mergeFrom(data));
+    }
+    
+    public static RilUusInfo parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (RilUusInfo) (new RilUusInfo().mergeFrom(input));
+    }
+    
+  }
+  
+  public static final class RilCall extends
+      com.google.protobuf.micro.MessageMicro {
+    public RilCall() {}
+    
+    // optional .ril_proto.RilCallState state = 1;
+    public static final int STATE_FIELD_NUMBER = 1;
+    private boolean hasState;
+    private int state_ = com.android.internal.telephony.ril_proto.RilCmds.CALLSTATE_ACTIVE;
+    public boolean hasState() { return hasState; }
+    public int getState() { return state_; }
+    public RilCall setState(int value) {
+      hasState = true;
+      state_ = value;
+      return this;
+    }
+    public RilCall clearState() {
+      hasState = false;
+      state_ = com.android.internal.telephony.ril_proto.RilCmds.CALLSTATE_ACTIVE;
+      return this;
+    }
+    
+    // optional int32 index = 2;
+    public static final int INDEX_FIELD_NUMBER = 2;
+    private boolean hasIndex;
+    private int index_ = 0;
+    public int getIndex() { return index_; }
+    public boolean hasIndex() { return hasIndex; }
+    public RilCall setIndex(int value) {
+      hasIndex = true;
+      index_ = value;
+      return this;
+    }
+    public RilCall clearIndex() {
+      hasIndex = false;
+      index_ = 0;
+      return this;
+    }
+    
+    // optional int32 toa = 3;
+    public static final int TOA_FIELD_NUMBER = 3;
+    private boolean hasToa;
+    private int toa_ = 0;
+    public int getToa() { return toa_; }
+    public boolean hasToa() { return hasToa; }
+    public RilCall setToa(int value) {
+      hasToa = true;
+      toa_ = value;
+      return this;
+    }
+    public RilCall clearToa() {
+      hasToa = false;
+      toa_ = 0;
+      return this;
+    }
+    
+    // optional bool is_mpty = 4;
+    public static final int IS_MPTY_FIELD_NUMBER = 4;
+    private boolean hasIsMpty;
+    private boolean isMpty_ = false;
+    public boolean getIsMpty() { return isMpty_; }
+    public boolean hasIsMpty() { return hasIsMpty; }
+    public RilCall setIsMpty(boolean value) {
+      hasIsMpty = true;
+      isMpty_ = value;
+      return this;
+    }
+    public RilCall clearIsMpty() {
+      hasIsMpty = false;
+      isMpty_ = false;
+      return this;
+    }
+    
+    // optional bool is_mt = 5;
+    public static final int IS_MT_FIELD_NUMBER = 5;
+    private boolean hasIsMt;
+    private boolean isMt_ = false;
+    public boolean getIsMt() { return isMt_; }
+    public boolean hasIsMt() { return hasIsMt; }
+    public RilCall setIsMt(boolean value) {
+      hasIsMt = true;
+      isMt_ = value;
+      return this;
+    }
+    public RilCall clearIsMt() {
+      hasIsMt = false;
+      isMt_ = false;
+      return this;
+    }
+    
+    // optional int32 als = 6;
+    public static final int ALS_FIELD_NUMBER = 6;
+    private boolean hasAls;
+    private int als_ = 0;
+    public int getAls() { return als_; }
+    public boolean hasAls() { return hasAls; }
+    public RilCall setAls(int value) {
+      hasAls = true;
+      als_ = value;
+      return this;
+    }
+    public RilCall clearAls() {
+      hasAls = false;
+      als_ = 0;
+      return this;
+    }
+    
+    // optional bool is_voice = 7;
+    public static final int IS_VOICE_FIELD_NUMBER = 7;
+    private boolean hasIsVoice;
+    private boolean isVoice_ = false;
+    public boolean getIsVoice() { return isVoice_; }
+    public boolean hasIsVoice() { return hasIsVoice; }
+    public RilCall setIsVoice(boolean value) {
+      hasIsVoice = true;
+      isVoice_ = value;
+      return this;
+    }
+    public RilCall clearIsVoice() {
+      hasIsVoice = false;
+      isVoice_ = false;
+      return this;
+    }
+    
+    // optional bool is_voice_privacy = 8;
+    public static final int IS_VOICE_PRIVACY_FIELD_NUMBER = 8;
+    private boolean hasIsVoicePrivacy;
+    private boolean isVoicePrivacy_ = false;
+    public boolean getIsVoicePrivacy() { return isVoicePrivacy_; }
+    public boolean hasIsVoicePrivacy() { return hasIsVoicePrivacy; }
+    public RilCall setIsVoicePrivacy(boolean value) {
+      hasIsVoicePrivacy = true;
+      isVoicePrivacy_ = value;
+      return this;
+    }
+    public RilCall clearIsVoicePrivacy() {
+      hasIsVoicePrivacy = false;
+      isVoicePrivacy_ = false;
+      return this;
+    }
+    
+    // optional string number = 9;
+    public static final int NUMBER_FIELD_NUMBER = 9;
+    private boolean hasNumber;
+    private java.lang.String number_ = "";
+    public java.lang.String getNumber() { return number_; }
+    public boolean hasNumber() { return hasNumber; }
+    public RilCall setNumber(java.lang.String value) {
+      hasNumber = true;
+      number_ = value;
+      return this;
+    }
+    public RilCall clearNumber() {
+      hasNumber = false;
+      number_ = "";
+      return this;
+    }
+    
+    // optional int32 number_presentation = 10;
+    public static final int NUMBER_PRESENTATION_FIELD_NUMBER = 10;
+    private boolean hasNumberPresentation;
+    private int numberPresentation_ = 0;
+    public int getNumberPresentation() { return numberPresentation_; }
+    public boolean hasNumberPresentation() { return hasNumberPresentation; }
+    public RilCall setNumberPresentation(int value) {
+      hasNumberPresentation = true;
+      numberPresentation_ = value;
+      return this;
+    }
+    public RilCall clearNumberPresentation() {
+      hasNumberPresentation = false;
+      numberPresentation_ = 0;
+      return this;
+    }
+    
+    // optional string name = 11;
+    public static final int NAME_FIELD_NUMBER = 11;
+    private boolean hasName;
+    private java.lang.String name_ = "";
+    public java.lang.String getName() { return name_; }
+    public boolean hasName() { return hasName; }
+    public RilCall setName(java.lang.String value) {
+      hasName = true;
+      name_ = value;
+      return this;
+    }
+    public RilCall clearName() {
+      hasName = false;
+      name_ = "";
+      return this;
+    }
+    
+    // optional int32 name_presentation = 12;
+    public static final int NAME_PRESENTATION_FIELD_NUMBER = 12;
+    private boolean hasNamePresentation;
+    private int namePresentation_ = 0;
+    public int getNamePresentation() { return namePresentation_; }
+    public boolean hasNamePresentation() { return hasNamePresentation; }
+    public RilCall setNamePresentation(int value) {
+      hasNamePresentation = true;
+      namePresentation_ = value;
+      return this;
+    }
+    public RilCall clearNamePresentation() {
+      hasNamePresentation = false;
+      namePresentation_ = 0;
+      return this;
+    }
+    
+    // optional .ril_proto.RilUusInfo uus_info = 13;
+    public static final int UUS_INFO_FIELD_NUMBER = 13;
+    private boolean hasUusInfo;
+    private com.android.internal.telephony.ril_proto.RilCmds.RilUusInfo uusInfo_ = null;
+    public boolean hasUusInfo() { return hasUusInfo; }
+    public com.android.internal.telephony.ril_proto.RilCmds.RilUusInfo getUusInfo() { return uusInfo_; }
+    public RilCall setUusInfo(com.android.internal.telephony.ril_proto.RilCmds.RilUusInfo value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      hasUusInfo = true;
+      uusInfo_ = value;
+      return this;
+    }
+    public RilCall clearUusInfo() {
+      hasUusInfo = false;
+      uusInfo_ = null;
+      return this;
+    }
+    
+    public final RilCall clear() {
+      clearState();
+      clearIndex();
+      clearToa();
+      clearIsMpty();
+      clearIsMt();
+      clearAls();
+      clearIsVoice();
+      clearIsVoicePrivacy();
+      clearNumber();
+      clearNumberPresentation();
+      clearName();
+      clearNamePresentation();
+      clearUusInfo();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasState()) {
+        output.writeInt32(1, getState());
+      }
+      if (hasIndex()) {
+        output.writeInt32(2, getIndex());
+      }
+      if (hasToa()) {
+        output.writeInt32(3, getToa());
+      }
+      if (hasIsMpty()) {
+        output.writeBool(4, getIsMpty());
+      }
+      if (hasIsMt()) {
+        output.writeBool(5, getIsMt());
+      }
+      if (hasAls()) {
+        output.writeInt32(6, getAls());
+      }
+      if (hasIsVoice()) {
+        output.writeBool(7, getIsVoice());
+      }
+      if (hasIsVoicePrivacy()) {
+        output.writeBool(8, getIsVoicePrivacy());
+      }
+      if (hasNumber()) {
+        output.writeString(9, getNumber());
+      }
+      if (hasNumberPresentation()) {
+        output.writeInt32(10, getNumberPresentation());
+      }
+      if (hasName()) {
+        output.writeString(11, getName());
+      }
+      if (hasNamePresentation()) {
+        output.writeInt32(12, getNamePresentation());
+      }
+      if (hasUusInfo()) {
+        output.writeMessage(13, getUusInfo());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasState()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(1, getState());
+      }
+      if (hasIndex()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(2, getIndex());
+      }
+      if (hasToa()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(3, getToa());
+      }
+      if (hasIsMpty()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeBoolSize(4, getIsMpty());
+      }
+      if (hasIsMt()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeBoolSize(5, getIsMt());
+      }
+      if (hasAls()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(6, getAls());
+      }
+      if (hasIsVoice()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeBoolSize(7, getIsVoice());
+      }
+      if (hasIsVoicePrivacy()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeBoolSize(8, getIsVoicePrivacy());
+      }
+      if (hasNumber()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeStringSize(9, getNumber());
+      }
+      if (hasNumberPresentation()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(10, getNumberPresentation());
+      }
+      if (hasName()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeStringSize(11, getName());
+      }
+      if (hasNamePresentation()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(12, getNamePresentation());
+      }
+      if (hasUusInfo()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeMessageSize(13, getUusInfo());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public RilCall mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 8: {
+              setState(input.readInt32());
+            break;
+          }
+          case 16: {
+            setIndex(input.readInt32());
+            break;
+          }
+          case 24: {
+            setToa(input.readInt32());
+            break;
+          }
+          case 32: {
+            setIsMpty(input.readBool());
+            break;
+          }
+          case 40: {
+            setIsMt(input.readBool());
+            break;
+          }
+          case 48: {
+            setAls(input.readInt32());
+            break;
+          }
+          case 56: {
+            setIsVoice(input.readBool());
+            break;
+          }
+          case 64: {
+            setIsVoicePrivacy(input.readBool());
+            break;
+          }
+          case 74: {
+            setNumber(input.readString());
+            break;
+          }
+          case 80: {
+            setNumberPresentation(input.readInt32());
+            break;
+          }
+          case 90: {
+            setName(input.readString());
+            break;
+          }
+          case 96: {
+            setNamePresentation(input.readInt32());
+            break;
+          }
+          case 106: {
+            com.android.internal.telephony.ril_proto.RilCmds.RilUusInfo value = new com.android.internal.telephony.ril_proto.RilCmds.RilUusInfo();
+            input.readMessage(value);
+            setUusInfo(value);
+            break;
+          }
+        }
+      }
+    }
+    
+    public static RilCall parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (RilCall) (new RilCall().mergeFrom(data));
+    }
+    
+    public static RilCall parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (RilCall) (new RilCall().mergeFrom(input));
+    }
+    
+  }
+  
   public static final class RspStrings extends
       com.google.protobuf.micro.MessageMicro {
     public RspStrings() {}
@@ -1121,6 +1769,116 @@ public final class RilCmds {
             com.google.protobuf.micro.CodedInputStreamMicro input)
         throws java.io.IOException {
       return (RspEnterSimPin) (new RspEnterSimPin().mergeFrom(input));
+    }
+    
+  }
+  
+  public static final class RspGetCurrentCalls extends
+      com.google.protobuf.micro.MessageMicro {
+    public RspGetCurrentCalls() {}
+    
+    // repeated .ril_proto.RilCall calls = 1;
+    public static final int CALLS_FIELD_NUMBER = 1;
+    private java.util.List<com.android.internal.telephony.ril_proto.RilCmds.RilCall> calls_ =
+      java.util.Collections.emptyList();
+    public java.util.List<com.android.internal.telephony.ril_proto.RilCmds.RilCall> getCallsList() {
+      return calls_;
+    }
+    public int getCallsCount() { return calls_.size(); }
+    public com.android.internal.telephony.ril_proto.RilCmds.RilCall getCalls(int index) {
+      return calls_.get(index);
+    }
+    public RspGetCurrentCalls setCalls(int index, com.android.internal.telephony.ril_proto.RilCmds.RilCall value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      calls_.set(index, value);
+      return this;
+    }
+    public RspGetCurrentCalls addCalls(com.android.internal.telephony.ril_proto.RilCmds.RilCall value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      if (calls_.isEmpty()) {
+        calls_ = new java.util.ArrayList<com.android.internal.telephony.ril_proto.RilCmds.RilCall>();
+      }
+      calls_.add(value);
+      return this;
+    }
+    public RspGetCurrentCalls clearCalls() {
+      calls_ = java.util.Collections.emptyList();
+      return this;
+    }
+    
+    public final RspGetCurrentCalls clear() {
+      clearCalls();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      for (com.android.internal.telephony.ril_proto.RilCmds.RilCall element : getCallsList()) {
+        output.writeMessage(1, element);
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      for (com.android.internal.telephony.ril_proto.RilCmds.RilCall element : getCallsList()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeMessageSize(1, element);
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public RspGetCurrentCalls mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 10: {
+            com.android.internal.telephony.ril_proto.RilCmds.RilCall value = new com.android.internal.telephony.ril_proto.RilCmds.RilCall();
+            input.readMessage(value);
+            addCalls(value);
+            break;
+          }
+        }
+      }
+    }
+    
+    public static RspGetCurrentCalls parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (RspGetCurrentCalls) (new RspGetCurrentCalls().mergeFrom(data));
+    }
+    
+    public static RspGetCurrentCalls parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (RspGetCurrentCalls) (new RspGetCurrentCalls().mergeFrom(input));
     }
     
   }
