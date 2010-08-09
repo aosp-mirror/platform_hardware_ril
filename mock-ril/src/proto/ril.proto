@@ -107,6 +107,69 @@ message RilCardStatus {
   repeated RilAppStatus applications                    = 6; /* CARD_MAX_APPS == 8 */
 }
 
+/* User-to-User signaling Info activation types derived from 3GPP 23.087 v8.0 */
+enum RilUusType {
+    RILUUSTYPE1_IMPLICIT        = 0;
+    RILUUSTYPE1_REQUIRED        = 1;
+    RILUUSTYPE1_NOT_REQUIRED    = 2;
+    RILUUSTYPE2_REQUIRED        = 3;
+    RILUUSTYPE2_NOT_REQUIRED    = 4;
+    RILUUSTYPE3_REQUIRED        = 5;
+    RILUUSTYPE3_NOT_REQUIRED    = 6;
+};
+
+/* User-to-User Signaling Information data coding schemes. Possible values for
+ * Octet 3 (Protocol Discriminator field) in the UUIE. The values have been
+ * specified in section 10.5.4.25 of 3GPP TS 24.008 */
+enum RilUusDcs {
+    RILUUSDCS_USP               = 0;   /* User specified protocol */
+    RILUUSDCS_OSIHLP            = 1;   /* OSI higher layer protocol */
+    RILUUSDCS_X244              = 2;   /* X.244 */
+    RILUUSDCS_RMCF              = 3;   /* Reserved for system mangement
+                                          convergence function */
+    RILUUSDCS_IA5c              = 4;   /* IA5 characters */
+}
+
+/* User-to-User Signaling Information defined in 3GPP 23.087 v8.0
+ * This data is passed in RIL_ExtensionRecord and rec contains this
+ * structure when type is RIL_UUS_INFO_EXT_REC */
+message RilUusInfo {
+  optional RilUusType uus_type  = 1; /* UUS Type */
+  optional RilUusDcs uus_dcs    = 2; /* UUS Data Coding Scheme */
+  optional int32 uus_length     = 3; /* Length of UUS Data */
+  optional string uus_data      = 4; /* UUS Data */
+}
+
+enum RilCallState {
+    CALLSTATE_ACTIVE     = 0;
+    CALLSTATE_HOLDING    = 1;
+    CALLSTATE_DIALING    = 2;   /* MO call only */
+    CALLSTATE_ALERTING   = 3;   /* MO call only */
+    CALLSTATE_INCOMING   = 4;   /* MT call only */
+    CALLSTATE_WAITING    = 5;   /* MT call only */
+}
+
+message RilCall {
+    optional RilCallState    state               = 1;  /* State of the call */
+    optional int32           index               = 2;  /* Connection Index for use with,
+                                                          eg, AT+CHLD */
+    optional int32           toa                 = 3;  /* type of address, eg 145 = intl */
+    optional bool            is_mpty             = 4;  /* true if is mpty call */
+    optional bool            is_mt               = 5;  /* true if call is mobile terminated */
+    optional int32           als                 = 6;  /* ALS line indicator if available
+                                                          (0 = line 1) */
+    optional bool            is_voice            = 7;  /* true if this is is a voice call */
+    optional bool            is_voice_privacy    = 8;  /* true if CDMA voice privacy mode
+                                                          is active */
+    optional string          number              = 9;  /* Remote party number */
+    optional int32           number_presentation = 10; /* 0=Allowed, 1=Restricted,
+                                                          2=Not Specified/Unknown 3=Payphone */
+    optional string          name                = 11; /* Remote party name */
+    optional int32           name_presentation   = 12; /* 0=Allowed, 1=Restricted,
+                                                          2=Not Specified/Unknown 3=Payphone */
+    optional RilUusInfo      uus_info            = 13; /* NULL or Pointer to User-User Signaling
+                                                          Information */
+}
 // Response is an array of strings.
 //
 // If a strings(i) is "*magic-null*" then that value will be returned as null.
@@ -131,6 +194,11 @@ message ReqEnterSimPin {
 //    RIL_REQUEST_ENTER_SIM_PIN response
 message RspEnterSimPin {
   required int32 retries_remaining          = 1;
+}
+
+//  9 RIL_GET_CURRENT_CALLS response
+message RspGetCurrentCalls {
+  repeated RilCall calls                    = 1;
 }
 
 // 12 RIL_REQUEST_HANG_UP

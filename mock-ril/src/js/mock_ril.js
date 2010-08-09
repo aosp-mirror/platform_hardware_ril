@@ -230,6 +230,9 @@ dispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = { // 2
     'components' : [simulatedIccWorker],
     'schemaName' : 'ReqEnterSimPin',
 };
+dispatchTable[RIL_REQUEST_GET_CURRENT_CALLS] = { // 9
+    'components' : [simulatedRadioWorker],
+};
 dispatchTable[RIL_REQUEST_GET_IMSI] = { // 11
     'components' : [simulatedIccWorker],
 };

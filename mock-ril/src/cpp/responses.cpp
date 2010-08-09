@@ -133,7 +133,7 @@ RIL_Errno RspIntegers(
  * Handle RIL_REQUEST_GET_SIM_STATUS response
  */
 RIL_Errno RspGetSimStatus(
-        int cmd, RIL_Token token, RIL_Errno rilErrno, Buffer *buffer) {
+        int cmd, RIL_Token token, RIL_Errno rilErrno, Buffer *buffer) { // 1
     DBG("RspGetSimStatus E");
 
     ril_proto::RspGetSimStatus *rsp = new ril_proto::RspGetSimStatus();
@@ -169,7 +169,7 @@ RIL_Errno RspGetSimStatus(
  * Handle RIL_REQUEST_ENTER_SIM_PIN_DATA response
  */
 RIL_Errno RspEnterSimPinData(
-        int cmd, RIL_Token token, RIL_Errno rilErrno, Buffer *buffer) {
+        int cmd, RIL_Token token, RIL_Errno rilErrno, Buffer *buffer) { // 2
     DBG("RspEnterSimPinData E");
 
     ril_proto::RspEnterSimPin *rsp = new ril_proto::RspEnterSimPin();
@@ -186,10 +186,62 @@ RIL_Errno RspEnterSimPinData(
 }
 
 /**
+ * Handle RIL_REQUEST_GET_CURRENT_CALLS response
+ */
+RIL_Errno RspGetCurrentCalls (
+        int cmd, RIL_Token token, RIL_Errno rilErrno, Buffer *buffer) { // 9
+    DBG("RspGetCurrentCalls E");
+
+    ril_proto::RspGetCurrentCalls *rsp = new ril_proto::RspGetCurrentCalls();
+    rsp->ParseFromArray(buffer->data(), buffer->length());
+    int result_len = rsp->calls_size() * sizeof(const RIL_Call *);
+    DBG("RspGetCurrentCalls rilErrno=%d result_len=%d", rilErrno, result_len);
+    RIL_Call **result = (RIL_Call **)alloca(result_len);
+    for (int i = 0; i < rsp->calls_size();  i++) {
+        const ril_proto::RilCall& srcCall = rsp->calls(i);
+        RIL_Call *dstCall = (RIL_Call *)alloca(sizeof(RIL_Call));
+
+        result[i] = dstCall;
+        dstCall->state = (RIL_CallState)srcCall.state();
+        dstCall->index = srcCall.index();
+        dstCall->toa = srcCall.toa();
+        dstCall->isMpty = (char)srcCall.is_mpty();
+        dstCall->isMT = (char)srcCall.is_mt();
+        dstCall->als = srcCall.als();
+        dstCall->isVoice = (char)srcCall.is_voice();
+        dstCall->isVoicePrivacy = (char)srcCall.is_voice_privacy();
+        dstCall->number = (char *)srcCall.number().c_str();
+        dstCall->numberPresentation = srcCall.number_presentation();
+        dstCall->name = (char *)srcCall.name().c_str();
+        dstCall->namePresentation = srcCall.name_presentation();
+        if (srcCall.has_uus_info()) {
+            dstCall->uusInfo =
+                (RIL_UUS_Info *)alloca(sizeof(RIL_UUS_Info));
+            dstCall->uusInfo->uusType =
+                (RIL_UUS_Type)srcCall.uus_info().uus_type();
+            dstCall->uusInfo->uusDcs =
+                (RIL_UUS_DCS)srcCall.uus_info().uus_dcs();
+            dstCall->uusInfo->uusLength =
+                srcCall.uus_info().uus_length();
+            dstCall->uusInfo->uusData =
+                (char *)srcCall.uus_info().uus_data().c_str();
+        } else {
+            dstCall->uusInfo = NULL;
+        }
+    }
+
+    // Complete the request
+    s_rilenv->OnRequestComplete(token, rilErrno, result, result_len);
+
+    DBG("RspGetCurrentCalls X rilErrno=%d", rilErrno);
+    return rilErrno;
+}
+
+/**
  * Handle RIL_REQUEST_OPERATOR response
  */
 RIL_Errno RspOperator(
-        int cmd, RIL_Token token, RIL_Errno rilErrno, Buffer *buffer) {
+        int cmd, RIL_Token token, RIL_Errno rilErrno, Buffer *buffer) { // 22
     int status;
 
     DBG("RspOperator E");
@@ -360,6 +412,7 @@ int responsesInit(v8::Handle<v8::Context> context) {
 
     rilRspConversionMap[RIL_REQUEST_GET_SIM_STATUS] = RspGetSimStatus; // 1
     rilRspConversionMap[RIL_REQUEST_ENTER_SIM_PIN] = RspEnterSimPinData; // 2
+    rilRspConversionMap[RIL_REQUEST_GET_CURRENT_CALLS] = RspGetCurrentCalls; // 9
     rilRspConversionMap[RIL_REQUEST_GET_IMSI] = RspString; // 11
     rilRspConversionMap[RIL_REQUEST_HANGUP] = RspWithNoData; // 12
     rilRspConversionMap[RIL_REQUEST_REGISTRATION_STATE] = RspStrings; // 20

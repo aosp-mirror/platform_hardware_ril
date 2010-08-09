@@ -34,11 +34,14 @@ void protobuf_ShutdownFile_ril_2eproto();
 
 class RilAppStatus;
 class RilCardStatus;
+class RilUusInfo;
+class RilCall;
 class RspStrings;
 class RspIntegers;
 class RspGetSimStatus;
 class ReqEnterSimPin;
 class RspEnterSimPin;
+class RspGetCurrentCalls;
 class ReqHangUp;
 class RspOperator;
 class ReqScreenState;
@@ -199,6 +202,75 @@ inline bool RilAppType_Parse(
     const ::std::string& name, RilAppType* value) {
   return ::google::protobuf::internal::ParseNamedEnum<RilAppType>(
     RilAppType_descriptor(), name, value);
+}
+enum RilUusType {
+  RILUUSTYPE1_IMPLICIT = 0,
+  RILUUSTYPE1_REQUIRED = 1,
+  RILUUSTYPE1_NOT_REQUIRED = 2,
+  RILUUSTYPE2_REQUIRED = 3,
+  RILUUSTYPE2_NOT_REQUIRED = 4,
+  RILUUSTYPE3_REQUIRED = 5,
+  RILUUSTYPE3_NOT_REQUIRED = 6
+};
+bool RilUusType_IsValid(int value);
+const RilUusType RilUusType_MIN = RILUUSTYPE1_IMPLICIT;
+const RilUusType RilUusType_MAX = RILUUSTYPE3_NOT_REQUIRED;
+const int RilUusType_ARRAYSIZE = RilUusType_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* RilUusType_descriptor();
+inline const ::std::string& RilUusType_Name(RilUusType value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    RilUusType_descriptor(), value);
+}
+inline bool RilUusType_Parse(
+    const ::std::string& name, RilUusType* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<RilUusType>(
+    RilUusType_descriptor(), name, value);
+}
+enum RilUusDcs {
+  RILUUSDCS_USP = 0,
+  RILUUSDCS_OSIHLP = 1,
+  RILUUSDCS_X244 = 2,
+  RILUUSDCS_RMCF = 3,
+  RILUUSDCS_IA5c = 4
+};
+bool RilUusDcs_IsValid(int value);
+const RilUusDcs RilUusDcs_MIN = RILUUSDCS_USP;
+const RilUusDcs RilUusDcs_MAX = RILUUSDCS_IA5c;
+const int RilUusDcs_ARRAYSIZE = RilUusDcs_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* RilUusDcs_descriptor();
+inline const ::std::string& RilUusDcs_Name(RilUusDcs value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    RilUusDcs_descriptor(), value);
+}
+inline bool RilUusDcs_Parse(
+    const ::std::string& name, RilUusDcs* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<RilUusDcs>(
+    RilUusDcs_descriptor(), name, value);
+}
+enum RilCallState {
+  CALLSTATE_ACTIVE = 0,
+  CALLSTATE_HOLDING = 1,
+  CALLSTATE_DIALING = 2,
+  CALLSTATE_ALERTING = 3,
+  CALLSTATE_INCOMING = 4,
+  CALLSTATE_WAITING = 5
+};
+bool RilCallState_IsValid(int value);
+const RilCallState RilCallState_MIN = CALLSTATE_ACTIVE;
+const RilCallState RilCallState_MAX = CALLSTATE_WAITING;
+const int RilCallState_ARRAYSIZE = RilCallState_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* RilCallState_descriptor();
+inline const ::std::string& RilCallState_Name(RilCallState value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    RilCallState_descriptor(), value);
+}
+inline bool RilCallState_Parse(
+    const ::std::string& name, RilCallState* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<RilCallState>(
+    RilCallState_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -486,6 +558,316 @@ class RilCardStatus : public ::google::protobuf::Message {
   
   void InitAsDefaultInstance();
   static RilCardStatus* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class RilUusInfo : public ::google::protobuf::Message {
+ public:
+  RilUusInfo();
+  virtual ~RilUusInfo();
+  
+  RilUusInfo(const RilUusInfo& from);
+  
+  inline RilUusInfo& operator=(const RilUusInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RilUusInfo& default_instance();
+  
+  void Swap(RilUusInfo* other);
+  
+  // implements Message ----------------------------------------------
+  
+  RilUusInfo* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RilUusInfo& from);
+  void MergeFrom(const RilUusInfo& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // optional .ril_proto.RilUusType uus_type = 1;
+  inline bool has_uus_type() const;
+  inline void clear_uus_type();
+  static const int kUusTypeFieldNumber = 1;
+  inline ril_proto::RilUusType uus_type() const;
+  inline void set_uus_type(ril_proto::RilUusType value);
+  
+  // optional .ril_proto.RilUusDcs uus_dcs = 2;
+  inline bool has_uus_dcs() const;
+  inline void clear_uus_dcs();
+  static const int kUusDcsFieldNumber = 2;
+  inline ril_proto::RilUusDcs uus_dcs() const;
+  inline void set_uus_dcs(ril_proto::RilUusDcs value);
+  
+  // optional int32 uus_length = 3;
+  inline bool has_uus_length() const;
+  inline void clear_uus_length();
+  static const int kUusLengthFieldNumber = 3;
+  inline ::google::protobuf::int32 uus_length() const;
+  inline void set_uus_length(::google::protobuf::int32 value);
+  
+  // optional string uus_data = 4;
+  inline bool has_uus_data() const;
+  inline void clear_uus_data();
+  static const int kUusDataFieldNumber = 4;
+  inline const ::std::string& uus_data() const;
+  inline void set_uus_data(const ::std::string& value);
+  inline void set_uus_data(const char* value);
+  inline void set_uus_data(const char* value, size_t size);
+  inline ::std::string* mutable_uus_data();
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.RilUusInfo)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  int uus_type_;
+  int uus_dcs_;
+  ::google::protobuf::int32 uus_length_;
+  ::std::string* uus_data_;
+  static const ::std::string _default_uus_data_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static RilUusInfo* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class RilCall : public ::google::protobuf::Message {
+ public:
+  RilCall();
+  virtual ~RilCall();
+  
+  RilCall(const RilCall& from);
+  
+  inline RilCall& operator=(const RilCall& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RilCall& default_instance();
+  
+  void Swap(RilCall* other);
+  
+  // implements Message ----------------------------------------------
+  
+  RilCall* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RilCall& from);
+  void MergeFrom(const RilCall& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // optional .ril_proto.RilCallState state = 1;
+  inline bool has_state() const;
+  inline void clear_state();
+  static const int kStateFieldNumber = 1;
+  inline ril_proto::RilCallState state() const;
+  inline void set_state(ril_proto::RilCallState value);
+  
+  // optional int32 index = 2;
+  inline bool has_index() const;
+  inline void clear_index();
+  static const int kIndexFieldNumber = 2;
+  inline ::google::protobuf::int32 index() const;
+  inline void set_index(::google::protobuf::int32 value);
+  
+  // optional int32 toa = 3;
+  inline bool has_toa() const;
+  inline void clear_toa();
+  static const int kToaFieldNumber = 3;
+  inline ::google::protobuf::int32 toa() const;
+  inline void set_toa(::google::protobuf::int32 value);
+  
+  // optional bool is_mpty = 4;
+  inline bool has_is_mpty() const;
+  inline void clear_is_mpty();
+  static const int kIsMptyFieldNumber = 4;
+  inline bool is_mpty() const;
+  inline void set_is_mpty(bool value);
+  
+  // optional bool is_mt = 5;
+  inline bool has_is_mt() const;
+  inline void clear_is_mt();
+  static const int kIsMtFieldNumber = 5;
+  inline bool is_mt() const;
+  inline void set_is_mt(bool value);
+  
+  // optional int32 als = 6;
+  inline bool has_als() const;
+  inline void clear_als();
+  static const int kAlsFieldNumber = 6;
+  inline ::google::protobuf::int32 als() const;
+  inline void set_als(::google::protobuf::int32 value);
+  
+  // optional bool is_voice = 7;
+  inline bool has_is_voice() const;
+  inline void clear_is_voice();
+  static const int kIsVoiceFieldNumber = 7;
+  inline bool is_voice() const;
+  inline void set_is_voice(bool value);
+  
+  // optional bool is_voice_privacy = 8;
+  inline bool has_is_voice_privacy() const;
+  inline void clear_is_voice_privacy();
+  static const int kIsVoicePrivacyFieldNumber = 8;
+  inline bool is_voice_privacy() const;
+  inline void set_is_voice_privacy(bool value);
+  
+  // optional string number = 9;
+  inline bool has_number() const;
+  inline void clear_number();
+  static const int kNumberFieldNumber = 9;
+  inline const ::std::string& number() const;
+  inline void set_number(const ::std::string& value);
+  inline void set_number(const char* value);
+  inline void set_number(const char* value, size_t size);
+  inline ::std::string* mutable_number();
+  
+  // optional int32 number_presentation = 10;
+  inline bool has_number_presentation() const;
+  inline void clear_number_presentation();
+  static const int kNumberPresentationFieldNumber = 10;
+  inline ::google::protobuf::int32 number_presentation() const;
+  inline void set_number_presentation(::google::protobuf::int32 value);
+  
+  // optional string name = 11;
+  inline bool has_name() const;
+  inline void clear_name();
+  static const int kNameFieldNumber = 11;
+  inline const ::std::string& name() const;
+  inline void set_name(const ::std::string& value);
+  inline void set_name(const char* value);
+  inline void set_name(const char* value, size_t size);
+  inline ::std::string* mutable_name();
+  
+  // optional int32 name_presentation = 12;
+  inline bool has_name_presentation() const;
+  inline void clear_name_presentation();
+  static const int kNamePresentationFieldNumber = 12;
+  inline ::google::protobuf::int32 name_presentation() const;
+  inline void set_name_presentation(::google::protobuf::int32 value);
+  
+  // optional .ril_proto.RilUusInfo uus_info = 13;
+  inline bool has_uus_info() const;
+  inline void clear_uus_info();
+  static const int kUusInfoFieldNumber = 13;
+  inline const ::ril_proto::RilUusInfo& uus_info() const;
+  inline ::ril_proto::RilUusInfo* mutable_uus_info();
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.RilCall)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  int state_;
+  ::google::protobuf::int32 index_;
+  ::google::protobuf::int32 toa_;
+  bool is_mpty_;
+  bool is_mt_;
+  ::google::protobuf::int32 als_;
+  bool is_voice_;
+  bool is_voice_privacy_;
+  ::std::string* number_;
+  static const ::std::string _default_number_;
+  ::google::protobuf::int32 number_presentation_;
+  ::std::string* name_;
+  static const ::std::string _default_name_;
+  ::google::protobuf::int32 name_presentation_;
+  ::ril_proto::RilUusInfo* uus_info_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(13 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static RilCall* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -949,6 +1331,100 @@ class RspEnterSimPin : public ::google::protobuf::Message {
   
   void InitAsDefaultInstance();
   static RspEnterSimPin* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class RspGetCurrentCalls : public ::google::protobuf::Message {
+ public:
+  RspGetCurrentCalls();
+  virtual ~RspGetCurrentCalls();
+  
+  RspGetCurrentCalls(const RspGetCurrentCalls& from);
+  
+  inline RspGetCurrentCalls& operator=(const RspGetCurrentCalls& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RspGetCurrentCalls& default_instance();
+  
+  void Swap(RspGetCurrentCalls* other);
+  
+  // implements Message ----------------------------------------------
+  
+  RspGetCurrentCalls* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RspGetCurrentCalls& from);
+  void MergeFrom(const RspGetCurrentCalls& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // repeated .ril_proto.RilCall calls = 1;
+  inline int calls_size() const;
+  inline void clear_calls();
+  static const int kCallsFieldNumber = 1;
+  inline const ::ril_proto::RilCall& calls(int index) const;
+  inline ::ril_proto::RilCall* mutable_calls(int index);
+  inline ::ril_proto::RilCall* add_calls();
+  inline const ::google::protobuf::RepeatedPtrField< ::ril_proto::RilCall >&
+      calls() const;
+  inline ::google::protobuf::RepeatedPtrField< ::ril_proto::RilCall >*
+      mutable_calls();
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.RspGetCurrentCalls)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::RepeatedPtrField< ::ril_proto::RilCall > calls_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static RspGetCurrentCalls* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -1550,6 +2026,368 @@ RilCardStatus::mutable_applications() {
 
 // -------------------------------------------------------------------
 
+// RilUusInfo
+
+// optional .ril_proto.RilUusType uus_type = 1;
+inline bool RilUusInfo::has_uus_type() const {
+  return _has_bit(0);
+}
+inline void RilUusInfo::clear_uus_type() {
+  uus_type_ = 0;
+  _clear_bit(0);
+}
+inline ril_proto::RilUusType RilUusInfo::uus_type() const {
+  return static_cast< ril_proto::RilUusType >(uus_type_);
+}
+inline void RilUusInfo::set_uus_type(ril_proto::RilUusType value) {
+  GOOGLE_DCHECK(ril_proto::RilUusType_IsValid(value));
+  _set_bit(0);
+  uus_type_ = value;
+}
+
+// optional .ril_proto.RilUusDcs uus_dcs = 2;
+inline bool RilUusInfo::has_uus_dcs() const {
+  return _has_bit(1);
+}
+inline void RilUusInfo::clear_uus_dcs() {
+  uus_dcs_ = 0;
+  _clear_bit(1);
+}
+inline ril_proto::RilUusDcs RilUusInfo::uus_dcs() const {
+  return static_cast< ril_proto::RilUusDcs >(uus_dcs_);
+}
+inline void RilUusInfo::set_uus_dcs(ril_proto::RilUusDcs value) {
+  GOOGLE_DCHECK(ril_proto::RilUusDcs_IsValid(value));
+  _set_bit(1);
+  uus_dcs_ = value;
+}
+
+// optional int32 uus_length = 3;
+inline bool RilUusInfo::has_uus_length() const {
+  return _has_bit(2);
+}
+inline void RilUusInfo::clear_uus_length() {
+  uus_length_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 RilUusInfo::uus_length() const {
+  return uus_length_;
+}
+inline void RilUusInfo::set_uus_length(::google::protobuf::int32 value) {
+  _set_bit(2);
+  uus_length_ = value;
+}
+
+// optional string uus_data = 4;
+inline bool RilUusInfo::has_uus_data() const {
+  return _has_bit(3);
+}
+inline void RilUusInfo::clear_uus_data() {
+  if (uus_data_ != &_default_uus_data_) {
+    uus_data_->clear();
+  }
+  _clear_bit(3);
+}
+inline const ::std::string& RilUusInfo::uus_data() const {
+  return *uus_data_;
+}
+inline void RilUusInfo::set_uus_data(const ::std::string& value) {
+  _set_bit(3);
+  if (uus_data_ == &_default_uus_data_) {
+    uus_data_ = new ::std::string;
+  }
+  uus_data_->assign(value);
+}
+inline void RilUusInfo::set_uus_data(const char* value) {
+  _set_bit(3);
+  if (uus_data_ == &_default_uus_data_) {
+    uus_data_ = new ::std::string;
+  }
+  uus_data_->assign(value);
+}
+inline void RilUusInfo::set_uus_data(const char* value, size_t size) {
+  _set_bit(3);
+  if (uus_data_ == &_default_uus_data_) {
+    uus_data_ = new ::std::string;
+  }
+  uus_data_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* RilUusInfo::mutable_uus_data() {
+  _set_bit(3);
+  if (uus_data_ == &_default_uus_data_) {
+    uus_data_ = new ::std::string;
+  }
+  return uus_data_;
+}
+
+// -------------------------------------------------------------------
+
+// RilCall
+
+// optional .ril_proto.RilCallState state = 1;
+inline bool RilCall::has_state() const {
+  return _has_bit(0);
+}
+inline void RilCall::clear_state() {
+  state_ = 0;
+  _clear_bit(0);
+}
+inline ril_proto::RilCallState RilCall::state() const {
+  return static_cast< ril_proto::RilCallState >(state_);
+}
+inline void RilCall::set_state(ril_proto::RilCallState value) {
+  GOOGLE_DCHECK(ril_proto::RilCallState_IsValid(value));
+  _set_bit(0);
+  state_ = value;
+}
+
+// optional int32 index = 2;
+inline bool RilCall::has_index() const {
+  return _has_bit(1);
+}
+inline void RilCall::clear_index() {
+  index_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 RilCall::index() const {
+  return index_;
+}
+inline void RilCall::set_index(::google::protobuf::int32 value) {
+  _set_bit(1);
+  index_ = value;
+}
+
+// optional int32 toa = 3;
+inline bool RilCall::has_toa() const {
+  return _has_bit(2);
+}
+inline void RilCall::clear_toa() {
+  toa_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 RilCall::toa() const {
+  return toa_;
+}
+inline void RilCall::set_toa(::google::protobuf::int32 value) {
+  _set_bit(2);
+  toa_ = value;
+}
+
+// optional bool is_mpty = 4;
+inline bool RilCall::has_is_mpty() const {
+  return _has_bit(3);
+}
+inline void RilCall::clear_is_mpty() {
+  is_mpty_ = false;
+  _clear_bit(3);
+}
+inline bool RilCall::is_mpty() const {
+  return is_mpty_;
+}
+inline void RilCall::set_is_mpty(bool value) {
+  _set_bit(3);
+  is_mpty_ = value;
+}
+
+// optional bool is_mt = 5;
+inline bool RilCall::has_is_mt() const {
+  return _has_bit(4);
+}
+inline void RilCall::clear_is_mt() {
+  is_mt_ = false;
+  _clear_bit(4);
+}
+inline bool RilCall::is_mt() const {
+  return is_mt_;
+}
+inline void RilCall::set_is_mt(bool value) {
+  _set_bit(4);
+  is_mt_ = value;
+}
+
+// optional int32 als = 6;
+inline bool RilCall::has_als() const {
+  return _has_bit(5);
+}
+inline void RilCall::clear_als() {
+  als_ = 0;
+  _clear_bit(5);
+}
+inline ::google::protobuf::int32 RilCall::als() const {
+  return als_;
+}
+inline void RilCall::set_als(::google::protobuf::int32 value) {
+  _set_bit(5);
+  als_ = value;
+}
+
+// optional bool is_voice = 7;
+inline bool RilCall::has_is_voice() const {
+  return _has_bit(6);
+}
+inline void RilCall::clear_is_voice() {
+  is_voice_ = false;
+  _clear_bit(6);
+}
+inline bool RilCall::is_voice() const {
+  return is_voice_;
+}
+inline void RilCall::set_is_voice(bool value) {
+  _set_bit(6);
+  is_voice_ = value;
+}
+
+// optional bool is_voice_privacy = 8;
+inline bool RilCall::has_is_voice_privacy() const {
+  return _has_bit(7);
+}
+inline void RilCall::clear_is_voice_privacy() {
+  is_voice_privacy_ = false;
+  _clear_bit(7);
+}
+inline bool RilCall::is_voice_privacy() const {
+  return is_voice_privacy_;
+}
+inline void RilCall::set_is_voice_privacy(bool value) {
+  _set_bit(7);
+  is_voice_privacy_ = value;
+}
+
+// optional string number = 9;
+inline bool RilCall::has_number() const {
+  return _has_bit(8);
+}
+inline void RilCall::clear_number() {
+  if (number_ != &_default_number_) {
+    number_->clear();
+  }
+  _clear_bit(8);
+}
+inline const ::std::string& RilCall::number() const {
+  return *number_;
+}
+inline void RilCall::set_number(const ::std::string& value) {
+  _set_bit(8);
+  if (number_ == &_default_number_) {
+    number_ = new ::std::string;
+  }
+  number_->assign(value);
+}
+inline void RilCall::set_number(const char* value) {
+  _set_bit(8);
+  if (number_ == &_default_number_) {
+    number_ = new ::std::string;
+  }
+  number_->assign(value);
+}
+inline void RilCall::set_number(const char* value, size_t size) {
+  _set_bit(8);
+  if (number_ == &_default_number_) {
+    number_ = new ::std::string;
+  }
+  number_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* RilCall::mutable_number() {
+  _set_bit(8);
+  if (number_ == &_default_number_) {
+    number_ = new ::std::string;
+  }
+  return number_;
+}
+
+// optional int32 number_presentation = 10;
+inline bool RilCall::has_number_presentation() const {
+  return _has_bit(9);
+}
+inline void RilCall::clear_number_presentation() {
+  number_presentation_ = 0;
+  _clear_bit(9);
+}
+inline ::google::protobuf::int32 RilCall::number_presentation() const {
+  return number_presentation_;
+}
+inline void RilCall::set_number_presentation(::google::protobuf::int32 value) {
+  _set_bit(9);
+  number_presentation_ = value;
+}
+
+// optional string name = 11;
+inline bool RilCall::has_name() const {
+  return _has_bit(10);
+}
+inline void RilCall::clear_name() {
+  if (name_ != &_default_name_) {
+    name_->clear();
+  }
+  _clear_bit(10);
+}
+inline const ::std::string& RilCall::name() const {
+  return *name_;
+}
+inline void RilCall::set_name(const ::std::string& value) {
+  _set_bit(10);
+  if (name_ == &_default_name_) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+}
+inline void RilCall::set_name(const char* value) {
+  _set_bit(10);
+  if (name_ == &_default_name_) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+}
+inline void RilCall::set_name(const char* value, size_t size) {
+  _set_bit(10);
+  if (name_ == &_default_name_) {
+    name_ = new ::std::string;
+  }
+  name_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* RilCall::mutable_name() {
+  _set_bit(10);
+  if (name_ == &_default_name_) {
+    name_ = new ::std::string;
+  }
+  return name_;
+}
+
+// optional int32 name_presentation = 12;
+inline bool RilCall::has_name_presentation() const {
+  return _has_bit(11);
+}
+inline void RilCall::clear_name_presentation() {
+  name_presentation_ = 0;
+  _clear_bit(11);
+}
+inline ::google::protobuf::int32 RilCall::name_presentation() const {
+  return name_presentation_;
+}
+inline void RilCall::set_name_presentation(::google::protobuf::int32 value) {
+  _set_bit(11);
+  name_presentation_ = value;
+}
+
+// optional .ril_proto.RilUusInfo uus_info = 13;
+inline bool RilCall::has_uus_info() const {
+  return _has_bit(12);
+}
+inline void RilCall::clear_uus_info() {
+  if (uus_info_ != NULL) uus_info_->::ril_proto::RilUusInfo::Clear();
+  _clear_bit(12);
+}
+inline const ::ril_proto::RilUusInfo& RilCall::uus_info() const {
+  return uus_info_ != NULL ? *uus_info_ : *default_instance_->uus_info_;
+}
+inline ::ril_proto::RilUusInfo* RilCall::mutable_uus_info() {
+  _set_bit(12);
+  if (uus_info_ == NULL) uus_info_ = new ::ril_proto::RilUusInfo;
+  return uus_info_;
+}
+
+// -------------------------------------------------------------------
+
 // RspStrings
 
 // repeated string strings = 1;
@@ -1710,6 +2548,35 @@ inline ::google::protobuf::int32 RspEnterSimPin::retries_remaining() const {
 inline void RspEnterSimPin::set_retries_remaining(::google::protobuf::int32 value) {
   _set_bit(0);
   retries_remaining_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// RspGetCurrentCalls
+
+// repeated .ril_proto.RilCall calls = 1;
+inline int RspGetCurrentCalls::calls_size() const {
+  return calls_.size();
+}
+inline void RspGetCurrentCalls::clear_calls() {
+  calls_.Clear();
+}
+inline const ::ril_proto::RilCall& RspGetCurrentCalls::calls(int index) const {
+  return calls_.Get(index);
+}
+inline ::ril_proto::RilCall* RspGetCurrentCalls::mutable_calls(int index) {
+  return calls_.Mutable(index);
+}
+inline ::ril_proto::RilCall* RspGetCurrentCalls::add_calls() {
+  return calls_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::ril_proto::RilCall >&
+RspGetCurrentCalls::calls() const {
+  return calls_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::ril_proto::RilCall >*
+RspGetCurrentCalls::mutable_calls() {
+  return &calls_;
 }
 
 // -------------------------------------------------------------------
@@ -1914,6 +2781,18 @@ inline const EnumDescriptor* GetEnumDescriptor< ril_proto::RilPinState>() {
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ril_proto::RilAppType>() {
   return ril_proto::RilAppType_descriptor();
+}
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ril_proto::RilUusType>() {
+  return ril_proto::RilUusType_descriptor();
+}
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ril_proto::RilUusDcs>() {
+  return ril_proto::RilUusDcs_descriptor();
+}
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ril_proto::RilCallState>() {
+  return ril_proto::RilCallState_descriptor();
 }
 
 }  // namespace google
