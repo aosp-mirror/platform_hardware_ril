@@ -47,18 +47,18 @@ var RIL_E_ILLEGAL_SIM_OR_ME = 15;               /* network selection failed due 
 /**
  * RIL_RadioState
  */
-var RADIO_STATE_OFF = 0;                   /* Radio explictly powered off (eg CFUN=0) */
-var RADIO_STATE_UNAVAILABLE = 1;           /* Radio unavailable (eg, resetting or not booted) */
-var RADIO_STATE_SIM_NOT_READY = 2;         /* Radio is on, but the SIM interface is not ready */
-var RADIO_STATE_SIM_LOCKED_OR_ABSENT = 3;  /* SIM PIN locked, PUK required, network
+var RADIOSTATE_OFF = 0;                   /* Radio explictly powered off (eg CFUN=0) */
+var RADIOSTATE_UNAVAILABLE = 1;           /* Radio unavailable (eg, resetting or not booted) */
+var RADIOSTATE_SIM_NOT_READY = 2;         /* Radio is on, but the SIM interface is not ready */
+var RADIOSTATE_SIM_LOCKED_OR_ABSENT = 3;  /* SIM PIN locked, PUK required, network
                                               personalization locked; or SIM absent */
-var RADIO_STATE_SIM_READY = 4;             /* Radio is on and SIM interface is available */
-var RADIO_STATE_RUIM_NOT_READY = 5;        /* Radio is on, but the RUIM interface is not ready */
-var RADIO_STATE_RUIM_READY = 6;            /* Radio is on and the RUIM interface is available */
-var RADIO_STATE_RUIM_LOCKED_OR_ABSENT = 7; /* RUIM PIN locked, PUK required, network
+var RADIOSTATE_SIM_READY = 4;             /* Radio is on and SIM interface is available */
+var RADIOSTATE_RUIM_NOT_READY = 5;        /* Radio is on, but the RUIM interface is not ready */
+var RADIOSTATE_RUIM_READY = 6;            /* Radio is on and the RUIM interface is available */
+var RADIOSTATE_RUIM_LOCKED_OR_ABSENT = 7; /* RUIM PIN locked, PUK required, network
                                               personalization locked; or RUIM absent */
-var RADIO_STATE_NV_NOT_READY = 8;          /* Radio is on, but the NV interface is not available */
-var RADIO_STATE_NV_READY = 9;              /* Radio is on and the NV interface is available */
+var RADIOSTATE_NV_NOT_READY = 8;          /* Radio is on, but the NV interface is not available */
+var RADIOSTATE_NV_READY = 9;              /* Radio is on and the NV interface is available */
 
 /**
  * RIL requests

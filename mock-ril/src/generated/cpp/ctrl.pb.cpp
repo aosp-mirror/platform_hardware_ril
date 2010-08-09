@@ -17,6 +17,9 @@ namespace {
 const ::google::protobuf::Descriptor* CtrlRspRadioState_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   CtrlRspRadioState_reflection_ = NULL;
+const ::google::protobuf::Descriptor* CtrlReqRadioState_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  CtrlReqRadioState_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* CtrlCmd_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* CtrlStatus_descriptor_ = NULL;
 
@@ -44,6 +47,21 @@ void protobuf_AssignDesc_ctrl_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CtrlRspRadioState));
+  CtrlReqRadioState_descriptor_ = file->message_type(1);
+  static const int CtrlReqRadioState_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlReqRadioState, state_),
+  };
+  CtrlReqRadioState_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      CtrlReqRadioState_descriptor_,
+      CtrlReqRadioState::default_instance_,
+      CtrlReqRadioState_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlReqRadioState, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlReqRadioState, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(CtrlReqRadioState));
   CtrlCmd_descriptor_ = file->enum_type(0);
   CtrlStatus_descriptor_ = file->enum_type(1);
 }
@@ -60,6 +78,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     CtrlRspRadioState_descriptor_, &CtrlRspRadioState::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    CtrlReqRadioState_descriptor_, &CtrlReqRadioState::default_instance());
 }
 
 }  // namespace
@@ -67,6 +87,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void protobuf_ShutdownFile_ctrl_2eproto() {
   delete CtrlRspRadioState::default_instance_;
   delete CtrlRspRadioState_reflection_;
+  delete CtrlReqRadioState::default_instance_;
+  delete CtrlReqRadioState_reflection_;
 }
 
 void protobuf_AddDesc_ctrl_2eproto() {
@@ -79,15 +101,19 @@ void protobuf_AddDesc_ctrl_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\nctrl.proto\022\tril_proto\032\tril.proto\"9\n\021Ct"
     "rlRspRadioState\022$\n\005state\030\001 \002(\0162\025.ril_pro"
-    "to.RadioState*:\n\007CtrlCmd\022\021\n\rCTRL_CMD_ECH"
-    "O\020\000\022\034\n\030CTRL_CMD_GET_RADIO_STATE\020\001*5\n\nCtr"
-    "lStatus\022\022\n\016CTRL_STATUS_OK\020\000\022\023\n\017CTRL_STAT"
-    "US_ERR\020\001B7\n(com.android.internal.telepho"
-    "ny.ril_protoB\013RilCtrlCmds", 265);
+    "to.RadioState\"9\n\021CtrlReqRadioState\022$\n\005st"
+    "ate\030\001 \002(\0162\025.ril_proto.RadioState*X\n\007Ctrl"
+    "Cmd\022\021\n\rCTRL_CMD_ECHO\020\000\022\034\n\030CTRL_CMD_GET_R"
+    "ADIO_STATE\020\001\022\034\n\030CTRL_CMD_SET_RADIO_STATE"
+    "\020\002*5\n\nCtrlStatus\022\022\n\016CTRL_STATUS_OK\020\000\022\023\n\017"
+    "CTRL_STATUS_ERR\020\001B7\n(com.android.interna"
+    "l.telephony.ril_protoB\013RilCtrlCmds", 354);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ctrl.proto", &protobuf_RegisterTypes);
   CtrlRspRadioState::default_instance_ = new CtrlRspRadioState();
+  CtrlReqRadioState::default_instance_ = new CtrlReqRadioState();
   CtrlRspRadioState::default_instance_->InitAsDefaultInstance();
+  CtrlReqRadioState::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_ctrl_2eproto);
 }
 
@@ -106,6 +132,7 @@ bool CtrlCmd_IsValid(int value) {
   switch(value) {
     case 0:
     case 1:
+    case 2:
       return true;
     default:
       return false;
@@ -337,6 +364,220 @@ void CtrlRspRadioState::Swap(CtrlRspRadioState* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = CtrlRspRadioState_descriptor_;
   metadata.reflection = CtrlRspRadioState_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int CtrlReqRadioState::kStateFieldNumber;
+#endif  // !_MSC_VER
+
+CtrlReqRadioState::CtrlReqRadioState()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void CtrlReqRadioState::InitAsDefaultInstance() {
+}
+
+CtrlReqRadioState::CtrlReqRadioState(const CtrlReqRadioState& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void CtrlReqRadioState::SharedCtor() {
+  _cached_size_ = 0;
+  state_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+CtrlReqRadioState::~CtrlReqRadioState() {
+  SharedDtor();
+}
+
+void CtrlReqRadioState::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void CtrlReqRadioState::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* CtrlReqRadioState::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return CtrlReqRadioState_descriptor_;
+}
+
+const CtrlReqRadioState& CtrlReqRadioState::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ctrl_2eproto();  return *default_instance_;
+}
+
+CtrlReqRadioState* CtrlReqRadioState::default_instance_ = NULL;
+
+CtrlReqRadioState* CtrlReqRadioState::New() const {
+  return new CtrlReqRadioState;
+}
+
+void CtrlReqRadioState::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    state_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool CtrlReqRadioState::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required .ril_proto.RadioState state = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          if (ril_proto::RadioState_IsValid(value)) {
+            set_state(static_cast< ril_proto::RadioState >(value));
+          } else {
+            mutable_unknown_fields()->AddVarint(1, value);
+          }
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void CtrlReqRadioState::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required .ril_proto.RadioState state = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      1, this->state(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* CtrlReqRadioState::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required .ril_proto.RadioState state = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      1, this->state(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int CtrlReqRadioState::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required .ril_proto.RadioState state = 1;
+    if (has_state()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::EnumSize(this->state());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void CtrlReqRadioState::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const CtrlReqRadioState* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const CtrlReqRadioState*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void CtrlReqRadioState::MergeFrom(const CtrlReqRadioState& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_state(from.state());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void CtrlReqRadioState::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void CtrlReqRadioState::CopyFrom(const CtrlReqRadioState& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool CtrlReqRadioState::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  
+  return true;
+}
+
+void CtrlReqRadioState::Swap(CtrlReqRadioState* other) {
+  if (other != this) {
+    std::swap(state_, other->state_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata CtrlReqRadioState::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = CtrlReqRadioState_descriptor_;
+  metadata.reflection = CtrlReqRadioState_reflection_;
   return metadata;
 }
 

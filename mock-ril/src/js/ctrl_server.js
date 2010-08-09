@@ -31,6 +31,26 @@ function CtrlServer() {
         return result;
     }
 
+    this.ctrlSetRadioState = function(req) {
+        print('ctrlSetRadioState');
+
+        radioReq = new Object();
+
+        // Parse the request protobuf to an object, the returned value is a
+        // string that represents the variable name
+        radioReq = ctrlSchema['ril_proto.CtrlReqRadioState'].parse(req.protobuf);
+
+        setRadioState(radioReq.state);
+
+        // Prepare the response, return the current radio state
+        rsp = Object();
+        rsp.state = gRadioState;
+        result.responseProtobuf = ctrlSchema['ril_proto.CtrlRspRadioState'].serialize(rsp);
+        print('gRadioState after setting: ' + gRadioState);
+        return result;
+    }
+
+
     /**
      * Process the request
      */
@@ -66,6 +86,7 @@ function CtrlServer() {
     print('CtrlServer() ctor E');
     this.ctrlDispatchTable = new Array();
     this.ctrlDispatchTable[1] = this.ctrlGetRadioState;
+    this.ctrlDispatchTable[2] = this.ctrlSetRadioState;
     print('CtrlServer() ctor X');
 }
 
@@ -75,7 +96,6 @@ var ctrlWorker = new Worker(function (req) {
     ctrlServer.process(req);
 });
 ctrlWorker.run();
-
 
 /**
  * Add the request to the ctrlServer Worker.

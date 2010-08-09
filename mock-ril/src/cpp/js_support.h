@@ -26,7 +26,7 @@ extern RIL_RadioState gRadioState;
 // A javascript print function
 extern v8::Handle<v8::Value> Print(const v8::Arguments& args);
 
-// Read a file into a array returning the buffer and the
+// Read a file into a array returning the buffer and the size
 extern int ReadFile(const char *fileName, char** data, size_t *length = NULL);
 
 // A javascript read file function arg[0] = filename

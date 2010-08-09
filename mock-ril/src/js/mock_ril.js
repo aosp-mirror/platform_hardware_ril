@@ -73,13 +73,16 @@ include("ril_vars.js");
 var NULL_RESPONSE_STRING = '*magic-null*';
 
 // The state of the radio, needed by currentState()
-var gRadioState = RADIO_STATE_UNAVAILABLE;
+var gRadioState = RADIOSTATE_UNAVAILABLE;
 
 // The state of the screen
 var gScreenState = 0;
 
 // The base band version
 var gBaseBandVersion = 'mock-ril 0.1';
+
+// define a global variable to access the global object
+var globals = this;
 
 // Empty Protobuf, defined here so we don't have
 // to recreate an empty Buffer frequently
@@ -203,7 +206,18 @@ function onUnsolicitedTick(tick) {
     return 3;
 }
 
-function setRadioState(newRadioState) {
+function setRadioState(newState) {
+    newRadioState = newState;
+    if (typeof newState == 'string') {
+        newRadioState = globals[newState];
+        if (typeof newRadioState == 'undefined') {
+            throw('setRadioState: Unknow string: ' + newState);
+        }
+    }
+    if ((newRadioState < RADIOSTATE_OFF) || (newRadioState > RADIOSTATE_NV_READY)) {
+        print('setRadioState: newRadioState: ' + newRadioState + ' is invalid');
+        throw('setRadioState: newRadioState: ' + newRadioState + ' is invalid');
+    }
     gRadioState = newRadioState;
     sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED);
 }
@@ -274,6 +288,68 @@ dispatchTable[RIL_REQUEST_SCREEN_STATE] = { // 61
  */
 function startMockRil() {
     print("startMockRil E:");
-    setRadioState(RADIO_STATE_SIM_READY);
+    setRadioState(RADIOSTATE_SIM_READY);
     print("startMockRil X:");
 }
+
+/**
+ * A test for setRadioState, verify it can handle valid string variable,
+ * undefined varilabe, and invalid radio state correctly.
+ */
+if (true) {
+    function testSetRadioState() {
+        print('testSetRadioState E:');
+        // defined string variable
+        newState = 'RADIOSTATE_UNAVAILABLE';
+        try {
+            setRadioState(newState);
+        } catch (err) {
+            print('test failed');
+        }
+        print('Expecting gRadioState to be ' + RADIOSTATE_UNAVAILABLE +
+              ', gRadioState is: ' + gRadioState);
+
+        // undefined string variable, expecting exception
+        try {
+            setRadioState('RADIOSTATE_UNDEFINED');
+        } catch (err) {
+            if (err.indexOf('Unknow string') >= 0) {
+                print('test success');
+                print('err: ' + err);
+            } else {
+                print('test failed');
+            }
+        }
+
+        // valid radio state
+        try {
+            setRadioState(RADIOSTATE_NV_READY);
+        } catch (err) {
+            print('test failed');
+        }
+        print('Expecting gRadioState to be ' + RADIOSTATE_NV_READY +
+              ', gRadioState is: ' + gRadioState);
+
+        // invalid radio state
+        try {
+            setRadioState(-1);
+        } catch (err) {
+            if (err.indexOf('invalid') >= 0) {
+                print('test success');
+                print('err: ' + err);
+            } else {
+                print('test failed, err: ' + err);
+            }
+        }
+        print('gRadioState should not be set: ' + gRadioState);
+
+        // set radio state to be SIM_READY
+        setRadioState(RADIOSTATE_SIM_READY);
+        print('Expecting gRadioState to be ' + RADIOSTATE_SIM_READY +
+              ', gRadioState is: ' + gRadioState);
+        print('testSetRadioState X:');
+    }
+
+    testSetRadioState();
+}
+
