@@ -25,10 +25,15 @@ const char* ToCString(const v8::String::Utf8Value& value) {
     return *value ? *value : "<string conversion failed>";
 }
 
-// Extracts a C string from a V8 Utf8Value.
+// Extracts a C string from a V8 AsciiValue.
+const char* ToCString(const v8::String::AsciiValue& value) {
+    return *value ? *value : "<string conversion failed>";
+}
+
+// Extracts a C string from a v8::Value
 const char* ToCString(v8::Handle<v8::Value> value) {
-    v8::String::Utf8Value strUtf8Value(value);
-    return ToCString(strUtf8Value);
+    v8::String::AsciiValue strAsciiValue(value);
+    return ToCString(strAsciiValue);
 }
 
 // Report an exception

@@ -15,6 +15,25 @@
  */
 
 /**
+ * Create a call.
+ *
+ * @return a RilCall
+ */
+function RilCall(state, phoneNumber, callerName) {
+    this.state = state;
+    this.index = 0;
+    this.toa = 0;
+    this.isMpty = false;
+    this.isMt = false;
+    this.als = 0;
+    this.isVoice = true;
+    this.isVoicePrivacy = false;
+    this.number = phoneNumber;
+    this.numberPresentation = 0;
+    this.name = callerName;
+}
+
+/**
  * Simulated Radio
  */
 function Radio() {
@@ -51,25 +70,6 @@ function Radio() {
     var result = new Object();
 
     /**
-     * Create a call.
-     *
-     * @return a RilCall
-     */
-    this.RilCall = function(state, phoneNumber, callerName) {
-        this.state = state;
-        this.index = 0;
-        this.toa = 0;
-        this.isMpty = false;
-        this.isMt = false;
-        this.als = 0;
-        this.isVoice = true;
-        this.isVoicePrivacy = false;
-        this.number = phoneNumber;
-        this.numberPresentation = 0;
-        this.name = callerName;
-    }
-
-    /**
      * The the array of calls, this is a sparse
      * array and some elements maybe 'undefined'.
      *
@@ -103,7 +103,7 @@ function Radio() {
         c = null;
         if (numberActiveCalls < maxNumberActiveCalls) {
             numberActiveCalls += 1;
-            c = new this.RilCall(state, phoneNumber, callerName);
+            c = new RilCall(state, phoneNumber, callerName);
             c.index = calls.length;
             calls[calls.length] = c;
         }
@@ -178,7 +178,7 @@ function Radio() {
                 rsp.calls[j++] = calls[i];
             }
         }
-        result.responseProtobuf =  rilSchema[packageNameAndSeperator +
+        result.responseProtobuf = rilSchema[packageNameAndSeperator +
                                       'RspGetCurrentCalls'].serialize(rsp);
         return result;
     }
@@ -370,7 +370,7 @@ simulatedRadioWorker.run();
  * TODO: A test for RIL_REQUEST_GET_CURRENT_CALLS,
  *       remove when satisfied all is well.
  */
-if (true) {
+if (false) {
     var calls = simulatedRadio.getCalls();
 
     function testCalls() {
@@ -399,3 +399,35 @@ if (true) {
 
     testCalls();
 }
+
+/**
+ * Test serialization of bad numeric enum
+ */
+if (false) {
+    c = new RilCall(1000, '11234567890', 'me');
+    rsp = new Object();
+    rsp.calls = [ c ];
+    try {
+        rilSchema[packageNameAndSeperator + 'RspGetCurrentCalls'].serialize(rsp);
+        print('test-enum a bad numeric enum value, FAILURE exception expected');
+    } catch (err) {
+        print('test-enum a bad numeric enum value, SUCCESS exception expected: ' + err);
+    }
+}
+
+/**
+ * Test serialization of bad string enum
+ */
+if (false) {
+    // The state parameter 'NOT_CALLSTATE_ACTIVE' can get corrupted in ToProto?
+    c = new RilCall('NOT_CALLSTATE_ACTIVE', '11234567890', 'me');
+    rsp = new Object();
+    rsp.calls = [ c ];
+    try {
+        rilSchema[packageNameAndSeperator + 'RspGetCurrentCalls'].serialize(rsp);
+        print('test-enum a bad string enum value, FAILURE exception expected');
+    } catch (err) {
+        print('test-enum a bad string enum value, SUCCESS exception expected: ' + err);
+    }
+}
+

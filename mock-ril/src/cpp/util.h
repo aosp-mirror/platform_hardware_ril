@@ -19,6 +19,8 @@
 
 const char* ToCString(const v8::String::Utf8Value& value);
 
+const char* ToCString(const v8::String::AsciiValue& value);
+
 const char* ToCString(v8::Handle<v8::Value> value);
 
 void LogErrorMessage(v8::Handle<v8::Message> message,

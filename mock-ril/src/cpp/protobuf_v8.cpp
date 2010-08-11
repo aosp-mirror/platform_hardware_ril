@@ -24,6 +24,8 @@
 #include <google/protobuf/descriptor.pb.h>
 
 #include "logging.h"
+#include "util.h"
+
 #include "node_buffer.h"
 #include "node_object_wrap.h"
 
@@ -296,12 +298,13 @@ namespace protobuf_v8 {
       if (repeated) reflection->Add##TYPE(instance, field, EXPR);       \
       else reflection->Set##TYPE(instance, field, EXPR)
 
-      static void ToProto(Message* instance,
+      static bool ToProto(Message* instance,
                           const FieldDescriptor* field,
                           Handle<Value> value,
                           const Type* type,
                           bool repeated) {
         DBG("Type::ToProto(instance, field, value, type, repeated) E:");
+        bool ok = true;
         HandleScope scope;
 
         DBG("Type::ToProto field->name()=%s", field->name().c_str());
@@ -309,10 +312,10 @@ namespace protobuf_v8 {
         switch (field->cpp_type()) {
         case FieldDescriptor::CPPTYPE_MESSAGE:
           DBG("Type::ToProto CPPTYPE_MESSAGE");
-          type->ToProto(repeated ?
-                        reflection->AddMessage(instance, field) :
-                        reflection->MutableMessage(instance, field),
-                        value.As<Object>());
+          ok = type->ToProto(repeated ?
+                                reflection->AddMessage(instance, field) :
+                                reflection->MutableMessage(instance, field),
+                                    value.As<Object>());
           break;
         case FieldDescriptor::CPPTYPE_STRING: {
           DBG("Type::ToProto CPPTYPE_STRING");
@@ -350,21 +353,57 @@ namespace protobuf_v8 {
           break;
         case FieldDescriptor::CPPTYPE_ENUM:
           DBG("Type::ToProto CPPTYPE_ENUM");
-          SET(Enum,
-              value->IsNumber() ?
-              field->enum_type()->FindValueByNumber(value->Int32Value()) :
-              field->enum_type()->FindValueByName(*String::AsciiValue(value)));
+
+          // Don't use SET as vd can be NULL
+          char error_buff[256];
+          const google::protobuf::EnumValueDescriptor* vd;
+          int i32_value = 0;
+          const char *str_value = NULL;
+          const google::protobuf::EnumDescriptor* ed = field->enum_type();
+
+          if (value->IsNumber()) {
+            i32_value = value->Int32Value();
+            vd = ed->FindValueByNumber(i32_value);
+            if (vd == NULL) {
+              snprintf(error_buff, sizeof(error_buff),
+                  "Type::ToProto Bad enum value, %d is not a member of enum %s",
+                      i32_value, ed->full_name().c_str());
+            }
+          } else {
+            str_value = ToCString(value);
+            // TODO: Why can str_value be corrupted sometimes?
+            LOGD("str_value=%s", str_value);
+            vd = ed->FindValueByName(str_value);
+            if (vd == NULL) {
+              snprintf(error_buff, sizeof(error_buff),
+                  "Type::ToProto Bad enum value, %s is not a member of enum %s",
+                      str_value, ed->full_name().c_str());
+            }
+          }
+          if (vd != NULL) {
+            if (repeated) {
+               reflection->AddEnum(instance, field, vd);
+            } else {
+               reflection->SetEnum(instance, field, vd);
+            }
+          } else {
+            v8::ThrowException(String::New(error_buff));
+            ok = false;
+          }
           break;
         }
-        DBG("Type::ToProto(instance, field, value, type, repeated) X:");
+        DBG("Type::ToProto(instance, field, value, type, repeated) X: ok=%d", ok);
+        return ok;
       }
 #undef SET
 
-      void ToProto(Message* instance, Handle<Object> src) const {
+      bool ToProto(Message* instance, Handle<Object> src) const {
         DBG("ToProto(Message *, Handle<Object>) E:");
+
         Handle<Function> to_array = handle_->GetInternalField(3).As<Function>();
         Handle<Array> properties = to_array->Call(src, 0, NULL).As<Array>();
-        for (int i = 0; i < descriptor_->field_count(); i++) {
+        bool ok = true;
+        for (int i = 0; ok && (i < descriptor_->field_count()); i++) {
           Handle<Value> value = properties->Get(i);
           if (value->IsUndefined()) continue;
 
@@ -374,22 +413,24 @@ namespace protobuf_v8 {
             schema_->GetType(field->message_type()) : NULL;
           if (field->is_repeated()) {
             if(!value->IsArray()) {
-              ToProto(instance, field, value, child_type, true);
+              ok = ToProto(instance, field, value, child_type, true);
             } else {
               Handle<Array> array = value.As<Array>();
               int length = array->Length();
-              for (int j = 0; j < length; j++) {
-                ToProto(instance, field, array->Get(j), child_type, true);
+              for (int j = 0; ok && (j < length); j++) {
+                ok = ToProto(instance, field, array->Get(j), child_type, true);
               }
             }
           } else {
-            ToProto(instance, field, value, child_type, false);
+            ok = ToProto(instance, field, value, child_type, false);
           }
         }
-        DBG("ToProto(Message *, Handle<Object>) X:");
+        DBG("ToProto(Message *, Handle<Object>) X: ok=%d", ok);
+        return ok;
       }
 
       static Handle<Value> Serialize(const Arguments& args) {
+        Handle<Value> result;
         DBG("Serialize(Arguments&) E:");
         if (!args[0]->IsObject()) {
           DBG("Serialize(Arguments&) X: not an object");
@@ -398,14 +439,18 @@ namespace protobuf_v8 {
 
         Type* type = UnwrapThis<Type>(args);
         Message* message = type->NewMessage();
-        type->ToProto(message, args[0].As<Object>());
-        int length = message->ByteSize();
-        Buffer* buffer = Buffer::New(length);
-        message->SerializeWithCachedSizesToArray((google::protobuf::uint8*)buffer->data());
-        delete message;
+        if (type->ToProto(message, args[0].As<Object>())) {
+          int length = message->ByteSize();
+          Buffer* buffer = Buffer::New(length);
+          message->SerializeWithCachedSizesToArray((google::protobuf::uint8*)buffer->data());
+          delete message;
 
+          result = buffer->handle_;
+        } else {
+          result = v8::Undefined();
+        }
         DBG("Serialize(Arguments&) X");
-        return buffer->handle_;
+        return result;
       }
 
       static Handle<Value> ToString(const Arguments& args) {
