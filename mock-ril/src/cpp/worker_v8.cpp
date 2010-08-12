@@ -146,6 +146,26 @@ class WorkerV8 : public ObjectWrap {
         return v8::Undefined();
     }
 
+    static v8::Handle<v8::Value> AddDelayed(const v8::Arguments& args) {
+        DBG("WorkerV8::AddDelayed(args) E:");
+        WorkerV8 *workerV8 = ObjectWrap::Unwrap<WorkerV8>(args.This());
+
+        // Validate two argument to addDelayed
+        if (args.Length() != 2) {
+            DBG("WorkerV8::AddDelayed(args) X: expecting two params");
+            return v8::ThrowException(v8::String::New("AddDelayed expects req delayTime params"));
+        }
+        ArgInfo *ai = workerV8->ObtainArgInfo();
+        ai->js_this = v8::Persistent<v8::Object>::New( args.This() );
+        ai->value = v8::Persistent<v8::Value>::New( args[0] );
+        v8::Handle<v8::Value> v8DelayMs(args[1]->ToObject());
+        int32_t delay_ms = v8DelayMs->Int32Value();
+        workerV8->handler_->AddDelayed(ai, delay_ms);
+
+        DBG("WorkerV8::AddDelayed(args) X:");
+        return v8::Undefined();
+    }
+
     static v8::Handle<v8::Value> NewWorkerV8(const v8::Arguments& args) {
         DBG("WorkerV8::NewWorkerV8 E: args.Length()=%d", args.Length());
         WorkerV8 *worker = new WorkerV8(args.This(), args[0]);
@@ -167,6 +187,7 @@ void WorkerV8Init() {
     // Set prototype methods
     SET_PROTOTYPE_METHOD(WorkerV8Template, "run", WorkerV8::Run);
     SET_PROTOTYPE_METHOD(WorkerV8Template, "add", WorkerV8::Add);
+    SET_PROTOTYPE_METHOD(WorkerV8Template, "addDelayed", WorkerV8::AddDelayed);
 
     DBG("WorkerV8Init X:");
 }
@@ -188,8 +209,10 @@ void testWorkerV8(v8::Handle<v8::Context> context) {
         "     print('w2: ' + msg);\n"
         "});\n"
         "w2.run();\n"
+        "w2.addDelayed('three', 1000);\n"
         "w2.add('one');\n"
         "w1.add('two');\n"
+        "w1.addDelayed('four', 2000);\n"
     );
     LOGD("testWorkerV8 X: ********");
 }

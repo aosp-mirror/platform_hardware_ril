@@ -18,8 +18,11 @@
 #define MOCK_RIL_WORKER_H_
 
 #include <queue>
+#include <list>
+#include <vector>
 #include <pthread.h>
 #include <cutils/atomic.h>
+#include <utils/SystemClock.h>
 
 /**
  * A Thread class.
@@ -101,9 +104,29 @@ class WorkerQueue {
   private:
     friend class WorkerQueueThread;
 
-    std::queue<void *> q_;
+    struct Record {
+        int64_t time;
+        void *p;
+    };
+
+    class record_compare {
+      public:
+        // To get ascending order return true if lhs > rhs.
+        bool operator() (const struct Record* lhs, const struct Record* rhs) const {
+            return lhs->time > rhs->time;
+        }
+    };
+
+    std::list<struct Record *> q_;
+    std::list<struct Record *> free_list_;
+    std::priority_queue<struct Record *, std::vector<struct Record *>, record_compare> delayed_q_;
 
     class WorkerQueueThread *wqt_;
+
+  protected:
+    struct Record *obtain_record(void *p, int delay_in_ms);
+
+    void release_record(struct Record *r);
 
   public:
     WorkerQueue();
@@ -115,6 +138,8 @@ class WorkerQueue {
     void Stop();
 
     void Add(void *p);
+
+    void AddDelayed(void *p, int delay_in_ms);
 
     virtual void Process(void *) = 0;
 };

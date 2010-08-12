@@ -37,6 +37,8 @@ function RilCall(state, phoneNumber, callerName) {
  * Simulated Radio
  */
 function Radio() {
+    var REQUEST_DELAY_TEST = 2000;
+
     var registrationState = '1';
     var lac = '0';
     var cid = '0';
@@ -305,6 +307,15 @@ function Radio() {
     }
 
     /**
+     * Delay test
+     */
+     this.delayTestRequestHandler = function (req) { // 2000
+        print("delayTestRequestHandler: req.hello=" + req.hello);
+        result.sendResponse = false;
+        return result;
+     }
+
+    /**
      * Process the request by dispatching to the request handlers
      */
     this.process = function(req) {
@@ -356,6 +367,8 @@ function Radio() {
                 this.rilRequestBaseBandVersion;
     this.radioDispatchTable[RIL_REQUEST_SCREEN_STATE] = // 61
                 this.rilRequestScreenState;
+    this.radioDispatchTable[this.REQUEST_DELAY_TEST] = // 2000
+                this.delayTestRequestHandler;
     print('Radio: constructor X');
 }
 
@@ -431,3 +444,22 @@ if (false) {
     }
 }
 
+/**
+ * Test addDelayed
+ */
+if (false) {
+    print("test addDelayed E");
+    simulatedRadioWorker.add( {
+        'reqNum' : simulatedRadio.REQUEST_DELAY_TEST,
+        'hello' : 'hi no delay' });
+    simulatedRadioWorker.addDelayed( {
+        'reqNum' : simulatedRadio.REQUEST_DELAY_TEST,
+        'hello' : 'hi not-a-number is 0 delay' }, "not-a-number");
+    simulatedRadioWorker.addDelayed( {
+        'reqNum' : simulatedRadio.REQUEST_DELAY_TEST,
+        'hello' : 'hi negative delay is 0 delay' }, -1000);
+    simulatedRadioWorker.addDelayed( {
+        'reqNum' : simulatedRadio.REQUEST_DELAY_TEST,
+        'hello' : 'hi delayed 2 seconds' }, 2000);
+    print("test addDelayed X");
+}

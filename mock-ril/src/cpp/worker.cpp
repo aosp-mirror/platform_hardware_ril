@@ -18,6 +18,8 @@
 #include "status.h"
 #include "worker.h"
 
+#include <time.h>
+
 //#define WORKER_DEBUG
 #ifdef  WORKER_DEBUG
 
@@ -55,6 +57,7 @@ WorkerThread::WorkerThread() {
 WorkerThread::~WorkerThread() {
     DBG("WorkerThread::~WorkerThread E");
     Stop();
+    pthread_mutex_destroy(&mutex_);
     DBG("WorkerThread::~WorkerThread X");
 }
 
@@ -114,7 +117,7 @@ int WorkerThread::Run(void *workerParam) {
         usleep(200000);
     }
 
-    DBG("WorkerThread::Run X workerParam=%p" workerParam);
+    DBG("WorkerThread::Run X workerParam=%p", workerParam);
     return STATUS_OK;
 }
 
@@ -138,14 +141,47 @@ class WorkerQueueThread : public WorkerThread {
         // Do the work until we're told to stop
         while (isRunning()) {
             pthread_mutex_lock(&mutex_);
-            while (isRunning() && (wq->q_.size() == 0)) {
-                pthread_cond_wait(&cond_, &mutex_);
+            while (isRunning() && wq->q_.size() == 0) {
+                if (wq->delayed_q_.size() == 0) {
+                    // Both queue's are empty so wait
+                    pthread_cond_wait(&cond_, &mutex_);
+                } else {
+                    // delayed_q_ is not empty, move any
+                    // timed out records to q_.
+                    int64_t now = android::elapsedRealtime();
+                    while((wq->delayed_q_.size() != 0) &&
+                            ((wq->delayed_q_.top()->time - now) <= 0)) {
+                        struct WorkerQueue::Record *r = wq->delayed_q_.top();
+                        DBG("WorkerQueueThread::Worker move p=%p time=%lldms",
+                                r->p, r->time);
+                        wq->delayed_q_.pop();
+                        wq->q_.push_back(r);
+                    }
+
+                    if ((wq->q_.size() == 0) && (wq->delayed_q_.size() != 0)) {
+                        // We need to do a timed wait
+                        struct timeval tv;
+                        struct timespec ts;
+                        struct WorkerQueue::Record *r = wq->delayed_q_.top();
+                        int64_t delay_ms = r->time - now;
+                        DBG("WorkerQueueThread::Worker wait"
+                            " p=%p time=%lldms delay_ms=%lldms",
+                                r->p, r->time, delay_ms);
+                        gettimeofday(&tv, NULL);
+                        ts.tv_sec = tv.tv_sec + (delay_ms / 1000);
+                        ts.tv_nsec = (tv.tv_usec +
+                                        ((delay_ms % 1000) * 1000)) * 1000;
+                        pthread_cond_timedwait(&cond_, &mutex_, &ts);
+                    }
+                }
             }
             if (isRunning()) {
-                void *p = wq->q_.front();
-                wq->q_.pop();
+                struct WorkerQueue::Record *r = wq->q_.front();
+                wq->q_.pop_front();
+                void *p = r->p;
+                wq->release_record(r);
                 pthread_mutex_unlock(&mutex_);
-                wq->Process(p);
+                wq->Process(r->p);
             } else {
                 pthread_mutex_unlock(&mutex_);
             }
@@ -156,12 +192,33 @@ class WorkerQueueThread : public WorkerThread {
 };
 
 WorkerQueue::WorkerQueue() {
+    DBG("WorkerQueue::WorkerQueue E");
     wqt_ = new WorkerQueueThread();
+    DBG("WorkerQueue::WorkerQueue X");
 }
 
 WorkerQueue::~WorkerQueue() {
+    DBG("WorkerQueue::~WorkerQueue E");
     Stop();
+
+    Record *r;
+    pthread_mutex_lock(&wqt_->mutex_);
+    while(free_list_.size() != 0) {
+        r = free_list_.front();
+        free_list_.pop_front();
+        DBG("WorkerQueue::~WorkerQueue delete free_list_ r=%p", r);
+        delete r;
+    }
+    while(delayed_q_.size() != 0) {
+        r = delayed_q_.top();
+        delayed_q_.pop();
+        DBG("WorkerQueue::~WorkerQueue delete delayed_q_ r=%p", r);
+        delete r;
+    }
+    pthread_mutex_unlock(&wqt_->mutex_);
+
     delete wqt_;
+    DBG("WorkerQueue::~WorkerQueue X");
 }
 
 int WorkerQueue::Run() {
@@ -172,10 +229,35 @@ void WorkerQueue::Stop() {
     wqt_->Stop();
 }
 
+struct WorkerQueue::Record *WorkerQueue::obtain_record(void *p, int delay_in_ms) {
+    struct Record *r;
+    if (free_list_.size() == 0) {
+        r = new Record();
+        DBG("WorkerQueue::obtain_record new r=%p", r);
+    } else {
+        r = free_list_.front();
+        DBG("WorkerQueue::obtain_record reuse r=%p", r);
+        free_list_.pop_front();
+    }
+    r->p = p;
+    if (delay_in_ms != 0) {
+        r->time = android::elapsedRealtime() + delay_in_ms;
+    } else {
+        r->time = 0;
+    }
+    return r;
+}
+
+void WorkerQueue::release_record(struct Record *r) {
+    DBG("WorkerQueue::release_record r=%p", r);
+    free_list_.push_front(r);
+}
+
 void WorkerQueue::Add(void *p) {
     DBG("WorkerQueue::Add E:");
     pthread_mutex_lock(&wqt_->mutex_);
-    q_.push(p);
+    struct Record *r = obtain_record(p, 0);
+    q_.push_back(r);
     if (q_.size() == 1) {
         pthread_cond_signal(&wqt_->cond_);
     }
@@ -183,6 +265,33 @@ void WorkerQueue::Add(void *p) {
     DBG("WorkerQueue::Add X:");
 }
 
+void WorkerQueue::AddDelayed(void *p, int delay_in_ms) {
+    DBG("WorkerQueue::AddDelayed E:");
+    if (delay_in_ms <= 0) {
+        Add(p);
+    } else {
+        pthread_mutex_lock(&wqt_->mutex_);
+        struct Record *r = obtain_record(p, delay_in_ms);
+        delayed_q_.push(r);
+#ifdef WORKER_DEBUG
+        int64_t now = android::elapsedRealtime();
+        DBG("WorkerQueue::AddDelayed"
+            " p=%p delay_in_ms=%d now=%lldms top->p=%p"
+            " top->time=%lldms diff=%lldms",
+                p, delay_in_ms, now, delayed_q_.top()->p,
+                delayed_q_.top()->time, delayed_q_.top()->time - now);
+#endif
+        if ((q_.size() == 0) && (delayed_q_.top() == r)) {
+            // q_ is empty and the new record is at delayed_q_.top
+            // so we signal the waiting thread so it can readjust
+            // the wait time.
+            DBG("WorkerQueue::AddDelayed signal");
+            pthread_cond_signal(&wqt_->cond_);
+        }
+        pthread_mutex_unlock(&wqt_->mutex_);
+    }
+    DBG("WorkerQueue::AddDelayed X:");
+}
 
 
 class TestWorkerQueue : public WorkerQueue {
@@ -198,7 +307,16 @@ class TesterThread : public WorkerThread {
         LOGD("TesterThread::Worker E param=%p", param);
         WorkerQueue *wq = (WorkerQueue *)param;
 
-        for (int i = 0; isRunning(); i++) {
+        // Test AddDelayed
+        wq->AddDelayed((void *)1000, 1000);
+        wq->Add((void *)0);
+        wq->Add((void *)0);
+        wq->Add((void *)0);
+        wq->Add((void *)0);
+        wq->AddDelayed((void *)100, 100);
+        wq->AddDelayed((void *)2000, 2000);
+
+        for (int i = 1; isRunning(); i++) {
             LOGD("TesterThread: looping %d", i);
             wq->Add((void *)i);
             wq->Add((void *)i);
