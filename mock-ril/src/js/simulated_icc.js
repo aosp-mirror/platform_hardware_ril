@@ -152,3 +152,9 @@ var simulatedIccWorker = new Worker(function (req) {
 });
 simulatedIccWorker.run();
 
+/**
+ * Optional tests
+ */
+if (false) {
+    include("simulated_icc_tests.js");
+}

@@ -116,3 +116,9 @@ function onCtrlServerCmd(cmd, token, protobuf) {
     }
 }
 
+/**
+ * Optional tests
+ */
+if (false) {
+    include("ctrl_server_tests.js");
+}
