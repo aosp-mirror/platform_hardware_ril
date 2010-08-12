@@ -33,8 +33,8 @@ void  protobuf_AddDesc_ctrl_2eproto();
 void protobuf_AssignDesc_ctrl_2eproto();
 void protobuf_ShutdownFile_ctrl_2eproto();
 
-class CtrlRspRadioState;
 class CtrlReqRadioState;
+class CtrlRspRadioState;
 
 enum CtrlCmd {
   CTRL_CMD_ECHO = 0,
@@ -76,95 +76,6 @@ inline bool CtrlStatus_Parse(
     CtrlStatus_descriptor(), name, value);
 }
 // ===================================================================
-
-class CtrlRspRadioState : public ::google::protobuf::Message {
- public:
-  CtrlRspRadioState();
-  virtual ~CtrlRspRadioState();
-  
-  CtrlRspRadioState(const CtrlRspRadioState& from);
-  
-  inline CtrlRspRadioState& operator=(const CtrlRspRadioState& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-  
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-  
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const CtrlRspRadioState& default_instance();
-  
-  void Swap(CtrlRspRadioState* other);
-  
-  // implements Message ----------------------------------------------
-  
-  CtrlRspRadioState* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const CtrlRspRadioState& from);
-  void MergeFrom(const CtrlRspRadioState& from);
-  void Clear();
-  bool IsInitialized() const;
-  
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  
-  ::google::protobuf::Metadata GetMetadata() const;
-  
-  // nested types ----------------------------------------------------
-  
-  // accessors -------------------------------------------------------
-  
-  // required .ril_proto.RadioState state = 1;
-  inline bool has_state() const;
-  inline void clear_state();
-  static const int kStateFieldNumber = 1;
-  inline ril_proto::RadioState state() const;
-  inline void set_state(ril_proto::RadioState value);
-  
-  // @@protoc_insertion_point(class_scope:ril_proto.CtrlRspRadioState)
- private:
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-  mutable int _cached_size_;
-  
-  int state_;
-  friend void  protobuf_AddDesc_ctrl_2eproto();
-  friend void protobuf_AssignDesc_ctrl_2eproto();
-  friend void protobuf_ShutdownFile_ctrl_2eproto();
-  
-  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
-  
-  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
-  inline bool _has_bit(int index) const {
-    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
-  }
-  inline void _set_bit(int index) {
-    _has_bits_[index / 32] |= (1u << (index % 32));
-  }
-  inline void _clear_bit(int index) {
-    _has_bits_[index / 32] &= ~(1u << (index % 32));
-  }
-  
-  void InitAsDefaultInstance();
-  static CtrlRspRadioState* default_instance_;
-};
-// -------------------------------------------------------------------
 
 class CtrlReqRadioState : public ::google::protobuf::Message {
  public:
@@ -253,31 +164,99 @@ class CtrlReqRadioState : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static CtrlReqRadioState* default_instance_;
 };
-// ===================================================================
-
-
-// ===================================================================
-
-// CtrlRspRadioState
-
-// required .ril_proto.RadioState state = 1;
-inline bool CtrlRspRadioState::has_state() const {
-  return _has_bit(0);
-}
-inline void CtrlRspRadioState::clear_state() {
-  state_ = 0;
-  _clear_bit(0);
-}
-inline ril_proto::RadioState CtrlRspRadioState::state() const {
-  return static_cast< ril_proto::RadioState >(state_);
-}
-inline void CtrlRspRadioState::set_state(ril_proto::RadioState value) {
-  GOOGLE_DCHECK(ril_proto::RadioState_IsValid(value));
-  _set_bit(0);
-  state_ = value;
-}
-
 // -------------------------------------------------------------------
+
+class CtrlRspRadioState : public ::google::protobuf::Message {
+ public:
+  CtrlRspRadioState();
+  virtual ~CtrlRspRadioState();
+  
+  CtrlRspRadioState(const CtrlRspRadioState& from);
+  
+  inline CtrlRspRadioState& operator=(const CtrlRspRadioState& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CtrlRspRadioState& default_instance();
+  
+  void Swap(CtrlRspRadioState* other);
+  
+  // implements Message ----------------------------------------------
+  
+  CtrlRspRadioState* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const CtrlRspRadioState& from);
+  void MergeFrom(const CtrlRspRadioState& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required .ril_proto.RadioState state = 1;
+  inline bool has_state() const;
+  inline void clear_state();
+  static const int kStateFieldNumber = 1;
+  inline ril_proto::RadioState state() const;
+  inline void set_state(ril_proto::RadioState value);
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.CtrlRspRadioState)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  int state_;
+  friend void  protobuf_AddDesc_ctrl_2eproto();
+  friend void protobuf_AssignDesc_ctrl_2eproto();
+  friend void protobuf_ShutdownFile_ctrl_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static CtrlRspRadioState* default_instance_;
+};
+// ===================================================================
+
+
+// ===================================================================
 
 // CtrlReqRadioState
 
@@ -293,6 +272,27 @@ inline ril_proto::RadioState CtrlReqRadioState::state() const {
   return static_cast< ril_proto::RadioState >(state_);
 }
 inline void CtrlReqRadioState::set_state(ril_proto::RadioState value) {
+  GOOGLE_DCHECK(ril_proto::RadioState_IsValid(value));
+  _set_bit(0);
+  state_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// CtrlRspRadioState
+
+// required .ril_proto.RadioState state = 1;
+inline bool CtrlRspRadioState::has_state() const {
+  return _has_bit(0);
+}
+inline void CtrlRspRadioState::clear_state() {
+  state_ = 0;
+  _clear_bit(0);
+}
+inline ril_proto::RadioState CtrlRspRadioState::state() const {
+  return static_cast< ril_proto::RadioState >(state_);
+}
+inline void CtrlRspRadioState::set_state(ril_proto::RadioState value) {
   GOOGLE_DCHECK(ril_proto::RadioState_IsValid(value));
   _set_bit(0);
   state_ = value;

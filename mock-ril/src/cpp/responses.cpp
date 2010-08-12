@@ -186,7 +186,7 @@ RIL_Errno RspEnterSimPinData(
 }
 
 /**
- * Handle RIL_REQUEST_GET_CURRENT_CALLS response
+ * Handle RIL_REQUEST_GET_CURRENT_CALLS response  // 9
  */
 RIL_Errno RspGetCurrentCalls (
         int cmd, RIL_Token token, RIL_Errno rilErrno, Buffer *buffer) { // 9
@@ -238,6 +238,49 @@ RIL_Errno RspGetCurrentCalls (
 }
 
 /**
+ * Handle RIL_REQUEST_SIGNAL_STRENGTH response
+ */
+RIL_Errno RspSignalStrength(
+        int cmd, RIL_Token token, RIL_Errno rilErrno, Buffer *buffer) { // 19
+    DBG("RspSignalStrength E");
+
+    DBG("cmd = %d, token=%p, rilErrno=%d", cmd, token, rilErrno);
+
+    // Retrieve response from response message
+    ril_proto::RspSignalStrength *rsp = new ril_proto::RspSignalStrength();
+    rsp->ParseFromArray(buffer->data(), buffer->length());
+    const ril_proto::RILGWSignalStrength& gwST = rsp->gw_signalstrength();
+    const ril_proto::RILCDMASignalStrength& cdmaST = rsp->cdma_signalstrength();
+    const ril_proto::RILEVDOSignalStrength& evdoST = rsp->evdo_signalstrength();
+
+    // Copy the response message from response to format defined in ril.h
+    RIL_SignalStrength curSignalStrength;
+
+    curSignalStrength.GW_SignalStrength.signalStrength = gwST.signal_strength();
+    curSignalStrength.GW_SignalStrength.bitErrorRate = gwST.bit_error_rate();
+    curSignalStrength.CDMA_SignalStrength.dbm = cdmaST.dbm();
+    curSignalStrength.CDMA_SignalStrength.ecio = cdmaST.ecio();
+    curSignalStrength.EVDO_SignalStrength.dbm = evdoST.dbm();
+    curSignalStrength.EVDO_SignalStrength.ecio = evdoST.ecio();
+    curSignalStrength.EVDO_SignalStrength.signalNoiseRatio = evdoST.signal_noise_ratio();
+
+    DBG("print response signal strength: ");
+    DBG("gw signalstrength = %d", curSignalStrength.GW_SignalStrength.signalStrength);
+    DBG("gw_signalstrength = %d", curSignalStrength.GW_SignalStrength.bitErrorRate);
+    DBG("cdma_signalstrength = %d", curSignalStrength.CDMA_SignalStrength.dbm);
+    DBG("cdma_signalstrength = %d", curSignalStrength.CDMA_SignalStrength.ecio);
+    DBG("evdo_signalstrength = %d", curSignalStrength.EVDO_SignalStrength.dbm);
+    DBG("evdo_signalstrength = %d", curSignalStrength.EVDO_SignalStrength.ecio);
+    DBG("evdo_signalstrength = %d", curSignalStrength.EVDO_SignalStrength.signalNoiseRatio);
+
+    // Complete the request
+    s_rilenv->OnRequestComplete(token, rilErrno, &curSignalStrength, sizeof(curSignalStrength));
+
+    DBG("RspSignalStrength X rilErrno=%d", rilErrno);
+    return rilErrno;
+}
+
+/**
  * Handle RIL_REQUEST_OPERATOR response
  */
 RIL_Errno RspOperator(
@@ -274,11 +317,11 @@ RIL_Errno RspOperator(
  * protobufs to ril data arrays.
  */
 typedef RIL_Errno (*RspConversion)(
-                int cmd, RIL_Token token, RIL_Errno rilErrno, Buffer* protobuf);
+                int cmd, RIL_Token token, RIL_Errno rilErrno, Buffer* buffer);
 typedef std::map<int, RspConversion> RspConversionMap;
 RspConversionMap rilRspConversionMap;
 
-typedef void (*UnsolRspConversion)(int cmd, Buffer* protobuf);
+typedef void (*UnsolRspConversion)(int cmd, Buffer* buffer);
 typedef std::map<int, UnsolRspConversion> UnsolRspConversionMap;
 UnsolRspConversionMap unsolRilRspConversionMap;
 
@@ -326,6 +369,7 @@ v8::Handle<v8::Value> SendRilRequestComplete(const v8::Arguments& args) {
         buffer = NULL;
     }
 
+    DBG("SendRilRequestComplete: rilErrno=%d, cmd=%d, token=%p", rilErrno, cmd, token);
     RspConversionMap::iterator itr;
     itr = rilRspConversionMap.find(cmd);
     if (itr != rilRspConversionMap.end()) {
@@ -393,7 +437,7 @@ v8::Handle<v8::Value> SendRilUnsolicitedResponse(const v8::Arguments& args) {
             data = NULL;
             datalen = 0;
         } else {
-            // There was a buffer but we don't support the resonse yet.
+            // There was a buffer but we don't support the response yet.
             LOGE("SendRilUnsolicitedResponse: No conversion routine for cmd %d,"
                     " return RIL_E_REQUEST_NOT_SUPPORTED", cmd);
             data = NULL;
@@ -415,6 +459,7 @@ int responsesInit(v8::Handle<v8::Context> context) {
     rilRspConversionMap[RIL_REQUEST_GET_CURRENT_CALLS] = RspGetCurrentCalls; // 9
     rilRspConversionMap[RIL_REQUEST_GET_IMSI] = RspString; // 11
     rilRspConversionMap[RIL_REQUEST_HANGUP] = RspWithNoData; // 12
+    rilRspConversionMap[RIL_REQUEST_SIGNAL_STRENGTH] = RspSignalStrength; // 19
     rilRspConversionMap[RIL_REQUEST_REGISTRATION_STATE] = RspStrings; // 20
     rilRspConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = RspStrings; // 21
     rilRspConversionMap[RIL_REQUEST_OPERATOR] = RspOperator; // 22

@@ -36,6 +36,9 @@ class RilAppStatus;
 class RilCardStatus;
 class RilUusInfo;
 class RilCall;
+class RILGWSignalStrength;
+class RILCDMASignalStrength;
+class RILEVDOSignalStrength;
 class RspStrings;
 class RspIntegers;
 class RspGetSimStatus;
@@ -43,6 +46,7 @@ class ReqEnterSimPin;
 class RspEnterSimPin;
 class RspGetCurrentCalls;
 class ReqHangUp;
+class RspSignalStrength;
 class RspOperator;
 class ReqScreenState;
 
@@ -871,6 +875,305 @@ class RilCall : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class RILGWSignalStrength : public ::google::protobuf::Message {
+ public:
+  RILGWSignalStrength();
+  virtual ~RILGWSignalStrength();
+  
+  RILGWSignalStrength(const RILGWSignalStrength& from);
+  
+  inline RILGWSignalStrength& operator=(const RILGWSignalStrength& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RILGWSignalStrength& default_instance();
+  
+  void Swap(RILGWSignalStrength* other);
+  
+  // implements Message ----------------------------------------------
+  
+  RILGWSignalStrength* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RILGWSignalStrength& from);
+  void MergeFrom(const RILGWSignalStrength& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // optional int32 signal_strength = 1;
+  inline bool has_signal_strength() const;
+  inline void clear_signal_strength();
+  static const int kSignalStrengthFieldNumber = 1;
+  inline ::google::protobuf::int32 signal_strength() const;
+  inline void set_signal_strength(::google::protobuf::int32 value);
+  
+  // optional int32 bit_error_rate = 2;
+  inline bool has_bit_error_rate() const;
+  inline void clear_bit_error_rate();
+  static const int kBitErrorRateFieldNumber = 2;
+  inline ::google::protobuf::int32 bit_error_rate() const;
+  inline void set_bit_error_rate(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.RILGWSignalStrength)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 signal_strength_;
+  ::google::protobuf::int32 bit_error_rate_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static RILGWSignalStrength* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class RILCDMASignalStrength : public ::google::protobuf::Message {
+ public:
+  RILCDMASignalStrength();
+  virtual ~RILCDMASignalStrength();
+  
+  RILCDMASignalStrength(const RILCDMASignalStrength& from);
+  
+  inline RILCDMASignalStrength& operator=(const RILCDMASignalStrength& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RILCDMASignalStrength& default_instance();
+  
+  void Swap(RILCDMASignalStrength* other);
+  
+  // implements Message ----------------------------------------------
+  
+  RILCDMASignalStrength* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RILCDMASignalStrength& from);
+  void MergeFrom(const RILCDMASignalStrength& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // optional int32 dbm = 1;
+  inline bool has_dbm() const;
+  inline void clear_dbm();
+  static const int kDbmFieldNumber = 1;
+  inline ::google::protobuf::int32 dbm() const;
+  inline void set_dbm(::google::protobuf::int32 value);
+  
+  // optional int32 ecio = 2;
+  inline bool has_ecio() const;
+  inline void clear_ecio();
+  static const int kEcioFieldNumber = 2;
+  inline ::google::protobuf::int32 ecio() const;
+  inline void set_ecio(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.RILCDMASignalStrength)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 dbm_;
+  ::google::protobuf::int32 ecio_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static RILCDMASignalStrength* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class RILEVDOSignalStrength : public ::google::protobuf::Message {
+ public:
+  RILEVDOSignalStrength();
+  virtual ~RILEVDOSignalStrength();
+  
+  RILEVDOSignalStrength(const RILEVDOSignalStrength& from);
+  
+  inline RILEVDOSignalStrength& operator=(const RILEVDOSignalStrength& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RILEVDOSignalStrength& default_instance();
+  
+  void Swap(RILEVDOSignalStrength* other);
+  
+  // implements Message ----------------------------------------------
+  
+  RILEVDOSignalStrength* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RILEVDOSignalStrength& from);
+  void MergeFrom(const RILEVDOSignalStrength& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // optional int32 dbm = 1;
+  inline bool has_dbm() const;
+  inline void clear_dbm();
+  static const int kDbmFieldNumber = 1;
+  inline ::google::protobuf::int32 dbm() const;
+  inline void set_dbm(::google::protobuf::int32 value);
+  
+  // optional int32 ecio = 2;
+  inline bool has_ecio() const;
+  inline void clear_ecio();
+  static const int kEcioFieldNumber = 2;
+  inline ::google::protobuf::int32 ecio() const;
+  inline void set_ecio(::google::protobuf::int32 value);
+  
+  // optional int32 signal_noise_ratio = 3;
+  inline bool has_signal_noise_ratio() const;
+  inline void clear_signal_noise_ratio();
+  static const int kSignalNoiseRatioFieldNumber = 3;
+  inline ::google::protobuf::int32 signal_noise_ratio() const;
+  inline void set_signal_noise_ratio(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.RILEVDOSignalStrength)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 dbm_;
+  ::google::protobuf::int32 ecio_;
+  ::google::protobuf::int32 signal_noise_ratio_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static RILEVDOSignalStrength* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class RspStrings : public ::google::protobuf::Message {
  public:
   RspStrings();
@@ -1514,6 +1817,111 @@ class ReqHangUp : public ::google::protobuf::Message {
   
   void InitAsDefaultInstance();
   static ReqHangUp* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class RspSignalStrength : public ::google::protobuf::Message {
+ public:
+  RspSignalStrength();
+  virtual ~RspSignalStrength();
+  
+  RspSignalStrength(const RspSignalStrength& from);
+  
+  inline RspSignalStrength& operator=(const RspSignalStrength& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RspSignalStrength& default_instance();
+  
+  void Swap(RspSignalStrength* other);
+  
+  // implements Message ----------------------------------------------
+  
+  RspSignalStrength* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RspSignalStrength& from);
+  void MergeFrom(const RspSignalStrength& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // optional .ril_proto.RILGWSignalStrength gw_signalstrength = 1;
+  inline bool has_gw_signalstrength() const;
+  inline void clear_gw_signalstrength();
+  static const int kGwSignalstrengthFieldNumber = 1;
+  inline const ::ril_proto::RILGWSignalStrength& gw_signalstrength() const;
+  inline ::ril_proto::RILGWSignalStrength* mutable_gw_signalstrength();
+  
+  // optional .ril_proto.RILCDMASignalStrength cdma_signalstrength = 2;
+  inline bool has_cdma_signalstrength() const;
+  inline void clear_cdma_signalstrength();
+  static const int kCdmaSignalstrengthFieldNumber = 2;
+  inline const ::ril_proto::RILCDMASignalStrength& cdma_signalstrength() const;
+  inline ::ril_proto::RILCDMASignalStrength* mutable_cdma_signalstrength();
+  
+  // optional .ril_proto.RILEVDOSignalStrength evdo_signalstrength = 3;
+  inline bool has_evdo_signalstrength() const;
+  inline void clear_evdo_signalstrength();
+  static const int kEvdoSignalstrengthFieldNumber = 3;
+  inline const ::ril_proto::RILEVDOSignalStrength& evdo_signalstrength() const;
+  inline ::ril_proto::RILEVDOSignalStrength* mutable_evdo_signalstrength();
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.RspSignalStrength)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::ril_proto::RILGWSignalStrength* gw_signalstrength_;
+  ::ril_proto::RILCDMASignalStrength* cdma_signalstrength_;
+  ::ril_proto::RILEVDOSignalStrength* evdo_signalstrength_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static RspSignalStrength* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -2388,6 +2796,130 @@ inline ::ril_proto::RilUusInfo* RilCall::mutable_uus_info() {
 
 // -------------------------------------------------------------------
 
+// RILGWSignalStrength
+
+// optional int32 signal_strength = 1;
+inline bool RILGWSignalStrength::has_signal_strength() const {
+  return _has_bit(0);
+}
+inline void RILGWSignalStrength::clear_signal_strength() {
+  signal_strength_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 RILGWSignalStrength::signal_strength() const {
+  return signal_strength_;
+}
+inline void RILGWSignalStrength::set_signal_strength(::google::protobuf::int32 value) {
+  _set_bit(0);
+  signal_strength_ = value;
+}
+
+// optional int32 bit_error_rate = 2;
+inline bool RILGWSignalStrength::has_bit_error_rate() const {
+  return _has_bit(1);
+}
+inline void RILGWSignalStrength::clear_bit_error_rate() {
+  bit_error_rate_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 RILGWSignalStrength::bit_error_rate() const {
+  return bit_error_rate_;
+}
+inline void RILGWSignalStrength::set_bit_error_rate(::google::protobuf::int32 value) {
+  _set_bit(1);
+  bit_error_rate_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// RILCDMASignalStrength
+
+// optional int32 dbm = 1;
+inline bool RILCDMASignalStrength::has_dbm() const {
+  return _has_bit(0);
+}
+inline void RILCDMASignalStrength::clear_dbm() {
+  dbm_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 RILCDMASignalStrength::dbm() const {
+  return dbm_;
+}
+inline void RILCDMASignalStrength::set_dbm(::google::protobuf::int32 value) {
+  _set_bit(0);
+  dbm_ = value;
+}
+
+// optional int32 ecio = 2;
+inline bool RILCDMASignalStrength::has_ecio() const {
+  return _has_bit(1);
+}
+inline void RILCDMASignalStrength::clear_ecio() {
+  ecio_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 RILCDMASignalStrength::ecio() const {
+  return ecio_;
+}
+inline void RILCDMASignalStrength::set_ecio(::google::protobuf::int32 value) {
+  _set_bit(1);
+  ecio_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// RILEVDOSignalStrength
+
+// optional int32 dbm = 1;
+inline bool RILEVDOSignalStrength::has_dbm() const {
+  return _has_bit(0);
+}
+inline void RILEVDOSignalStrength::clear_dbm() {
+  dbm_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 RILEVDOSignalStrength::dbm() const {
+  return dbm_;
+}
+inline void RILEVDOSignalStrength::set_dbm(::google::protobuf::int32 value) {
+  _set_bit(0);
+  dbm_ = value;
+}
+
+// optional int32 ecio = 2;
+inline bool RILEVDOSignalStrength::has_ecio() const {
+  return _has_bit(1);
+}
+inline void RILEVDOSignalStrength::clear_ecio() {
+  ecio_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 RILEVDOSignalStrength::ecio() const {
+  return ecio_;
+}
+inline void RILEVDOSignalStrength::set_ecio(::google::protobuf::int32 value) {
+  _set_bit(1);
+  ecio_ = value;
+}
+
+// optional int32 signal_noise_ratio = 3;
+inline bool RILEVDOSignalStrength::has_signal_noise_ratio() const {
+  return _has_bit(2);
+}
+inline void RILEVDOSignalStrength::clear_signal_noise_ratio() {
+  signal_noise_ratio_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 RILEVDOSignalStrength::signal_noise_ratio() const {
+  return signal_noise_ratio_;
+}
+inline void RILEVDOSignalStrength::set_signal_noise_ratio(::google::protobuf::int32 value) {
+  _set_bit(2);
+  signal_noise_ratio_ = value;
+}
+
+// -------------------------------------------------------------------
+
 // RspStrings
 
 // repeated string strings = 1;
@@ -2597,6 +3129,61 @@ inline ::google::protobuf::int32 ReqHangUp::connection_index() const {
 inline void ReqHangUp::set_connection_index(::google::protobuf::int32 value) {
   _set_bit(0);
   connection_index_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// RspSignalStrength
+
+// optional .ril_proto.RILGWSignalStrength gw_signalstrength = 1;
+inline bool RspSignalStrength::has_gw_signalstrength() const {
+  return _has_bit(0);
+}
+inline void RspSignalStrength::clear_gw_signalstrength() {
+  if (gw_signalstrength_ != NULL) gw_signalstrength_->::ril_proto::RILGWSignalStrength::Clear();
+  _clear_bit(0);
+}
+inline const ::ril_proto::RILGWSignalStrength& RspSignalStrength::gw_signalstrength() const {
+  return gw_signalstrength_ != NULL ? *gw_signalstrength_ : *default_instance_->gw_signalstrength_;
+}
+inline ::ril_proto::RILGWSignalStrength* RspSignalStrength::mutable_gw_signalstrength() {
+  _set_bit(0);
+  if (gw_signalstrength_ == NULL) gw_signalstrength_ = new ::ril_proto::RILGWSignalStrength;
+  return gw_signalstrength_;
+}
+
+// optional .ril_proto.RILCDMASignalStrength cdma_signalstrength = 2;
+inline bool RspSignalStrength::has_cdma_signalstrength() const {
+  return _has_bit(1);
+}
+inline void RspSignalStrength::clear_cdma_signalstrength() {
+  if (cdma_signalstrength_ != NULL) cdma_signalstrength_->::ril_proto::RILCDMASignalStrength::Clear();
+  _clear_bit(1);
+}
+inline const ::ril_proto::RILCDMASignalStrength& RspSignalStrength::cdma_signalstrength() const {
+  return cdma_signalstrength_ != NULL ? *cdma_signalstrength_ : *default_instance_->cdma_signalstrength_;
+}
+inline ::ril_proto::RILCDMASignalStrength* RspSignalStrength::mutable_cdma_signalstrength() {
+  _set_bit(1);
+  if (cdma_signalstrength_ == NULL) cdma_signalstrength_ = new ::ril_proto::RILCDMASignalStrength;
+  return cdma_signalstrength_;
+}
+
+// optional .ril_proto.RILEVDOSignalStrength evdo_signalstrength = 3;
+inline bool RspSignalStrength::has_evdo_signalstrength() const {
+  return _has_bit(2);
+}
+inline void RspSignalStrength::clear_evdo_signalstrength() {
+  if (evdo_signalstrength_ != NULL) evdo_signalstrength_->::ril_proto::RILEVDOSignalStrength::Clear();
+  _clear_bit(2);
+}
+inline const ::ril_proto::RILEVDOSignalStrength& RspSignalStrength::evdo_signalstrength() const {
+  return evdo_signalstrength_ != NULL ? *evdo_signalstrength_ : *default_instance_->evdo_signalstrength_;
+}
+inline ::ril_proto::RILEVDOSignalStrength* RspSignalStrength::mutable_evdo_signalstrength() {
+  _set_bit(2);
+  if (evdo_signalstrength_ == NULL) evdo_signalstrength_ = new ::ril_proto::RILEVDOSignalStrength;
+  return evdo_signalstrength_;
 }
 
 // -------------------------------------------------------------------

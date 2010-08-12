@@ -1269,6 +1269,398 @@ public final class RilCmds {
     
   }
   
+  public static final class RILGWSignalStrength extends
+      com.google.protobuf.micro.MessageMicro {
+    public RILGWSignalStrength() {}
+    
+    // optional int32 signal_strength = 1;
+    public static final int SIGNAL_STRENGTH_FIELD_NUMBER = 1;
+    private boolean hasSignalStrength;
+    private int signalStrength_ = 0;
+    public int getSignalStrength() { return signalStrength_; }
+    public boolean hasSignalStrength() { return hasSignalStrength; }
+    public RILGWSignalStrength setSignalStrength(int value) {
+      hasSignalStrength = true;
+      signalStrength_ = value;
+      return this;
+    }
+    public RILGWSignalStrength clearSignalStrength() {
+      hasSignalStrength = false;
+      signalStrength_ = 0;
+      return this;
+    }
+    
+    // optional int32 bit_error_rate = 2;
+    public static final int BIT_ERROR_RATE_FIELD_NUMBER = 2;
+    private boolean hasBitErrorRate;
+    private int bitErrorRate_ = 0;
+    public int getBitErrorRate() { return bitErrorRate_; }
+    public boolean hasBitErrorRate() { return hasBitErrorRate; }
+    public RILGWSignalStrength setBitErrorRate(int value) {
+      hasBitErrorRate = true;
+      bitErrorRate_ = value;
+      return this;
+    }
+    public RILGWSignalStrength clearBitErrorRate() {
+      hasBitErrorRate = false;
+      bitErrorRate_ = 0;
+      return this;
+    }
+    
+    public final RILGWSignalStrength clear() {
+      clearSignalStrength();
+      clearBitErrorRate();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasSignalStrength()) {
+        output.writeInt32(1, getSignalStrength());
+      }
+      if (hasBitErrorRate()) {
+        output.writeInt32(2, getBitErrorRate());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasSignalStrength()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(1, getSignalStrength());
+      }
+      if (hasBitErrorRate()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(2, getBitErrorRate());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public RILGWSignalStrength mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 8: {
+            setSignalStrength(input.readInt32());
+            break;
+          }
+          case 16: {
+            setBitErrorRate(input.readInt32());
+            break;
+          }
+        }
+      }
+    }
+    
+    public static RILGWSignalStrength parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (RILGWSignalStrength) (new RILGWSignalStrength().mergeFrom(data));
+    }
+    
+    public static RILGWSignalStrength parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (RILGWSignalStrength) (new RILGWSignalStrength().mergeFrom(input));
+    }
+    
+  }
+  
+  public static final class RILCDMASignalStrength extends
+      com.google.protobuf.micro.MessageMicro {
+    public RILCDMASignalStrength() {}
+    
+    // optional int32 dbm = 1;
+    public static final int DBM_FIELD_NUMBER = 1;
+    private boolean hasDbm;
+    private int dbm_ = 0;
+    public int getDbm() { return dbm_; }
+    public boolean hasDbm() { return hasDbm; }
+    public RILCDMASignalStrength setDbm(int value) {
+      hasDbm = true;
+      dbm_ = value;
+      return this;
+    }
+    public RILCDMASignalStrength clearDbm() {
+      hasDbm = false;
+      dbm_ = 0;
+      return this;
+    }
+    
+    // optional int32 ecio = 2;
+    public static final int ECIO_FIELD_NUMBER = 2;
+    private boolean hasEcio;
+    private int ecio_ = 0;
+    public int getEcio() { return ecio_; }
+    public boolean hasEcio() { return hasEcio; }
+    public RILCDMASignalStrength setEcio(int value) {
+      hasEcio = true;
+      ecio_ = value;
+      return this;
+    }
+    public RILCDMASignalStrength clearEcio() {
+      hasEcio = false;
+      ecio_ = 0;
+      return this;
+    }
+    
+    public final RILCDMASignalStrength clear() {
+      clearDbm();
+      clearEcio();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasDbm()) {
+        output.writeInt32(1, getDbm());
+      }
+      if (hasEcio()) {
+        output.writeInt32(2, getEcio());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasDbm()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(1, getDbm());
+      }
+      if (hasEcio()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(2, getEcio());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public RILCDMASignalStrength mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 8: {
+            setDbm(input.readInt32());
+            break;
+          }
+          case 16: {
+            setEcio(input.readInt32());
+            break;
+          }
+        }
+      }
+    }
+    
+    public static RILCDMASignalStrength parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (RILCDMASignalStrength) (new RILCDMASignalStrength().mergeFrom(data));
+    }
+    
+    public static RILCDMASignalStrength parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (RILCDMASignalStrength) (new RILCDMASignalStrength().mergeFrom(input));
+    }
+    
+  }
+  
+  public static final class RILEVDOSignalStrength extends
+      com.google.protobuf.micro.MessageMicro {
+    public RILEVDOSignalStrength() {}
+    
+    // optional int32 dbm = 1;
+    public static final int DBM_FIELD_NUMBER = 1;
+    private boolean hasDbm;
+    private int dbm_ = 0;
+    public int getDbm() { return dbm_; }
+    public boolean hasDbm() { return hasDbm; }
+    public RILEVDOSignalStrength setDbm(int value) {
+      hasDbm = true;
+      dbm_ = value;
+      return this;
+    }
+    public RILEVDOSignalStrength clearDbm() {
+      hasDbm = false;
+      dbm_ = 0;
+      return this;
+    }
+    
+    // optional int32 ecio = 2;
+    public static final int ECIO_FIELD_NUMBER = 2;
+    private boolean hasEcio;
+    private int ecio_ = 0;
+    public int getEcio() { return ecio_; }
+    public boolean hasEcio() { return hasEcio; }
+    public RILEVDOSignalStrength setEcio(int value) {
+      hasEcio = true;
+      ecio_ = value;
+      return this;
+    }
+    public RILEVDOSignalStrength clearEcio() {
+      hasEcio = false;
+      ecio_ = 0;
+      return this;
+    }
+    
+    // optional int32 signal_noise_ratio = 3;
+    public static final int SIGNAL_NOISE_RATIO_FIELD_NUMBER = 3;
+    private boolean hasSignalNoiseRatio;
+    private int signalNoiseRatio_ = 0;
+    public int getSignalNoiseRatio() { return signalNoiseRatio_; }
+    public boolean hasSignalNoiseRatio() { return hasSignalNoiseRatio; }
+    public RILEVDOSignalStrength setSignalNoiseRatio(int value) {
+      hasSignalNoiseRatio = true;
+      signalNoiseRatio_ = value;
+      return this;
+    }
+    public RILEVDOSignalStrength clearSignalNoiseRatio() {
+      hasSignalNoiseRatio = false;
+      signalNoiseRatio_ = 0;
+      return this;
+    }
+    
+    public final RILEVDOSignalStrength clear() {
+      clearDbm();
+      clearEcio();
+      clearSignalNoiseRatio();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasDbm()) {
+        output.writeInt32(1, getDbm());
+      }
+      if (hasEcio()) {
+        output.writeInt32(2, getEcio());
+      }
+      if (hasSignalNoiseRatio()) {
+        output.writeInt32(3, getSignalNoiseRatio());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasDbm()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(1, getDbm());
+      }
+      if (hasEcio()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(2, getEcio());
+      }
+      if (hasSignalNoiseRatio()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(3, getSignalNoiseRatio());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public RILEVDOSignalStrength mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 8: {
+            setDbm(input.readInt32());
+            break;
+          }
+          case 16: {
+            setEcio(input.readInt32());
+            break;
+          }
+          case 24: {
+            setSignalNoiseRatio(input.readInt32());
+            break;
+          }
+        }
+      }
+    }
+    
+    public static RILEVDOSignalStrength parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (RILEVDOSignalStrength) (new RILEVDOSignalStrength().mergeFrom(data));
+    }
+    
+    public static RILEVDOSignalStrength parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (RILEVDOSignalStrength) (new RILEVDOSignalStrength().mergeFrom(input));
+    }
+    
+  }
+  
   public static final class RspStrings extends
       com.google.protobuf.micro.MessageMicro {
     public RspStrings() {}
@@ -1972,6 +2364,171 @@ public final class RilCmds {
             com.google.protobuf.micro.CodedInputStreamMicro input)
         throws java.io.IOException {
       return (ReqHangUp) (new ReqHangUp().mergeFrom(input));
+    }
+    
+  }
+  
+  public static final class RspSignalStrength extends
+      com.google.protobuf.micro.MessageMicro {
+    public RspSignalStrength() {}
+    
+    // optional .ril_proto.RILGWSignalStrength gw_signalstrength = 1;
+    public static final int GW_SIGNALSTRENGTH_FIELD_NUMBER = 1;
+    private boolean hasGwSignalstrength;
+    private com.android.internal.telephony.ril_proto.RilCmds.RILGWSignalStrength gwSignalstrength_ = null;
+    public boolean hasGwSignalstrength() { return hasGwSignalstrength; }
+    public com.android.internal.telephony.ril_proto.RilCmds.RILGWSignalStrength getGwSignalstrength() { return gwSignalstrength_; }
+    public RspSignalStrength setGwSignalstrength(com.android.internal.telephony.ril_proto.RilCmds.RILGWSignalStrength value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      hasGwSignalstrength = true;
+      gwSignalstrength_ = value;
+      return this;
+    }
+    public RspSignalStrength clearGwSignalstrength() {
+      hasGwSignalstrength = false;
+      gwSignalstrength_ = null;
+      return this;
+    }
+    
+    // optional .ril_proto.RILCDMASignalStrength cdma_signalstrength = 2;
+    public static final int CDMA_SIGNALSTRENGTH_FIELD_NUMBER = 2;
+    private boolean hasCdmaSignalstrength;
+    private com.android.internal.telephony.ril_proto.RilCmds.RILCDMASignalStrength cdmaSignalstrength_ = null;
+    public boolean hasCdmaSignalstrength() { return hasCdmaSignalstrength; }
+    public com.android.internal.telephony.ril_proto.RilCmds.RILCDMASignalStrength getCdmaSignalstrength() { return cdmaSignalstrength_; }
+    public RspSignalStrength setCdmaSignalstrength(com.android.internal.telephony.ril_proto.RilCmds.RILCDMASignalStrength value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      hasCdmaSignalstrength = true;
+      cdmaSignalstrength_ = value;
+      return this;
+    }
+    public RspSignalStrength clearCdmaSignalstrength() {
+      hasCdmaSignalstrength = false;
+      cdmaSignalstrength_ = null;
+      return this;
+    }
+    
+    // optional .ril_proto.RILEVDOSignalStrength evdo_signalstrength = 3;
+    public static final int EVDO_SIGNALSTRENGTH_FIELD_NUMBER = 3;
+    private boolean hasEvdoSignalstrength;
+    private com.android.internal.telephony.ril_proto.RilCmds.RILEVDOSignalStrength evdoSignalstrength_ = null;
+    public boolean hasEvdoSignalstrength() { return hasEvdoSignalstrength; }
+    public com.android.internal.telephony.ril_proto.RilCmds.RILEVDOSignalStrength getEvdoSignalstrength() { return evdoSignalstrength_; }
+    public RspSignalStrength setEvdoSignalstrength(com.android.internal.telephony.ril_proto.RilCmds.RILEVDOSignalStrength value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      hasEvdoSignalstrength = true;
+      evdoSignalstrength_ = value;
+      return this;
+    }
+    public RspSignalStrength clearEvdoSignalstrength() {
+      hasEvdoSignalstrength = false;
+      evdoSignalstrength_ = null;
+      return this;
+    }
+    
+    public final RspSignalStrength clear() {
+      clearGwSignalstrength();
+      clearCdmaSignalstrength();
+      clearEvdoSignalstrength();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasGwSignalstrength()) {
+        output.writeMessage(1, getGwSignalstrength());
+      }
+      if (hasCdmaSignalstrength()) {
+        output.writeMessage(2, getCdmaSignalstrength());
+      }
+      if (hasEvdoSignalstrength()) {
+        output.writeMessage(3, getEvdoSignalstrength());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasGwSignalstrength()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeMessageSize(1, getGwSignalstrength());
+      }
+      if (hasCdmaSignalstrength()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeMessageSize(2, getCdmaSignalstrength());
+      }
+      if (hasEvdoSignalstrength()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeMessageSize(3, getEvdoSignalstrength());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public RspSignalStrength mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 10: {
+            com.android.internal.telephony.ril_proto.RilCmds.RILGWSignalStrength value = new com.android.internal.telephony.ril_proto.RilCmds.RILGWSignalStrength();
+            input.readMessage(value);
+            setGwSignalstrength(value);
+            break;
+          }
+          case 18: {
+            com.android.internal.telephony.ril_proto.RilCmds.RILCDMASignalStrength value = new com.android.internal.telephony.ril_proto.RilCmds.RILCDMASignalStrength();
+            input.readMessage(value);
+            setCdmaSignalstrength(value);
+            break;
+          }
+          case 26: {
+            com.android.internal.telephony.ril_proto.RilCmds.RILEVDOSignalStrength value = new com.android.internal.telephony.ril_proto.RilCmds.RILEVDOSignalStrength();
+            input.readMessage(value);
+            setEvdoSignalstrength(value);
+            break;
+          }
+        }
+      }
+    }
+    
+    public static RspSignalStrength parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (RspSignalStrength) (new RspSignalStrength().mergeFrom(data));
+    }
+    
+    public static RspSignalStrength parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (RspSignalStrength) (new RspSignalStrength().mergeFrom(input));
     }
     
   }

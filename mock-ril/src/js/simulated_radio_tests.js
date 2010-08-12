@@ -14,6 +14,30 @@
  * limitations under the License.
  */
 
+
+/**
+ * A test to test set signal strength
+ */
+if (false) {
+    function testSetSignalStrength() {
+        print('testSetSignalStrength E:');
+        simulatedRadio.printSignalStrength();
+        try {
+            simulatedRadio.setSignalStrength(0, -1, -1, -1, -1, -1, -1);
+        } catch (err) {
+            print('test failed');
+        }
+        simulatedRadio.printSignalStrength();
+        try {
+            simulatedRadio.setSignalStrength(60, 30, 29 , 28, 27, 26, 25);
+        } catch (err) {
+            print('test success: ' + err);
+        }
+        simulatedRadio.printSignalStrength();
+    }
+    testSetSignalStrength();
+}
+
 /**
  * TODO: A test for RIL_REQUEST_GET_CURRENT_CALLS,
  *       remove when satisfied all is well.

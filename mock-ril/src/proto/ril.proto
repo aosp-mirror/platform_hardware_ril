@@ -170,6 +170,34 @@ message RilCall {
     optional RilUusInfo      uus_info            = 13; /* NULL or Pointer to User-User Signaling
                                                           Information */
 }
+
+message RILGWSignalStrength {
+    optional int32 signal_strength = 1;   /* Valid values are (0-31, 99) as defined
+                                             in TS 27.007 8.5 */
+    optional int32 bit_error_rate  = 2;   /* bit error rate (0-7, 99) as defined
+                                             in TS 27.007 8.5 */
+}
+
+message RILCDMASignalStrength {
+    optional int32 dbm  = 1; /* Valid values are positive integers. This value is the actual RSSI
+                                value multiplied by -1. Example: If the actual RSSI is -75, then
+                                this response value will be 75.  */
+    optional int32 ecio = 2; /* Valid values are positive integers. This value is the actual Ec/Io
+                                multiplied by -10.  Example: If the actual Ec/Io is -12.5 dB, then
+                                this response value will be 125. */
+}
+
+message RILEVDOSignalStrength {
+    optional int32 dbm  = 1; /* Valid values are positive integers. This value is the actual RSSI
+                                value multiplied by -1.  Example: If the actual RSSI is -75, then
+                                this response value will be 75.  */
+    optional int32 ecio = 2; /* Valid values are positive integers. This value is the actual
+                                Ec/Io multiplied by -10.  Example: If the actual Ec/Io is -12.5 dB,
+                                then this response value will be 125. */
+    optional int32 signal_noise_ratio = 3; /* Valid values are 0-8.
+                                        8 is the highest signal to noise ratio. */
+}
+
 // Response is an array of strings.
 //
 // If a strings(i) is "*magic-null*" then that value will be returned as null.
@@ -204,6 +232,13 @@ message RspGetCurrentCalls {
 // 12 RIL_REQUEST_HANG_UP
 message ReqHangUp {
   required int32 connection_index           = 1;
+}
+
+// 19 RIL_REQUEST_SIGNAL_STRENGTH response
+message RspSignalStrength {
+    optional RILGWSignalStrength   gw_signalstrength   = 1;
+    optional RILCDMASignalStrength cdma_signalstrength = 2;
+    optional RILEVDOSignalStrength evdo_signalstrength = 3;
 }
 
 // 22 RIL_REQUEST_OPERATOR response

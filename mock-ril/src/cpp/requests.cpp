@@ -139,7 +139,7 @@ int ReqScreenState(Buffer **pBuffer,
 /**
  * Map from indexed by cmd and used to convert Data to Protobuf.
  */
-typedef int (*ReqConversion)(Buffer** protobuf, const void *data,
+typedef int (*ReqConversion)(Buffer** pBuffer, const void *data,
                 const size_t datalen, const RIL_Token t);
 typedef std::map<int, ReqConversion> ReqConversionMap;
 ReqConversionMap rilReqConversionMap;
@@ -275,6 +275,7 @@ int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
     rilReqConversionMap[RIL_REQUEST_GET_CURRENT_CALLS] = ReqWithNoData; // 9
     rilReqConversionMap[RIL_REQUEST_GET_IMSI] = ReqWithNoData; // 11
     rilReqConversionMap[RIL_REQUEST_HANGUP] = ReqHangUp; // 12
+    rilReqConversionMap[RIL_REQUEST_SIGNAL_STRENGTH] = ReqWithNoData; // 19
     rilReqConversionMap[RIL_REQUEST_REGISTRATION_STATE] = ReqWithNoData; // 20
     rilReqConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = ReqWithNoData; // 21
     rilReqConversionMap[RIL_REQUEST_OPERATOR] = ReqWithNoData; // 22
@@ -304,6 +305,11 @@ void testRequests(v8::Handle<v8::Context> context) {
         runJs(context, &try_catch, fileName, buffer);
         if (!try_catch.HasCaught()) {
             {
+                const int data[1] = { 1 };
+                callOnRilRequest(context, RIL_REQUEST_SIGNAL_STRENGTH, data,
+                                 sizeof(data), (void *)0x12345677);
+            }
+            {
                 const char *data[1] = { "winks-pin" };
                 callOnRilRequest(context, RIL_REQUEST_ENTER_SIM_PIN, data,
                         sizeof(data), (void *)0x12345678);
@@ -316,15 +322,16 @@ void testRequests(v8::Handle<v8::Context> context) {
             {
                 const int data[1] = { 1 };
                 callOnRilRequest(context, RIL_REQUEST_SCREEN_STATE, data,
-                        sizeof(data), (void *)0x1234567A);
+                        sizeof(data), (void *)0x67458);
             }
-
             {
                 RilRequestWorkerQueue *rwq = new RilRequestWorkerQueue(context);
                 if (rwq->Run() == STATUS_OK) {
                     const int data[1] = { 1 };
                     rwq->AddRequest(RIL_REQUEST_SCREEN_STATE,
                                     data, sizeof(data), (void *)0x1234567A);
+                    rwq->AddRequest(RIL_REQUEST_SIGNAL_STRENGTH,
+                                      data, sizeof(data), (void *)0x1234567A);
                     // Sleep to let it be processed
                     v8::Unlocker unlocker;
                     sleep(3);

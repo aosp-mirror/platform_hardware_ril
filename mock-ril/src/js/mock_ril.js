@@ -238,6 +238,9 @@ dispatchTable[RIL_REQUEST_HANGUP] = { // 12
     'components' : [simulatedRadioWorker],
     'schemaName' : 'ReqHangUp',
 };
+dispatchTable[RIL_REQUEST_SIGNAL_STRENGTH]  = { // 19
+    'components' : [simulatedRadioWorker],
+};
 dispatchTable[RIL_REQUEST_REGISTRATION_STATE] = { // 20
     'components' : [simulatedRadioWorker],
 };
@@ -273,6 +276,7 @@ dispatchTable[RIL_REQUEST_SCREEN_STATE] = { // 61
 function startMockRil() {
     print("startMockRil E:");
     setRadioState(RADIOSTATE_SIM_READY);
+    simulatedRadio.setSignalStrength(6, 0, -1, -1, -1, -1, -1);
     print("startMockRil X:");
 }
 

@@ -15,6 +15,24 @@
  */
 
 /**
+ * Set radio state
+ */
+function setRadioState(newState) {
+    newRadioState = newState;
+    if (typeof newState == 'string') {
+        newRadioState = globals[newState];
+        if (typeof newRadioState == 'undefined') {
+            throw('setRadioState: Unknow string: ' + newState);
+        }
+    }
+    if ((newRadioState < RADIOSTATE_OFF) || (newRadioState > RADIOSTATE_NV_READY)) {
+        throw('setRadioState: newRadioState: ' + newRadioState + ' is invalid');
+    }
+    gRadioState = newRadioState;
+    sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED);
+}
+
+/**
  * Create a call.
  *
  * @return a RilCall
@@ -31,24 +49,6 @@ function RilCall(state, phoneNumber, callerName) {
     this.number = phoneNumber;
     this.numberPresentation = 0;
     this.name = callerName;
-}
-
-/**
- * Set radio state
- */
-function setRadioState(newState) {
-    newRadioState = newState;
-    if (typeof newState == 'string') {
-        newRadioState = globals[newState];
-        if (typeof newRadioState == 'undefined') {
-            throw('setRadioState: Unknow string: ' + newState);
-        }
-    }
-    if ((newRadioState < RADIOSTATE_OFF) || (newRadioState > RADIOSTATE_NV_READY)) {
-        throw('setRadioState: newRadioState: ' + newRadioState + ' is invalid');
-    }
-    gRadioState = newRadioState;
-    sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED);
 }
 
 /**
@@ -88,6 +88,26 @@ function Radio() {
 
     // The result returned by the request handlers
     var result = new Object();
+
+    function GWSignalStrength() {
+        this.signalStrength = 10;  // 10 * 2 + (-113) = -93dBm, make it three bars
+        this.bitErrorRate = 0;
+    }
+
+    function CDMASignalStrength() {
+        this.dbm = -1;
+        this.ecio = -1;
+    }
+
+    function EVDOSignalStrength() {
+        this.dbm = -1;
+        this.ecio = -1;
+        this.signalNoiseRatio = 0;
+    }
+
+    var gwSignalStrength = new GWSignalStrength;
+    var cdmaSignalStrength = new CDMASignalStrength();
+    var evdoSignalStrength = new EVDOSignalStrength();
 
     /**
      * The the array of calls, this is a sparse
@@ -183,6 +203,53 @@ function Radio() {
     }
 
     /**
+     * Print signal strength
+     */
+    this.printSignalStrength = function() {
+        print('rssi: '         + gwSignalStrength.signalStrength);
+        print('bitErrorRate: ' + gwSignalStrength.bitErrorRate);
+        print('cdmaDbm: '  +  cdmaSignalStrength.dbm);
+        print('cdmaEcio: ' + cdmaSignalStrength.ecio);
+        print('evdoRssi: ' + evdoSignalStrength.dbm);
+        print('evdoEcio: ' + evdoSignalStrength.ecio);
+        print('evdoSnr: '  + evdoSignalStrength.signalNoiseRatio);
+    }
+
+    /**
+     * set signal strength
+     */
+    this.setSignalStrength = function(rssi, bitErrorRate, cdmaDbm, cdmaEcio, evdoRssi,
+                                      evdoEcio, evdoSnr) {
+        print('setSignalStrength E');
+
+        if (rssi != 99) {
+            if ((rssi < 0) || (rssi > 31)) {
+                throw ("not a valid signal strength");
+            }
+        }
+        // update signal strength
+        gwSignalStrength.signalStrength = rssi;
+        gwSignalStrength.bitErrorRate = bitErrorRate;
+        cdmaSignalStrength.dbm = cdmaDbm;
+        cdmaSignalStrength.ecio = cdmaEcio;
+        evdoSignalStrength.dbm = evdoRssi;
+        evdoSignalStrength.ecio = evdoEcio;
+        evdoSignalStrength.signalNoiseRatio = evdoSnr;
+
+        // pack the signal strength into RspSignalStrength and send a unsolicited response
+        var rsp = new Object();
+
+        rsp.gwSignalstrength = gwSignalStrength;
+        rsp.cdmSignalstrength = cdmaSignalStrength;
+        rsp.evdoSignalstrength = evdoSignalStrength;
+
+        response = rilSchema[packageNameAndSeperator +
+                             'RspSignalStrength'].serialize(rsp);
+
+        sendRilUnsolicitedResponse(RIL_UNSOL_SIGNAL_STRENGTH, response);
+    }
+
+    /**
      * Handle RIL_REQUEST_GET_CURRENT_CALL
      *
      * @param req is the Request
@@ -213,6 +280,25 @@ function Radio() {
         if (removeCall(req.data.connectionIndex) == null) {
             result.rilErrCode = RIL_E_GENERIC_FAILURE;
         }
+        return result;
+    }
+
+    /**
+     * Handle RIL_REQUEST_SIGNAL_STRENGTH
+     *
+     * @param req is the Request
+     */
+    this.rilRequestSignalStrength = function(req) { // 19
+        print('Radio: rilRequestSignalStrength E');
+        rsp = new Object();
+
+        // pack the signal strength into RspSignalStrength
+        rsp.gwSignalstrength = gwSignalStrength;
+        rsp.cdmaSignalstrength = cdmaSignalStrength;
+        rsp.evdoSignalstrength = evdoSignalStrength;
+
+        result.responseProtobuf = rilSchema[packageNameAndSeperator +
+                                            'RspSignalStrength'].serialize(rsp);
         return result;
     }
 
@@ -373,6 +459,8 @@ function Radio() {
                 this.rilRequestGetCurrentCalls;
     this.radioDispatchTable[RIL_REQUEST_HANGUP] = // 12
                 this.rilRequestHangUp;
+    this.radioDispatchTable[RIL_REQUEST_SIGNAL_STRENGTH] = // 19
+                this.rilRequestSignalStrength;
     this.radioDispatchTable[RIL_REQUEST_REGISTRATION_STATE] = // 20
                 this.rilRequestRegistrationState;
     this.radioDispatchTable[RIL_REQUEST_GPRS_REGISTRATION_STATE] = // 21

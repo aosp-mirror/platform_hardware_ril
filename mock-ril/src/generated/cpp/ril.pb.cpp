@@ -26,6 +26,15 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* RilCall_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RilCall_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RILGWSignalStrength_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RILGWSignalStrength_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RILCDMASignalStrength_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RILCDMASignalStrength_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RILEVDOSignalStrength_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RILEVDOSignalStrength_reflection_ = NULL;
 const ::google::protobuf::Descriptor* RspStrings_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RspStrings_reflection_ = NULL;
@@ -47,6 +56,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* ReqHangUp_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ReqHangUp_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RspSignalStrength_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RspSignalStrength_reflection_ = NULL;
 const ::google::protobuf::Descriptor* RspOperator_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RspOperator_reflection_ = NULL;
@@ -159,7 +171,56 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RilCall));
-  RspStrings_descriptor_ = file->message_type(4);
+  RILGWSignalStrength_descriptor_ = file->message_type(4);
+  static const int RILGWSignalStrength_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILGWSignalStrength, signal_strength_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILGWSignalStrength, bit_error_rate_),
+  };
+  RILGWSignalStrength_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RILGWSignalStrength_descriptor_,
+      RILGWSignalStrength::default_instance_,
+      RILGWSignalStrength_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILGWSignalStrength, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILGWSignalStrength, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RILGWSignalStrength));
+  RILCDMASignalStrength_descriptor_ = file->message_type(5);
+  static const int RILCDMASignalStrength_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILCDMASignalStrength, dbm_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILCDMASignalStrength, ecio_),
+  };
+  RILCDMASignalStrength_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RILCDMASignalStrength_descriptor_,
+      RILCDMASignalStrength::default_instance_,
+      RILCDMASignalStrength_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILCDMASignalStrength, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILCDMASignalStrength, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RILCDMASignalStrength));
+  RILEVDOSignalStrength_descriptor_ = file->message_type(6);
+  static const int RILEVDOSignalStrength_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILEVDOSignalStrength, dbm_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILEVDOSignalStrength, ecio_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILEVDOSignalStrength, signal_noise_ratio_),
+  };
+  RILEVDOSignalStrength_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RILEVDOSignalStrength_descriptor_,
+      RILEVDOSignalStrength::default_instance_,
+      RILEVDOSignalStrength_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILEVDOSignalStrength, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RILEVDOSignalStrength, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RILEVDOSignalStrength));
+  RspStrings_descriptor_ = file->message_type(7);
   static const int RspStrings_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspStrings, strings_),
   };
@@ -174,7 +235,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RspStrings));
-  RspIntegers_descriptor_ = file->message_type(5);
+  RspIntegers_descriptor_ = file->message_type(8);
   static const int RspIntegers_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspIntegers, integers_),
   };
@@ -189,7 +250,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RspIntegers));
-  RspGetSimStatus_descriptor_ = file->message_type(6);
+  RspGetSimStatus_descriptor_ = file->message_type(9);
   static const int RspGetSimStatus_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspGetSimStatus, card_status_),
   };
@@ -204,7 +265,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RspGetSimStatus));
-  ReqEnterSimPin_descriptor_ = file->message_type(7);
+  ReqEnterSimPin_descriptor_ = file->message_type(10);
   static const int ReqEnterSimPin_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqEnterSimPin, pin_),
   };
@@ -219,7 +280,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ReqEnterSimPin));
-  RspEnterSimPin_descriptor_ = file->message_type(8);
+  RspEnterSimPin_descriptor_ = file->message_type(11);
   static const int RspEnterSimPin_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspEnterSimPin, retries_remaining_),
   };
@@ -234,7 +295,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RspEnterSimPin));
-  RspGetCurrentCalls_descriptor_ = file->message_type(9);
+  RspGetCurrentCalls_descriptor_ = file->message_type(12);
   static const int RspGetCurrentCalls_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspGetCurrentCalls, calls_),
   };
@@ -249,7 +310,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RspGetCurrentCalls));
-  ReqHangUp_descriptor_ = file->message_type(10);
+  ReqHangUp_descriptor_ = file->message_type(13);
   static const int ReqHangUp_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqHangUp, connection_index_),
   };
@@ -264,7 +325,24 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ReqHangUp));
-  RspOperator_descriptor_ = file->message_type(11);
+  RspSignalStrength_descriptor_ = file->message_type(14);
+  static const int RspSignalStrength_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspSignalStrength, gw_signalstrength_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspSignalStrength, cdma_signalstrength_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspSignalStrength, evdo_signalstrength_),
+  };
+  RspSignalStrength_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RspSignalStrength_descriptor_,
+      RspSignalStrength::default_instance_,
+      RspSignalStrength_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspSignalStrength, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspSignalStrength, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RspSignalStrength));
+  RspOperator_descriptor_ = file->message_type(15);
   static const int RspOperator_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspOperator, long_alpha_ons_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspOperator, short_alpha_ons_),
@@ -281,7 +359,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RspOperator));
-  ReqScreenState_descriptor_ = file->message_type(12);
+  ReqScreenState_descriptor_ = file->message_type(16);
   static const int ReqScreenState_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqScreenState, state_),
   };
@@ -326,6 +404,12 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RilCall_descriptor_, &RilCall::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RILGWSignalStrength_descriptor_, &RILGWSignalStrength::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RILCDMASignalStrength_descriptor_, &RILCDMASignalStrength::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RILEVDOSignalStrength_descriptor_, &RILEVDOSignalStrength::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RspStrings_descriptor_, &RspStrings::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RspIntegers_descriptor_, &RspIntegers::default_instance());
@@ -339,6 +423,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     RspGetCurrentCalls_descriptor_, &RspGetCurrentCalls::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ReqHangUp_descriptor_, &ReqHangUp::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RspSignalStrength_descriptor_, &RspSignalStrength::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RspOperator_descriptor_, &RspOperator::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -356,6 +442,12 @@ void protobuf_ShutdownFile_ril_2eproto() {
   delete RilUusInfo_reflection_;
   delete RilCall::default_instance_;
   delete RilCall_reflection_;
+  delete RILGWSignalStrength::default_instance_;
+  delete RILGWSignalStrength_reflection_;
+  delete RILCDMASignalStrength::default_instance_;
+  delete RILCDMASignalStrength_reflection_;
+  delete RILEVDOSignalStrength::default_instance_;
+  delete RILEVDOSignalStrength_reflection_;
   delete RspStrings::default_instance_;
   delete RspStrings_reflection_;
   delete RspIntegers::default_instance_;
@@ -370,6 +462,8 @@ void protobuf_ShutdownFile_ril_2eproto() {
   delete RspGetCurrentCalls_reflection_;
   delete ReqHangUp::default_instance_;
   delete ReqHangUp_reflection_;
+  delete RspSignalStrength::default_instance_;
+  delete RspSignalStrength_reflection_;
   delete RspOperator::default_instance_;
   delete RspOperator_reflection_;
   delete ReqScreenState::default_instance_;
@@ -408,79 +502,93 @@ void protobuf_AddDesc_ril_2eproto() {
     "number\030\t \001(\t\022\033\n\023number_presentation\030\n \001("
     "\005\022\014\n\004name\030\013 \001(\t\022\031\n\021name_presentation\030\014 \001"
     "(\005\022\'\n\010uus_info\030\r \001(\0132\025.ril_proto.RilUusI"
-    "nfo\"\035\n\nRspStrings\022\017\n\007strings\030\001 \003(\t\"\037\n\013Rs"
-    "pIntegers\022\020\n\010integers\030\001 \003(\005\"@\n\017RspGetSim"
-    "Status\022-\n\013card_status\030\001 \002(\0132\030.ril_proto."
-    "RilCardStatus\"\035\n\016ReqEnterSimPin\022\013\n\003pin\030\001"
-    " \002(\t\"+\n\016RspEnterSimPin\022\031\n\021retries_remain"
-    "ing\030\001 \002(\005\"7\n\022RspGetCurrentCalls\022!\n\005calls"
-    "\030\001 \003(\0132\022.ril_proto.RilCall\"%\n\tReqHangUp\022"
-    "\030\n\020connection_index\030\001 \002(\005\"O\n\013RspOperator"
-    "\022\026\n\016long_alpha_ons\030\001 \001(\t\022\027\n\017short_alpha_"
-    "ons\030\002 \001(\t\022\017\n\007mcc_mnc\030\003 \001(\t\"\037\n\016ReqScreenS"
-    "tate\022\r\n\005state\030\001 \002(\010*\257\002\n\nRadioState\022\022\n\016RA"
-    "DIOSTATE_OFF\020\000\022\032\n\026RADIOSTATE_UNAVAILABLE"
-    "\020\001\022\034\n\030RADIOSTATE_SIM_NOT_READY\020\002\022#\n\037RADI"
-    "OSTATE_SIM_LOCKED_OR_ABSENT\020\003\022\030\n\024RADIOST"
-    "ATE_SIM_READY\020\004\022\035\n\031RADIOSTATE_RUIM_NOT_R"
-    "EADY\020\005\022\031\n\025RADIOSTATE_RUIM_READY\020\006\022$\n RAD"
-    "IOSTATE_RUIM_LOCKED_OR_ABSENT\020\007\022\033\n\027RADIO"
-    "STATE_NV_NOT_READY\020\010\022\027\n\023RADIOSTATE_NV_RE"
-    "ADY\020\t*P\n\014RilCardState\022\024\n\020CARDSTATE_ABSEN"
-    "T\020\000\022\025\n\021CARDSTATE_PRESENT\020\001\022\023\n\017CARDSTATE_"
-    "ERROR\020\002*\361\006\n\020RilPersoSubstate\022\031\n\025PERSOSUB"
-    "STATE_UNKNOWN\020\000\022\035\n\031PERSOSUBSTATE_IN_PROG"
-    "RESS\020\001\022\027\n\023PERSOSUBSTATE_READY\020\002\022\035\n\031PERSO"
-    "SUBSTATE_SIM_NETWORK\020\003\022$\n PERSOSUBSTATE_"
-    "SIM_NETWORK_SUBSET\020\004\022\037\n\033PERSOSUBSTATE_SI"
-    "M_CORPORATE\020\005\022&\n\"PERSOSUBSTATE_SIM_SERVI"
-    "CE_PROVIDER\020\006\022\031\n\025PERSOSUBSTATE_SIM_SIM\020\007"
-    "\022!\n\035PERSOSUBSTATE_SIM_NETWORK_PUK\020\010\022(\n$P"
-    "ERSOSUBSTATE_SIM_NETWORK_SUBSET_PUK\020\t\022#\n"
-    "\037PERSOSUBSTATE_SIM_CORPORATE_PUK\020\n\022*\n&PE"
-    "RSOSUBSTATE_SIM_SERVICE_PROVIDER_PUK\020\013\022\035"
-    "\n\031PERSOSUBSTATE_SIM_SIM_PUK\020\014\022\037\n\033PERSOSU"
-    "BSTATE_RUIM_NETWORK1\020\r\022\037\n\033PERSOSUBSTATE_"
-    "RUIM_NETWORK2\020\016\022\033\n\027PERSOSUBSTATE_RUIM_HR"
-    "PD\020\017\022 \n\034PERSOSUBSTATE_RUIM_CORPORATE\020\020\022\'"
-    "\n#PERSOSUBSTATE_RUIM_SERVICE_PROVIDER\020\021\022"
-    "\033\n\027PERSOSUBSTATE_RUIM_RUIM\020\022\022#\n\037PERSOSUB"
-    "STATE_RUIM_NETWORK1_PUK\020\023\022#\n\037PERSOSUBSTA"
-    "TE_RUIM_NETWORK2_PUK\020\024\022\037\n\033PERSOSUBSTATE_"
-    "RUIM_HRPD_PUK\020\025\022$\n PERSOSUBSTATE_RUIM_CO"
-    "RPORATE_PUK\020\026\022+\n\'PERSOSUBSTATE_RUIM_SERV"
-    "ICE_PROVIDER_PUK\020\027\022\037\n\033PERSOSUBSTATE_RUIM"
-    "_RUIM_PUK\020\030*\223\001\n\013RilAppState\022\024\n\020APPSTATE_"
-    "UNKNOWN\020\000\022\025\n\021APPSTATE_DETECTED\020\001\022\020\n\014APPS"
-    "TATE_PIN\020\002\022\020\n\014APPSTATE_PUK\020\003\022\037\n\033APPSTATE"
-    "_SUBSCRIPTION_PERSO\020\004\022\022\n\016APPSTATE_READY\020"
-    "\005*\275\001\n\013RilPinState\022\024\n\020PINSTATE_UNKNOWN\020\000\022"
-    "!\n\035PINSTATE_ENABLED_NOT_VERIFIED\020\001\022\035\n\031PI"
-    "NSTATE_ENABLED_VERIFIED\020\002\022\025\n\021PINSTATE_DI"
-    "SABLED\020\003\022\034\n\030PINSTATE_ENABLED_BLOCKED\020\004\022!"
-    "\n\035PINSTATE_ENABLED_PERM_BLOCKED\020\005*h\n\nRil"
-    "AppType\022\023\n\017APPTYPE_UNKNOWN\020\000\022\017\n\013APPTYPE_"
-    "SIM\020\001\022\020\n\014APPTYPE_USIM\020\002\022\020\n\014APPTYPE_RUIM\020"
-    "\003\022\020\n\014APPTYPE_CSIM\020\004*\316\001\n\nRilUusType\022\030\n\024RI"
-    "LUUSTYPE1_IMPLICIT\020\000\022\030\n\024RILUUSTYPE1_REQU"
-    "IRED\020\001\022\034\n\030RILUUSTYPE1_NOT_REQUIRED\020\002\022\030\n\024"
-    "RILUUSTYPE2_REQUIRED\020\003\022\034\n\030RILUUSTYPE2_NO"
-    "T_REQUIRED\020\004\022\030\n\024RILUUSTYPE3_REQUIRED\020\005\022\034"
-    "\n\030RILUUSTYPE3_NOT_REQUIRED\020\006*p\n\tRilUusDc"
-    "s\022\021\n\rRILUUSDCS_USP\020\000\022\024\n\020RILUUSDCS_OSIHLP"
-    "\020\001\022\022\n\016RILUUSDCS_X244\020\002\022\022\n\016RILUUSDCS_RMCF"
-    "\020\003\022\022\n\016RILUUSDCS_IA5c\020\004*\231\001\n\014RilCallState\022"
-    "\024\n\020CALLSTATE_ACTIVE\020\000\022\025\n\021CALLSTATE_HOLDI"
-    "NG\020\001\022\025\n\021CALLSTATE_DIALING\020\002\022\026\n\022CALLSTATE"
-    "_ALERTING\020\003\022\026\n\022CALLSTATE_INCOMING\020\004\022\025\n\021C"
-    "ALLSTATE_WAITING\020\005B3\n(com.android.intern"
-    "al.telephony.ril_protoB\007RilCmds", 3671);
+    "nfo\"F\n\023RILGWSignalStrength\022\027\n\017signal_str"
+    "ength\030\001 \001(\005\022\026\n\016bit_error_rate\030\002 \001(\005\"2\n\025R"
+    "ILCDMASignalStrength\022\013\n\003dbm\030\001 \001(\005\022\014\n\004eci"
+    "o\030\002 \001(\005\"N\n\025RILEVDOSignalStrength\022\013\n\003dbm\030"
+    "\001 \001(\005\022\014\n\004ecio\030\002 \001(\005\022\032\n\022signal_noise_rati"
+    "o\030\003 \001(\005\"\035\n\nRspStrings\022\017\n\007strings\030\001 \003(\t\"\037"
+    "\n\013RspIntegers\022\020\n\010integers\030\001 \003(\005\"@\n\017RspGe"
+    "tSimStatus\022-\n\013card_status\030\001 \002(\0132\030.ril_pr"
+    "oto.RilCardStatus\"\035\n\016ReqEnterSimPin\022\013\n\003p"
+    "in\030\001 \002(\t\"+\n\016RspEnterSimPin\022\031\n\021retries_re"
+    "maining\030\001 \002(\005\"7\n\022RspGetCurrentCalls\022!\n\005c"
+    "alls\030\001 \003(\0132\022.ril_proto.RilCall\"%\n\tReqHan"
+    "gUp\022\030\n\020connection_index\030\001 \002(\005\"\314\001\n\021RspSig"
+    "nalStrength\0229\n\021gw_signalstrength\030\001 \001(\0132\036"
+    ".ril_proto.RILGWSignalStrength\022=\n\023cdma_s"
+    "ignalstrength\030\002 \001(\0132 .ril_proto.RILCDMAS"
+    "ignalStrength\022=\n\023evdo_signalstrength\030\003 \001"
+    "(\0132 .ril_proto.RILEVDOSignalStrength\"O\n\013"
+    "RspOperator\022\026\n\016long_alpha_ons\030\001 \001(\t\022\027\n\017s"
+    "hort_alpha_ons\030\002 \001(\t\022\017\n\007mcc_mnc\030\003 \001(\t\"\037\n"
+    "\016ReqScreenState\022\r\n\005state\030\001 \002(\010*\257\002\n\nRadio"
+    "State\022\022\n\016RADIOSTATE_OFF\020\000\022\032\n\026RADIOSTATE_"
+    "UNAVAILABLE\020\001\022\034\n\030RADIOSTATE_SIM_NOT_READ"
+    "Y\020\002\022#\n\037RADIOSTATE_SIM_LOCKED_OR_ABSENT\020\003"
+    "\022\030\n\024RADIOSTATE_SIM_READY\020\004\022\035\n\031RADIOSTATE"
+    "_RUIM_NOT_READY\020\005\022\031\n\025RADIOSTATE_RUIM_REA"
+    "DY\020\006\022$\n RADIOSTATE_RUIM_LOCKED_OR_ABSENT"
+    "\020\007\022\033\n\027RADIOSTATE_NV_NOT_READY\020\010\022\027\n\023RADIO"
+    "STATE_NV_READY\020\t*P\n\014RilCardState\022\024\n\020CARD"
+    "STATE_ABSENT\020\000\022\025\n\021CARDSTATE_PRESENT\020\001\022\023\n"
+    "\017CARDSTATE_ERROR\020\002*\361\006\n\020RilPersoSubstate\022"
+    "\031\n\025PERSOSUBSTATE_UNKNOWN\020\000\022\035\n\031PERSOSUBST"
+    "ATE_IN_PROGRESS\020\001\022\027\n\023PERSOSUBSTATE_READY"
+    "\020\002\022\035\n\031PERSOSUBSTATE_SIM_NETWORK\020\003\022$\n PER"
+    "SOSUBSTATE_SIM_NETWORK_SUBSET\020\004\022\037\n\033PERSO"
+    "SUBSTATE_SIM_CORPORATE\020\005\022&\n\"PERSOSUBSTAT"
+    "E_SIM_SERVICE_PROVIDER\020\006\022\031\n\025PERSOSUBSTAT"
+    "E_SIM_SIM\020\007\022!\n\035PERSOSUBSTATE_SIM_NETWORK"
+    "_PUK\020\010\022(\n$PERSOSUBSTATE_SIM_NETWORK_SUBS"
+    "ET_PUK\020\t\022#\n\037PERSOSUBSTATE_SIM_CORPORATE_"
+    "PUK\020\n\022*\n&PERSOSUBSTATE_SIM_SERVICE_PROVI"
+    "DER_PUK\020\013\022\035\n\031PERSOSUBSTATE_SIM_SIM_PUK\020\014"
+    "\022\037\n\033PERSOSUBSTATE_RUIM_NETWORK1\020\r\022\037\n\033PER"
+    "SOSUBSTATE_RUIM_NETWORK2\020\016\022\033\n\027PERSOSUBST"
+    "ATE_RUIM_HRPD\020\017\022 \n\034PERSOSUBSTATE_RUIM_CO"
+    "RPORATE\020\020\022\'\n#PERSOSUBSTATE_RUIM_SERVICE_"
+    "PROVIDER\020\021\022\033\n\027PERSOSUBSTATE_RUIM_RUIM\020\022\022"
+    "#\n\037PERSOSUBSTATE_RUIM_NETWORK1_PUK\020\023\022#\n\037"
+    "PERSOSUBSTATE_RUIM_NETWORK2_PUK\020\024\022\037\n\033PER"
+    "SOSUBSTATE_RUIM_HRPD_PUK\020\025\022$\n PERSOSUBST"
+    "ATE_RUIM_CORPORATE_PUK\020\026\022+\n\'PERSOSUBSTAT"
+    "E_RUIM_SERVICE_PROVIDER_PUK\020\027\022\037\n\033PERSOSU"
+    "BSTATE_RUIM_RUIM_PUK\020\030*\223\001\n\013RilAppState\022\024"
+    "\n\020APPSTATE_UNKNOWN\020\000\022\025\n\021APPSTATE_DETECTE"
+    "D\020\001\022\020\n\014APPSTATE_PIN\020\002\022\020\n\014APPSTATE_PUK\020\003\022"
+    "\037\n\033APPSTATE_SUBSCRIPTION_PERSO\020\004\022\022\n\016APPS"
+    "TATE_READY\020\005*\275\001\n\013RilPinState\022\024\n\020PINSTATE"
+    "_UNKNOWN\020\000\022!\n\035PINSTATE_ENABLED_NOT_VERIF"
+    "IED\020\001\022\035\n\031PINSTATE_ENABLED_VERIFIED\020\002\022\025\n\021"
+    "PINSTATE_DISABLED\020\003\022\034\n\030PINSTATE_ENABLED_"
+    "BLOCKED\020\004\022!\n\035PINSTATE_ENABLED_PERM_BLOCK"
+    "ED\020\005*h\n\nRilAppType\022\023\n\017APPTYPE_UNKNOWN\020\000\022"
+    "\017\n\013APPTYPE_SIM\020\001\022\020\n\014APPTYPE_USIM\020\002\022\020\n\014AP"
+    "PTYPE_RUIM\020\003\022\020\n\014APPTYPE_CSIM\020\004*\316\001\n\nRilUu"
+    "sType\022\030\n\024RILUUSTYPE1_IMPLICIT\020\000\022\030\n\024RILUU"
+    "STYPE1_REQUIRED\020\001\022\034\n\030RILUUSTYPE1_NOT_REQ"
+    "UIRED\020\002\022\030\n\024RILUUSTYPE2_REQUIRED\020\003\022\034\n\030RIL"
+    "UUSTYPE2_NOT_REQUIRED\020\004\022\030\n\024RILUUSTYPE3_R"
+    "EQUIRED\020\005\022\034\n\030RILUUSTYPE3_NOT_REQUIRED\020\006*"
+    "p\n\tRilUusDcs\022\021\n\rRILUUSDCS_USP\020\000\022\024\n\020RILUU"
+    "SDCS_OSIHLP\020\001\022\022\n\016RILUUSDCS_X244\020\002\022\022\n\016RIL"
+    "UUSDCS_RMCF\020\003\022\022\n\016RILUUSDCS_IA5c\020\004*\231\001\n\014Ri"
+    "lCallState\022\024\n\020CALLSTATE_ACTIVE\020\000\022\025\n\021CALL"
+    "STATE_HOLDING\020\001\022\025\n\021CALLSTATE_DIALING\020\002\022\026"
+    "\n\022CALLSTATE_ALERTING\020\003\022\026\n\022CALLSTATE_INCO"
+    "MING\020\004\022\025\n\021CALLSTATE_WAITING\020\005B3\n(com.and"
+    "roid.internal.telephony.ril_protoB\007RilCm"
+    "ds", 4082);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ril.proto", &protobuf_RegisterTypes);
   RilAppStatus::default_instance_ = new RilAppStatus();
   RilCardStatus::default_instance_ = new RilCardStatus();
   RilUusInfo::default_instance_ = new RilUusInfo();
   RilCall::default_instance_ = new RilCall();
+  RILGWSignalStrength::default_instance_ = new RILGWSignalStrength();
+  RILCDMASignalStrength::default_instance_ = new RILCDMASignalStrength();
+  RILEVDOSignalStrength::default_instance_ = new RILEVDOSignalStrength();
   RspStrings::default_instance_ = new RspStrings();
   RspIntegers::default_instance_ = new RspIntegers();
   RspGetSimStatus::default_instance_ = new RspGetSimStatus();
@@ -488,12 +596,16 @@ void protobuf_AddDesc_ril_2eproto() {
   RspEnterSimPin::default_instance_ = new RspEnterSimPin();
   RspGetCurrentCalls::default_instance_ = new RspGetCurrentCalls();
   ReqHangUp::default_instance_ = new ReqHangUp();
+  RspSignalStrength::default_instance_ = new RspSignalStrength();
   RspOperator::default_instance_ = new RspOperator();
   ReqScreenState::default_instance_ = new ReqScreenState();
   RilAppStatus::default_instance_->InitAsDefaultInstance();
   RilCardStatus::default_instance_->InitAsDefaultInstance();
   RilUusInfo::default_instance_->InitAsDefaultInstance();
   RilCall::default_instance_->InitAsDefaultInstance();
+  RILGWSignalStrength::default_instance_->InitAsDefaultInstance();
+  RILCDMASignalStrength::default_instance_->InitAsDefaultInstance();
+  RILEVDOSignalStrength::default_instance_->InitAsDefaultInstance();
   RspStrings::default_instance_->InitAsDefaultInstance();
   RspIntegers::default_instance_->InitAsDefaultInstance();
   RspGetSimStatus::default_instance_->InitAsDefaultInstance();
@@ -501,6 +613,7 @@ void protobuf_AddDesc_ril_2eproto() {
   RspEnterSimPin::default_instance_->InitAsDefaultInstance();
   RspGetCurrentCalls::default_instance_->InitAsDefaultInstance();
   ReqHangUp::default_instance_->InitAsDefaultInstance();
+  RspSignalStrength::default_instance_->InitAsDefaultInstance();
   RspOperator::default_instance_->InitAsDefaultInstance();
   ReqScreenState::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_ril_2eproto);
@@ -2759,6 +2872,787 @@ void RilCall::Swap(RilCall* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int RILGWSignalStrength::kSignalStrengthFieldNumber;
+const int RILGWSignalStrength::kBitErrorRateFieldNumber;
+#endif  // !_MSC_VER
+
+RILGWSignalStrength::RILGWSignalStrength()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void RILGWSignalStrength::InitAsDefaultInstance() {
+}
+
+RILGWSignalStrength::RILGWSignalStrength(const RILGWSignalStrength& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void RILGWSignalStrength::SharedCtor() {
+  _cached_size_ = 0;
+  signal_strength_ = 0;
+  bit_error_rate_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RILGWSignalStrength::~RILGWSignalStrength() {
+  SharedDtor();
+}
+
+void RILGWSignalStrength::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void RILGWSignalStrength::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RILGWSignalStrength::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RILGWSignalStrength_descriptor_;
+}
+
+const RILGWSignalStrength& RILGWSignalStrength::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ril_2eproto();  return *default_instance_;
+}
+
+RILGWSignalStrength* RILGWSignalStrength::default_instance_ = NULL;
+
+RILGWSignalStrength* RILGWSignalStrength::New() const {
+  return new RILGWSignalStrength;
+}
+
+void RILGWSignalStrength::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    signal_strength_ = 0;
+    bit_error_rate_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool RILGWSignalStrength::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional int32 signal_strength = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &signal_strength_)));
+          _set_bit(0);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_bit_error_rate;
+        break;
+      }
+      
+      // optional int32 bit_error_rate = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_bit_error_rate:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &bit_error_rate_)));
+          _set_bit(1);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void RILGWSignalStrength::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // optional int32 signal_strength = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->signal_strength(), output);
+  }
+  
+  // optional int32 bit_error_rate = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->bit_error_rate(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* RILGWSignalStrength::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // optional int32 signal_strength = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->signal_strength(), target);
+  }
+  
+  // optional int32 bit_error_rate = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->bit_error_rate(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int RILGWSignalStrength::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional int32 signal_strength = 1;
+    if (has_signal_strength()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->signal_strength());
+    }
+    
+    // optional int32 bit_error_rate = 2;
+    if (has_bit_error_rate()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->bit_error_rate());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RILGWSignalStrength::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const RILGWSignalStrength* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const RILGWSignalStrength*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void RILGWSignalStrength::MergeFrom(const RILGWSignalStrength& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_signal_strength(from.signal_strength());
+    }
+    if (from._has_bit(1)) {
+      set_bit_error_rate(from.bit_error_rate());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void RILGWSignalStrength::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RILGWSignalStrength::CopyFrom(const RILGWSignalStrength& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RILGWSignalStrength::IsInitialized() const {
+  
+  return true;
+}
+
+void RILGWSignalStrength::Swap(RILGWSignalStrength* other) {
+  if (other != this) {
+    std::swap(signal_strength_, other->signal_strength_);
+    std::swap(bit_error_rate_, other->bit_error_rate_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata RILGWSignalStrength::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RILGWSignalStrength_descriptor_;
+  metadata.reflection = RILGWSignalStrength_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int RILCDMASignalStrength::kDbmFieldNumber;
+const int RILCDMASignalStrength::kEcioFieldNumber;
+#endif  // !_MSC_VER
+
+RILCDMASignalStrength::RILCDMASignalStrength()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void RILCDMASignalStrength::InitAsDefaultInstance() {
+}
+
+RILCDMASignalStrength::RILCDMASignalStrength(const RILCDMASignalStrength& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void RILCDMASignalStrength::SharedCtor() {
+  _cached_size_ = 0;
+  dbm_ = 0;
+  ecio_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RILCDMASignalStrength::~RILCDMASignalStrength() {
+  SharedDtor();
+}
+
+void RILCDMASignalStrength::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void RILCDMASignalStrength::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RILCDMASignalStrength::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RILCDMASignalStrength_descriptor_;
+}
+
+const RILCDMASignalStrength& RILCDMASignalStrength::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ril_2eproto();  return *default_instance_;
+}
+
+RILCDMASignalStrength* RILCDMASignalStrength::default_instance_ = NULL;
+
+RILCDMASignalStrength* RILCDMASignalStrength::New() const {
+  return new RILCDMASignalStrength;
+}
+
+void RILCDMASignalStrength::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    dbm_ = 0;
+    ecio_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool RILCDMASignalStrength::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional int32 dbm = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &dbm_)));
+          _set_bit(0);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_ecio;
+        break;
+      }
+      
+      // optional int32 ecio = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_ecio:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &ecio_)));
+          _set_bit(1);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void RILCDMASignalStrength::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // optional int32 dbm = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->dbm(), output);
+  }
+  
+  // optional int32 ecio = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->ecio(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* RILCDMASignalStrength::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // optional int32 dbm = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->dbm(), target);
+  }
+  
+  // optional int32 ecio = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->ecio(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int RILCDMASignalStrength::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional int32 dbm = 1;
+    if (has_dbm()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->dbm());
+    }
+    
+    // optional int32 ecio = 2;
+    if (has_ecio()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->ecio());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RILCDMASignalStrength::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const RILCDMASignalStrength* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const RILCDMASignalStrength*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void RILCDMASignalStrength::MergeFrom(const RILCDMASignalStrength& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_dbm(from.dbm());
+    }
+    if (from._has_bit(1)) {
+      set_ecio(from.ecio());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void RILCDMASignalStrength::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RILCDMASignalStrength::CopyFrom(const RILCDMASignalStrength& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RILCDMASignalStrength::IsInitialized() const {
+  
+  return true;
+}
+
+void RILCDMASignalStrength::Swap(RILCDMASignalStrength* other) {
+  if (other != this) {
+    std::swap(dbm_, other->dbm_);
+    std::swap(ecio_, other->ecio_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata RILCDMASignalStrength::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RILCDMASignalStrength_descriptor_;
+  metadata.reflection = RILCDMASignalStrength_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int RILEVDOSignalStrength::kDbmFieldNumber;
+const int RILEVDOSignalStrength::kEcioFieldNumber;
+const int RILEVDOSignalStrength::kSignalNoiseRatioFieldNumber;
+#endif  // !_MSC_VER
+
+RILEVDOSignalStrength::RILEVDOSignalStrength()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void RILEVDOSignalStrength::InitAsDefaultInstance() {
+}
+
+RILEVDOSignalStrength::RILEVDOSignalStrength(const RILEVDOSignalStrength& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void RILEVDOSignalStrength::SharedCtor() {
+  _cached_size_ = 0;
+  dbm_ = 0;
+  ecio_ = 0;
+  signal_noise_ratio_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RILEVDOSignalStrength::~RILEVDOSignalStrength() {
+  SharedDtor();
+}
+
+void RILEVDOSignalStrength::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void RILEVDOSignalStrength::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RILEVDOSignalStrength::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RILEVDOSignalStrength_descriptor_;
+}
+
+const RILEVDOSignalStrength& RILEVDOSignalStrength::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ril_2eproto();  return *default_instance_;
+}
+
+RILEVDOSignalStrength* RILEVDOSignalStrength::default_instance_ = NULL;
+
+RILEVDOSignalStrength* RILEVDOSignalStrength::New() const {
+  return new RILEVDOSignalStrength;
+}
+
+void RILEVDOSignalStrength::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    dbm_ = 0;
+    ecio_ = 0;
+    signal_noise_ratio_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool RILEVDOSignalStrength::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional int32 dbm = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &dbm_)));
+          _set_bit(0);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_ecio;
+        break;
+      }
+      
+      // optional int32 ecio = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_ecio:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &ecio_)));
+          _set_bit(1);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(24)) goto parse_signal_noise_ratio;
+        break;
+      }
+      
+      // optional int32 signal_noise_ratio = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_signal_noise_ratio:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &signal_noise_ratio_)));
+          _set_bit(2);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void RILEVDOSignalStrength::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // optional int32 dbm = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->dbm(), output);
+  }
+  
+  // optional int32 ecio = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->ecio(), output);
+  }
+  
+  // optional int32 signal_noise_ratio = 3;
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->signal_noise_ratio(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* RILEVDOSignalStrength::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // optional int32 dbm = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->dbm(), target);
+  }
+  
+  // optional int32 ecio = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->ecio(), target);
+  }
+  
+  // optional int32 signal_noise_ratio = 3;
+  if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->signal_noise_ratio(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int RILEVDOSignalStrength::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional int32 dbm = 1;
+    if (has_dbm()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->dbm());
+    }
+    
+    // optional int32 ecio = 2;
+    if (has_ecio()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->ecio());
+    }
+    
+    // optional int32 signal_noise_ratio = 3;
+    if (has_signal_noise_ratio()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->signal_noise_ratio());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RILEVDOSignalStrength::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const RILEVDOSignalStrength* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const RILEVDOSignalStrength*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void RILEVDOSignalStrength::MergeFrom(const RILEVDOSignalStrength& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_dbm(from.dbm());
+    }
+    if (from._has_bit(1)) {
+      set_ecio(from.ecio());
+    }
+    if (from._has_bit(2)) {
+      set_signal_noise_ratio(from.signal_noise_ratio());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void RILEVDOSignalStrength::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RILEVDOSignalStrength::CopyFrom(const RILEVDOSignalStrength& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RILEVDOSignalStrength::IsInitialized() const {
+  
+  return true;
+}
+
+void RILEVDOSignalStrength::Swap(RILEVDOSignalStrength* other) {
+  if (other != this) {
+    std::swap(dbm_, other->dbm_);
+    std::swap(ecio_, other->ecio_);
+    std::swap(signal_noise_ratio_, other->signal_noise_ratio_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata RILEVDOSignalStrength::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RILEVDOSignalStrength_descriptor_;
+  metadata.reflection = RILEVDOSignalStrength_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
 const int RspStrings::kStringsFieldNumber;
 #endif  // !_MSC_VER
 
@@ -4228,6 +5122,308 @@ void ReqHangUp::Swap(ReqHangUp* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = ReqHangUp_descriptor_;
   metadata.reflection = ReqHangUp_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int RspSignalStrength::kGwSignalstrengthFieldNumber;
+const int RspSignalStrength::kCdmaSignalstrengthFieldNumber;
+const int RspSignalStrength::kEvdoSignalstrengthFieldNumber;
+#endif  // !_MSC_VER
+
+RspSignalStrength::RspSignalStrength()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void RspSignalStrength::InitAsDefaultInstance() {
+  gw_signalstrength_ = const_cast< ::ril_proto::RILGWSignalStrength*>(&::ril_proto::RILGWSignalStrength::default_instance());
+  cdma_signalstrength_ = const_cast< ::ril_proto::RILCDMASignalStrength*>(&::ril_proto::RILCDMASignalStrength::default_instance());
+  evdo_signalstrength_ = const_cast< ::ril_proto::RILEVDOSignalStrength*>(&::ril_proto::RILEVDOSignalStrength::default_instance());
+}
+
+RspSignalStrength::RspSignalStrength(const RspSignalStrength& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void RspSignalStrength::SharedCtor() {
+  _cached_size_ = 0;
+  gw_signalstrength_ = NULL;
+  cdma_signalstrength_ = NULL;
+  evdo_signalstrength_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RspSignalStrength::~RspSignalStrength() {
+  SharedDtor();
+}
+
+void RspSignalStrength::SharedDtor() {
+  if (this != default_instance_) {
+    delete gw_signalstrength_;
+    delete cdma_signalstrength_;
+    delete evdo_signalstrength_;
+  }
+}
+
+void RspSignalStrength::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RspSignalStrength::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RspSignalStrength_descriptor_;
+}
+
+const RspSignalStrength& RspSignalStrength::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ril_2eproto();  return *default_instance_;
+}
+
+RspSignalStrength* RspSignalStrength::default_instance_ = NULL;
+
+RspSignalStrength* RspSignalStrength::New() const {
+  return new RspSignalStrength;
+}
+
+void RspSignalStrength::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (_has_bit(0)) {
+      if (gw_signalstrength_ != NULL) gw_signalstrength_->::ril_proto::RILGWSignalStrength::Clear();
+    }
+    if (_has_bit(1)) {
+      if (cdma_signalstrength_ != NULL) cdma_signalstrength_->::ril_proto::RILCDMASignalStrength::Clear();
+    }
+    if (_has_bit(2)) {
+      if (evdo_signalstrength_ != NULL) evdo_signalstrength_->::ril_proto::RILEVDOSignalStrength::Clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool RspSignalStrength::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .ril_proto.RILGWSignalStrength gw_signalstrength = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_gw_signalstrength()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_cdma_signalstrength;
+        break;
+      }
+      
+      // optional .ril_proto.RILCDMASignalStrength cdma_signalstrength = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_cdma_signalstrength:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_cdma_signalstrength()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(26)) goto parse_evdo_signalstrength;
+        break;
+      }
+      
+      // optional .ril_proto.RILEVDOSignalStrength evdo_signalstrength = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_evdo_signalstrength:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_evdo_signalstrength()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void RspSignalStrength::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // optional .ril_proto.RILGWSignalStrength gw_signalstrength = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->gw_signalstrength(), output);
+  }
+  
+  // optional .ril_proto.RILCDMASignalStrength cdma_signalstrength = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->cdma_signalstrength(), output);
+  }
+  
+  // optional .ril_proto.RILEVDOSignalStrength evdo_signalstrength = 3;
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, this->evdo_signalstrength(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* RspSignalStrength::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // optional .ril_proto.RILGWSignalStrength gw_signalstrength = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->gw_signalstrength(), target);
+  }
+  
+  // optional .ril_proto.RILCDMASignalStrength cdma_signalstrength = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->cdma_signalstrength(), target);
+  }
+  
+  // optional .ril_proto.RILEVDOSignalStrength evdo_signalstrength = 3;
+  if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        3, this->evdo_signalstrength(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int RspSignalStrength::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional .ril_proto.RILGWSignalStrength gw_signalstrength = 1;
+    if (has_gw_signalstrength()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->gw_signalstrength());
+    }
+    
+    // optional .ril_proto.RILCDMASignalStrength cdma_signalstrength = 2;
+    if (has_cdma_signalstrength()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->cdma_signalstrength());
+    }
+    
+    // optional .ril_proto.RILEVDOSignalStrength evdo_signalstrength = 3;
+    if (has_evdo_signalstrength()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->evdo_signalstrength());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RspSignalStrength::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const RspSignalStrength* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const RspSignalStrength*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void RspSignalStrength::MergeFrom(const RspSignalStrength& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      mutable_gw_signalstrength()->::ril_proto::RILGWSignalStrength::MergeFrom(from.gw_signalstrength());
+    }
+    if (from._has_bit(1)) {
+      mutable_cdma_signalstrength()->::ril_proto::RILCDMASignalStrength::MergeFrom(from.cdma_signalstrength());
+    }
+    if (from._has_bit(2)) {
+      mutable_evdo_signalstrength()->::ril_proto::RILEVDOSignalStrength::MergeFrom(from.evdo_signalstrength());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void RspSignalStrength::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RspSignalStrength::CopyFrom(const RspSignalStrength& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RspSignalStrength::IsInitialized() const {
+  
+  return true;
+}
+
+void RspSignalStrength::Swap(RspSignalStrength* other) {
+  if (other != this) {
+    std::swap(gw_signalstrength_, other->gw_signalstrength_);
+    std::swap(cdma_signalstrength_, other->cdma_signalstrength_);
+    std::swap(evdo_signalstrength_, other->evdo_signalstrength_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata RspSignalStrength::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RspSignalStrength_descriptor_;
+  metadata.reflection = RspSignalStrength_reflection_;
   return metadata;
 }
 

@@ -309,17 +309,6 @@ const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc,
 
     s_rilenv = &testEnv;
 
-#if 0
-    LOGD("RIL_Init run tests #####################");
-    testJsSupport(context);
-    testRequests(context);
-    experiments(context);
-    testWorker();
-    testWorkerV8(context);
-    testJs(context);
-    LOGD("RIL_Init tests completed ###############");
-#endif
-
     // load/run mock_ril.js
     char *buffer;
     int status = ReadFile("/sdcard/data/mock_ril.js", &buffer);
@@ -334,6 +323,16 @@ const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc,
     s_rilenv = env;
     requestsInit(context, &s_requestWorkerQueue);
     responsesInit(context);
+
+#if 0
+    LOGD("RIL_Init run tests #####################");
+    testJsSupport(context);
+    testRequests(context);
+    experiments(context);
+    testWorker();
+    testWorkerV8(context);
+    LOGD("RIL_Init tests completed ###############");
+#endif
 
     // Register our call backs so when we startMockRil
     // and it wants to send unsolicited messages the
