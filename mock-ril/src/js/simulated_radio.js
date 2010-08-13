@@ -34,6 +34,24 @@ function RilCall(state, phoneNumber, callerName) {
 }
 
 /**
+ * Set radio state
+ */
+function setRadioState(newState) {
+    newRadioState = newState;
+    if (typeof newState == 'string') {
+        newRadioState = globals[newState];
+        if (typeof newRadioState == 'undefined') {
+            throw('setRadioState: Unknow string: ' + newState);
+        }
+    }
+    if ((newRadioState < RADIOSTATE_OFF) || (newRadioState > RADIOSTATE_NV_READY)) {
+        throw('setRadioState: newRadioState: ' + newRadioState + ' is invalid');
+    }
+    gRadioState = newRadioState;
+    sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED);
+}
+
+/**
  * Simulated Radio
  */
 function Radio() {

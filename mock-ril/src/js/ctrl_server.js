@@ -85,8 +85,8 @@ function CtrlServer() {
 
     print('CtrlServer() ctor E');
     this.ctrlDispatchTable = new Array();
-    this.ctrlDispatchTable[1] = this.ctrlGetRadioState;
-    this.ctrlDispatchTable[2] = this.ctrlSetRadioState;
+    this.ctrlDispatchTable[CTRL_CMD_GET_RADIO_STATE] = this.ctrlGetRadioState;
+    this.ctrlDispatchTable[CTRL_CMD_SET_RADIO_STATE] = this.ctrlSetRadioState;
     print('CtrlServer() ctor X');
 }
 

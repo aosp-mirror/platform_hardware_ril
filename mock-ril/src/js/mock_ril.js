@@ -206,22 +206,6 @@ function onUnsolicitedTick(tick) {
     return 3;
 }
 
-function setRadioState(newState) {
-    newRadioState = newState;
-    if (typeof newState == 'string') {
-        newRadioState = globals[newState];
-        if (typeof newRadioState == 'undefined') {
-            throw('setRadioState: Unknow string: ' + newState);
-        }
-    }
-    if ((newRadioState < RADIOSTATE_OFF) || (newRadioState > RADIOSTATE_NV_READY)) {
-        print('setRadioState: newRadioState: ' + newRadioState + ' is invalid');
-        throw('setRadioState: newRadioState: ' + newRadioState + ' is invalid');
-    }
-    gRadioState = newRadioState;
-    sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED);
-}
-
 /**
  * Dispatch table for requests
  *
