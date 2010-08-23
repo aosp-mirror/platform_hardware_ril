@@ -209,3 +209,9 @@ var RIL_UNSOL_RESEND_INCALL_MUTE = 1030
  */
 var CTRL_CMD_GET_RADIO_STATE = 1
 var CTRL_CMD_SET_RADIO_STATE = 2
+
+/**
+ * Local requests from simulated_radio or simulated_icc
+ */
+var REQUEST_DELAY_TEST = 2000
+var REQUEST_UNSOL_SIGNAL_STRENGTH = 2001

@@ -312,6 +312,45 @@ RIL_Errno RspOperator(
     return rilErrno;
 }
 
+// ----------------- Handle unsolicited response ----------------------------------------
+ /**
+ * Handle RIL_UNSOL_SIGNAL_STRENGTH response
+ */
+void UnsolRspSignalStrength(int cmd, Buffer* buffer) {
+
+    DBG("UnsolRspSignalStrength E");
+    LOGE("unsolicited response command: %d", cmd);
+    // Retrieve response from response message
+    ril_proto::RspSignalStrength *rsp = new ril_proto::RspSignalStrength();
+    rsp->ParseFromArray(buffer->data(), buffer->length());
+    const ril_proto::RILGWSignalStrength& gwST = rsp->gw_signalstrength();
+    const ril_proto::RILCDMASignalStrength& cdmaST = rsp->cdma_signalstrength();
+    const ril_proto::RILEVDOSignalStrength& evdoST = rsp->evdo_signalstrength();
+
+    // Copy the response message from response to format defined in ril.h
+    RIL_SignalStrength curSignalStrength;
+
+    curSignalStrength.GW_SignalStrength.signalStrength = gwST.signal_strength();
+    curSignalStrength.GW_SignalStrength.bitErrorRate = gwST.bit_error_rate();
+    curSignalStrength.CDMA_SignalStrength.dbm = cdmaST.dbm();
+    curSignalStrength.CDMA_SignalStrength.ecio = cdmaST.ecio();
+    curSignalStrength.EVDO_SignalStrength.dbm = evdoST.dbm();
+    curSignalStrength.EVDO_SignalStrength.ecio = evdoST.ecio();
+    curSignalStrength.EVDO_SignalStrength.signalNoiseRatio = evdoST.signal_noise_ratio();
+
+    DBG("print response signal strength: ");
+    DBG("gw signalstrength = %d", curSignalStrength.GW_SignalStrength.signalStrength);
+    DBG("gw_signalstrength = %d", curSignalStrength.GW_SignalStrength.bitErrorRate);
+    DBG("cdma_signalstrength = %d", curSignalStrength.CDMA_SignalStrength.dbm);
+    DBG("cdma_signalstrength = %d", curSignalStrength.CDMA_SignalStrength.ecio);
+    DBG("evdo_signalstrength = %d", curSignalStrength.EVDO_SignalStrength.dbm);
+    DBG("evdo_signalstrength = %d", curSignalStrength.EVDO_SignalStrength.ecio);
+    DBG("evdo_signalstrength = %d", curSignalStrength.EVDO_SignalStrength.signalNoiseRatio);
+
+    s_rilenv->OnUnsolicitedResponse(cmd, &curSignalStrength, sizeof(curSignalStrength));
+}
+
+
 /**
  * Maps for converting request complete and unsoliciated response
  * protobufs to ril data arrays.
@@ -469,6 +508,8 @@ int responsesInit(v8::Handle<v8::Context> context) {
     rilRspConversionMap[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = RspWithNoData; // 46
     rilRspConversionMap[RIL_REQUEST_BASEBAND_VERSION] = RspString; // 51
     rilRspConversionMap[RIL_REQUEST_SCREEN_STATE] = RspWithNoData; // 61
+
+    unsolRilRspConversionMap[RIL_UNSOL_SIGNAL_STRENGTH] = UnsolRspSignalStrength;  // 1009
 
     LOGD("responsesInit X: status=%d", status);
     return STATUS_OK;

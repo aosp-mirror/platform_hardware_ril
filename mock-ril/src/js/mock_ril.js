@@ -276,7 +276,9 @@ dispatchTable[RIL_REQUEST_SCREEN_STATE] = { // 61
 function startMockRil() {
     print("startMockRil E:");
     setRadioState(RADIOSTATE_SIM_READY);
-    simulatedRadio.setSignalStrength(6, 0, -1, -1, -1, -1, -1);
+    // send the signal strength after 5 seconds, wait until mock ril is started
+    simulatedRadioWorker.addDelayed({
+           'reqNum' : REQUEST_UNSOL_SIGNAL_STRENGTH}, 5000);
     print("startMockRil X:");
 }
 

@@ -55,8 +55,6 @@ function RilCall(state, phoneNumber, callerName) {
  * Simulated Radio
  */
 function Radio() {
-    var REQUEST_DELAY_TEST = 2000;
-
     var registrationState = '1';
     var lac = '0';
     var cid = '0';
@@ -414,9 +412,40 @@ function Radio() {
      * Delay test
      */
      this.delayTestRequestHandler = function (req) { // 2000
-        print("delayTestRequestHandler: req.hello=" + req.hello);
-        result.sendResponse = false;
-        return result;
+         print('delayTestRequestHandler: req.hello=' + req.hello);
+         result.sendResponse = false;
+         return result;
+     }
+
+     /**
+      * Delay for RIL_UNSOL_SIGNAL_STRENGTH
+      * TODO: Simulate signal strength changes:
+      * Method 1: provide an array for signal strength, and send the unsolicited
+      *           reponse periodically (the period can also be simulated)
+      * Method 2: Simulate signal strength randomly (within a certain range) and
+      *           send the response periodically.
+      */
+     this.rilUnsolSignalStrength = function (req) { // 2001
+         print('rilUnsolSignalStrength: req.reqNum=' + req.reqNum);
+         rsp = new Object();
+
+         // pack the signal strength into RspSignalStrength
+         rsp.gwSignalstrength = gwSignalStrength;
+         rsp.cdmaSignalstrength = cdmaSignalStrength;
+         rsp.evdoSignalstrength = evdoSignalStrength;
+
+         response = rilSchema[packageNameAndSeperator +
+                              'RspSignalStrength'].serialize(rsp);
+
+         // upldate signal strength
+         sendRilUnsolicitedResponse(RIL_UNSOL_SIGNAL_STRENGTH, response);
+
+         // Send the unsolicited signal strength every 1 minute.
+         simulatedRadioWorker.addDelayed(
+             {'reqNum' : REQUEST_UNSOL_SIGNAL_STRENGTH}, 60000);
+
+         result.sendResponse = false;
+         return result;
      }
 
     /**
@@ -473,8 +502,11 @@ function Radio() {
                 this.rilRequestBaseBandVersion;
     this.radioDispatchTable[RIL_REQUEST_SCREEN_STATE] = // 61
                 this.rilRequestScreenState;
-    this.radioDispatchTable[this.REQUEST_DELAY_TEST] = // 2000
+
+    this.radioDispatchTable[REQUEST_DELAY_TEST] = // 2000
                 this.delayTestRequestHandler;
+    this.radioDispatchTable[REQUEST_UNSOL_SIGNAL_STRENGTH] =  // 2001
+                this.rilUnsolSignalStrength;
     print('Radio: constructor X');
 }
 
