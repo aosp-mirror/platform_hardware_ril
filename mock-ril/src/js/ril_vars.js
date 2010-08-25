@@ -45,6 +45,16 @@ var RIL_E_FDN_CHECK_FAILURE = 14;               /* command failed because recipi
 var RIL_E_ILLEGAL_SIM_OR_ME = 15;               /* network selection failed due to */
 
 /**
+ * RIL_CallState
+ */
+var CALLSTATE_ACTIVE = 0;
+var CALLSTATE_HOLDING = 1;
+var CALLSTATE_DIALING = 2;                           /* MO call only */
+var CALLSTATE_ALERTING = 3;                          /* MO call only */
+var CALLSTATE_INCOMING = 4;                          /* MT call only */
+var CALLSTATE_WAITING = 5;                           /* MT call only */
+
+/**
  * RIL_RadioState
  */
 var RADIOSTATE_OFF = 0;                   /* Radio explictly powered off (eg CFUN=0) */
@@ -215,3 +225,10 @@ var CTRL_CMD_SET_RADIO_STATE = 2
  */
 var REQUEST_DELAY_TEST = 2000
 var REQUEST_UNSOL_SIGNAL_STRENGTH = 2001
+var REQUEST_UNSOL_CALL_STATE_CHANGED = 2002
+
+/**
+ * Other variables
+ */
+var OUTGOING = 0;       /* outgoing call */
+var INCOMING = 1;       /* incoming call */

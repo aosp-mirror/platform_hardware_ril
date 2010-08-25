@@ -2275,6 +2275,161 @@ public final class RilCmds {
     
   }
   
+  public static final class ReqDial extends
+      com.google.protobuf.micro.MessageMicro {
+    public ReqDial() {}
+    
+    // optional string address = 1;
+    public static final int ADDRESS_FIELD_NUMBER = 1;
+    private boolean hasAddress;
+    private java.lang.String address_ = "";
+    public java.lang.String getAddress() { return address_; }
+    public boolean hasAddress() { return hasAddress; }
+    public ReqDial setAddress(java.lang.String value) {
+      hasAddress = true;
+      address_ = value;
+      return this;
+    }
+    public ReqDial clearAddress() {
+      hasAddress = false;
+      address_ = "";
+      return this;
+    }
+    
+    // optional int32 clir = 2;
+    public static final int CLIR_FIELD_NUMBER = 2;
+    private boolean hasClir;
+    private int clir_ = 0;
+    public int getClir() { return clir_; }
+    public boolean hasClir() { return hasClir; }
+    public ReqDial setClir(int value) {
+      hasClir = true;
+      clir_ = value;
+      return this;
+    }
+    public ReqDial clearClir() {
+      hasClir = false;
+      clir_ = 0;
+      return this;
+    }
+    
+    // optional .ril_proto.RilUusInfo uus_info = 3;
+    public static final int UUS_INFO_FIELD_NUMBER = 3;
+    private boolean hasUusInfo;
+    private com.android.internal.telephony.ril_proto.RilCmds.RilUusInfo uusInfo_ = null;
+    public boolean hasUusInfo() { return hasUusInfo; }
+    public com.android.internal.telephony.ril_proto.RilCmds.RilUusInfo getUusInfo() { return uusInfo_; }
+    public ReqDial setUusInfo(com.android.internal.telephony.ril_proto.RilCmds.RilUusInfo value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      hasUusInfo = true;
+      uusInfo_ = value;
+      return this;
+    }
+    public ReqDial clearUusInfo() {
+      hasUusInfo = false;
+      uusInfo_ = null;
+      return this;
+    }
+    
+    public final ReqDial clear() {
+      clearAddress();
+      clearClir();
+      clearUusInfo();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasAddress()) {
+        output.writeString(1, getAddress());
+      }
+      if (hasClir()) {
+        output.writeInt32(2, getClir());
+      }
+      if (hasUusInfo()) {
+        output.writeMessage(3, getUusInfo());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasAddress()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeStringSize(1, getAddress());
+      }
+      if (hasClir()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(2, getClir());
+      }
+      if (hasUusInfo()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeMessageSize(3, getUusInfo());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public ReqDial mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 10: {
+            setAddress(input.readString());
+            break;
+          }
+          case 16: {
+            setClir(input.readInt32());
+            break;
+          }
+          case 26: {
+            com.android.internal.telephony.ril_proto.RilCmds.RilUusInfo value = new com.android.internal.telephony.ril_proto.RilCmds.RilUusInfo();
+            input.readMessage(value);
+            setUusInfo(value);
+            break;
+          }
+        }
+      }
+    }
+    
+    public static ReqDial parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (ReqDial) (new ReqDial().mergeFrom(data));
+    }
+    
+    public static ReqDial parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (ReqDial) (new ReqDial().mergeFrom(input));
+    }
+    
+  }
+  
   public static final class ReqHangUp extends
       com.google.protobuf.micro.MessageMicro {
     public ReqHangUp() {}

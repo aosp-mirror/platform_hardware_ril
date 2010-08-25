@@ -117,10 +117,10 @@ class WorkerQueue {
         }
     };
 
-    std::list<struct Record *> q_;
-    std::list<struct Record *> free_list_;
+    std::list<struct Record *> q_;                // list of records to be processed
+    std::list<struct Record *> free_list_;        // list of records that have been released
     std::priority_queue<struct Record *, std::vector<struct Record *>, record_compare> delayed_q_;
-
+                                                  // list of records that are delayed
     class WorkerQueueThread *wqt_;
 
   protected:

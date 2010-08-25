@@ -47,20 +47,29 @@ if (false) {
 
     function testCalls() {
         print('testCalls E:');
-        c0 = simulatedRadio.addCall('CALLSTATE_ACTIVE', '18312342134', 'wink');
+        c0 = simulatedRadio.addCall(CALLSTATE_ACTIVE, '18312342134', 'wink');
         simulatedRadio.printCalls();
-        c1 = simulatedRadio.addCall('CALLSTATE_ACTIVE', '18312342135', 'me');
+        c1 = simulatedRadio.addCall(CALLSTATE_ACTIVE, '18312342135', 'me');
         simulatedRadio.printCalls();
+        c2 = simulatedRadio.addCall(CALLSTATE_ACTIVE, '18312342135', 'x');
+        simulatedRadio.printCalls();
+        c3 = simulatedRadio.addCall(CALLSTATE_ACTIVE, '18312342135', 'y');
+        simulatedRadio.printCalls();
+
         simulatedRadio.removeCall(c0.index);
+        simulatedRadio.printCalls();
+        simulatedRadio.removeCall(c1.index);
+        simulatedRadio.printCalls();
+        simulatedRadio.removeCall(c2.index);
         simulatedRadio.printCalls();
 
         result = simulatedRadio.rilRequestGetCurrentCalls();
         newCalls = rilSchema[packageNameAndSeperator +
-                        'RspGetCurrentCalls'].parse(result.responseProtobuf);
+                            'RspGetCurrentCalls'].parse(result.responseProtobuf);
         simulatedRadio.printCalls(newCalls.calls);
 
         // Set to false to test RIL_REQUEST_GET_CURRENT_CALLS as there will
-        // be on call still ative on the first RIL_REQUEST_GET_CURRENT_CALLS
+        // be on call still active on the first RIL_REQUEST_GET_CURRENT_CALLS
         // request.
         if (false) {
             simulatedRadio.removeCall(c1.index);

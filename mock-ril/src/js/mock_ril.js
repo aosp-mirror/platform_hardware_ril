@@ -231,6 +231,10 @@ dispatchTable[RIL_REQUEST_ENTER_SIM_PIN] = { // 2
 dispatchTable[RIL_REQUEST_GET_CURRENT_CALLS] = { // 9
     'components' : [simulatedRadioWorker],
 };
+dispatchTable[RIL_REQUEST_DIAL] = { // 10
+    'components' : [simulatedRadioWorker],
+    'schemaName' : 'ReqDial',
+};
 dispatchTable[RIL_REQUEST_GET_IMSI] = { // 11
     'components' : [simulatedIccWorker],
 };
@@ -278,7 +282,7 @@ function startMockRil() {
     setRadioState(RADIOSTATE_SIM_READY);
     // send the signal strength after 5 seconds, wait until mock ril is started
     simulatedRadioWorker.addDelayed({
-           'reqNum' : REQUEST_UNSOL_SIGNAL_STRENGTH}, 5000);
+      'reqNum' : REQUEST_UNSOL_SIGNAL_STRENGTH}, 5000);
     print("startMockRil X:");
 }
 

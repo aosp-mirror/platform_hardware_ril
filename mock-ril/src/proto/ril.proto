@@ -229,6 +229,18 @@ message RspGetCurrentCalls {
   repeated RilCall calls                    = 1;
 }
 
+//  10 RIL_REQUEST_DIAL
+message ReqDial {
+  optional string     address  = 1;
+  optional int32      clir     = 2;
+                             /* (same as 'n' paremeter in TS 27.007 7.7 "+CLIR"
+                              * clir == 0 on "use subscription default value"
+                              * clir == 1 on "CLIR invocation" (restrict CLI presentation)
+                              * clir == 2 on "CLIR suppression" (allow CLI presentation)
+                              */
+  optional RilUusInfo uus_info = 3;    /* NULL or Pointer to User-User Signaling Information */
+}
+
 // 12 RIL_REQUEST_HANG_UP
 message ReqHangUp {
   required int32 connection_index           = 1;

@@ -63,6 +63,9 @@ int ReqWithNoData(Buffer **pBuffer,
     return status;
 }
 
+/**
+ * request for RIL_REQUEST_ENTER_SIM_PIN  // 2
+ */
 int ReqEnterSimPin(Buffer **pBuffer,
         const void *data, const size_t datalen, const RIL_Token t) {
     int status;
@@ -74,6 +77,7 @@ int ReqEnterSimPin(Buffer **pBuffer,
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqEnterSimPin *req = new ril_proto::ReqEnterSimPin();
+        DBG("ReqEnterSimPin: pin = %s", ((const char **)data)[0]);
         req->set_pin((((char **)data)[0]));
         buffer = Buffer::New(req->ByteSize());
         req->SerializeToArray(buffer->data(), buffer->length());
@@ -85,6 +89,68 @@ int ReqEnterSimPin(Buffer **pBuffer,
     return status;
 }
 
+/**
+ * request for RIL_REQUEST_DIAL  // 10
+ */
+int ReqDial(Buffer **pBuffer,
+            const void *data, const size_t datalen, const RIL_Token t) {
+    int status;
+    Buffer *buffer;
+
+    DBG("ReqDial E");
+    DBG("data=%p datalen=%d t=%p", data, datalen, t);
+
+    if (datalen < sizeof(int)) {
+        LOGE("ReqHangUp: data to small err size < sizeof int");
+        status = STATUS_BAD_DATA;
+    } else {
+        ril_proto::ReqDial *req = new ril_proto::ReqDial();
+
+        // cast the data to RIL_Dial
+        RIL_Dial *rilDial = (RIL_Dial *)data;
+        DBG("ReqDial: rilDial->address =%s, rilDial->clir=%d", rilDial->address, rilDial->clir);
+
+        req->set_address(rilDial->address);
+        req->set_clir(rilDial->clir);
+        ril_proto::RilUusInfo *uusInfo = (ril_proto::RilUusInfo *)(&(req->uus_info()));
+
+        if (rilDial->uusInfo != NULL) {
+            DBG("ReqDial: print uusInfo:");
+            DBG("rilDial->uusInfo->uusType = %d, "
+                "rilDial->uusInfo->uusDcs =%d, "
+                "rilDial->uusInfo->uusLength=%d, "
+                "rilDial->uusInfo->uusData = %s",
+                rilDial->uusInfo->uusType,
+                rilDial->uusInfo->uusDcs,
+                rilDial->uusInfo->uusLength,
+                rilDial->uusInfo->uusData);
+
+            uusInfo->set_uus_type((ril_proto::RilUusType)rilDial->uusInfo->uusType);
+            uusInfo->set_uus_dcs((ril_proto::RilUusDcs)rilDial->uusInfo->uusDcs);
+            uusInfo->set_uus_length(rilDial->uusInfo->uusLength);
+            uusInfo->set_uus_data(rilDial->uusInfo->uusData);
+        } else {
+            DBG("uusInfo is NULL");
+        }
+
+        DBG("ReqDial: after set the request");
+        DBG("req->ByetSize=%d", req->ByteSize());
+        buffer = Buffer::New(req->ByteSize());
+        DBG("buffer size=%d", buffer->length());
+
+        req->SerializeToArray(buffer->data(), buffer->length());
+        delete req;
+        *pBuffer = buffer;
+        status = STATUS_OK;
+        DBG("ReqDial X, buffer->length()=%d", buffer->length());
+    }
+    DBG("ReqDial X status = %d", status);
+    return status;
+}
+
+/**
+ * request for RIL_REQUEST_HANGUP    // 12
+ */
 int ReqHangUp(Buffer **pBuffer,
         const void *data, const size_t datalen, const RIL_Token t) {
     int status;
@@ -96,6 +162,7 @@ int ReqHangUp(Buffer **pBuffer,
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqHangUp *req = new ril_proto::ReqHangUp();
+        DBG("ReqHangUp: connection_index=%d", ((int *)data)[0]);
         req->set_connection_index(((int *)data)[0]);
         buffer = Buffer::New(req->ByteSize());
         req->SerializeToArray(buffer->data(), buffer->length());
@@ -107,6 +174,9 @@ int ReqHangUp(Buffer **pBuffer,
     return status;
 }
 
+/**
+ * request for RIL_REQUEST_SCREEN_STATE  // 61
+ */
 int ReqScreenState(Buffer **pBuffer,
         const void *data, const size_t datalen, const RIL_Token t) {
     int status;
@@ -121,10 +191,12 @@ int ReqScreenState(Buffer **pBuffer,
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqScreenState *req = new ril_proto::ReqScreenState();
+        DBG("ReqScreenState: state=%d", ((int *)data)[0]);
         req->set_state(((int *)data)[0]);
         if (try_catch.HasCaught()) {
             ReportException(&try_catch);
         }
+        DBG("ReqScreenState: req->ByteSize()=%d", req->ByteSize());
         buffer = Buffer::New(req->ByteSize());
         DBG("ReqScreenState: serialize");
         req->SerializeToArray(buffer->data(), buffer->length());
@@ -144,9 +216,8 @@ typedef int (*ReqConversion)(Buffer** pBuffer, const void *data,
 typedef std::map<int, ReqConversion> ReqConversionMap;
 ReqConversionMap rilReqConversionMap;
 
-
 int callOnRilRequest(v8::Handle<v8::Context> context, int cmd,
-                   const void *data, size_t datalen, RIL_Token t) {
+                   const void *buffer, RIL_Token t) {
     DBG("callOnRilRequest E: cmd=%d", cmd);
 
     int status;
@@ -163,40 +234,20 @@ int callOnRilRequest(v8::Handle<v8::Context> context, int cmd,
     v8::Handle<v8::Value> v8RequestValue = v8::Number::New(cmd);
     v8::Handle<v8::Value> v8TokenValue = v8::Number::New(int64_t(t));
 
-    // Convert the data to a protobuf Buffer
-    Buffer *buffer = NULL;
-    ReqConversionMap::iterator itr;
-    itr = rilReqConversionMap.find(cmd);
-    if (itr != rilReqConversionMap.end()) {
-        status = itr->second(&buffer, data, datalen, t);
+    // Invoke onRilRequest
+    const int argc = 3;
+    v8::Handle<v8::Value> argv[argc] = {
+            v8RequestValue, v8TokenValue, ((Buffer *)buffer)->handle_ };
+    v8::Handle<v8::Value> result =
+        onRilRequestFunction->Call(context->Global(), argc, argv);
+    if (try_catch.HasCaught()) {
+        LOGE("callOnRilRequest error");
+        ReportException(&try_catch);
+        status = STATUS_ERR;
     } else {
-        LOGE("callOnRilRequest X unknown request %d", cmd);
-        status = STATUS_UNSUPPORTED_REQUEST;
-    }
-
-    if (status == STATUS_OK) {
-        // Invoke onRilRequest
-        const int argc = 3;
-        v8::Handle<v8::Value> argv[argc] = {
-                v8RequestValue, v8TokenValue, buffer->handle_ };
-        v8::Handle<v8::Value> result =
-            onRilRequestFunction->Call(context->Global(), argc, argv);
-        if (try_catch.HasCaught()) {
-            LOGE("callOnRilRequest error");
-            ReportException(&try_catch);
-            status = STATUS_ERR;
-        } else {
-            v8::String::Utf8Value result_string(result);
-            DBG("callOnRilRequest result=%s", ToCString(result_string));
-            status = STATUS_OK;
-        }
-    }
-
-    if (status != STATUS_OK) {
-        // An error report complete now
-        RIL_Errno rilErrCode = (status == STATUS_UNSUPPORTED_REQUEST) ?
-                 RIL_E_REQUEST_NOT_SUPPORTED : RIL_E_GENERIC_FAILURE;
-        s_rilenv->OnRequestComplete(t, rilErrCode, NULL, 0);
+        v8::String::Utf8Value result_string(result);
+        DBG("callOnRilRequest result=%s", ToCString(result_string));
+        status = STATUS_OK;
     }
 
     DBG("callOnRilRequest X: status=%d", status);
@@ -226,20 +277,56 @@ RilRequestWorkerQueue::~RilRequestWorkerQueue() {
     DBG("~RilRequestWorkerQueue X:");
 }
 
+/**
+ * Add a request to the processing queue.
+ * Data is serialized to a protobuf before adding to the queue.
+ */
 void RilRequestWorkerQueue::AddRequest (const int request,
         const void *data, const size_t datalen, const RIL_Token token) {
-    Request *req;
-    pthread_mutex_lock(&free_list_mutex_);
-    if (free_list_.size() == 0) {
-        req = new Request(request, data, datalen, token);
-        pthread_mutex_unlock(&free_list_mutex_);
+    DBG("RilRequestWorkerQueue:AddRequest E: Before adding the request");
+
+    v8::Locker locker;
+    v8::HandleScope handle_scope;
+    v8::Context::Scope context_scope(context_);
+
+    int status;
+
+    // Convert the data to a protobuf before inserting it into the request queue (serialize data)
+    Buffer *buffer = NULL;
+    ReqConversionMap::iterator itr;
+    itr = rilReqConversionMap.find(request);
+    if (itr != rilReqConversionMap.end()) {
+        status = itr->second(&buffer, data, datalen, token);
     } else {
-        req = free_list_.front();
-        free_list_.pop();
-        pthread_mutex_unlock(&free_list_mutex_);
-        req->Set(request, data, datalen, token);
+        LOGE("RilRequestWorkerQueue:AddRequest: X unknown request %d", request);
+        status = STATUS_UNSUPPORTED_REQUEST;
     }
-    Add(req);
+
+    if (status == STATUS_OK) {
+        // Add serialized request to the queue
+        Request *req;
+        pthread_mutex_lock(&free_list_mutex_);
+        DBG("RilRequestWorkerQueue:AddRequest: return ok, buffer = %p, buffer->length()=%d",
+            buffer, buffer->length());
+        if (free_list_.size() == 0) {
+            req = new Request(request, buffer, token);
+            pthread_mutex_unlock(&free_list_mutex_);
+        } else {
+            req = free_list_.front();
+            free_list_.pop();
+            pthread_mutex_unlock(&free_list_mutex_);
+            req->Set(request, buffer, token);
+        }
+        // add the request
+        Add(req);
+    } else {
+        DBG("RilRequestWorkerQueue:AddRequest: return from the serialization, status is not OK");
+        // An error report complete now
+        RIL_Errno rilErrCode = (status == STATUS_UNSUPPORTED_REQUEST) ?
+                 RIL_E_REQUEST_NOT_SUPPORTED : RIL_E_GENERIC_FAILURE;
+        s_rilenv->OnRequestComplete(token, rilErrCode, NULL, 0);
+    }
+
     DBG("RilRequestWorkerQueue::AddRequest: X"
          " request=%d data=%p datalen=%d token=%p",
             request, data, datalen, token);
@@ -249,18 +336,14 @@ void RilRequestWorkerQueue::Process(void *p) {
 
     Request *req = (Request *)p;
     DBG("RilRequestWorkerQueue::Process: E"
-         " request=%d data=%p datalen=%d t=%p",
-            req->request_, req->data_, req->datalen_, req->token_);
+         " request=%d buffer=%p, bufferlen=%d t=%p",
+            req->request_, req->buffer_, req->buffer_->length(), req->token_);
 
     v8::Locker locker;
     v8::HandleScope handle_scope;
     v8::Context::Scope context_scope(context_);
     callOnRilRequest(context_, req->request_,
-                          req->data_, req->datalen_, req->token_);
-
-    DBG("RilRequestWorkerQueue::Process: X"
-         " request=%d data=%p datalen=%d t=%p",
-            req->request_, req->data_, req->datalen_, req->token_);
+                          req->buffer_, req->token_);
 
     pthread_mutex_lock(&free_list_mutex_);
     free_list_.push(req);
@@ -273,6 +356,7 @@ int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
     rilReqConversionMap[RIL_REQUEST_GET_SIM_STATUS] = ReqWithNoData; // 1
     rilReqConversionMap[RIL_REQUEST_ENTER_SIM_PIN] = ReqEnterSimPin; // 2
     rilReqConversionMap[RIL_REQUEST_GET_CURRENT_CALLS] = ReqWithNoData; // 9
+    rilReqConversionMap[RIL_REQUEST_DIAL] = ReqDial;   // 10
     rilReqConversionMap[RIL_REQUEST_GET_IMSI] = ReqWithNoData; // 11
     rilReqConversionMap[RIL_REQUEST_HANGUP] = ReqHangUp; // 12
     rilReqConversionMap[RIL_REQUEST_SIGNAL_STRENGTH] = ReqWithNoData; // 19
@@ -293,6 +377,31 @@ int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
     return status;
 }
 
+/**
+ * Subroutine to test a single RIL request
+ */
+void testRilRequest(v8::Handle<v8::Context> context, int request, const void *data,
+                    const size_t datalen, const RIL_Token t) {
+    Buffer *buffer = NULL;
+    ReqConversionMap::iterator itr;
+    int status;
+
+    LOGD("testRilRequest: request=%d", request);
+
+    itr = rilReqConversionMap.find(request);
+    if (itr != rilReqConversionMap.end()) {
+        status = itr->second(&buffer, data, sizeof(data), (void *)0x12345677);
+    } else {
+        LOGE("testRequests X unknown request %d", request);
+        status = STATUS_UNSUPPORTED_REQUEST;
+    }
+    if (status == STATUS_OK) {
+        callOnRilRequest(context, request, buffer, (void *)0x12345677);
+    } else {
+        LOGE("testRilRequest X, serialize error");
+    }
+}
+
 void testRequests(v8::Handle<v8::Context> context) {
     LOGD("testRequests E: ********");
 
@@ -303,26 +412,31 @@ void testRequests(v8::Handle<v8::Context> context) {
     int status = ReadFile(fileName, &buffer);
     if (status == 0) {
         runJs(context, &try_catch, fileName, buffer);
+        Buffer *buffer = NULL;
+        ReqConversionMap::iterator itr;
+        int status;
+        int request;
+
         if (!try_catch.HasCaught()) {
             {
                 const int data[1] = { 1 };
-                callOnRilRequest(context, RIL_REQUEST_SIGNAL_STRENGTH, data,
-                                 sizeof(data), (void *)0x12345677);
+                testRilRequest(context, RIL_REQUEST_SIGNAL_STRENGTH, data, sizeof(data),
+                               (void *)0x12345677);
             }
             {
                 const char *data[1] = { "winks-pin" };
-                callOnRilRequest(context, RIL_REQUEST_ENTER_SIM_PIN, data,
-                        sizeof(data), (void *)0x12345678);
+                testRilRequest(context, RIL_REQUEST_ENTER_SIM_PIN, data, sizeof(data),
+                               (void *)0x12345677);
             }
             {
                 const int data[1] = { 1 };
-                callOnRilRequest(context, RIL_REQUEST_HANGUP, data,
-                        sizeof(data), (void *)0x12345679);
+                testRilRequest(context, RIL_REQUEST_HANGUP, data, sizeof(data),
+                               (void *)0x12345677);
             }
             {
                 const int data[1] = { 1 };
-                callOnRilRequest(context, RIL_REQUEST_SCREEN_STATE, data,
-                        sizeof(data), (void *)0x67458);
+                testRilRequest(context, RIL_REQUEST_SCREEN_STATE, data, sizeof(data),
+                               (void *)0x12345677);
             }
             {
                 RilRequestWorkerQueue *rwq = new RilRequestWorkerQueue(context);

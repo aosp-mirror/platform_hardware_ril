@@ -53,6 +53,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* RspGetCurrentCalls_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RspGetCurrentCalls_reflection_ = NULL;
+const ::google::protobuf::Descriptor* ReqDial_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ReqDial_reflection_ = NULL;
 const ::google::protobuf::Descriptor* ReqHangUp_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ReqHangUp_reflection_ = NULL;
@@ -310,7 +313,24 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RspGetCurrentCalls));
-  ReqHangUp_descriptor_ = file->message_type(13);
+  ReqDial_descriptor_ = file->message_type(13);
+  static const int ReqDial_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqDial, address_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqDial, clir_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqDial, uus_info_),
+  };
+  ReqDial_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ReqDial_descriptor_,
+      ReqDial::default_instance_,
+      ReqDial_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqDial, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqDial, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ReqDial));
+  ReqHangUp_descriptor_ = file->message_type(14);
   static const int ReqHangUp_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqHangUp, connection_index_),
   };
@@ -325,7 +345,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ReqHangUp));
-  RspSignalStrength_descriptor_ = file->message_type(14);
+  RspSignalStrength_descriptor_ = file->message_type(15);
   static const int RspSignalStrength_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspSignalStrength, gw_signalstrength_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspSignalStrength, cdma_signalstrength_),
@@ -342,7 +362,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RspSignalStrength));
-  RspOperator_descriptor_ = file->message_type(15);
+  RspOperator_descriptor_ = file->message_type(16);
   static const int RspOperator_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspOperator, long_alpha_ons_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RspOperator, short_alpha_ons_),
@@ -359,7 +379,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RspOperator));
-  ReqScreenState_descriptor_ = file->message_type(16);
+  ReqScreenState_descriptor_ = file->message_type(17);
   static const int ReqScreenState_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqScreenState, state_),
   };
@@ -422,6 +442,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RspGetCurrentCalls_descriptor_, &RspGetCurrentCalls::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ReqDial_descriptor_, &ReqDial::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ReqHangUp_descriptor_, &ReqHangUp::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RspSignalStrength_descriptor_, &RspSignalStrength::default_instance());
@@ -460,6 +482,8 @@ void protobuf_ShutdownFile_ril_2eproto() {
   delete RspEnterSimPin_reflection_;
   delete RspGetCurrentCalls::default_instance_;
   delete RspGetCurrentCalls_reflection_;
+  delete ReqDial::default_instance_;
+  delete ReqDial_reflection_;
   delete ReqHangUp::default_instance_;
   delete ReqHangUp_reflection_;
   delete RspSignalStrength::default_instance_;
@@ -513,73 +537,75 @@ void protobuf_AddDesc_ril_2eproto() {
     "oto.RilCardStatus\"\035\n\016ReqEnterSimPin\022\013\n\003p"
     "in\030\001 \002(\t\"+\n\016RspEnterSimPin\022\031\n\021retries_re"
     "maining\030\001 \002(\005\"7\n\022RspGetCurrentCalls\022!\n\005c"
-    "alls\030\001 \003(\0132\022.ril_proto.RilCall\"%\n\tReqHan"
-    "gUp\022\030\n\020connection_index\030\001 \002(\005\"\314\001\n\021RspSig"
-    "nalStrength\0229\n\021gw_signalstrength\030\001 \001(\0132\036"
-    ".ril_proto.RILGWSignalStrength\022=\n\023cdma_s"
-    "ignalstrength\030\002 \001(\0132 .ril_proto.RILCDMAS"
-    "ignalStrength\022=\n\023evdo_signalstrength\030\003 \001"
-    "(\0132 .ril_proto.RILEVDOSignalStrength\"O\n\013"
-    "RspOperator\022\026\n\016long_alpha_ons\030\001 \001(\t\022\027\n\017s"
-    "hort_alpha_ons\030\002 \001(\t\022\017\n\007mcc_mnc\030\003 \001(\t\"\037\n"
-    "\016ReqScreenState\022\r\n\005state\030\001 \002(\010*\257\002\n\nRadio"
-    "State\022\022\n\016RADIOSTATE_OFF\020\000\022\032\n\026RADIOSTATE_"
-    "UNAVAILABLE\020\001\022\034\n\030RADIOSTATE_SIM_NOT_READ"
-    "Y\020\002\022#\n\037RADIOSTATE_SIM_LOCKED_OR_ABSENT\020\003"
-    "\022\030\n\024RADIOSTATE_SIM_READY\020\004\022\035\n\031RADIOSTATE"
-    "_RUIM_NOT_READY\020\005\022\031\n\025RADIOSTATE_RUIM_REA"
-    "DY\020\006\022$\n RADIOSTATE_RUIM_LOCKED_OR_ABSENT"
-    "\020\007\022\033\n\027RADIOSTATE_NV_NOT_READY\020\010\022\027\n\023RADIO"
-    "STATE_NV_READY\020\t*P\n\014RilCardState\022\024\n\020CARD"
-    "STATE_ABSENT\020\000\022\025\n\021CARDSTATE_PRESENT\020\001\022\023\n"
-    "\017CARDSTATE_ERROR\020\002*\361\006\n\020RilPersoSubstate\022"
-    "\031\n\025PERSOSUBSTATE_UNKNOWN\020\000\022\035\n\031PERSOSUBST"
-    "ATE_IN_PROGRESS\020\001\022\027\n\023PERSOSUBSTATE_READY"
-    "\020\002\022\035\n\031PERSOSUBSTATE_SIM_NETWORK\020\003\022$\n PER"
-    "SOSUBSTATE_SIM_NETWORK_SUBSET\020\004\022\037\n\033PERSO"
-    "SUBSTATE_SIM_CORPORATE\020\005\022&\n\"PERSOSUBSTAT"
-    "E_SIM_SERVICE_PROVIDER\020\006\022\031\n\025PERSOSUBSTAT"
-    "E_SIM_SIM\020\007\022!\n\035PERSOSUBSTATE_SIM_NETWORK"
-    "_PUK\020\010\022(\n$PERSOSUBSTATE_SIM_NETWORK_SUBS"
-    "ET_PUK\020\t\022#\n\037PERSOSUBSTATE_SIM_CORPORATE_"
-    "PUK\020\n\022*\n&PERSOSUBSTATE_SIM_SERVICE_PROVI"
-    "DER_PUK\020\013\022\035\n\031PERSOSUBSTATE_SIM_SIM_PUK\020\014"
-    "\022\037\n\033PERSOSUBSTATE_RUIM_NETWORK1\020\r\022\037\n\033PER"
-    "SOSUBSTATE_RUIM_NETWORK2\020\016\022\033\n\027PERSOSUBST"
-    "ATE_RUIM_HRPD\020\017\022 \n\034PERSOSUBSTATE_RUIM_CO"
-    "RPORATE\020\020\022\'\n#PERSOSUBSTATE_RUIM_SERVICE_"
-    "PROVIDER\020\021\022\033\n\027PERSOSUBSTATE_RUIM_RUIM\020\022\022"
-    "#\n\037PERSOSUBSTATE_RUIM_NETWORK1_PUK\020\023\022#\n\037"
-    "PERSOSUBSTATE_RUIM_NETWORK2_PUK\020\024\022\037\n\033PER"
-    "SOSUBSTATE_RUIM_HRPD_PUK\020\025\022$\n PERSOSUBST"
-    "ATE_RUIM_CORPORATE_PUK\020\026\022+\n\'PERSOSUBSTAT"
-    "E_RUIM_SERVICE_PROVIDER_PUK\020\027\022\037\n\033PERSOSU"
-    "BSTATE_RUIM_RUIM_PUK\020\030*\223\001\n\013RilAppState\022\024"
-    "\n\020APPSTATE_UNKNOWN\020\000\022\025\n\021APPSTATE_DETECTE"
-    "D\020\001\022\020\n\014APPSTATE_PIN\020\002\022\020\n\014APPSTATE_PUK\020\003\022"
-    "\037\n\033APPSTATE_SUBSCRIPTION_PERSO\020\004\022\022\n\016APPS"
-    "TATE_READY\020\005*\275\001\n\013RilPinState\022\024\n\020PINSTATE"
-    "_UNKNOWN\020\000\022!\n\035PINSTATE_ENABLED_NOT_VERIF"
-    "IED\020\001\022\035\n\031PINSTATE_ENABLED_VERIFIED\020\002\022\025\n\021"
-    "PINSTATE_DISABLED\020\003\022\034\n\030PINSTATE_ENABLED_"
-    "BLOCKED\020\004\022!\n\035PINSTATE_ENABLED_PERM_BLOCK"
-    "ED\020\005*h\n\nRilAppType\022\023\n\017APPTYPE_UNKNOWN\020\000\022"
-    "\017\n\013APPTYPE_SIM\020\001\022\020\n\014APPTYPE_USIM\020\002\022\020\n\014AP"
-    "PTYPE_RUIM\020\003\022\020\n\014APPTYPE_CSIM\020\004*\316\001\n\nRilUu"
-    "sType\022\030\n\024RILUUSTYPE1_IMPLICIT\020\000\022\030\n\024RILUU"
-    "STYPE1_REQUIRED\020\001\022\034\n\030RILUUSTYPE1_NOT_REQ"
-    "UIRED\020\002\022\030\n\024RILUUSTYPE2_REQUIRED\020\003\022\034\n\030RIL"
-    "UUSTYPE2_NOT_REQUIRED\020\004\022\030\n\024RILUUSTYPE3_R"
-    "EQUIRED\020\005\022\034\n\030RILUUSTYPE3_NOT_REQUIRED\020\006*"
-    "p\n\tRilUusDcs\022\021\n\rRILUUSDCS_USP\020\000\022\024\n\020RILUU"
-    "SDCS_OSIHLP\020\001\022\022\n\016RILUUSDCS_X244\020\002\022\022\n\016RIL"
-    "UUSDCS_RMCF\020\003\022\022\n\016RILUUSDCS_IA5c\020\004*\231\001\n\014Ri"
-    "lCallState\022\024\n\020CALLSTATE_ACTIVE\020\000\022\025\n\021CALL"
-    "STATE_HOLDING\020\001\022\025\n\021CALLSTATE_DIALING\020\002\022\026"
-    "\n\022CALLSTATE_ALERTING\020\003\022\026\n\022CALLSTATE_INCO"
-    "MING\020\004\022\025\n\021CALLSTATE_WAITING\020\005B3\n(com.and"
-    "roid.internal.telephony.ril_protoB\007RilCm"
-    "ds", 4082);
+    "alls\030\001 \003(\0132\022.ril_proto.RilCall\"Q\n\007ReqDia"
+    "l\022\017\n\007address\030\001 \001(\t\022\014\n\004clir\030\002 \001(\005\022\'\n\010uus_"
+    "info\030\003 \001(\0132\025.ril_proto.RilUusInfo\"%\n\tReq"
+    "HangUp\022\030\n\020connection_index\030\001 \002(\005\"\314\001\n\021Rsp"
+    "SignalStrength\0229\n\021gw_signalstrength\030\001 \001("
+    "\0132\036.ril_proto.RILGWSignalStrength\022=\n\023cdm"
+    "a_signalstrength\030\002 \001(\0132 .ril_proto.RILCD"
+    "MASignalStrength\022=\n\023evdo_signalstrength\030"
+    "\003 \001(\0132 .ril_proto.RILEVDOSignalStrength\""
+    "O\n\013RspOperator\022\026\n\016long_alpha_ons\030\001 \001(\t\022\027"
+    "\n\017short_alpha_ons\030\002 \001(\t\022\017\n\007mcc_mnc\030\003 \001(\t"
+    "\"\037\n\016ReqScreenState\022\r\n\005state\030\001 \002(\010*\257\002\n\nRa"
+    "dioState\022\022\n\016RADIOSTATE_OFF\020\000\022\032\n\026RADIOSTA"
+    "TE_UNAVAILABLE\020\001\022\034\n\030RADIOSTATE_SIM_NOT_R"
+    "EADY\020\002\022#\n\037RADIOSTATE_SIM_LOCKED_OR_ABSEN"
+    "T\020\003\022\030\n\024RADIOSTATE_SIM_READY\020\004\022\035\n\031RADIOST"
+    "ATE_RUIM_NOT_READY\020\005\022\031\n\025RADIOSTATE_RUIM_"
+    "READY\020\006\022$\n RADIOSTATE_RUIM_LOCKED_OR_ABS"
+    "ENT\020\007\022\033\n\027RADIOSTATE_NV_NOT_READY\020\010\022\027\n\023RA"
+    "DIOSTATE_NV_READY\020\t*P\n\014RilCardState\022\024\n\020C"
+    "ARDSTATE_ABSENT\020\000\022\025\n\021CARDSTATE_PRESENT\020\001"
+    "\022\023\n\017CARDSTATE_ERROR\020\002*\361\006\n\020RilPersoSubsta"
+    "te\022\031\n\025PERSOSUBSTATE_UNKNOWN\020\000\022\035\n\031PERSOSU"
+    "BSTATE_IN_PROGRESS\020\001\022\027\n\023PERSOSUBSTATE_RE"
+    "ADY\020\002\022\035\n\031PERSOSUBSTATE_SIM_NETWORK\020\003\022$\n "
+    "PERSOSUBSTATE_SIM_NETWORK_SUBSET\020\004\022\037\n\033PE"
+    "RSOSUBSTATE_SIM_CORPORATE\020\005\022&\n\"PERSOSUBS"
+    "TATE_SIM_SERVICE_PROVIDER\020\006\022\031\n\025PERSOSUBS"
+    "TATE_SIM_SIM\020\007\022!\n\035PERSOSUBSTATE_SIM_NETW"
+    "ORK_PUK\020\010\022(\n$PERSOSUBSTATE_SIM_NETWORK_S"
+    "UBSET_PUK\020\t\022#\n\037PERSOSUBSTATE_SIM_CORPORA"
+    "TE_PUK\020\n\022*\n&PERSOSUBSTATE_SIM_SERVICE_PR"
+    "OVIDER_PUK\020\013\022\035\n\031PERSOSUBSTATE_SIM_SIM_PU"
+    "K\020\014\022\037\n\033PERSOSUBSTATE_RUIM_NETWORK1\020\r\022\037\n\033"
+    "PERSOSUBSTATE_RUIM_NETWORK2\020\016\022\033\n\027PERSOSU"
+    "BSTATE_RUIM_HRPD\020\017\022 \n\034PERSOSUBSTATE_RUIM"
+    "_CORPORATE\020\020\022\'\n#PERSOSUBSTATE_RUIM_SERVI"
+    "CE_PROVIDER\020\021\022\033\n\027PERSOSUBSTATE_RUIM_RUIM"
+    "\020\022\022#\n\037PERSOSUBSTATE_RUIM_NETWORK1_PUK\020\023\022"
+    "#\n\037PERSOSUBSTATE_RUIM_NETWORK2_PUK\020\024\022\037\n\033"
+    "PERSOSUBSTATE_RUIM_HRPD_PUK\020\025\022$\n PERSOSU"
+    "BSTATE_RUIM_CORPORATE_PUK\020\026\022+\n\'PERSOSUBS"
+    "TATE_RUIM_SERVICE_PROVIDER_PUK\020\027\022\037\n\033PERS"
+    "OSUBSTATE_RUIM_RUIM_PUK\020\030*\223\001\n\013RilAppStat"
+    "e\022\024\n\020APPSTATE_UNKNOWN\020\000\022\025\n\021APPSTATE_DETE"
+    "CTED\020\001\022\020\n\014APPSTATE_PIN\020\002\022\020\n\014APPSTATE_PUK"
+    "\020\003\022\037\n\033APPSTATE_SUBSCRIPTION_PERSO\020\004\022\022\n\016A"
+    "PPSTATE_READY\020\005*\275\001\n\013RilPinState\022\024\n\020PINST"
+    "ATE_UNKNOWN\020\000\022!\n\035PINSTATE_ENABLED_NOT_VE"
+    "RIFIED\020\001\022\035\n\031PINSTATE_ENABLED_VERIFIED\020\002\022"
+    "\025\n\021PINSTATE_DISABLED\020\003\022\034\n\030PINSTATE_ENABL"
+    "ED_BLOCKED\020\004\022!\n\035PINSTATE_ENABLED_PERM_BL"
+    "OCKED\020\005*h\n\nRilAppType\022\023\n\017APPTYPE_UNKNOWN"
+    "\020\000\022\017\n\013APPTYPE_SIM\020\001\022\020\n\014APPTYPE_USIM\020\002\022\020\n"
+    "\014APPTYPE_RUIM\020\003\022\020\n\014APPTYPE_CSIM\020\004*\316\001\n\nRi"
+    "lUusType\022\030\n\024RILUUSTYPE1_IMPLICIT\020\000\022\030\n\024RI"
+    "LUUSTYPE1_REQUIRED\020\001\022\034\n\030RILUUSTYPE1_NOT_"
+    "REQUIRED\020\002\022\030\n\024RILUUSTYPE2_REQUIRED\020\003\022\034\n\030"
+    "RILUUSTYPE2_NOT_REQUIRED\020\004\022\030\n\024RILUUSTYPE"
+    "3_REQUIRED\020\005\022\034\n\030RILUUSTYPE3_NOT_REQUIRED"
+    "\020\006*p\n\tRilUusDcs\022\021\n\rRILUUSDCS_USP\020\000\022\024\n\020RI"
+    "LUUSDCS_OSIHLP\020\001\022\022\n\016RILUUSDCS_X244\020\002\022\022\n\016"
+    "RILUUSDCS_RMCF\020\003\022\022\n\016RILUUSDCS_IA5c\020\004*\231\001\n"
+    "\014RilCallState\022\024\n\020CALLSTATE_ACTIVE\020\000\022\025\n\021C"
+    "ALLSTATE_HOLDING\020\001\022\025\n\021CALLSTATE_DIALING\020"
+    "\002\022\026\n\022CALLSTATE_ALERTING\020\003\022\026\n\022CALLSTATE_I"
+    "NCOMING\020\004\022\025\n\021CALLSTATE_WAITING\020\005B3\n(com."
+    "android.internal.telephony.ril_protoB\007Ri"
+    "lCmds", 4165);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ril.proto", &protobuf_RegisterTypes);
   RilAppStatus::default_instance_ = new RilAppStatus();
@@ -595,6 +621,7 @@ void protobuf_AddDesc_ril_2eproto() {
   ReqEnterSimPin::default_instance_ = new ReqEnterSimPin();
   RspEnterSimPin::default_instance_ = new RspEnterSimPin();
   RspGetCurrentCalls::default_instance_ = new RspGetCurrentCalls();
+  ReqDial::default_instance_ = new ReqDial();
   ReqHangUp::default_instance_ = new ReqHangUp();
   RspSignalStrength::default_instance_ = new RspSignalStrength();
   RspOperator::default_instance_ = new RspOperator();
@@ -612,6 +639,7 @@ void protobuf_AddDesc_ril_2eproto() {
   ReqEnterSimPin::default_instance_->InitAsDefaultInstance();
   RspEnterSimPin::default_instance_->InitAsDefaultInstance();
   RspGetCurrentCalls::default_instance_->InitAsDefaultInstance();
+  ReqDial::default_instance_->InitAsDefaultInstance();
   ReqHangUp::default_instance_->InitAsDefaultInstance();
   RspSignalStrength::default_instance_->InitAsDefaultInstance();
   RspOperator::default_instance_->InitAsDefaultInstance();
@@ -4914,6 +4942,316 @@ void RspGetCurrentCalls::Swap(RspGetCurrentCalls* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = RspGetCurrentCalls_descriptor_;
   metadata.reflection = RspGetCurrentCalls_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+const ::std::string ReqDial::_default_address_;
+#ifndef _MSC_VER
+const int ReqDial::kAddressFieldNumber;
+const int ReqDial::kClirFieldNumber;
+const int ReqDial::kUusInfoFieldNumber;
+#endif  // !_MSC_VER
+
+ReqDial::ReqDial()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void ReqDial::InitAsDefaultInstance() {
+  uus_info_ = const_cast< ::ril_proto::RilUusInfo*>(&::ril_proto::RilUusInfo::default_instance());
+}
+
+ReqDial::ReqDial(const ReqDial& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void ReqDial::SharedCtor() {
+  _cached_size_ = 0;
+  address_ = const_cast< ::std::string*>(&_default_address_);
+  clir_ = 0;
+  uus_info_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ReqDial::~ReqDial() {
+  SharedDtor();
+}
+
+void ReqDial::SharedDtor() {
+  if (address_ != &_default_address_) {
+    delete address_;
+  }
+  if (this != default_instance_) {
+    delete uus_info_;
+  }
+}
+
+void ReqDial::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ReqDial::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ReqDial_descriptor_;
+}
+
+const ReqDial& ReqDial::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ril_2eproto();  return *default_instance_;
+}
+
+ReqDial* ReqDial::default_instance_ = NULL;
+
+ReqDial* ReqDial::New() const {
+  return new ReqDial;
+}
+
+void ReqDial::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (_has_bit(0)) {
+      if (address_ != &_default_address_) {
+        address_->clear();
+      }
+    }
+    clir_ = 0;
+    if (_has_bit(2)) {
+      if (uus_info_ != NULL) uus_info_->::ril_proto::RilUusInfo::Clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool ReqDial::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string address = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_address()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->address().data(), this->address().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_clir;
+        break;
+      }
+      
+      // optional int32 clir = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_clir:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &clir_)));
+          _set_bit(1);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(26)) goto parse_uus_info;
+        break;
+      }
+      
+      // optional .ril_proto.RilUusInfo uus_info = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_uus_info:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_uus_info()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void ReqDial::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // optional string address = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->address().data(), this->address().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      1, this->address(), output);
+  }
+  
+  // optional int32 clir = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->clir(), output);
+  }
+  
+  // optional .ril_proto.RilUusInfo uus_info = 3;
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, this->uus_info(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* ReqDial::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // optional string address = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->address().data(), this->address().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->address(), target);
+  }
+  
+  // optional int32 clir = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->clir(), target);
+  }
+  
+  // optional .ril_proto.RilUusInfo uus_info = 3;
+  if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        3, this->uus_info(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int ReqDial::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional string address = 1;
+    if (has_address()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->address());
+    }
+    
+    // optional int32 clir = 2;
+    if (has_clir()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->clir());
+    }
+    
+    // optional .ril_proto.RilUusInfo uus_info = 3;
+    if (has_uus_info()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->uus_info());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void ReqDial::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const ReqDial* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const ReqDial*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void ReqDial::MergeFrom(const ReqDial& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_address(from.address());
+    }
+    if (from._has_bit(1)) {
+      set_clir(from.clir());
+    }
+    if (from._has_bit(2)) {
+      mutable_uus_info()->::ril_proto::RilUusInfo::MergeFrom(from.uus_info());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void ReqDial::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ReqDial::CopyFrom(const ReqDial& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ReqDial::IsInitialized() const {
+  
+  return true;
+}
+
+void ReqDial::Swap(ReqDial* other) {
+  if (other != this) {
+    std::swap(address_, other->address_);
+    std::swap(clir_, other->clir_);
+    std::swap(uus_info_, other->uus_info_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata ReqDial::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ReqDial_descriptor_;
+  metadata.reflection = ReqDial_reflection_;
   return metadata;
 }
 

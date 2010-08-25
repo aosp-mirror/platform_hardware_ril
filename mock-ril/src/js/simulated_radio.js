@@ -121,6 +121,7 @@ function Radio() {
      * @return the RilCall at calls[index] or null if undefined.
      */
     this.getCall = function(index) {
+        var c = null;
         try {
             c = calls[index];
             if (typeof c == 'undefined') {
@@ -132,13 +133,13 @@ function Radio() {
         return c;
     }
 
-    /**
-     * Add an active call.
+    /** Add an active call
      *
      * @return a RilCall or null if too many active calls.
      */
     this.addCall = function(state, phoneNumber, callerName) {
-        c = null;
+        print('Radio: addCall');
+        var c = null;
         if (numberActiveCalls < maxNumberActiveCalls) {
             numberActiveCalls += 1;
             c = new RilCall(state, phoneNumber, callerName);
@@ -155,6 +156,7 @@ function Radio() {
      * @return the call removed or null if did not exist
      */
     this.removeCall = function(index) {
+        var c = null;
         if ((numberActiveCalls > 0)
                  && (index < calls.length)
                  && (typeof calls[index] != 'undefined')) {
@@ -215,6 +217,9 @@ function Radio() {
 
     /**
      * set signal strength
+     *
+     * @param rssi and bitErrorRate are signal strength parameters for GSM
+     *        cdmaDbm, cdmaEcio, evdoRssi, evdoEcio, evdoSnr are parameters for CDMA & EVDO
      */
     this.setSignalStrength = function(rssi, bitErrorRate, cdmaDbm, cdmaEcio, evdoRssi,
                                       evdoEcio, evdoSnr) {
@@ -222,7 +227,7 @@ function Radio() {
 
         if (rssi != 99) {
             if ((rssi < 0) || (rssi > 31)) {
-                throw ("not a valid signal strength");
+                throw ('not a valid signal strength');
             }
         }
         // update signal strength
@@ -245,6 +250,11 @@ function Radio() {
                              'RspSignalStrength'].serialize(rsp);
 
         sendRilUnsolicitedResponse(RIL_UNSOL_SIGNAL_STRENGTH, response);
+
+        // send the unsolicited signal strength every 1 minute.
+        simulatedRadioWorker.addDelayed(
+            {'reqNum' : REQUEST_UNSOL_SIGNAL_STRENGTH}, 60000);
+        print('setSignalStrength X');
     }
 
     /**
@@ -254,7 +264,7 @@ function Radio() {
      */
     this.rilRequestGetCurrentCalls = function(req) { // 9
         print('Radio: rilRequestGetCurrentCalls E');
-        rsp = new Object();
+        var rsp = new Object();
 
         // pack calls into rsp.calls
         rsp.calls = new Array();
@@ -264,7 +274,7 @@ function Radio() {
             }
         }
         result.responseProtobuf = rilSchema[packageNameAndSeperator +
-                                      'RspGetCurrentCalls'].serialize(rsp);
+                                            'RspGetCurrentCalls'].serialize(rsp);
         return result;
     }
 
@@ -275,7 +285,7 @@ function Radio() {
      */
     this.rilRequestHangUp = function(req) { // 12
         print('Radio: rilRequestHangUp data.connection_index=' + req.data.connectionIndex);
-        if (removeCall(req.data.connectionIndex) == null) {
+        if (this.removeCall(req.data.connectionIndex) == null) {
             result.rilErrCode = RIL_E_GENERIC_FAILURE;
         }
         return result;
@@ -288,7 +298,7 @@ function Radio() {
      */
     this.rilRequestSignalStrength = function(req) { // 19
         print('Radio: rilRequestSignalStrength E');
-        rsp = new Object();
+        var rsp = new Object();
 
         // pack the signal strength into RspSignalStrength
         rsp.gwSignalstrength = gwSignalStrength;
@@ -308,7 +318,7 @@ function Radio() {
     this.rilRequestRegistrationState = function(req) { // 20
         print('Radio: rilRequestRegistrationState');
 
-        var rsp = Object();
+        var rsp = new Object();
         rsp.strings = Array();
         rsp.strings[0] = registrationState;
         rsp.strings[1] = lac;
@@ -339,7 +349,7 @@ function Radio() {
     this.rilRequestGprsRegistrationState = function(req) { // 21
         print('Radio: rilRequestGprsRegistrationState');
 
-        var rsp = Object();
+        var rsp = new Object();
         rsp.strings = Array();
         rsp.strings[0] = registrationState;
         rsp.strings[1] = lac;
@@ -359,7 +369,7 @@ function Radio() {
     this.rilRequestQueryNeworkSelectionMode = function(req) { // 45
         print('Radio: rilRequestQueryNeworkSelectionMode');
 
-        var rsp = Object();
+        var rsp = new Object();
         rsp.integers = Array();
         rsp.integers[0] = networkSelectionMode;
 
@@ -388,7 +398,7 @@ function Radio() {
      */
     this.rilRequestBaseBandVersion = function (req) { // 51
         print('Radio: rilRequestBaseBandVersion');
-        var rsp = Object();
+        var rsp = new Object();
         rsp.strings = Array();
         rsp.strings[0] = gBaseBandVersion;
 
@@ -411,7 +421,7 @@ function Radio() {
     /**
      * Delay test
      */
-     this.delayTestRequestHandler = function (req) { // 2000
+     this.delayTestRequestHandler = function(req) { // 2000
          print('delayTestRequestHandler: req.hello=' + req.hello);
          result.sendResponse = false;
          return result;
@@ -425,9 +435,9 @@ function Radio() {
       * Method 2: Simulate signal strength randomly (within a certain range) and
       *           send the response periodically.
       */
-     this.rilUnsolSignalStrength = function (req) { // 2001
+     this.rilUnsolSignalStrength = function(req) { // 2001
          print('rilUnsolSignalStrength: req.reqNum=' + req.reqNum);
-         rsp = new Object();
+         var rsp = new Object();
 
          // pack the signal strength into RspSignalStrength
          rsp.gwSignalstrength = gwSignalStrength;
@@ -463,6 +473,7 @@ function Radio() {
             try {
                 result = this.radioDispatchTable[req.reqNum](req);
             } catch (err) {
+                print('err = ' + err);
                 print('Radio: Unknown reqNum=' + req.reqNum);
                 result.rilErrCode = RIL_E_REQUEST_NOT_SUPPORTED;
             }
@@ -497,7 +508,7 @@ function Radio() {
     this.radioDispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = // 45
                 this.rilRequestQueryNeworkSelectionMode;
     this.radioDispatchTable[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = // 46
-        this.rilRequestSetNeworkSelectionAutomatic;
+                this.rilRequestSetNeworkSelectionAutomatic;
     this.radioDispatchTable[RIL_REQUEST_BASEBAND_VERSION] = // 51
                 this.rilRequestBaseBandVersion;
     this.radioDispatchTable[RIL_REQUEST_SCREEN_STATE] = // 61

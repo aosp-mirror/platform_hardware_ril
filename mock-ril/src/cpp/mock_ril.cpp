@@ -270,6 +270,7 @@ class UnsolicitedThread : public WorkerThread {
 
 void startMockRil(v8::Handle<v8::Context> context) {
     v8::HandleScope handle_scope;
+    v8::TryCatch try_catch;
 
     // Get handle to startMockRil and call it.
     v8::Handle<v8::String> name = v8::String::New("startMockRil");
@@ -277,7 +278,16 @@ void startMockRil(v8::Handle<v8::Context> context) {
     v8::Handle<v8::Function> start =
             v8::Handle<v8::Function>::Cast(functionValue);
 
-    start->Call(context->Global(), 0, NULL);
+    v8::Handle<v8::Value> result = start->Call(context->Global(), 0, NULL);
+    if (try_catch.HasCaught()) {
+        LOGE("startMockRil error");
+        ReportException(&try_catch);
+        LOGE("FATAL ERROR: Unsable to startMockRil.");
+    } else {
+        v8::String::Utf8Value result_string(result);
+        LOGE("startMockRil result=%s", ToCString(result_string));
+    }
+
 }
 
 

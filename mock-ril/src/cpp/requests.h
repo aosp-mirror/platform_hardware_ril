@@ -22,44 +22,32 @@
 
 #include <v8.h>
 #include "worker.h"
-
+#include "node_object_wrap.h"
 
 /**
  * A request
  */
 struct Request {
     int request_;
-    char *data_;
-    size_t datalen_;
-    size_t maxlen_;
+    Buffer *buffer_;
     RIL_Token token_;
 
-    Request(const int request, const void *data,
-                const size_t datalen, const RIL_Token token) :
+    Request(const int request, const Buffer *buffer, const RIL_Token token) :
             request_(0),
-            data_(NULL),
-            datalen_(0),
-            maxlen_(0),
+            buffer_(NULL),
             token_(0) {
-        Set(request, data, datalen, token);
+        Set(request, buffer, token);
     }
 
     ~Request() {
-        delete [] data_;
+        delete [] buffer_;
     }
 
     void Set(const int request,
-        const void *data, const size_t datalen, const RIL_Token token) {
+        const Buffer *buffer, const RIL_Token token) {
         request_ = request;
         token_ = token;
-        if (datalen > maxlen_) {
-            // TODO: MAKE A POOL ?
-            delete [] data_;
-            data_ = new char[datalen];
-            maxlen_ = datalen;
-        }
-        datalen_ = datalen;
-        memmove(data_, data, datalen);
+        buffer_ = (Buffer *)buffer;
     }
 };
 
@@ -90,7 +78,7 @@ class RilRequestWorkerQueue : public WorkerQueue {
      * Add a request to the Queue
      */
     void AddRequest(const int request,
-                    const void *data, const size_t datalen, const RIL_Token t);
+                    const void *data, const size_t datalen, const RIL_Token token);
 
     /**
      * Processes a request sending it to mock-ril.js

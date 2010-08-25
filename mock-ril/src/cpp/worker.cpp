@@ -229,6 +229,10 @@ void WorkerQueue::Stop() {
     wqt_->Stop();
 }
 
+/**
+ * Obtain a record from free_list if it is not empty, fill in the record with provided
+ * information: *p and delay_in_ms
+ */
 struct WorkerQueue::Record *WorkerQueue::obtain_record(void *p, int delay_in_ms) {
     struct Record *r;
     if (free_list_.size() == 0) {
@@ -248,11 +252,17 @@ struct WorkerQueue::Record *WorkerQueue::obtain_record(void *p, int delay_in_ms)
     return r;
 }
 
+/**
+ * release a record and insert into the front of the free_list
+ */
 void WorkerQueue::release_record(struct Record *r) {
     DBG("WorkerQueue::release_record r=%p", r);
     free_list_.push_front(r);
 }
 
+/**
+ * Add a record to processing queue q_
+ */
 void WorkerQueue::Add(void *p) {
     DBG("WorkerQueue::Add E:");
     pthread_mutex_lock(&wqt_->mutex_);

@@ -45,6 +45,7 @@ class RspGetSimStatus;
 class ReqEnterSimPin;
 class RspEnterSimPin;
 class RspGetCurrentCalls;
+class ReqDial;
 class ReqHangUp;
 class RspSignalStrength;
 class RspOperator;
@@ -1731,6 +1732,115 @@ class RspGetCurrentCalls : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class ReqDial : public ::google::protobuf::Message {
+ public:
+  ReqDial();
+  virtual ~ReqDial();
+  
+  ReqDial(const ReqDial& from);
+  
+  inline ReqDial& operator=(const ReqDial& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ReqDial& default_instance();
+  
+  void Swap(ReqDial* other);
+  
+  // implements Message ----------------------------------------------
+  
+  ReqDial* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ReqDial& from);
+  void MergeFrom(const ReqDial& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // optional string address = 1;
+  inline bool has_address() const;
+  inline void clear_address();
+  static const int kAddressFieldNumber = 1;
+  inline const ::std::string& address() const;
+  inline void set_address(const ::std::string& value);
+  inline void set_address(const char* value);
+  inline void set_address(const char* value, size_t size);
+  inline ::std::string* mutable_address();
+  
+  // optional int32 clir = 2;
+  inline bool has_clir() const;
+  inline void clear_clir();
+  static const int kClirFieldNumber = 2;
+  inline ::google::protobuf::int32 clir() const;
+  inline void set_clir(::google::protobuf::int32 value);
+  
+  // optional .ril_proto.RilUusInfo uus_info = 3;
+  inline bool has_uus_info() const;
+  inline void clear_uus_info();
+  static const int kUusInfoFieldNumber = 3;
+  inline const ::ril_proto::RilUusInfo& uus_info() const;
+  inline ::ril_proto::RilUusInfo* mutable_uus_info();
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.ReqDial)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::std::string* address_;
+  static const ::std::string _default_address_;
+  ::google::protobuf::int32 clir_;
+  ::ril_proto::RilUusInfo* uus_info_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static ReqDial* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class ReqHangUp : public ::google::protobuf::Message {
  public:
   ReqHangUp();
@@ -3109,6 +3219,85 @@ RspGetCurrentCalls::calls() const {
 inline ::google::protobuf::RepeatedPtrField< ::ril_proto::RilCall >*
 RspGetCurrentCalls::mutable_calls() {
   return &calls_;
+}
+
+// -------------------------------------------------------------------
+
+// ReqDial
+
+// optional string address = 1;
+inline bool ReqDial::has_address() const {
+  return _has_bit(0);
+}
+inline void ReqDial::clear_address() {
+  if (address_ != &_default_address_) {
+    address_->clear();
+  }
+  _clear_bit(0);
+}
+inline const ::std::string& ReqDial::address() const {
+  return *address_;
+}
+inline void ReqDial::set_address(const ::std::string& value) {
+  _set_bit(0);
+  if (address_ == &_default_address_) {
+    address_ = new ::std::string;
+  }
+  address_->assign(value);
+}
+inline void ReqDial::set_address(const char* value) {
+  _set_bit(0);
+  if (address_ == &_default_address_) {
+    address_ = new ::std::string;
+  }
+  address_->assign(value);
+}
+inline void ReqDial::set_address(const char* value, size_t size) {
+  _set_bit(0);
+  if (address_ == &_default_address_) {
+    address_ = new ::std::string;
+  }
+  address_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* ReqDial::mutable_address() {
+  _set_bit(0);
+  if (address_ == &_default_address_) {
+    address_ = new ::std::string;
+  }
+  return address_;
+}
+
+// optional int32 clir = 2;
+inline bool ReqDial::has_clir() const {
+  return _has_bit(1);
+}
+inline void ReqDial::clear_clir() {
+  clir_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 ReqDial::clir() const {
+  return clir_;
+}
+inline void ReqDial::set_clir(::google::protobuf::int32 value) {
+  _set_bit(1);
+  clir_ = value;
+}
+
+// optional .ril_proto.RilUusInfo uus_info = 3;
+inline bool ReqDial::has_uus_info() const {
+  return _has_bit(2);
+}
+inline void ReqDial::clear_uus_info() {
+  if (uus_info_ != NULL) uus_info_->::ril_proto::RilUusInfo::Clear();
+  _clear_bit(2);
+}
+inline const ::ril_proto::RilUusInfo& ReqDial::uus_info() const {
+  return uus_info_ != NULL ? *uus_info_ : *default_instance_->uus_info_;
+}
+inline ::ril_proto::RilUusInfo* ReqDial::mutable_uus_info() {
+  _set_bit(2);
+  if (uus_info_ == NULL) uus_info_ = new ::ril_proto::RilUusInfo;
+  return uus_info_;
 }
 
 // -------------------------------------------------------------------
