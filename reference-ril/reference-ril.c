@@ -978,22 +978,23 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
     ssize_t written, rlen;
     char status[32] = {0};
     int retry = 10;
+    const char *pdp_type;
 
     LOGD("requesting data connection to APN '%s'", apn);
 
     fd = open ("/dev/qmi", O_RDWR);
     if (fd >= 0) { /* the device doesn't exist on the emulator */
 
-	    LOGD("opened the qmi device\n");
-	    asprintf(&cmd, "up:%s", apn);
-	    len = strlen(cmd);
+        LOGD("opened the qmi device\n");
+        asprintf(&cmd, "up:%s", apn);
+        len = strlen(cmd);
 
-	    while (cur < len) {
-		    do {
-	            written = write (fd, cmd + cur, len - cur);
-	        } while (written < 0 && errno == EINTR);
+        while (cur < len) {
+            do {
+                written = write (fd, cmd + cur, len - cur);
+            } while (written < 0 && errno == EINTR);
 
-	        if (written < 0) {
+            if (written < 0) {
                 LOGE("### ERROR writing to /dev/qmi");
                 close(fd);
                 goto error;
@@ -1024,40 +1025,46 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
 
         if (retry == 0) {
             LOGE("### Failed to get data connection up\n");
-	        goto error;
-		}
+            goto error;
+        }
 
         qmistatus = system("netcfg rmnet0 dhcp");
 
         LOGD("netcfg rmnet0 dhcp: status %d\n", qmistatus);
 
-	    if (qmistatus < 0) goto error;
+        if (qmistatus < 0) goto error;
 
-	} else {
+    } else {
 
-        asprintf(&cmd, "AT+CGDCONT=1,\"IP\",\"%s\",,0,0", apn);
-	    //FIXME check for error here
-	    err = at_send_command(cmd, NULL);
-	    free(cmd);
+        if (datalen > 6 * sizeof(char *)) {
+            pdp_type = ((const char **)data)[6];
+        } else {
+            pdp_type = "IP";
+        }
 
-	    // Set required QoS params to default
-	    err = at_send_command("AT+CGQREQ=1", NULL);
+        asprintf(&cmd, "AT+CGDCONT=1,\"%s\",\"%s\",,0,0", apn, pdp_type);
+        //FIXME check for error here
+        err = at_send_command(cmd, NULL);
+        free(cmd);
 
-	    // Set minimum QoS params to default
-	    err = at_send_command("AT+CGQMIN=1", NULL);
+        // Set required QoS params to default
+        err = at_send_command("AT+CGQREQ=1", NULL);
 
-	    // packet-domain event reporting
-	    err = at_send_command("AT+CGEREP=1,0", NULL);
+        // Set minimum QoS params to default
+        err = at_send_command("AT+CGQMIN=1", NULL);
 
-	    // Hangup anything that's happening there now
-	    err = at_send_command("AT+CGACT=1,0", NULL);
+        // packet-domain event reporting
+        err = at_send_command("AT+CGEREP=1,0", NULL);
 
-	    // Start data on PDP context 1
-	    err = at_send_command("ATD*99***1#", &p_response);
+        // Hangup anything that's happening there now
+        err = at_send_command("AT+CGACT=1,0", NULL);
 
-	    if (err < 0 || p_response->success == 0) {
-	        goto error;
-	    }
+        // Start data on PDP context 1
+        err = at_send_command("ATD*99***1#", &p_response);
+
+        if (err < 0 || p_response->success == 0) {
+            goto error;
+        }
     }
 
     RIL_onRequestComplete(t, RIL_E_SUCCESS, response, sizeof(response));
