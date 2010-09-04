@@ -283,7 +283,7 @@ RilRequestWorkerQueue::~RilRequestWorkerQueue() {
  */
 void RilRequestWorkerQueue::AddRequest (const int request,
         const void *data, const size_t datalen, const RIL_Token token) {
-    DBG("RilRequestWorkerQueue:AddRequest E: Before adding the request");
+    DBG("RilRequestWorkerQueue:AddRequest: %d E", request);
 
     v8::Locker locker;
     v8::HandleScope handle_scope;

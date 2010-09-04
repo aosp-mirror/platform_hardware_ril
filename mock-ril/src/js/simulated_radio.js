@@ -15,6 +15,26 @@
  */
 
 /**
+ * The Radio object contains a set of methods and objects to handle ril request
+ * which is passed from simulatedRadioWorker queue. The global object initialize
+ * an instance of Radio object by calling "new Radio". For each ril request,
+ * rilDispatchTable gets searched and the corresponding method is called.
+ * Extra requests are also defined to process unsolicited rerequests.
+ *
+ * The rilDispatchTable is an array indexed by RIL_REQUEST_* or REQUEST_UNSOL_*,
+ * in which each request corresponds to a functions defined in the Radio object.
+ * We need to pay attention when using "this" within those functions. When they are
+ * called in "this.process" using
+ *               result = this.radioDispatchTable[req.reqNum])(req);
+ * this scope of "this" within those functions are the radioDispatchTable, not the
+ * object that "this.process" belongs to. Using "this." to access other
+ * functions in the object may cause trouble.
+ * To avoid that, the object is passed in when those functions are called as
+ * shown in the following:
+ *                 result = (this.radioDispatchTable[req.reqNum]).call(this, req);
+ */
+
+/**
  * Set radio state
  */
 function setRadioState(newState) {
@@ -113,14 +133,14 @@ function Radio() {
      *
      * @return Array of RilCall's
      */
-    this.getCalls = function() {
+    this.getCalls =  function() {
         return calls;
     }
 
     /**
      * @return the RilCall at calls[index] or null if undefined.
      */
-    this.getCall = function(index) {
+    this.getCall = function (index) {
         var c = null;
         try {
             c = calls[index];
@@ -137,7 +157,7 @@ function Radio() {
      *
      * @return a RilCall or null if too many active calls.
      */
-    this.addCall = function(state, phoneNumber, callerName) {
+    this.addCall = function (state, phoneNumber, callerName) {
         print('Radio: addCall');
         var c = null;
         if (numberActiveCalls < maxNumberActiveCalls) {
@@ -155,7 +175,7 @@ function Radio() {
      * @param index into calls to remove.
      * @return the call removed or null if did not exist
      */
-    this.removeCall = function(index) {
+    this.removeCall =  function (index) {
         var c = null;
         if ((numberActiveCalls > 0)
                  && (index < calls.length)
@@ -177,7 +197,7 @@ function Radio() {
      *
      * @param c is the RilCall to print
      */
-    this.printCall = function(c) {
+    this.printCall = function (c) {
         if ((c == null) || (typeof c == 'undefined')) {
             print('c[' + i + ']: undefined');
         } else {
@@ -192,7 +212,7 @@ function Radio() {
      *
      * @param callArray is an Array of RilCall's
      */
-    this.printCalls = function(callArray) {
+    this.printCalls = function (callArray) {
         if (typeof callArray == 'undefined') {
             callArray = calls;
         }
@@ -221,7 +241,7 @@ function Radio() {
      * @param rssi and bitErrorRate are signal strength parameters for GSM
      *        cdmaDbm, cdmaEcio, evdoRssi, evdoEcio, evdoSnr are parameters for CDMA & EVDO
      */
-    this.setSignalStrength = function(rssi, bitErrorRate, cdmaDbm, cdmaEcio, evdoRssi,
+    this.setSignalStrength = function (rssi, bitErrorRate, cdmaDbm, cdmaEcio, evdoRssi,
                                       evdoEcio, evdoSnr) {
         print('setSignalStrength E');
 
@@ -246,7 +266,7 @@ function Radio() {
         rsp.cdmSignalstrength = cdmaSignalStrength;
         rsp.evdoSignalstrength = evdoSignalStrength;
 
-        response = rilSchema[packageNameAndSeperator +
+        var response = rilSchema[packageNameAndSeperator +
                              'RspSignalStrength'].serialize(rsp);
 
         sendRilUnsolicitedResponse(RIL_UNSOL_SIGNAL_STRENGTH, response);
@@ -279,6 +299,35 @@ function Radio() {
     }
 
     /**
+     * Handle RIL_REQUEST_DIAL
+     *
+     * @param req is the Request
+     */
+    this.rilRequestDial = function(req) { // 10
+        print('Radio: rilRequestDial E');
+        var newCall = new Object();
+        newCall = this.addCall(CALLSTATE_DIALING, req.data.address, '');
+        if (newCall == null) {
+            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+            return result;
+        }
+        this.printCalls(calls);
+
+        // Update call state change in 2 seconds
+        simulatedRadioWorker.addDelayed(
+                        {'reqNum' : REQUEST_UNSOL_CALL_STATE_CHANGED,
+                         'callType' : OUTGOING,
+                         'callIndex' : newCall.index,
+                         'nextState' : CALLSTATE_ALERTING}, 2000);
+        simulatedRadioWorker.addDelayed(
+                        {'reqNum' : REQUEST_UNSOL_CALL_STATE_CHANGED,
+                         'callType' : OUTGOING,
+                         'callIndex': newCall.index,
+                         'nextState' : CALLSTATE_ACTIVE}, 5000);
+        return result;
+    }
+
+    /**
      * Handle RIL_REQUEST_HANG_UP
      *
      * @param req is the Request
@@ -287,6 +336,7 @@ function Radio() {
         print('Radio: rilRequestHangUp data.connection_index=' + req.data.connectionIndex);
         if (this.removeCall(req.data.connectionIndex) == null) {
             result.rilErrCode = RIL_E_GENERIC_FAILURE;
+            print('no connection to hangup');
         }
         return result;
     }
@@ -454,6 +504,34 @@ function Radio() {
          simulatedRadioWorker.addDelayed(
              {'reqNum' : REQUEST_UNSOL_SIGNAL_STRENGTH}, 60000);
 
+         // this is not a request, no response is needed
+         result.sendResponse = false;
+         return result;
+     }
+
+     /**
+      * Send RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED
+      */
+     this.rilUnsolCallStateChanged = function(req) { // 2002
+         print('rilUnsolCallStateChanged: req.reqNum=' + req.reqNum);
+         print('rilUnsolCallStateChanged: req.callType=' + req.callType);
+         print('rilUnsolCallStateChanged: req.callIndex=' + req.callIndex);
+         print('rilUnsolCallStateChanged: req.nextState=' + req.nextState);
+
+         // if it is an outgoing call, update the call state of the call
+         // Send out call state changed flag
+         var curCall = this.getCall(req.callIndex);
+         this.printCall(curCall);
+
+         if (curCall != null) {
+             curCall.state = req.nextState;
+         } else {
+             this.removeCall(req.callIndex);
+         }
+         // TODO: if it is an incoming call, update the call state of the call
+         // Send out call state change flag
+         // Send out RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED
+         sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED);
          result.sendResponse = false;
          return result;
      }
@@ -471,7 +549,9 @@ function Radio() {
             result.responseProtobuf = emptyProtobuf;
 
             try {
-                result = this.radioDispatchTable[req.reqNum](req);
+                // Pass "this" object to each ril request call such that
+                // they have the same scope
+                result = (this.radioDispatchTable[req.reqNum]).call(this, req);
             } catch (err) {
                 print('err = ' + err);
                 print('Radio: Unknown reqNum=' + req.reqNum);
@@ -497,7 +577,9 @@ function Radio() {
     this.radioDispatchTable = new Array();
     this.radioDispatchTable[RIL_REQUEST_GET_CURRENT_CALLS] = // 9
                 this.rilRequestGetCurrentCalls;
-    this.radioDispatchTable[RIL_REQUEST_HANGUP] = // 12
+    this.radioDispatchTable[RIL_REQUEST_DIAL] = // 10
+                this.rilRequestDial;
+    this.radioDispatchTable[RIL_REQUEST_HANGUP] =  // 12
                 this.rilRequestHangUp;
     this.radioDispatchTable[RIL_REQUEST_SIGNAL_STRENGTH] = // 19
                 this.rilRequestSignalStrength;
@@ -518,11 +600,13 @@ function Radio() {
                 this.delayTestRequestHandler;
     this.radioDispatchTable[REQUEST_UNSOL_SIGNAL_STRENGTH] =  // 2001
                 this.rilUnsolSignalStrength;
+    this.radioDispatchTable[REQUEST_UNSOL_CALL_STATE_CHANGED] =  // 2002
+                this.rilUnsolCallStateChanged;
     print('Radio: constructor X');
 }
 
 // The simulated radio instance and its associated Worker
-var simulatedRadio = new Radio()
+var simulatedRadio = new Radio();
 var simulatedRadioWorker = new Worker(function (req) {
     simulatedRadio.process(req);
 });

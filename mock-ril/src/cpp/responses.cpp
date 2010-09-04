@@ -348,8 +348,8 @@ void UnsolRspSignalStrength(int cmd, Buffer* buffer) {
     DBG("evdo_signalstrength = %d", curSignalStrength.EVDO_SignalStrength.signalNoiseRatio);
 
     s_rilenv->OnUnsolicitedResponse(cmd, &curSignalStrength, sizeof(curSignalStrength));
+    DBG("UnsolRspSignalStrength X");
 }
-
 
 /**
  * Maps for converting request complete and unsoliciated response
@@ -510,6 +510,7 @@ int responsesInit(v8::Handle<v8::Context> context) {
     rilRspConversionMap[RIL_REQUEST_SCREEN_STATE] = RspWithNoData; // 61
 
     unsolRilRspConversionMap[RIL_UNSOL_SIGNAL_STRENGTH] = UnsolRspSignalStrength;  // 1009
+
 
     LOGD("responsesInit X: status=%d", status);
     return STATUS_OK;

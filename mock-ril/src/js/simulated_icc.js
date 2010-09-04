@@ -51,7 +51,7 @@ function Icc() {
     this.rilRequestEnterSimPin = function(req) { // 2
         print('Icc: rilRequestEnterSimPin req.data.pin=' + req.data.pin);
 
-        var rsp = Object();
+        var rsp = new Object();
         rsp.retriesRemaining = 3;
         result.responseProtobuf = rilSchema[packageNameAndSeperator +
                                  'RspEnterSimPin'].serialize(rsp);
@@ -61,8 +61,8 @@ function Icc() {
     this.rilRequestGetImsi = function(req) { // 11
         print('Icc: rilRequestGetImsi');
 
-        var rsp = Object();
-        rsp.strings = Array();
+        var rsp = new Object();
+        rsp.strings = new Array();
         rsp.strings[0] = MCC + MNC + MSN;
         result.responseProtobuf = rilSchema[packageNameAndSeperator +
                                  'RspStrings'].serialize(rsp);
@@ -72,7 +72,7 @@ function Icc() {
     this.rilRequestOperator = function(req) { // 22
         print('Icc: rilRequestOperator');
 
-        var rsp = Object();
+        var rsp = new Object();
         rsp.longAlphaOns = 'Mock-Ril long Alpha Ons';
         rsp.shortAlphaOns = 'Mock-Ril';
         rsp.mccMnc = MCC + MNC;
@@ -84,8 +84,8 @@ function Icc() {
     this.rilRequestGetImei = function(req) { // 38
         print('Icc: rilRequestGetImei');
 
-        var rsp = Object();
-        rsp.strings = Array();
+        var rsp = new Object();
+        rsp.strings = new Array();
         rsp.strings[0] = IMEI;
         result.responseProtobuf = rilSchema[packageNameAndSeperator +
                                  'RspStrings'].serialize(rsp);
@@ -95,8 +95,8 @@ function Icc() {
     this.rilRequestGetImeisv = function(req) { // 39
         print('Icc: rilRequestGetImeisv');
 
-        var rsp = Object();
-        rsp.strings = Array();
+        var rsp = new Object();
+        rsp.strings = new Array();
         rsp.strings[0] = IMEISV;
         result.responseProtobuf = rilSchema[packageNameAndSeperator +
                                  'RspStrings'].serialize(rsp);
@@ -116,7 +116,7 @@ function Icc() {
             result.responseProtobuf = emptyProtobuf;
 
             try {
-                result = this.simDispatchTable[req.reqNum](req);
+                result = simDispatchTable[req.reqNum](req);
             } catch (err) {
                 print('Icc: Unknown reqNum=' + req.reqNum);
                 result.rilErrCode = RIL_E_REQUEST_NOT_SUPPORTED;
@@ -146,7 +146,7 @@ function Icc() {
 }
 
 // The simulated sim instance and its associated Worker
-var simulatedIcc = new Icc()
+var simulatedIcc = new Icc();
 var simulatedIccWorker = new Worker(function (req) {
     simulatedIcc.process(req);
 });
