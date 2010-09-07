@@ -116,7 +116,7 @@ function Icc() {
             result.responseProtobuf = emptyProtobuf;
 
             try {
-                result = simDispatchTable[req.reqNum](req);
+                result = (this.simDispatchTable[req.reqNum]).call(this, req);
             } catch (err) {
                 print('Icc: Unknown reqNum=' + req.reqNum);
                 result.rilErrCode = RIL_E_REQUEST_NOT_SUPPORTED;

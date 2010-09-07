@@ -175,6 +175,34 @@ int ReqHangUp(Buffer **pBuffer,
 }
 
 /**
+ * request for RIL_REQUEST_SET_MUTE      // 53
+ */
+int ReqSetMute(Buffer **pBuffer,
+               const void *data, const size_t datalen, const RIL_Token t) {
+    int status;
+    Buffer *buffer;
+    v8::HandleScope handle_scope;
+
+    DBG("ReqSetMute E");
+    if (datalen < sizeof(int)) {
+        LOGE("ReqSetMute: data to small err size < sizeof int");
+        status = STATUS_BAD_DATA;
+    } else {
+        ril_proto::ReqSetMute *req = new ril_proto::ReqSetMute();
+        DBG("ReqSetMute: state=%d", ((int *)data)[0]);
+        req->set_state(((int *)data)[0]);
+        DBG("ReqSetMute: req->ByetSize=%d", req->ByteSize());
+        buffer = Buffer::New(req->ByteSize());
+        req->SerializeToArray(buffer->data(), buffer->length());
+        delete req;
+        *pBuffer = buffer;
+        status = STATUS_OK;
+    }
+    DBG("ReqSetMute X status=%d", status);
+    return status;
+}
+
+/**
  * request for RIL_REQUEST_SCREEN_STATE  // 61
  */
 int ReqScreenState(Buffer **pBuffer,
@@ -182,7 +210,6 @@ int ReqScreenState(Buffer **pBuffer,
     int status;
     Buffer *buffer;
     v8::HandleScope handle_scope;
-    v8::TryCatch try_catch;
 
     DBG("ReqScreenState E data=%p datalen=%d t=%p",
          data, datalen, t);
@@ -193,9 +220,6 @@ int ReqScreenState(Buffer **pBuffer,
         ril_proto::ReqScreenState *req = new ril_proto::ReqScreenState();
         DBG("ReqScreenState: state=%d", ((int *)data)[0]);
         req->set_state(((int *)data)[0]);
-        if (try_catch.HasCaught()) {
-            ReportException(&try_catch);
-        }
         DBG("ReqScreenState: req->ByteSize()=%d", req->ByteSize());
         buffer = Buffer::New(req->ByteSize());
         DBG("ReqScreenState: serialize");
@@ -368,6 +392,7 @@ int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
     rilReqConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = ReqWithNoData; // 45
     rilReqConversionMap[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = ReqWithNoData; // 46
     rilReqConversionMap[RIL_REQUEST_BASEBAND_VERSION] = ReqWithNoData; // 51
+    rilReqConversionMap[RIL_REQUEST_SET_MUTE] = ReqSetMute; // 53
     rilReqConversionMap[RIL_REQUEST_SCREEN_STATE] = ReqScreenState; // 61
 
     *rwq = new RilRequestWorkerQueue(context);

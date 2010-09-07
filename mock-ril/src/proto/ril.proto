@@ -260,6 +260,11 @@ message RspOperator{
   optional string mcc_mnc                   = 3; // the 5 or 6 digit mcc + mnc
 }
 
+// 53 RIL_REQUEST_SET_MUTE
+message ReqSetMute{
+  required bool state                       = 1; // true to "enable mute", false to "disable mute"
+}
+
 // 61 RIL_REQUEST_SCREEN_STATE
 message ReqScreenState {
   required bool state                       = 1; // true screen is on, false screen is off

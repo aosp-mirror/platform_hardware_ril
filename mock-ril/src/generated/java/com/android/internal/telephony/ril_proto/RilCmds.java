@@ -2838,6 +2838,99 @@ public final class RilCmds {
     
   }
   
+  public static final class ReqSetMute extends
+      com.google.protobuf.micro.MessageMicro {
+    public ReqSetMute() {}
+    
+    // required bool state = 1;
+    public static final int STATE_FIELD_NUMBER = 1;
+    private boolean hasState;
+    private boolean state_ = false;
+    public boolean getState() { return state_; }
+    public boolean hasState() { return hasState; }
+    public ReqSetMute setState(boolean value) {
+      hasState = true;
+      state_ = value;
+      return this;
+    }
+    public ReqSetMute clearState() {
+      hasState = false;
+      state_ = false;
+      return this;
+    }
+    
+    public final ReqSetMute clear() {
+      clearState();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      if (!hasState) return false;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasState()) {
+        output.writeBool(1, getState());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasState()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeBoolSize(1, getState());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public ReqSetMute mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 8: {
+            setState(input.readBool());
+            break;
+          }
+        }
+      }
+    }
+    
+    public static ReqSetMute parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (ReqSetMute) (new ReqSetMute().mergeFrom(data));
+    }
+    
+    public static ReqSetMute parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (ReqSetMute) (new ReqSetMute().mergeFrom(input));
+    }
+    
+  }
+  
   public static final class ReqScreenState extends
       com.google.protobuf.micro.MessageMicro {
     public ReqScreenState() {}

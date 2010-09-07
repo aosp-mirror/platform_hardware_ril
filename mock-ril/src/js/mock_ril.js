@@ -269,6 +269,10 @@ dispatchTable[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = { // 46
 dispatchTable[RIL_REQUEST_BASEBAND_VERSION ] = { // 51
     'components' : [simulatedRadioWorker],
 };
+dispatchTable[RIL_REQUEST_SET_MUTE ] = { // 53
+    'components' : [simulatedRadioWorker],
+    'schemaName' : 'ReqSetMute',
+};
 dispatchTable[RIL_REQUEST_SCREEN_STATE] = { // 61
     'components' : [simulatedRadioWorker],
     'schemaName' : 'ReqScreenState',

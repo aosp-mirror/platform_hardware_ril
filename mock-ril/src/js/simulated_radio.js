@@ -95,6 +95,8 @@ function Radio() {
     var NETWORK_SELECTION_MODE_MANUAL = 1;
     var networkSelectionMode = NETWORK_SELECTION_MODE_AUTOMATIC;
 
+    var muteState = 0;   // disable mute
+
     // Number of active calls in calls
     var numberActiveCalls = 0;
 
@@ -140,7 +142,7 @@ function Radio() {
     /**
      * @return the RilCall at calls[index] or null if undefined.
      */
-    this.getCall = function (index) {
+    this.getCall = function(index) {
         var c = null;
         try {
             c = calls[index];
@@ -157,7 +159,7 @@ function Radio() {
      *
      * @return a RilCall or null if too many active calls.
      */
-    this.addCall = function (state, phoneNumber, callerName) {
+    this.addCall = function(state, phoneNumber, callerName) {
         print('Radio: addCall');
         var c = null;
         if (numberActiveCalls < maxNumberActiveCalls) {
@@ -175,7 +177,7 @@ function Radio() {
      * @param index into calls to remove.
      * @return the call removed or null if did not exist
      */
-    this.removeCall =  function (index) {
+    this.removeCall =  function(index) {
         var c = null;
         if ((numberActiveCalls > 0)
                  && (index < calls.length)
@@ -197,7 +199,7 @@ function Radio() {
      *
      * @param c is the RilCall to print
      */
-    this.printCall = function (c) {
+    this.printCall = function(c) {
         if ((c == null) || (typeof c == 'undefined')) {
             print('c[' + i + ']: undefined');
         } else {
@@ -212,7 +214,7 @@ function Radio() {
      *
      * @param callArray is an Array of RilCall's
      */
-    this.printCalls = function (callArray) {
+    this.printCalls = function(callArray) {
         if (typeof callArray == 'undefined') {
             callArray = calls;
         }
@@ -241,7 +243,7 @@ function Radio() {
      * @param rssi and bitErrorRate are signal strength parameters for GSM
      *        cdmaDbm, cdmaEcio, evdoRssi, evdoEcio, evdoSnr are parameters for CDMA & EVDO
      */
-    this.setSignalStrength = function (rssi, bitErrorRate, cdmaDbm, cdmaEcio, evdoRssi,
+    this.setSignalStrength = function(rssi, bitErrorRate, cdmaDbm, cdmaEcio, evdoRssi,
                                       evdoEcio, evdoSnr) {
         print('setSignalStrength E');
 
@@ -313,17 +315,24 @@ function Radio() {
         }
         this.printCalls(calls);
 
-        // Update call state change in 2 seconds
-        simulatedRadioWorker.addDelayed(
+        // Set call state to dialing
+        simulatedRadioWorker.add(
                         {'reqNum' : REQUEST_UNSOL_CALL_STATE_CHANGED,
                          'callType' : OUTGOING,
                          'callIndex' : newCall.index,
-                         'nextState' : CALLSTATE_ALERTING}, 2000);
+                         'nextState' : CALLSTATE_DIALING});
+        // Update call state to alerting after 1 second
+        simulatedRadioWorker.add(
+                        {'reqNum' : REQUEST_UNSOL_CALL_STATE_CHANGED,
+                         'callType' : OUTGOING,
+                         'callIndex' : newCall.index,
+                         'nextState' : CALLSTATE_ALERTING}, 1000);
+       // Update call state to active after 2 seconds
         simulatedRadioWorker.addDelayed(
                         {'reqNum' : REQUEST_UNSOL_CALL_STATE_CHANGED,
                          'callType' : OUTGOING,
                          'callIndex': newCall.index,
-                         'nextState' : CALLSTATE_ACTIVE}, 5000);
+                         'nextState' : CALLSTATE_ACTIVE}, 2000);
         return result;
     }
 
@@ -446,7 +455,7 @@ function Radio() {
      *
      * @param req is the Request
      */
-    this.rilRequestBaseBandVersion = function (req) { // 51
+    this.rilRequestBaseBandVersion = function(req) { // 51
         print('Radio: rilRequestBaseBandVersion');
         var rsp = new Object();
         rsp.strings = Array();
@@ -458,11 +467,23 @@ function Radio() {
     }
 
     /**
+     * Handle RIL_REQUEST_SET_MUTE
+     */
+    this.rilRequestSetMute = function(req) { // 53
+        print('Radio: rilRequestSetMute: req.data.state=' + req.data.state);
+        muteState = req.data.state;
+        if (gRadioState == RADIOSTATE_UNAVAILABLE) {
+            result.rilErrCode = RIL_E_RADIO_NOT_AVAILABLE;
+        }
+        return result;
+    }
+
+    /**
      * Handle RIL_REQUEST_SCREEN_STATE
      *
      * @param req is the Request
      */
-    this.rilRequestScreenState = function (req) { // 61
+    this.rilRequestScreenState = function(req) { // 61
         print('Radio: rilRequestScreenState: req.data.state=' + req.data.state);
         screenState = req.data.state;
         return result;
@@ -593,6 +614,8 @@ function Radio() {
                 this.rilRequestSetNeworkSelectionAutomatic;
     this.radioDispatchTable[RIL_REQUEST_BASEBAND_VERSION] = // 51
                 this.rilRequestBaseBandVersion;
+    this.radioDispatchTable[RIL_REQUEST_SET_MUTE] = // 53
+                this.rilRequestSetMute;
     this.radioDispatchTable[RIL_REQUEST_SCREEN_STATE] = // 61
                 this.rilRequestScreenState;
 
