@@ -201,6 +201,7 @@ static void dispatchSIM_IO (Parcel& p, RequestInfo *pRI);
 static void dispatchCallForward(Parcel& p, RequestInfo *pRI);
 static void dispatchRaw(Parcel& p, RequestInfo *pRI);
 static void dispatchSmsWrite (Parcel &p, RequestInfo *pRI);
+static void dispatchDataCall (Parcel& p, RequestInfo *pRI);
 
 static void dispatchCdmaSms(Parcel &p, RequestInfo *pRI);
 static void dispatchCdmaSmsAck(Parcel &p, RequestInfo *pRI);
@@ -1177,6 +1178,33 @@ invalid:
     invalidCommandBlock(pRI);
     return;
 
+}
+
+// For backwards compatibility in RIL_REQUEST_SETUP_DATA_CALL.
+// Version 4 of the RIL interface adds a new PDP type parameter to support
+// IPv6 and dual-stack PDP contexts. When dealing with a previous version of
+// RIL, remove the parameter from the request.
+static void dispatchDataCall(Parcel& p, RequestInfo *pRI) {
+    // In RIL v3, REQUEST_SETUP_DATA_CALL takes 6 parameters.
+    const int numParamsRilV3 = 6;
+
+    // The first bytes of the RIL parcel contain the request number and the
+    // serial number - see processCommandBuffer(). Copy them over too.
+    int pos = p.dataPosition();
+
+    int numParams = p.readInt32();
+    if (s_callbacks.version < 4 && numParams > numParamsRilV3) {
+      Parcel p2;
+      p2.appendFrom(&p, 0, pos);
+      p2.writeInt32(numParamsRilV3);
+      for(int i = 0; i < numParamsRilV3; i++) {
+        p2.writeString16(p.readString16());
+      }
+      p2.setDataPosition(pos);
+      dispatchStrings(p2, pRI);
+    } else {
+      dispatchStrings(p, pRI);
+    }
 }
 
 static int
