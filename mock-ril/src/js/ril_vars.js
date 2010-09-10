@@ -44,6 +44,76 @@ var RIL_E_FDN_CHECK_FAILURE = 14;               /* command failed because recipi
                                                    list */
 var RIL_E_ILLEGAL_SIM_OR_ME = 15;               /* network selection failed due to */
 
+var CARD_MAX_APPS = 8;
+
+/**
+ * Icc card state
+ */
+var CARDSTATE_ABSENT   = 0;
+var CARDSTATE_PRESENT  = 1;
+var CARDSTATE_ERROR    = 2;
+
+/**
+ * RIL_PersoSubState
+ */
+var PERSOSUBSTATE_UNKNOWN                   = 0; /* initial state */
+var PERSOSUBSTATE_IN_PROGRESS               = 1; /* in between each lock transition */
+var PERSOSUBSTATE_READY                     = 2; /* when either SIM or RUIM Perso is finished
+                                                    since each app can only have 1 active perso
+                                                    involved */
+var PERSOSUBSTATE_SIM_NETWORK               = 3;
+var PERSOSUBSTATE_SIM_NETWORK_SUBSET        = 4;
+var PERSOSUBSTATE_SIM_CORPORATE             = 5;
+var PERSOSUBSTATE_SIM_SERVICE_PROVIDER      = 6;
+var PERSOSUBSTATE_SIM_SIM                   = 7;
+var PERSOSUBSTATE_SIM_NETWORK_PUK           = 8; /* The corresponding perso lock is blocked */
+var PERSOSUBSTATE_SIM_NETWORK_SUBSET_PUK    = 9;
+var PERSOSUBSTATE_SIM_CORPORATE_PUK         = 10;
+var PERSOSUBSTATE_SIM_SERVICE_PROVIDER_PUK  = 11;
+var PERSOSUBSTATE_SIM_SIM_PUK               = 12;
+var PERSOSUBSTATE_RUIM_NETWORK1             = 13;
+var PERSOSUBSTATE_RUIM_NETWORK2             = 14;
+var PERSOSUBSTATE_RUIM_HRPD                 = 15;
+var PERSOSUBSTATE_RUIM_CORPORATE            = 16;
+var PERSOSUBSTATE_RUIM_SERVICE_PROVIDER     = 17;
+var PERSOSUBSTATE_RUIM_RUIM                 = 18;
+var PERSOSUBSTATE_RUIM_NETWORK1_PUK         = 19; /* The corresponding perso lock is blocked */
+var PERSOSUBSTATE_RUIM_NETWORK2_PUK         = 20;
+var PERSOSUBSTATE_RUIM_HRPD_PUK             = 21;
+var PERSOSUBSTATE_RUIM_CORPORATE_PUK        = 22;
+var PERSOSUBSTATE_RUIM_SERVICE_PROVIDER_PUK = 23;
+var PERSOSUBSTATE_RUIM_RUIM_PUK             = 24;
+
+/**
+ * RIL_AppState
+ */
+var APPSTATE_UNKNOWN               = 0;
+var APPSTATE_DETECTED              = 1;
+var APPSTATE_PIN                   = 2; /* If PIN1 or UPin is required */
+var APPSTATE_PUK                   = 3; /* If PUK1 or Puk for UPin is required */
+var APPSTATE_SUBSCRIPTION_PERSO    = 4; /* perso_substate should be look at
+                                           when app_state is assigned to this value */
+var APPSTATE_READY                 = 5;
+
+/**
+ * RIL_PinState
+ */
+var PINSTATE_UNKNOWN              = 0;
+var PINSTATE_ENABLED_NOT_VERIFIED = 1;
+var PINSTATE_ENABLED_VERIFIED     = 2;
+var PINSTATE_DISABLED             = 3;
+var PINSTATE_ENABLED_BLOCKED      = 4;
+var PINSTATE_ENABLED_PERM_BLOCKED = 5;
+
+/**
+ * RIL_AppType
+ */
+var APPTYPE_UNKNOWN = 0;
+var APPTYPE_SIM     = 1;
+var APPTYPE_USIM    = 2;
+var APPTYPE_RUIM    = 3;
+var APPTYPE_CSIM    = 4;
+
 /**
  * RIL_CallState
  */

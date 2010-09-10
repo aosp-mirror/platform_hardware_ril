@@ -315,6 +315,7 @@ function Radio() {
         }
         this.printCalls(calls);
 
+        print('after add the call');
         // Set call state to dialing
         simulatedRadioWorker.add(
                         {'reqNum' : REQUEST_UNSOL_CALL_STATE_CHANGED,
@@ -322,7 +323,7 @@ function Radio() {
                          'callIndex' : newCall.index,
                          'nextState' : CALLSTATE_DIALING});
         // Update call state to alerting after 1 second
-        simulatedRadioWorker.add(
+       simulatedRadioWorker.addDelayed(
                         {'reqNum' : REQUEST_UNSOL_CALL_STATE_CHANGED,
                          'callType' : OUTGOING,
                          'callIndex' : newCall.index,
@@ -574,7 +575,7 @@ function Radio() {
                 // they have the same scope
                 result = (this.radioDispatchTable[req.reqNum]).call(this, req);
             } catch (err) {
-                print('err = ' + err);
+                print('Radio:process err = ' + err);
                 print('Radio: Unknown reqNum=' + req.reqNum);
                 result.rilErrCode = RIL_E_REQUEST_NOT_SUPPORTED;
             }

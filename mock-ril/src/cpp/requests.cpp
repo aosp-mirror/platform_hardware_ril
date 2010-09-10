@@ -464,13 +464,18 @@ void testRequests(v8::Handle<v8::Context> context) {
                                (void *)0x12345677);
             }
             {
+                const int data[1] = { 1 };
+                testRilRequest(context, RIL_REQUEST_GET_SIM_STATUS, data, sizeof(data),
+                               (void *)0x12345677);
+            }
+            {
                 RilRequestWorkerQueue *rwq = new RilRequestWorkerQueue(context);
                 if (rwq->Run() == STATUS_OK) {
                     const int data[1] = { 1 };
                     rwq->AddRequest(RIL_REQUEST_SCREEN_STATE,
                                     data, sizeof(data), (void *)0x1234567A);
                     rwq->AddRequest(RIL_REQUEST_SIGNAL_STRENGTH,
-                                      data, sizeof(data), (void *)0x1234567A);
+                                    data, sizeof(data), (void *)0x1234567A);
                     // Sleep to let it be processed
                     v8::Unlocker unlocker;
                     sleep(3);
