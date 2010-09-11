@@ -47,13 +47,13 @@ if (false) {
 
     function testCalls() {
         print('testCalls E:');
-        c0 = simulatedRadio.addCall(CALLSTATE_ACTIVE, '18312342134', 'wink');
+        var c0 = simulatedRadio.addCall(CALLSTATE_ACTIVE, '16502859848', 'w');
         simulatedRadio.printCalls();
-        c1 = simulatedRadio.addCall(CALLSTATE_ACTIVE, '18312342135', 'me');
+        var c1 = simulatedRadio.addCall(CALLSTATE_ACTIVE, '16502583456', 'm');
         simulatedRadio.printCalls();
-        c2 = simulatedRadio.addCall(CALLSTATE_ACTIVE, '18312342135', 'x');
+        var c2 = simulatedRadio.addCall(CALLSTATE_ACTIVE, '16502345678', 'x');
         simulatedRadio.printCalls();
-        c3 = simulatedRadio.addCall(CALLSTATE_ACTIVE, '18312342135', 'y');
+        var c3 = simulatedRadio.addCall(CALLSTATE_ACTIVE, '16502349876', 'y');
         simulatedRadio.printCalls();
 
         simulatedRadio.removeCall(c0.index);
@@ -72,13 +72,66 @@ if (false) {
         // be on call still active on the first RIL_REQUEST_GET_CURRENT_CALLS
         // request.
         if (false) {
-            simulatedRadio.removeCall(c1.index);
+            simulatedRadio.removeCall(c3.index);
             simulatedRadio.printCalls();
         }
         print('testCalls X:');
     }
 
     testCalls();
+}
+
+/**
+ * A test for RIL_REQUEST_HANGUP_FOREGROUND_RESUME_BACKGROUND
+ */
+if (false) {
+    var calls = simulatedRadio.getCalls();
+
+    function testHangUpForegroundResumeBackground() {
+        print('testHangUpForegroundResumeBackground E:');
+        var testOutput = false;
+        for (var state = CALLSTATE_ACTIVE; state <= CALLSTATE_WAITING; state++) {
+            var c0 = simulatedRadio.addCall(state, '16502849230', 'smith');
+            var req = new Object();
+            req.reqNum = RIL_REQUEST_HANGUP_FOREGROUND_RESUME_BACKGROUND;
+            var testResult = simulatedRadio.rilRequestHangUpForegroundResumeBackground(req);
+            if (state == CALLSTATE_ACTIVE) {
+                var testCalls = simulatedRadio.getCalls();
+                if (testCalls.length == 0) {
+                    testOutput = true;
+                } else {
+                    testOutput = false;
+                }
+            } else if (state == CALLSTATE_WAITING) {
+                if (c0.state == CALLSTATE_ACTIVE) {
+                    testOutput = true;
+                } else {
+                    testOutput = false;
+                }
+            } else if (state == CALLSTATE_HOLDING) {
+                if (c0.state == CALLSTATE_ACTIVE) {
+                    testOutput = true;
+                } else {
+                    testOutput = false;
+                }
+            } else {
+                if (testResult.rilErrCode == RIL_E_GENERIC_FAILURE) {
+                    testOutput = true;
+                } else {
+                    testOutput = false;
+                }
+            }
+            if (testOutput == true) {
+                print('testHangUpForegroundResumeBackground, call ' + state + ' PASS \n');
+            } else {
+                print('testHangUpForegroundResumeBackground, call ' + state + ' FAIL \n');
+            }
+            simulatedRadio.removeCall(c0.index);
+            simulatedRadio.printCalls();
+        }
+    }
+
+    testHangUpForegroundResumeBackground();
 }
 
 /**

@@ -101,7 +101,7 @@ int ReqDial(Buffer **pBuffer,
     DBG("data=%p datalen=%d t=%p", data, datalen, t);
 
     if (datalen < sizeof(int)) {
-        LOGE("ReqHangUp: data to small err size < sizeof int");
+        LOGE("ReqDial: data to small err size < sizeof int");
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqDial *req = new ril_proto::ReqDial();
@@ -383,6 +383,7 @@ int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
     rilReqConversionMap[RIL_REQUEST_DIAL] = ReqDial;   // 10
     rilReqConversionMap[RIL_REQUEST_GET_IMSI] = ReqWithNoData; // 11
     rilReqConversionMap[RIL_REQUEST_HANGUP] = ReqHangUp; // 12
+    rilReqConversionMap[RIL_REQUEST_HANGUP_FOREGROUND_RESUME_BACKGROUND] = ReqWithNoData; // 14
     rilReqConversionMap[RIL_REQUEST_SIGNAL_STRENGTH] = ReqWithNoData; // 19
     rilReqConversionMap[RIL_REQUEST_REGISTRATION_STATE] = ReqWithNoData; // 20
     rilReqConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = ReqWithNoData; // 21
