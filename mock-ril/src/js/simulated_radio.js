@@ -276,7 +276,7 @@ function Radio() {
 
         // send the unsolicited signal strength every 1 minute.
         simulatedRadioWorker.addDelayed(
-            {'reqNum' : REQUEST_UNSOL_SIGNAL_STRENGTH}, 60000);
+            {'reqNum' : CMD_UNSOL_SIGNAL_STRENGTH}, 60000);
         print('setSignalStrength X');
     }
 
@@ -321,19 +321,19 @@ function Radio() {
         print('after add the call');
         // Set call state to dialing
         simulatedRadioWorker.add(
-                        {'reqNum' : REQUEST_UNSOL_CALL_STATE_CHANGED,
+                        {'reqNum' : CMD_CALL_STATE_CHANGE,
                          'callType' : OUTGOING,
                          'callIndex' : newCall.index,
                          'nextState' : CALLSTATE_DIALING});
         // Update call state to alerting after 1 second
        simulatedRadioWorker.addDelayed(
-                        {'reqNum' : REQUEST_UNSOL_CALL_STATE_CHANGED,
+                        {'reqNum' : CMD_CALL_STATE_CHANGE,
                          'callType' : OUTGOING,
                          'callIndex' : newCall.index,
                          'nextState' : CALLSTATE_ALERTING}, 1000);
        // Update call state to active after 2 seconds
         simulatedRadioWorker.addDelayed(
-                        {'reqNum' : REQUEST_UNSOL_CALL_STATE_CHANGED,
+                        {'reqNum' : CMD_CALL_STATE_CHANGE,
                          'callType' : OUTGOING,
                          'callIndex': newCall.index,
                          'nextState' : CALLSTATE_ACTIVE}, 2000);
@@ -351,6 +351,55 @@ function Radio() {
             result.rilErrCode = RIL_E_GENERIC_FAILURE;
             print('no connection to hangup');
         }
+        return result;
+    }
+
+    /**
+     * Handle RIL_REQUEST_HANGUP_WAITING_OR_BACKGROUND
+     *        Hang up waiting or held
+     *
+     * @param req is the Request
+     */
+    this.rilRequestHangupWaitingOrBackground = function(req) { // 13
+        print('Radio: rilRequestHangupWaitingOrBackground');
+        if (numberActiveCalls <= 0) {
+          result.rilErrCode = RIL_E_GENERIC_FAILURE;
+        } else {
+            for (var i = 0; i < calls.length; i++) {
+                if (typeof calls[i] != 'undefined') {
+                    switch (calls[i].state) {
+                        case CALLSTATE_ACTIVE:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                        case CALLSTATE_HOLDING:
+                            this.removeCall(i);
+                            break;
+                        case CALLSTATE_DIALING:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                        case CALLSTATE_ALERTING:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                        case CALLSTATE_INCOMING:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                        case CALLSTATE_WAITING:
+                            this.removeCall(i);
+                            break;
+                        default:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                    }
+                    this.printCalls(calls);
+                    if(result.rilErrCode == RIL_E_GENERIC_FAILURE) {
+                        return result;
+                    }
+                } // end of processing call[i]
+            } // end of for
+        }
+        // Send out RIL_UNSOL_CALL_STATE_CHANGED after the request is returned
+        simulatedRadioWorker.add(
+          {'reqNum' : CMD_UNSOL_CALL_STATE_CHANGED});
         return result;
     }
 
@@ -396,8 +445,65 @@ function Radio() {
                 } // end of processing call[i]
             }
         }
-        // Send out RIL_UNSOL_CALL_STATE_CHANGED
-        sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED);
+        // Send out RIL_UNSOL_CALL_STATE_CHANGED after the request is returned
+        simulatedRadioWorker.add(
+          {'reqNum' : CMD_UNSOL_CALL_STATE_CHANGED});
+        return result;
+    }
+
+    /**
+     * Handle RIL_REQUEST_SWITCH_WAITING_OR_HOLDING_AND_ACTIVE
+     *
+     *     BEFORE                               AFTER
+     * Call 1   Call 2                 Call 1       Call 2
+     * ACTIVE   HOLDING                HOLDING     ACTIVE
+     * ACTIVE   WAITING                HOLDING     ACTIVE
+     * HOLDING  WAITING                HOLDING     ACTIVE
+     * ACTIVE   IDLE                   HOLDING     IDLE
+     * IDLE     IDLE                   IDLE        IDLE
+     *
+     * @param req is the Request
+     */
+    this.rilRequestSwitchWaitingOrHoldingAndActive = function(req) {  // 15
+        print('Radio: rilRequestSwitchWaitingOrHoldingAndActive');
+        if (numberActiveCalls <= 0) {
+            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+        } else {
+            for (var i = 0; i < calls.length; i++) {
+                if (typeof calls[i] != 'undefined') {
+                    switch (calls[i].state) {
+                        case CALLSTATE_ACTIVE:
+                            calls[i].state = CALLSTATE_HOLDING;
+                            break;
+                        case CALLSTATE_HOLDING:
+                            calls[i].state = CALLSTATE_ACTIVE;
+                            break;
+                        case CALLSTATE_DIALING:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                        case CALLSTATE_ALERTING:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                        case CALLSTATE_INCOMING:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                        case CALLSTATE_WAITING:
+                            calls[i].state = CALLSTATE_ACTIVE;
+                            break;
+                        default:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                    }
+                    this.printCalls(calls);
+                    if(result.rilErrCode == RIL_E_GENERIC_FAILURE) {
+                        return result;
+                    }
+                } // end of processing call[i]
+            } // end of for
+        }
+        // Send out RIL_UNSOL_CALL_STATE_CHANGED after the request is returned
+        simulatedRadioWorker.add(
+          {'reqNum' : CMD_UNSOL_CALL_STATE_CHANGED});
         return result;
     }
 
@@ -543,8 +649,8 @@ function Radio() {
     /**
      * Delay test
      */
-     this.delayTestRequestHandler = function(req) { // 2000
-         print('delayTestRequestHandler: req.hello=' + req.hello);
+     this.cmdDelayTest = function(req) { // 2000
+         print('cmdDelayTest: req.hello=' + req.hello);
          result.sendResponse = false;
          return result;
      }
@@ -557,8 +663,8 @@ function Radio() {
       * Method 2: Simulate signal strength randomly (within a certain range) and
       *           send the response periodically.
       */
-     this.rilUnsolSignalStrength = function(req) { // 2001
-         print('rilUnsolSignalStrength: req.reqNum=' + req.reqNum);
+     this.cmdUnsolSignalStrength = function(req) { // 2001
+         print('cmdUnsolSignalStrength: req.reqNum=' + req.reqNum);
          var rsp = new Object();
 
          // pack the signal strength into RspSignalStrength
@@ -574,7 +680,7 @@ function Radio() {
 
          // Send the unsolicited signal strength every 1 minute.
          simulatedRadioWorker.addDelayed(
-             {'reqNum' : REQUEST_UNSOL_SIGNAL_STRENGTH}, 60000);
+             {'reqNum' : CMD_UNSOL_SIGNAL_STRENGTH}, 60000);
 
          // this is not a request, no response is needed
          result.sendResponse = false;
@@ -584,11 +690,21 @@ function Radio() {
      /**
       * Send RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED
       */
-     this.rilUnsolCallStateChanged = function(req) { // 2002
-         print('rilUnsolCallStateChanged: req.reqNum=' + req.reqNum);
-         print('rilUnsolCallStateChanged: req.callType=' + req.callType);
-         print('rilUnsolCallStateChanged: req.callIndex=' + req.callIndex);
-         print('rilUnsolCallStateChanged: req.nextState=' + req.nextState);
+     this.cmdUnsolCallStateChanged = function(req) { // 2002
+         print('cmdUnsolCallStateChanged: req.reqNum=' + req.reqNum);
+         sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED);
+         result.sendResponse = false;
+         return result;
+     }
+
+     /**
+      * Simulate call state change
+      */
+     this.cmdCallStateChange = function(req) { // 2003
+         print('cmdCallStateChange: req.reqNum=' + req.reqNum);
+         print('cmdCallStateChange: req.callType=' + req.callType);
+         print('cmdCallStateChange: req.callIndex=' + req.callIndex);
+         print('cmdCallStateChange: req.nextState=' + req.nextState);
 
          // if it is an outgoing call, update the call state of the call
          // Send out call state changed flag
@@ -600,14 +716,15 @@ function Radio() {
          } else {
              this.removeCall(req.callIndex);
          }
+
          // TODO: if it is an incoming call, update the call state of the call
          // Send out call state change flag
          // Send out RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED
-         sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED);
+         simulatedRadioWorker.add(
+           {'reqNum' : CMD_UNSOL_CALL_STATE_CHANGED});
          result.sendResponse = false;
          return result;
      }
-
     /**
      * Process the request by dispatching to the request handlers
      */
@@ -653,8 +770,12 @@ function Radio() {
                 this.rilRequestDial;
     this.radioDispatchTable[RIL_REQUEST_HANGUP] =  // 12
                 this.rilRequestHangUp;
+    this.radioDispatchTable[RIL_REQUEST_HANGUP_WAITING_OR_BACKGROUND] = // 13
+                this.rilRequestHangupWaitingOrBackground;
     this.radioDispatchTable[RIL_REQUEST_HANGUP_FOREGROUND_RESUME_BACKGROUND] =  // 14
                 this.rilRequestHangUpForegroundResumeBackground;
+    this.radioDispatchTable[RIL_REQUEST_SWITCH_WAITING_OR_HOLDING_AND_ACTIVE] =  // 15
+                this.rilRequestSwitchWaitingOrHoldingAndActive;
     this.radioDispatchTable[RIL_REQUEST_SIGNAL_STRENGTH] = // 19
                 this.rilRequestSignalStrength;
     this.radioDispatchTable[RIL_REQUEST_REGISTRATION_STATE] = // 20
@@ -672,12 +793,15 @@ function Radio() {
     this.radioDispatchTable[RIL_REQUEST_SCREEN_STATE] = // 61
                 this.rilRequestScreenState;
 
-    this.radioDispatchTable[REQUEST_DELAY_TEST] = // 2000
-                this.delayTestRequestHandler;
-    this.radioDispatchTable[REQUEST_UNSOL_SIGNAL_STRENGTH] =  // 2001
-                this.rilUnsolSignalStrength;
-    this.radioDispatchTable[REQUEST_UNSOL_CALL_STATE_CHANGED] =  // 2002
-                this.rilUnsolCallStateChanged;
+    this.radioDispatchTable[CMD_DELAY_TEST] = // 2000
+                this.cmdDelayTest;
+    this.radioDispatchTable[CMD_UNSOL_SIGNAL_STRENGTH] =  // 2001
+                this.cmdUnsolSignalStrength;
+    this.radioDispatchTable[CMD_UNSOL_CALL_STATE_CHANGED] =  // 2002
+                this.cmdUnsolCallStateChanged;
+    this.radioDispatchTable[CMD_CALL_STATE_CHANGE] = //2003
+                this.cmdCallStateChange;
+
     print('Radio: constructor X');
 }
 

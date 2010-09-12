@@ -293,9 +293,10 @@ var CTRL_CMD_SET_RADIO_STATE = 2
 /**
  * Local requests from simulated_radio or simulated_icc
  */
-var REQUEST_DELAY_TEST = 2000
-var REQUEST_UNSOL_SIGNAL_STRENGTH = 2001
-var REQUEST_UNSOL_CALL_STATE_CHANGED = 2002
+var CMD_DELAY_TEST = 2000
+var CMD_UNSOL_SIGNAL_STRENGTH = 2001
+var CMD_UNSOL_CALL_STATE_CHANGED = 2002    // Send RIL_UNSOL_CALL_STATE_CHANGED
+var CMD_CALL_STATE_CHANGE = 2003           // call state change: dialing->alert->active
 
 /**
  * Other variables
