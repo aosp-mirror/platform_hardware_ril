@@ -1203,6 +1203,7 @@ static void dispatchDataCall(Parcel& p, RequestInfo *pRI) {
       p2.setDataPosition(pos);
       dispatchStrings(p2, pRI);
     } else {
+      p.setDataPosition(pos);
       dispatchStrings(p, pRI);
     }
 }
