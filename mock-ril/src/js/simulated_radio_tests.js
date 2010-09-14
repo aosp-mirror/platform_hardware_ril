@@ -171,16 +171,16 @@ if (false) {
 if (false) {
     print("test addDelayed E");
     simulatedRadioWorker.add( {
-        'reqNum' : REQUEST_DELAY_TEST,
+        'reqNum' : CMD_DELAY_TEST,
         'hello' : 'hi no delay' });
     simulatedRadioWorker.addDelayed( {
-        'reqNum' : REQUEST_DELAY_TEST,
+        'reqNum' : CMD_DELAY_TEST,
         'hello' : 'hi not-a-number is 0 delay' }, "not-a-number");
     simulatedRadioWorker.addDelayed( {
-        'reqNum' : REQUEST_DELAY_TEST,
+        'reqNum' : CMD_DELAY_TEST,
         'hello' : 'hi negative delay is 0 delay' }, -1000);
     simulatedRadioWorker.addDelayed( {
-        'reqNum' : REQUEST_DELAY_TEST,
+        'reqNum' : CMD_DELAY_TEST,
         'hello' : 'hi delayed 2 seconds' }, 2000);
     print("test addDelayed X");
 }
