@@ -165,8 +165,10 @@ function Radio() {
         if (numberActiveCalls < maxNumberActiveCalls) {
             numberActiveCalls += 1;
             c = new RilCall(state, phoneNumber, callerName);
-            c.index = calls.length;
-            calls[calls.length] = c;
+            // call index starts with 1, the call index matches its index in the array
+            index = calls.length + 1;
+            c.index = index;
+            calls[index] = c;
         }
         return c;
     }
@@ -201,11 +203,10 @@ function Radio() {
      */
     this.printCall = function(c) {
         if ((c == null) || (typeof c == 'undefined')) {
-            print('c[' + i + ']: undefined');
+            print('c: undefined');
         } else {
-            print('c[' + i + ']: index=' + c.index +
-                                ' number=' + c.number +
-                                ' name=' + c.name);
+            print('c[' + c.index + ']: index=' + c.index + ' state=' + c.state +
+                  ' number=' + c.number + ' name=' + c.name);
         }
     }
 
@@ -219,7 +220,7 @@ function Radio() {
             callArray = calls;
         }
         print('callArray.length=' + callArray.length);
-        for (i = 0; i < callArray.length; i++) {
+        for (var i = 0; i < callArray.length; i++) {
             this.printCall(callArray[i]);
         }
     }
@@ -290,6 +291,8 @@ function Radio() {
 
         // pack calls into rsp.calls
         rsp.calls = new Array();
+        var i;
+        var j;
         for (i = 0, j = 0; i < calls.length; i++) {
             if (typeof calls[i] != 'undefined') {
                 rsp.calls[j++] = calls[i];
@@ -348,6 +351,53 @@ function Radio() {
             result.rilErrCode = RIL_E_GENERIC_FAILURE;
             print('no connection to hangup');
         }
+        return result;
+    }
+
+    /**
+     * Handle RIL_REQUEST_HANGUP_FOREGROUND_RESUME_BACKGROUND
+     *   release all active calls (if any exist) and resume held or waiting calls.
+     * @param req is the Request
+     */
+    this.rilRequestHangUpForegroundResumeBackground = function(req) { //14
+        print('Radio: rilRequestHangUpForegroundResumeBackground');
+        if (numberActiveCalls <= 0) {
+            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+        } else {
+            for (var i = 0; i < calls.length; i++) {
+                if (typeof calls[i] != 'undefined') {
+                    switch (calls[i].state) {
+                        case CALLSTATE_ACTIVE:
+                            this.removeCall(i);
+                            break;
+                        case CALLSTATE_HOLDING:
+                            calls[i].state = CALLSTATE_ACTIVE;
+                            break;
+                        case CALLSTATE_DIALING:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                        case CALLSTATE_ALERTING:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                        case CALLSTATE_INCOMING:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                        case CALLSTATE_WAITING:
+                            calls[i].state = CALLSTATE_ACTIVE;
+                            break;
+                        default:
+                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                            break;
+                    }
+                    this.printCalls(calls);
+                    if(result.rilErrCode == RIL_E_GENERIC_FAILURE) {
+                        return result;
+                    }
+                } // end of processing call[i]
+            }
+        }
+        // Send out RIL_UNSOL_CALL_STATE_CHANGED
+        sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED);
         return result;
     }
 
@@ -603,6 +653,8 @@ function Radio() {
                 this.rilRequestDial;
     this.radioDispatchTable[RIL_REQUEST_HANGUP] =  // 12
                 this.rilRequestHangUp;
+    this.radioDispatchTable[RIL_REQUEST_HANGUP_FOREGROUND_RESUME_BACKGROUND] =  // 14
+                this.rilRequestHangUpForegroundResumeBackground;
     this.radioDispatchTable[RIL_REQUEST_SIGNAL_STRENGTH] = // 19
                 this.rilRequestSignalStrength;
     this.radioDispatchTable[RIL_REQUEST_REGISTRATION_STATE] = // 20

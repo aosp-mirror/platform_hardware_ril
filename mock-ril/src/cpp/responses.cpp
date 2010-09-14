@@ -498,6 +498,7 @@ int responsesInit(v8::Handle<v8::Context> context) {
     rilRspConversionMap[RIL_REQUEST_GET_CURRENT_CALLS] = RspGetCurrentCalls; // 9
     rilRspConversionMap[RIL_REQUEST_GET_IMSI] = RspString; // 11
     rilRspConversionMap[RIL_REQUEST_HANGUP] = RspWithNoData; // 12
+    rilRspConversionMap[RIL_REQUEST_HANGUP_FOREGROUND_RESUME_BACKGROUND] = RspWithNoData; // 14
     rilRspConversionMap[RIL_REQUEST_SIGNAL_STRENGTH] = RspSignalStrength; // 19
     rilRspConversionMap[RIL_REQUEST_REGISTRATION_STATE] = RspStrings; // 20
     rilRspConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = RspStrings; // 21

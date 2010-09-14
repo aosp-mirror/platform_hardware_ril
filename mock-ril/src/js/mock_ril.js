@@ -242,6 +242,9 @@ dispatchTable[RIL_REQUEST_HANGUP] = { // 12
     'components' : [simulatedRadioWorker],
     'schemaName' : 'ReqHangUp',
 };
+dispatchTable[RIL_REQUEST_HANGUP_FOREGROUND_RESUME_BACKGROUND] = { // 14
+        'components' : [simulatedRadioWorker],
+};
 dispatchTable[RIL_REQUEST_SIGNAL_STRENGTH]  = { // 19
     'components' : [simulatedRadioWorker],
 };
