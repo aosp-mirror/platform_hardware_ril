@@ -135,10 +135,83 @@ if (false) {
 }
 
 /**
+ * Test RIL_REQUEST_CONFERENCE
+ */
+if(false) {
+    var calls = simulatedRadio.getCalls();
+
+    function testConference() {
+        print('testConference E');
+
+        // test case 1: one holding, one dialing
+        var c0 = simulatedRadio.addCall(CALLSTATE_HOLDING, '16502859848', 'w');
+        simulatedRadio.printCalls();
+        var c1 = simulatedRadio.addCall(CALLSTATE_DIALING, '16502583456', 'm');
+        simulatedRadio.printCalls();
+
+        var req = new Object();
+        req.reqNum = RIL_REQUEST_CONFERENCE;
+        var testResult = new Object();
+        testResult.rilErrCode = RIL_E_SUCCESS;
+        testResult = simulatedRadio.rilRequestConference(req);
+        if (testResult.rilErrCode == RIL_E_GENERIC_FAILURE) {
+            print('testConference: holding & dialing: pass');
+        } else {
+            print('testConference: holding & dialing: fail');
+        }
+
+        // test case 2: one holding, one alerting
+        c1.state = CALLSTATE_ALERTING;
+        testResult.rilErrCode = RIL_E_SUCCESS;
+        testResult = simulatedRadio.rilRequestConference(req);
+        if (testResult.rilErrCode == RIL_E_GENERIC_FAILURE) {
+            print('testConference: holding & alerting: pass');
+        } else {
+            print('testConference: holding & alerting: fail');
+        }
+
+        // test case 3: one holding, one active
+        c1.state = CALLSTATE_ACTIVE;
+        testResult.rilErrCode = RIL_E_SUCCESS;
+        testResult = simulatedRadio.rilRequestConference(req);
+        if (testResult.rilErrCode == RIL_E_SUCCESS) {
+            print('testConference: holding & active: pass');
+        } else {
+            print('testConference: holding & active: fail');
+        }
+
+        // test case 4: one holding, one incoming
+        c1.state = CALLSTATE_INCOMING;
+        testResult.rilErrCode = RIL_E_SUCCESS;
+        testResult = simulatedRadio.rilRequestConference(req);
+        if (testResult.rilErrCode == RIL_E_GENERIC_FAILURE) {
+            print('testConference: holding & incoming: pass');
+        } else {
+            print('testConference: holding & incoming: fail');
+        }
+
+        // test case 5: one holding, one waiting
+        c1.state = CALLSTATE_WAITING;
+        testResult.rilErrCode = RIL_E_SUCCESS;
+        testResult = simulatedRadio.rilRequestConference(req);
+        if (testResult.rilErrCode == RIL_E_GENERIC_FAILURE) {
+            print('testConference: holding & waiting: pass');
+        } else {
+            print('testConference: holding & waiting: fail');
+        }
+
+        simulatedRadio.removeCall(c0.index);
+        simulatedRadio.removeCall(c1.index);
+        print('testConference: X');
+    }
+
+    testConference();
+}
+/**
  * Test serialization of bad numeric enum
  */
 if (false) {
-    c = new RilCall(1000, '11234567890', 'me');
+    var c = new RilCall(1000, '11234567890', 'me');
     rsp = new Object();
     rsp.calls = [ c ];
     try {
@@ -154,7 +227,7 @@ if (false) {
  */
 if (false) {
     // The state parameter 'NOT_CALLSTATE_ACTIVE' can get corrupted in ToProto?
-    c = new RilCall('NOT_CALLSTATE_ACTIVE', '11234567890', 'me');
+    var c = new RilCall('NOT_CALLSTATE_ACTIVE', '11234567890', 'me');
     rsp = new Object();
     rsp.calls = [ c ];
     try {

@@ -368,21 +368,7 @@ function Radio() {
             for (var i = 0; i < calls.length; i++) {
                 if (typeof calls[i] != 'undefined') {
                     switch (calls[i].state) {
-                        case CALLSTATE_ACTIVE:
-                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
-                            break;
                         case CALLSTATE_HOLDING:
-                            this.removeCall(i);
-                            break;
-                        case CALLSTATE_DIALING:
-                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
-                            break;
-                        case CALLSTATE_ALERTING:
-                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
-                            break;
-                        case CALLSTATE_INCOMING:
-                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
-                            break;
                         case CALLSTATE_WAITING:
                             this.removeCall(i);
                             break;
@@ -420,19 +406,8 @@ function Radio() {
                             this.removeCall(i);
                             break;
                         case CALLSTATE_HOLDING:
-                            calls[i].state = CALLSTATE_ACTIVE;
-                            break;
-                        case CALLSTATE_DIALING:
-                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
-                            break;
-                        case CALLSTATE_ALERTING:
-                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
-                            break;
-                        case CALLSTATE_INCOMING:
-                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
-                            break;
                         case CALLSTATE_WAITING:
-                            calls[i].state = CALLSTATE_ACTIVE;
+                          calls[i].state = CALLSTATE_ACTIVE;
                             break;
                         default:
                             result.rilErrCode = RIL_E_GENERIC_FAILURE;
@@ -466,6 +441,13 @@ function Radio() {
      */
     this.rilRequestSwitchWaitingOrHoldingAndActive = function(req) {  // 15
         print('Radio: rilRequestSwitchWaitingOrHoldingAndActive');
+        print('Radio: lastReq = ' + lastReq);
+        print('Radio: req.reqNum = ' + req.reqNum);
+        if (lastReq == req.reqNum) {
+            print('Radio: called twice');
+            return result;
+        }
+
         if (numberActiveCalls <= 0) {
             result.rilErrCode = RIL_E_GENERIC_FAILURE;
         } else {
@@ -476,17 +458,6 @@ function Radio() {
                             calls[i].state = CALLSTATE_HOLDING;
                             break;
                         case CALLSTATE_HOLDING:
-                            calls[i].state = CALLSTATE_ACTIVE;
-                            break;
-                        case CALLSTATE_DIALING:
-                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
-                            break;
-                        case CALLSTATE_ALERTING:
-                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
-                            break;
-                        case CALLSTATE_INCOMING:
-                            result.rilErrCode = RIL_E_GENERIC_FAILURE;
-                            break;
                         case CALLSTATE_WAITING:
                             calls[i].state = CALLSTATE_ACTIVE;
                             break;
@@ -501,6 +472,61 @@ function Radio() {
                 } // end of processing call[i]
             } // end of for
         }
+        // Send out RIL_UNSOL_CALL_STATE_CHANGED after the request is returned
+        simulatedRadioWorker.add(
+          {'reqNum' : CMD_UNSOL_CALL_STATE_CHANGED});
+        return result;
+    }
+
+    /**
+     * Handle RIL_REQUEST_CONFERENCE
+     * Conference holding and active
+     *
+     * @param req is the Request
+     */
+    this.rilRequestConference = function(req) {  // 16
+        print('Radio: rilRequestConference E');
+        if (numberActiveCalls <= 0) {
+            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+            return result;
+        } else {
+            var numCallsInBadState = 0;
+            for (var i = 0; i < calls.length; i++) {
+                if (typeof calls[i] != 'undefined') {
+                    if ((calls[i].state != CALLSTATE_ACTIVE) &&
+                            (calls[i].state != CALLSTATE_HOLDING)) {
+                        numCallsInBadState++;
+                    }
+                }
+            }
+
+            // if there are calls not in ACITVE or HOLDING state, return error
+            if (numCallsInBadState > 0) {
+                result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                return result;
+            } else { // conference ACTIVE and HOLDING calls
+                for (var i = 0; i < calls.length; i++) {
+                    if (typeof calls[i] != 'undefined') {
+                        switch (calls[i].state) {
+                            case CALLSTATE_ACTIVE:
+                                break;
+                            case CALLSTATE_HOLDING:
+                                calls[i].state = CALLSTATE_ACTIVE;
+                                break;
+                            default:
+                                result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                                break;
+                        }
+                    }
+                    this.printCalls(calls);
+                    if(result.rilErrCode == RIL_E_GENERIC_FAILURE) {
+                        return result;
+                    }
+                }
+            }
+        }
+
+        // Only if conferencing is successful,
         // Send out RIL_UNSOL_CALL_STATE_CHANGED after the request is returned
         simulatedRadioWorker.add(
           {'reqNum' : CMD_UNSOL_CALL_STATE_CHANGED});
@@ -747,6 +773,9 @@ function Radio() {
                 result.rilErrCode = RIL_E_REQUEST_NOT_SUPPORTED;
             }
 
+            if (req.reqNum < 200) {
+                lastReq = req.reqNum;
+            }
             if (result.sendResponse) {
                 sendRilRequestComplete(result.rilErrCode, req.reqNum,
                         req.token, result.responseProtobuf);
@@ -776,6 +805,8 @@ function Radio() {
                 this.rilRequestHangUpForegroundResumeBackground;
     this.radioDispatchTable[RIL_REQUEST_SWITCH_WAITING_OR_HOLDING_AND_ACTIVE] =  // 15
                 this.rilRequestSwitchWaitingOrHoldingAndActive;
+    this.radioDispatchTable[RIL_REQUEST_CONFERENCE] = // 16
+                this.rilRequestConference;
     this.radioDispatchTable[RIL_REQUEST_SIGNAL_STRENGTH] = // 19
                 this.rilRequestSignalStrength;
     this.radioDispatchTable[RIL_REQUEST_REGISTRATION_STATE] = // 20
@@ -811,6 +842,11 @@ var simulatedRadioWorker = new Worker(function (req) {
     simulatedRadio.process(req);
 });
 simulatedRadioWorker.run();
+
+// TODO: this is a workaround for bug http://b/issue?id=3001613
+// When adding a new all, two RIL_REQUEST_SWITCH_WAITING_OR_HOLDING_AND_ACTIVE
+// will be sent from the framework.
+var lastReq = 0;
 
 /**
  * Optional tests

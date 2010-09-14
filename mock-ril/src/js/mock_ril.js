@@ -251,6 +251,9 @@ dispatchTable[RIL_REQUEST_HANGUP_FOREGROUND_RESUME_BACKGROUND] = { // 14
 dispatchTable[RIL_REQUEST_SWITCH_WAITING_OR_HOLDING_AND_ACTIVE] = { // 15
     'components' : [simulatedRadioWorker],
 };
+dispatchTable[RIL_REQUEST_CONFERENCE] = { // 16
+    'components' : [simulatedRadioWorker],
+};
 dispatchTable[RIL_REQUEST_SIGNAL_STRENGTH]  = { // 19
     'components' : [simulatedRadioWorker],
 };
@@ -275,7 +278,7 @@ dispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = { // 45
 dispatchTable[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = { // 46
     'components' : [simulatedRadioWorker],
 };
-dispatchTable[RIL_REQUEST_BASEBAND_VERSION ] = { // 51
+dispatchTable[RIL_REQUEST_BASEBAND_VERSION] = { // 51
     'components' : [simulatedRadioWorker],
 };
 dispatchTable[RIL_REQUEST_SET_MUTE ] = { // 53
@@ -295,7 +298,7 @@ function startMockRil() {
     setRadioState(RADIOSTATE_SIM_READY);
     // send the signal strength after 5 seconds, wait until mock ril is started
     simulatedRadioWorker.addDelayed({
-      'reqNum' : REQUEST_UNSOL_SIGNAL_STRENGTH}, 5000);
+      'reqNum' : CMD_UNSOL_SIGNAL_STRENGTH}, 5000);
     print("startMockRil X:");
 }
 

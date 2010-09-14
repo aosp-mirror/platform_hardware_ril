@@ -501,6 +501,7 @@ int responsesInit(v8::Handle<v8::Context> context) {
     rilRspConversionMap[RIL_REQUEST_HANGUP_WAITING_OR_BACKGROUND] = RspWithNoData; // 13
     rilRspConversionMap[RIL_REQUEST_HANGUP_FOREGROUND_RESUME_BACKGROUND] = RspWithNoData; // 14
     rilRspConversionMap[RIL_REQUEST_SWITCH_WAITING_OR_HOLDING_AND_ACTIVE] = RspWithNoData; // 15
+    rilRspConversionMap[RIL_REQUEST_CONFERENCE] = RspWithNoData;  // 16
     rilRspConversionMap[RIL_REQUEST_SIGNAL_STRENGTH] = RspSignalStrength; // 19
     rilRspConversionMap[RIL_REQUEST_REGISTRATION_STATE] = RspStrings; // 20
     rilRspConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = RspStrings; // 21
