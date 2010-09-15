@@ -2838,6 +2838,99 @@ public final class RilCmds {
     
   }
   
+  public static final class ReqSeparateConnection extends
+      com.google.protobuf.micro.MessageMicro {
+    public ReqSeparateConnection() {}
+    
+    // required int32 index = 1;
+    public static final int INDEX_FIELD_NUMBER = 1;
+    private boolean hasIndex;
+    private int index_ = 0;
+    public int getIndex() { return index_; }
+    public boolean hasIndex() { return hasIndex; }
+    public ReqSeparateConnection setIndex(int value) {
+      hasIndex = true;
+      index_ = value;
+      return this;
+    }
+    public ReqSeparateConnection clearIndex() {
+      hasIndex = false;
+      index_ = 0;
+      return this;
+    }
+    
+    public final ReqSeparateConnection clear() {
+      clearIndex();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      if (!hasIndex) return false;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasIndex()) {
+        output.writeInt32(1, getIndex());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasIndex()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(1, getIndex());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public ReqSeparateConnection mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 8: {
+            setIndex(input.readInt32());
+            break;
+          }
+        }
+      }
+    }
+    
+    public static ReqSeparateConnection parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (ReqSeparateConnection) (new ReqSeparateConnection().mergeFrom(data));
+    }
+    
+    public static ReqSeparateConnection parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (ReqSeparateConnection) (new ReqSeparateConnection().mergeFrom(input));
+    }
+    
+  }
+  
   public static final class ReqSetMute extends
       com.google.protobuf.micro.MessageMicro {
     public ReqSetMute() {}

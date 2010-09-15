@@ -49,6 +49,7 @@ class ReqDial;
 class ReqHangUp;
 class RspSignalStrength;
 class RspOperator;
+class ReqSeparateConnection;
 class ReqSetMute;
 class ReqScreenState;
 
@@ -2153,6 +2154,95 @@ class RspOperator : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class ReqSeparateConnection : public ::google::protobuf::Message {
+ public:
+  ReqSeparateConnection();
+  virtual ~ReqSeparateConnection();
+  
+  ReqSeparateConnection(const ReqSeparateConnection& from);
+  
+  inline ReqSeparateConnection& operator=(const ReqSeparateConnection& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ReqSeparateConnection& default_instance();
+  
+  void Swap(ReqSeparateConnection* other);
+  
+  // implements Message ----------------------------------------------
+  
+  ReqSeparateConnection* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ReqSeparateConnection& from);
+  void MergeFrom(const ReqSeparateConnection& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 index = 1;
+  inline bool has_index() const;
+  inline void clear_index();
+  static const int kIndexFieldNumber = 1;
+  inline ::google::protobuf::int32 index() const;
+  inline void set_index(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.ReqSeparateConnection)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 index_;
+  friend void  protobuf_AddDesc_ril_2eproto();
+  friend void protobuf_AssignDesc_ril_2eproto();
+  friend void protobuf_ShutdownFile_ril_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static ReqSeparateConnection* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class ReqSetMute : public ::google::protobuf::Message {
  public:
   ReqSetMute();
@@ -3593,6 +3683,26 @@ inline ::std::string* RspOperator::mutable_mcc_mnc() {
     mcc_mnc_ = new ::std::string;
   }
   return mcc_mnc_;
+}
+
+// -------------------------------------------------------------------
+
+// ReqSeparateConnection
+
+// required int32 index = 1;
+inline bool ReqSeparateConnection::has_index() const {
+  return _has_bit(0);
+}
+inline void ReqSeparateConnection::clear_index() {
+  index_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 ReqSeparateConnection::index() const {
+  return index_;
+}
+inline void ReqSeparateConnection::set_index(::google::protobuf::int32 value) {
+  _set_bit(0);
+  index_ = value;
 }
 
 // -------------------------------------------------------------------

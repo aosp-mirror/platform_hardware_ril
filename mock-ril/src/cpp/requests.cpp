@@ -175,6 +175,34 @@ int ReqHangUp(Buffer **pBuffer,
 }
 
 /**
+ * request for RIL_REQUEST_SEPARATE_CONNECTION    // 52
+ */
+int ReqSeparateConnection (Buffer **pBuffer,
+                           const void *data, const size_t datalen, const RIL_Token t) {
+    int status;
+    Buffer *buffer;
+    v8::HandleScope handle_scope;
+
+    DBG("ReqSeparateConnection E");
+    if (datalen < sizeof(int)) {
+        LOGE("ReqSetMute: data to small err size < sizeof int");
+        status = STATUS_BAD_DATA;
+    } else {
+        ril_proto::ReqSeparateConnection *req = new ril_proto::ReqSeparateConnection();
+        DBG("ReqSeparateConnection: index=%d", ((int *)data)[0]);
+        req->set_index(((int *)data)[0]);
+        DBG("ReqSeparateConnection: req->ByetSize=%d", req->ByteSize());
+        buffer = Buffer::New(req->ByteSize());
+        req->SerializeToArray(buffer->data(), buffer->length());
+        delete req;
+        *pBuffer = buffer;
+        status = STATUS_OK;
+    }
+    DBG("ReqSeparateConnection X status=%d", status);
+    return status;
+}
+
+/**
  * request for RIL_REQUEST_SET_MUTE      // 53
  */
 int ReqSetMute(Buffer **pBuffer,
@@ -396,6 +424,7 @@ int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
     rilReqConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = ReqWithNoData; // 45
     rilReqConversionMap[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = ReqWithNoData; // 46
     rilReqConversionMap[RIL_REQUEST_BASEBAND_VERSION] = ReqWithNoData; // 51
+    rilReqConversionMap[RIL_REQUEST_SEPARATE_CONNECTION] = ReqSeparateConnection; // 52
     rilReqConversionMap[RIL_REQUEST_SET_MUTE] = ReqSetMute; // 53
     rilReqConversionMap[RIL_REQUEST_SCREEN_STATE] = ReqScreenState; // 61
 

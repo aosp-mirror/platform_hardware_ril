@@ -257,7 +257,13 @@ message RspSignalStrength {
 message RspOperator{
   optional string long_alpha_ons            = 1; // The long alpha ons or eons
   optional string short_alpha_ons           = 2; // The short alpha ons or eons
-  optional string mcc_mnc                   = 3; // the 5 or 6 digit mcc + mnc
+  optional string mcc_mnc                   = 3; // The 5 or 6 digit mcc + mnc
+}
+
+// 52 RIL_REQUEST_SEPARATE_CONNECTION
+message ReqSeparateConnection{
+  required int32 index                      = 1; // Connection index to separate
+                                                 // from multiparty call
 }
 
 // 53 RIL_REQUEST_SET_MUTE

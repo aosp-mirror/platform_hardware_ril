@@ -511,6 +511,8 @@ int responsesInit(v8::Handle<v8::Context> context) {
     rilRspConversionMap[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = RspIntegers; // 45
     rilRspConversionMap[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = RspWithNoData; // 46
     rilRspConversionMap[RIL_REQUEST_BASEBAND_VERSION] = RspString; // 51
+    rilRspConversionMap[RIL_REQUEST_SEPARATE_CONNECTION] = RspWithNoData;  // 52
+    rilRspConversionMap[RIL_REQUEST_SET_MUTE] = RspWithNoData;  // 53
     rilRspConversionMap[RIL_REQUEST_SCREEN_STATE] = RspWithNoData; // 61
 
     unsolRilRspConversionMap[RIL_UNSOL_SIGNAL_STRENGTH] = UnsolRspSignalStrength;  // 1009

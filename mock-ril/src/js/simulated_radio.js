@@ -102,9 +102,11 @@ function Radio() {
 
     // Maximum number of active calls
     var maxNumberActiveCalls = 7;
+    var maxConnectionsPerCall = 5; // only 5 connections allowed per call
+
 
     // Array of "active" calls
-    var calls = Array();
+    var calls = Array(maxNumberActiveCalls + 1);
 
     // The result returned by the request handlers
     var result = new Object();
@@ -165,10 +167,18 @@ function Radio() {
         if (numberActiveCalls < maxNumberActiveCalls) {
             numberActiveCalls += 1;
             c = new RilCall(state, phoneNumber, callerName);
-            // call index starts with 1, the call index matches its index in the array
-            index = calls.length + 1;
-            c.index = index;
-            calls[index] = c;
+            // call index should fall in the closure of [1, 7]
+            // Search for an "undefined" element in the array and insert the call
+            for (var i = 1; i < (maxNumberActiveCalls + 1); i++) {
+                print('Radio: addCall, i=' + i);
+                if (typeof calls[i] == 'undefined') {
+                    print('Radio: addCall, calls[' + i + '] is undefined');
+                    c.index = i;
+                    calls[i] = c;
+                    break;
+                }
+            }
+            this.printCalls(calls);
         }
         return c;
     }
@@ -202,9 +212,7 @@ function Radio() {
      * @param c is the RilCall to print
      */
     this.printCall = function(c) {
-        if ((c == null) || (typeof c == 'undefined')) {
-            print('c: undefined');
-        } else {
+        if ((c != null) && (typeof c != 'undefined')) {
             print('c[' + c.index + ']: index=' + c.index + ' state=' + c.state +
                   ' number=' + c.number + ' name=' + c.name);
         }
@@ -221,7 +229,11 @@ function Radio() {
         }
         print('callArray.length=' + callArray.length);
         for (var i = 0; i < callArray.length; i++) {
-            this.printCall(callArray[i]);
+            if ((callArray[i] == null) || (typeof callArray[i] == 'undefined')) {
+                print('c[' + i + ']: undefined');
+            } else {
+                this.printCall(callArray[i]);
+            }
         }
     }
 
@@ -486,7 +498,8 @@ function Radio() {
      */
     this.rilRequestConference = function(req) {  // 16
         print('Radio: rilRequestConference E');
-        if (numberActiveCalls <= 0) {
+        if ((numberActiveCalls <= 0) || (numberActiveCalls > maxConnectionsPerCall)) {
+            // The maximum number of connections within a call is 5
             result.rilErrCode = RIL_E_GENERIC_FAILURE;
             return result;
         } else {
@@ -646,6 +659,63 @@ function Radio() {
 
         result.responseProtobuf = rilSchema[packageNameAndSeperator +
                                  'RspStrings'].serialize(rsp);
+        return result;
+    }
+
+    /**
+     * Handle RIL_REQUEST_SEPRATE_CONNECTION
+     * Separate a party from a multiparty call placing the multiparty call
+     * (less the specified party) on hold and leaving the specified party
+     * as the only other member of the current (active) call
+     *
+     * See TS 22.084 1.3.8.2 (iii)
+     *
+     * @param req is the Request
+     */
+    this.rilReqestSeparateConnection = function(req) {  // 52
+        print('Radio: rilReqestSeparateConnection');
+        var index = req.data.index;
+
+        if (numberActiveCalls <= 0) {
+            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+            return result;
+        } else {
+            // get the connection to separate
+            var separateConn = this.getCall(req.data.index);
+            if (separateConn == null) {
+                result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                return result;
+            } else {
+                if (separateConn.state != CALLSTATE_ACTIVE) {
+                    result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                    return result;
+                }
+                // Put all other connections in hold.
+                for (var i = 0; i < calls.length; i++) {
+                    if (index != i) {
+                        // put all the active call to hold
+                        if (typeof calls[i] != 'undefined') {
+                            switch (calls[i].state) {
+                                case CALLSTATE_ACTIVE:
+                                    calls[i].state = CALLSTATE_HOLDING;
+                                    break;
+                                default:
+                                    result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                                    break;
+                            }
+                            this.printCalls(calls);
+                            if(result.rilErrCode == RIL_E_GENERIC_FAILURE) {
+                                return result;
+                            }
+                        }  // end of processing call[i]
+                    }
+                }  // end of for
+            }
+        }
+
+        // Send out RIL_UNSOL_CALL_STATE_CHANGED after the request is returned
+        simulatedRadioWorker.add(
+          {'reqNum' : CMD_UNSOL_CALL_STATE_CHANGED});
         return result;
     }
 
@@ -819,6 +889,8 @@ function Radio() {
                 this.rilRequestSetNeworkSelectionAutomatic;
     this.radioDispatchTable[RIL_REQUEST_BASEBAND_VERSION] = // 51
                 this.rilRequestBaseBandVersion;
+    this.radioDispatchTable[RIL_REQUEST_SEPARATE_CONNECTION] = // 52
+                this.rilReqestSeparateConnection;
     this.radioDispatchTable[RIL_REQUEST_SET_MUTE] = // 53
                 this.rilRequestSetMute;
     this.radioDispatchTable[RIL_REQUEST_SCREEN_STATE] = // 61

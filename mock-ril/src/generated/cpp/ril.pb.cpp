@@ -65,6 +65,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* RspOperator_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RspOperator_reflection_ = NULL;
+const ::google::protobuf::Descriptor* ReqSeparateConnection_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ReqSeparateConnection_reflection_ = NULL;
 const ::google::protobuf::Descriptor* ReqSetMute_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ReqSetMute_reflection_ = NULL;
@@ -382,7 +385,22 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RspOperator));
-  ReqSetMute_descriptor_ = file->message_type(17);
+  ReqSeparateConnection_descriptor_ = file->message_type(17);
+  static const int ReqSeparateConnection_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqSeparateConnection, index_),
+  };
+  ReqSeparateConnection_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ReqSeparateConnection_descriptor_,
+      ReqSeparateConnection::default_instance_,
+      ReqSeparateConnection_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqSeparateConnection, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqSeparateConnection, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ReqSeparateConnection));
+  ReqSetMute_descriptor_ = file->message_type(18);
   static const int ReqSetMute_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqSetMute, state_),
   };
@@ -397,7 +415,7 @@ void protobuf_AssignDesc_ril_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ReqSetMute));
-  ReqScreenState_descriptor_ = file->message_type(18);
+  ReqScreenState_descriptor_ = file->message_type(19);
   static const int ReqScreenState_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReqScreenState, state_),
   };
@@ -468,6 +486,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RspOperator_descriptor_, &RspOperator::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ReqSeparateConnection_descriptor_, &ReqSeparateConnection::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ReqSetMute_descriptor_, &ReqSetMute::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ReqScreenState_descriptor_, &ReqScreenState::default_instance());
@@ -510,6 +530,8 @@ void protobuf_ShutdownFile_ril_2eproto() {
   delete RspSignalStrength_reflection_;
   delete RspOperator::default_instance_;
   delete RspOperator_reflection_;
+  delete ReqSeparateConnection::default_instance_;
+  delete ReqSeparateConnection_reflection_;
   delete ReqSetMute::default_instance_;
   delete ReqSetMute_reflection_;
   delete ReqScreenState::default_instance_;
@@ -570,6 +592,7 @@ void protobuf_AddDesc_ril_2eproto() {
     "\003 \001(\0132 .ril_proto.RILEVDOSignalStrength\""
     "O\n\013RspOperator\022\026\n\016long_alpha_ons\030\001 \001(\t\022\027"
     "\n\017short_alpha_ons\030\002 \001(\t\022\017\n\007mcc_mnc\030\003 \001(\t"
+    "\"&\n\025ReqSeparateConnection\022\r\n\005index\030\001 \002(\005"
     "\"\033\n\nReqSetMute\022\r\n\005state\030\001 \002(\010\"\037\n\016ReqScre"
     "enState\022\r\n\005state\030\001 \002(\010*\257\002\n\nRadioState\022\022\n"
     "\016RADIOSTATE_OFF\020\000\022\032\n\026RADIOSTATE_UNAVAILA"
@@ -627,7 +650,7 @@ void protobuf_AddDesc_ril_2eproto() {
     "LDING\020\001\022\025\n\021CALLSTATE_DIALING\020\002\022\026\n\022CALLST"
     "ATE_ALERTING\020\003\022\026\n\022CALLSTATE_INCOMING\020\004\022\025"
     "\n\021CALLSTATE_WAITING\020\005B3\n(com.android.int"
-    "ernal.telephony.ril_protoB\007RilCmds", 4194);
+    "ernal.telephony.ril_protoB\007RilCmds", 4234);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ril.proto", &protobuf_RegisterTypes);
   RilAppStatus::default_instance_ = new RilAppStatus();
@@ -647,6 +670,7 @@ void protobuf_AddDesc_ril_2eproto() {
   ReqHangUp::default_instance_ = new ReqHangUp();
   RspSignalStrength::default_instance_ = new RspSignalStrength();
   RspOperator::default_instance_ = new RspOperator();
+  ReqSeparateConnection::default_instance_ = new ReqSeparateConnection();
   ReqSetMute::default_instance_ = new ReqSetMute();
   ReqScreenState::default_instance_ = new ReqScreenState();
   RilAppStatus::default_instance_->InitAsDefaultInstance();
@@ -666,6 +690,7 @@ void protobuf_AddDesc_ril_2eproto() {
   ReqHangUp::default_instance_->InitAsDefaultInstance();
   RspSignalStrength::default_instance_->InitAsDefaultInstance();
   RspOperator::default_instance_->InitAsDefaultInstance();
+  ReqSeparateConnection::default_instance_->InitAsDefaultInstance();
   ReqSetMute::default_instance_->InitAsDefaultInstance();
   ReqScreenState::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_ril_2eproto);
@@ -6127,6 +6152,214 @@ void RspOperator::Swap(RspOperator* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = RspOperator_descriptor_;
   metadata.reflection = RspOperator_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int ReqSeparateConnection::kIndexFieldNumber;
+#endif  // !_MSC_VER
+
+ReqSeparateConnection::ReqSeparateConnection()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void ReqSeparateConnection::InitAsDefaultInstance() {
+}
+
+ReqSeparateConnection::ReqSeparateConnection(const ReqSeparateConnection& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void ReqSeparateConnection::SharedCtor() {
+  _cached_size_ = 0;
+  index_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ReqSeparateConnection::~ReqSeparateConnection() {
+  SharedDtor();
+}
+
+void ReqSeparateConnection::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void ReqSeparateConnection::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ReqSeparateConnection::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ReqSeparateConnection_descriptor_;
+}
+
+const ReqSeparateConnection& ReqSeparateConnection::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ril_2eproto();  return *default_instance_;
+}
+
+ReqSeparateConnection* ReqSeparateConnection::default_instance_ = NULL;
+
+ReqSeparateConnection* ReqSeparateConnection::New() const {
+  return new ReqSeparateConnection;
+}
+
+void ReqSeparateConnection::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    index_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool ReqSeparateConnection::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required int32 index = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &index_)));
+          _set_bit(0);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void ReqSeparateConnection::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required int32 index = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->index(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* ReqSeparateConnection::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required int32 index = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->index(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int ReqSeparateConnection::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required int32 index = 1;
+    if (has_index()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->index());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void ReqSeparateConnection::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const ReqSeparateConnection* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const ReqSeparateConnection*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void ReqSeparateConnection::MergeFrom(const ReqSeparateConnection& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_index(from.index());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void ReqSeparateConnection::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ReqSeparateConnection::CopyFrom(const ReqSeparateConnection& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ReqSeparateConnection::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  
+  return true;
+}
+
+void ReqSeparateConnection::Swap(ReqSeparateConnection* other) {
+  if (other != this) {
+    std::swap(index_, other->index_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata ReqSeparateConnection::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ReqSeparateConnection_descriptor_;
+  metadata.reflection = ReqSeparateConnection_reflection_;
   return metadata;
 }
 
