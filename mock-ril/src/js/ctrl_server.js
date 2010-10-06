@@ -1,0 +1,142 @@
+/**
+ * Copyright (C) 2010 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Control Server
+ */
+function CtrlServer() {
+    // The result returned by the request handlers
+    var result = new Object();
+
+    this.ctrlGetRadioState = function(req) {
+        print('ctrlGetRadioState');
+
+        var rsp = new Object();
+        rsp.state = gRadioState;
+        result.responseProtobuf = ctrlSchema['ril_proto.CtrlRspRadioState'].serialize(rsp);
+
+        return result;
+    }
+
+    this.ctrlSetRadioState = function(req) {
+        print('ctrlSetRadioState');
+
+        var radioReq = new Object();
+
+        // Parse the request protobuf to an object, the returned value is a
+        // string that represents the variable name
+        radioReq = ctrlSchema['ril_proto.CtrlReqRadioState'].parse(req.protobuf);
+
+        setRadioState(radioReq.state);
+
+        // Prepare the response, return the current radio state
+        var rsp = new Object();
+        rsp.state = gRadioState;
+        result.responseProtobuf = ctrlSchema['ril_proto.CtrlRspRadioState'].serialize(rsp);
+        print('gRadioState after setting: ' + gRadioState);
+        return result;
+    }
+
+    /**
+     * Generate an MT call
+     */
+    this.ctrlSetMTCall = function(req) {
+        print('ctrlSetMTCall');
+
+        var mtReq = new Object();
+
+        mtReq = ctrlSchema['ril_proto.CtrlReqSetMTCall'].parse(req.protobuf);
+        setMTCall(mtReq.phoneNumber, mtReq.name);
+
+        result.sendResponse = false;
+        return result;
+    }
+
+    /**
+     * Process the request
+     */
+    this.process = function(req) {
+        try {
+            print('CtrlServer E: req.cmd=' + req.cmd + ' req.token=' + req.token);
+
+            // Assume the result will be true, successful and nothing to return
+            result.sendResponse = true;
+            result.ctrlStatus = 0;
+            result.responseProtobuf = emptyProtobuf;
+
+            // Default result will be success with no response protobuf
+            try {
+                result = (this.ctrlDispatchTable[req.cmd]).call(this, req);
+            } catch (err) {
+                print('ctrlServer: Unknown cmd=' + req.cmd);
+                result.ctrlStatus = 1; //ril_proto.CTRL_STATUS_ERR;
+            }
+
+            if (result.sendResponse) {
+                sendCtrlRequestComplete(result.ctrlStatus, req.cmd,
+                        req.token, result.responseProtobuf);
+            }
+
+            print('CtrlServer X: req.cmd=' + req.cmd + ' req.token=' + req.token);
+        } catch (err) {
+            print('CtrlServer X: Exception req.cmd=' +
+                    req.cmd + ' req.token=' + req.token + ' err=' + err);
+        }
+    }
+
+    print('CtrlServer() ctor E');
+    this.ctrlDispatchTable = new Array();
+    this.ctrlDispatchTable[CTRL_CMD_GET_RADIO_STATE] = this.ctrlGetRadioState;
+    this.ctrlDispatchTable[CTRL_CMD_SET_RADIO_STATE] = this.ctrlSetRadioState;
+    this.ctrlDispatchTable[CTRL_CMD_SET_MT_CALL] = this.ctrlSetMTCall;
+    print('CtrlServer() ctor X');
+}
+
+// The control server instance and its associated Worker
+var ctrlServer = new CtrlServer();
+var ctrlWorker = new Worker(function (req) {
+    ctrlServer.process(req);
+});
+ctrlWorker.run();
+
+/**
+ * Add the request to the ctrlServer Worker.
+ */
+function onCtrlServerCmd(cmd, token, protobuf) {
+    try {
+        print('onCtrlServerCmd E cmd=' + cmd + ' token=' + token);
+
+        var req = new Object();
+        req.cmd = cmd;
+        req.token = token;
+        req.protobuf = protobuf;
+
+        print('onCtrlServerCmd add the request:');
+
+        ctrlWorker.add(req);
+
+        print('onCtrlServerCmd X cmd=' + cmd + ' token=' + token);
+    } catch (err) {
+        print('onCtrlServerCmd X Exception err=' + err);
+    }
+}
+
+/**
+ * Optional tests
+ */
+if (false) {
+    include("ctrl_server_tests.js");
+}

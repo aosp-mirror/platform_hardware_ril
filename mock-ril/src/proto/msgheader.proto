@@ -1,0 +1,13 @@
+// Copyright 2010 Google Inc. All Rights Reserved.
+// Author: wink@google.com (Wink Saville)
+
+package communication;
+
+option java_package='com.android.internal.communication';
+
+message MsgHeader {
+  required uint32 cmd = 1;
+  required uint32 length_data = 2;
+  optional uint32 status = 3;
+  optional uint64 token = 4;
+}

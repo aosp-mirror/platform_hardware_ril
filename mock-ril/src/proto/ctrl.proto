@@ -1,0 +1,37 @@
+// Copyright 2010 Google Inc. All Rights Reserved.
+// Author: wink@google.com (Wink Saville)
+
+package ril_proto;
+
+option java_package='com.android.internal.telephony.ril_proto';
+option java_outer_classname='RilCtrlCmds';
+
+import "ril.proto";
+
+enum CtrlCmd {
+  CTRL_CMD_ECHO = 0;
+  CTRL_CMD_GET_RADIO_STATE      = 1;
+  CTRL_CMD_SET_RADIO_STATE      = 2;
+  CTRL_CMD_SET_MT_CALL = 3;
+}
+
+enum CtrlStatus {
+    CTRL_STATUS_OK = 0;
+    CTRL_STATUS_ERR = 1;
+}
+
+// request of setting radio state
+message CtrlReqRadioState {
+  required ril_proto.RadioState state = 1;
+}
+
+// response of set/get radio state
+message CtrlRspRadioState {
+  required ril_proto.RadioState state = 1;
+}
+
+// request of creating an incoming call
+message CtrlReqSetMTCall {
+  required string phone_number         = 1;  // Phone number to display
+}
+
