@@ -53,28 +53,6 @@ function setRadioState(newState) {
 }
 
 /**
- * Create an incoming call 
- */
-function setMTCall(phoneNumber) {
-    print('createIncomingCall, number=' + phoneNumber + ' E');
-    
-    if (simulatedRadio.numberActiveCalls <= 0) {
-        // If there is no connection in use, the call state is INCOMING
-        state = CALLSTATE_INCOMING;
-    } else {
-        // If the incoming call is a second call, the state is WAITING
-        state = CALLSTATE_WAITING;
-    }
-    
-    // Add call to the call array
-    simulatedRadio.addCall(state, phoneNumber, '');
-    
-    // Send unsolicited response of call state change
-    simulatedRadioWorker.add(
-      {'reqNum' : CMD_UNSOL_CALL_STATE_CHANGED});
-}
-
-/**
  * Create a call.
  *
  * @return a RilCall
@@ -126,6 +104,8 @@ function Radio() {
     var maxNumberActiveCalls = 7;
     var maxConnectionsPerCall = 5; // only 5 connections allowed per call
 
+    // Flag to denote whether an incoming/waiting call is answered
+    var incomingCallIsAnswered = false;
 
     // Array of "active" calls
     var calls = Array(maxNumberActiveCalls + 1);
@@ -404,7 +384,9 @@ function Radio() {
                     switch (calls[i].state) {
                         case CALLSTATE_HOLDING:
                         case CALLSTATE_WAITING:
+                        case CALLSTATE_INCOMING:
                             this.removeCall(i);
+                            incomingCallIsAnswered = true;
                             break;
                         default:
                             result.rilErrCode = RIL_E_GENERIC_FAILURE;
@@ -639,6 +621,35 @@ function Radio() {
     }
 
     /**
+     * Handle RIL_REQUEST_ANSWER
+     *
+     * @param req is the Request
+     */
+    this.rilRequestAnswer = function(req) { // 40
+        print('Radio: rilRequestAnswer');
+
+        if (numberActiveCalls != 1) {
+            result.rilErrCode = RIL_E_GENERIC_FAILURE;
+            return result;
+        } else {
+            for (var i = 0; i < calls.length; i++) {
+                if (typeof calls[i] != 'undefined') {
+                    if (calls[i].state == CALLSTATE_INCOMING) {
+                        calls[i].state = CALLSTATE_ACTIVE;
+                        break;
+                    } else {
+                        result.rilErrCode = RIL_E_GENERIC_FAILURE;
+                        this.removeCall(i);
+                        return result;
+                    }
+                } // end of processing call[i]
+            } // end of for
+        }
+        incomingCallIsAnswered = true;
+        return result;
+    }
+
+    /**
      * Handle RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE
      *
      * @param req is the Request
@@ -843,6 +854,70 @@ function Radio() {
          result.sendResponse = false;
          return result;
      }
+
+     /**
+      * send UNSOL_CALL_STATE_CHANGED and UNSOL_CALL_RING
+      */
+     this.cmdUnsolCallRing = function(req) { // 2004
+         print('cmdUnsolCallRing: req.reqNum=' + req.reqNum);
+         sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED);
+         sendRilUnsolicitedResponse(RIL_UNSOL_CALL_RING);
+
+         // Send the next alert in 3 seconds. [refer to ril.h definition]
+         simulatedRadioWorker.addDelayed(
+             {'reqNum' : CMD_UNSOL_CALL_RING}, 3000);
+         result.sendResponse = false;
+         return result;
+     }
+
+     /**
+      * Create an incoming call for the giving number
+      * return CTRL_STATUS_ERR if there is already a call in any of the states of
+      * dialing, alerting, incoming, waiting [TS 22 030 6.5] , else
+      * return CTRL_STATUS_OK and update the call state
+      */
+     this.ctrlServerCmdStartInComingCall = function(req) {  // 1001
+         print('ctrlServerCmdStartInComingCall: req.reqNum:' + req.reqNum);
+         print('ctrlServerCmdStartInComingCall: req.data.phonenumber:' + req.data.phoneNumber);
+
+         var phoneNumber = req.data.phoneNumber;
+         var state;
+
+         if (numberActiveCalls <= 0) {
+             // If there is no connection in use, the call state is INCOMING
+             state = CALLSTATE_INCOMING;
+         } else {
+             // If there is call in any of the states of dialing, alerting, incoming
+             // waiting, this MT call can not be set
+             for (var i  = 0; i < calls.length; i++) {
+                 if (typeof calls[i] != 'undefined') {
+                     if ( (calls[i].state == CALLSTATE_DIALING) ||
+                          (calls[i].state == CALLSTATE_ALERTING) ||
+                          (calls[i].state == CALLSTATE_INCOMING) ||
+                          (calls[i].state == CALLSTATE_WAITING))
+                     {
+                         result.rilErrCode = CTRL_STATUS_ERR;
+                         return result;
+                     }
+                 }
+             }
+             // If the incoming call is a second call, the state is WAITING
+             state = CALLSTATE_WAITING;
+         }
+
+         // Add call to the call array
+         this.addCall(state, phoneNumber, '');
+
+         // set the incomingCallIsAnswered flag to be false
+         incomingCallIsAnswered = false;
+
+         simulatedRadioWorker.add(
+           {'reqNum' : CMD_UNSOL_CALL_RING});
+
+         result.rilErrCode = CTRL_STATUS_OK;
+         return result;
+     }
+
     /**
      * Process the request by dispatching to the request handlers
      */
@@ -858,7 +933,11 @@ function Radio() {
             try {
                 // Pass "this" object to each ril request call such that
                 // they have the same scope
-                result = (this.radioDispatchTable[req.reqNum]).call(this, req);
+                if ((req.reqNum == CMD_UNSOL_CALL_RING) && incomingCallIsAnswered) {
+                    print('no need to send UNSOL_CALL_RING');
+                } else {
+                    result = (this.radioDispatchTable[req.reqNum]).call(this, req);
+                }
             } catch (err) {
                 print('Radio:process err = ' + err);
                 print('Radio: Unknown reqNum=' + req.reqNum);
@@ -869,10 +948,16 @@ function Radio() {
                 lastReq = req.reqNum;
             }
             if (result.sendResponse) {
-                sendRilRequestComplete(result.rilErrCode, req.reqNum,
-                        req.token, result.responseProtobuf);
+                if (isCtrlServerDispatchCommand(req.reqNum)) {
+                    print('Command ' + req.reqNum + ' is a control server command');
+                    sendCtrlRequestComplete(result.rilErrCode, req.reqNum,
+                      req.token, result.responseProtobuf);
+                } else {
+                    print('Request ' + req.reqNum + ' is a ril request');
+                    sendRilRequestComplete(result.rilErrCode, req.reqNum,
+                      req.token, result.responseProtobuf);
+                }
             }
-
             //print('Radio X: req.reqNum=' + req.reqNum + ' req.token=' + req.token);
         } catch (err) {
             print('Radio: Exception req.reqNum=' +
@@ -905,6 +990,8 @@ function Radio() {
                 this.rilRequestRegistrationState;
     this.radioDispatchTable[RIL_REQUEST_GPRS_REGISTRATION_STATE] = // 21
                 this.rilRequestGprsRegistrationState;
+    this.radioDispatchTable[RIL_REQUEST_ANSWER] = // 40
+                this.rilRequestAnswer;
     this.radioDispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = // 45
                 this.rilRequestQueryNeworkSelectionMode;
     this.radioDispatchTable[RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = // 46
@@ -918,6 +1005,9 @@ function Radio() {
     this.radioDispatchTable[RIL_REQUEST_SCREEN_STATE] = // 61
                 this.rilRequestScreenState;
 
+    this.radioDispatchTable[CTRL_CMD_SET_MT_CALL] = //1001
+                this.ctrlServerCmdStartInComingCall;
+
     this.radioDispatchTable[CMD_DELAY_TEST] = // 2000
                 this.cmdDelayTest;
     this.radioDispatchTable[CMD_UNSOL_SIGNAL_STRENGTH] =  // 2001
@@ -926,6 +1016,11 @@ function Radio() {
                 this.cmdUnsolCallStateChanged;
     this.radioDispatchTable[CMD_CALL_STATE_CHANGE] = //2003
                 this.cmdCallStateChange;
+    this.radioDispatchTable[CMD_UNSOL_CALL_RING] = //2004
+                this.cmdUnsolCallRing;
+
+    this.radioDispatchTable[CTRL_CMD_SET_MT_CALL] = //1001
+                this.ctrlServerCmdStartInComingCall;
 
     print('Radio: constructor X');
 }

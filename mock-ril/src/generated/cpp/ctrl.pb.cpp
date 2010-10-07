@@ -125,13 +125,13 @@ void protobuf_AddDesc_ctrl_2eproto() {
     "rlReqRadioState\022$\n\005state\030\001 \002(\0162\025.ril_pro"
     "to.RadioState\"9\n\021CtrlRspRadioState\022$\n\005st"
     "ate\030\001 \002(\0162\025.ril_proto.RadioState\"(\n\020Ctrl"
-    "ReqSetMTCall\022\024\n\014phone_number\030\001 \002(\t*r\n\007Ct"
+    "ReqSetMTCall\022\024\n\014phone_number\030\001 \002(\t*s\n\007Ct"
     "rlCmd\022\021\n\rCTRL_CMD_ECHO\020\000\022\034\n\030CTRL_CMD_GET"
     "_RADIO_STATE\020\001\022\034\n\030CTRL_CMD_SET_RADIO_STA"
-    "TE\020\002\022\030\n\024CTRL_CMD_SET_MT_CALL\020\003*5\n\nCtrlSt"
-    "atus\022\022\n\016CTRL_STATUS_OK\020\000\022\023\n\017CTRL_STATUS_"
-    "ERR\020\001B7\n(com.android.internal.telephony."
-    "ril_protoB\013RilCtrlCmds", 422);
+    "TE\020\002\022\031\n\024CTRL_CMD_SET_MT_CALL\020\351\007*5\n\nCtrlS"
+    "tatus\022\022\n\016CTRL_STATUS_OK\020\000\022\023\n\017CTRL_STATUS"
+    "_ERR\020\001B7\n(com.android.internal.telephony"
+    ".ril_protoB\013RilCtrlCmds", 423);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ctrl.proto", &protobuf_RegisterTypes);
   CtrlReqRadioState::default_instance_ = new CtrlReqRadioState();
@@ -159,7 +159,7 @@ bool CtrlCmd_IsValid(int value) {
     case 0:
     case 1:
     case 2:
-    case 3:
+    case 1001:
       return true;
     default:
       return false;

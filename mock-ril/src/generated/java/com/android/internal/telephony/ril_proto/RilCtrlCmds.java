@@ -8,7 +8,7 @@ public final class RilCtrlCmds {
   public static final int CTRL_CMD_ECHO = 0;
   public static final int CTRL_CMD_GET_RADIO_STATE = 1;
   public static final int CTRL_CMD_SET_RADIO_STATE = 2;
-  public static final int CTRL_CMD_SET_MT_CALL = 3;
+  public static final int CTRL_CMD_SET_MT_CALL = 1001;
   
   // enum CtrlStatus
   public static final int CTRL_STATUS_OK = 0;

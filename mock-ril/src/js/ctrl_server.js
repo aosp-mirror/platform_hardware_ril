@@ -51,21 +51,6 @@ function CtrlServer() {
     }
 
     /**
-     * Generate an MT call
-     */
-    this.ctrlSetMTCall = function(req) {
-        print('ctrlSetMTCall');
-
-        var mtReq = new Object();
-
-        mtReq = ctrlSchema['ril_proto.CtrlReqSetMTCall'].parse(req.protobuf);
-        setMTCall(mtReq.phoneNumber, mtReq.name);
-
-        result.sendResponse = false;
-        return result;
-    }
-
-    /**
      * Process the request
      */
     this.process = function(req) {
@@ -74,7 +59,7 @@ function CtrlServer() {
 
             // Assume the result will be true, successful and nothing to return
             result.sendResponse = true;
-            result.ctrlStatus = 0;
+            result.ctrlStatus = CTRL_STATUS_OK;
             result.responseProtobuf = emptyProtobuf;
 
             // Default result will be success with no response protobuf
@@ -101,7 +86,6 @@ function CtrlServer() {
     this.ctrlDispatchTable = new Array();
     this.ctrlDispatchTable[CTRL_CMD_GET_RADIO_STATE] = this.ctrlGetRadioState;
     this.ctrlDispatchTable[CTRL_CMD_SET_RADIO_STATE] = this.ctrlSetRadioState;
-    this.ctrlDispatchTable[CTRL_CMD_SET_MT_CALL] = this.ctrlSetMTCall;
     print('CtrlServer() ctor X');
 }
 
@@ -119,20 +103,64 @@ function onCtrlServerCmd(cmd, token, protobuf) {
     try {
         print('onCtrlServerCmd E cmd=' + cmd + ' token=' + token);
 
-        var req = new Object();
-        req.cmd = cmd;
-        req.token = token;
-        req.protobuf = protobuf;
-
         print('onCtrlServerCmd add the request:');
 
-        ctrlWorker.add(req);
 
+        if (!isCtrlServerDispatchCommand(cmd)) {
+            var ctrlServerReq = new Object();
+            ctrlServerReq.cmd = cmd;
+            ctrlServerReq.token = token;
+            ctrlServerReq.protobuf = protobuf;
+            print('onCtrlServerCmd: command to control server, add to the worker queue');
+            // If it is a command to the control server, add to the control server worker queue
+            ctrlWorker.add(ctrlServerReq);
+        } else {
+            // For other commands, we need to dispatch to the corresponding components
+            try {
+                print('onCtrlServerCmd: get entry from dispatchTable cmd:' + cmd );
+                entry = ctrlServerDispatchTable[cmd];
+                if (typeof entry == 'undefined') {
+                    throw ('entry = dispatchTable[' + cmd + '] was undefined');
+                } else {
+                    var req = new Request(cmd, token, protobuf, ctrlSchema, entry.schemaName);
+                    for(i = 0; i < entry.components.length; i++) {
+                        entry.components[i].add(req);
+                    }
+                }
+            } catch (err) {
+                print('onCtrlServerCmd: Unknown cmd=' + cmd + ' err=' + err);
+                sendCtrlRequestComplete(RIL_E_REQUEST_NOT_SUPPORTED, cmd, token);
+            }
+        }
         print('onCtrlServerCmd X cmd=' + cmd + ' token=' + token);
     } catch (err) {
         print('onCtrlServerCmd X Exception err=' + err);
     }
 }
+
+function isCtrlServerDispatchCommand(cmd) {
+    return (cmd > CTRL_CMD_DISPATH_BASE)
+}
+
+/**
+ * Dispatch table for request, the control server will send those requests to
+ * the corresponding components.
+ *
+ * Each table entry is index by the CTRL_CMD_xxxx
+ * and contains an array of components this request
+ * is to be sent to and the name of the schema
+ * that converts the incoming protobuf to the
+ * appropriate request data.
+ *
+ * ctrlServerDispatchTable[CTRL_CMD_xxx].components = Array of components
+ * ctrlServerDisptachTable[CTRL_CMD_xxx].Entry.schemaName = 'Name-of-schema';
+ */
+var ctrlServerDispatchTable = new Array();
+
+ctrlServerDispatchTable[CTRL_CMD_SET_MT_CALL] = { // 1001
+    'components' : [simulatedRadioWorker],
+    'schemaName' : 'CtrlReqSetMTCall',
+};
 
 /**
  * Optional tests

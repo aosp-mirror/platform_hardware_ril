@@ -20,7 +20,7 @@
 
 #include <time.h>
 
-#define WORKER_DEBUG
+//#define WORKER_DEBUG
 #ifdef  WORKER_DEBUG
 
 #define DBG(...) LOGD(__VA_ARGS__)
