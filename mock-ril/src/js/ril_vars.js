@@ -285,10 +285,21 @@ var RIL_UNSOL_RINGBACK_TONE = 1029
 var RIL_UNSOL_RESEND_INCALL_MUTE = 1030
 
 /**
- * Control commands in ctrl.proto
+ * Control commands in ctrl.proto for control server
  */
 var CTRL_CMD_GET_RADIO_STATE = 1
 var CTRL_CMD_SET_RADIO_STATE = 2
+
+/**
+ * Control commands in ctrl.proto that will be dispatched to
+ * simulatedRadio or simulatedIcc
+ */
+var CTRL_CMD_DISPATH_BASE    = 1000
+var CTRL_CMD_SET_MT_CALL     = 1001
+
+/* status for control commands, defined in ctrl.proto */
+var CTRL_STATUS_OK = 0
+var CTRL_STATUS_ERR = 1
 
 /**
  * Local requests from simulated_radio or simulated_icc
@@ -297,6 +308,7 @@ var CMD_DELAY_TEST = 2000
 var CMD_UNSOL_SIGNAL_STRENGTH = 2001
 var CMD_UNSOL_CALL_STATE_CHANGED = 2002    // Send RIL_UNSOL_CALL_STATE_CHANGED
 var CMD_CALL_STATE_CHANGE = 2003           // call state change: dialing->alert->active
+var CMD_UNSOL_CALL_RING = 2004
 
 /**
  * Other variables

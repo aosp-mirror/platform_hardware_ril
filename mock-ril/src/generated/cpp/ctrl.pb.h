@@ -41,7 +41,7 @@ enum CtrlCmd {
   CTRL_CMD_ECHO = 0,
   CTRL_CMD_GET_RADIO_STATE = 1,
   CTRL_CMD_SET_RADIO_STATE = 2,
-  CTRL_CMD_SET_MT_CALL = 3
+  CTRL_CMD_SET_MT_CALL = 1001
 };
 bool CtrlCmd_IsValid(int value);
 const CtrlCmd CtrlCmd_MIN = CTRL_CMD_ECHO;
