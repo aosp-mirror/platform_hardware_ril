@@ -36,16 +36,24 @@ void protobuf_ShutdownFile_ctrl_2eproto();
 class CtrlReqRadioState;
 class CtrlRspRadioState;
 class CtrlReqSetMTCall;
+class CtrlHangupConnRemote;
+class CtrlSetCallTransitionFlag;
+class CtrlReqAddDialingCall;
 
 enum CtrlCmd {
   CTRL_CMD_ECHO = 0,
   CTRL_CMD_GET_RADIO_STATE = 1,
   CTRL_CMD_SET_RADIO_STATE = 2,
-  CTRL_CMD_SET_MT_CALL = 1001
+  CTRL_CMD_SET_MT_CALL = 1001,
+  CTRL_CMD_HANGUP_CONN_REMOTE = 1002,
+  CTRL_CMD_SET_CALL_TRANSITION_FLAG = 1003,
+  CTRL_CMD_SET_CALL_ALERT = 1004,
+  CTRL_CMD_SET_CALL_ACTIVE = 1005,
+  CTRL_CMD_ADD_DIALING_CALL = 1006
 };
 bool CtrlCmd_IsValid(int value);
 const CtrlCmd CtrlCmd_MIN = CTRL_CMD_ECHO;
-const CtrlCmd CtrlCmd_MAX = CTRL_CMD_SET_MT_CALL;
+const CtrlCmd CtrlCmd_MAX = CTRL_CMD_ADD_DIALING_CALL;
 const int CtrlCmd_ARRAYSIZE = CtrlCmd_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* CtrlCmd_descriptor();
@@ -348,6 +356,285 @@ class CtrlReqSetMTCall : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static CtrlReqSetMTCall* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class CtrlHangupConnRemote : public ::google::protobuf::Message {
+ public:
+  CtrlHangupConnRemote();
+  virtual ~CtrlHangupConnRemote();
+  
+  CtrlHangupConnRemote(const CtrlHangupConnRemote& from);
+  
+  inline CtrlHangupConnRemote& operator=(const CtrlHangupConnRemote& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CtrlHangupConnRemote& default_instance();
+  
+  void Swap(CtrlHangupConnRemote* other);
+  
+  // implements Message ----------------------------------------------
+  
+  CtrlHangupConnRemote* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const CtrlHangupConnRemote& from);
+  void MergeFrom(const CtrlHangupConnRemote& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required int32 connection_id = 1;
+  inline bool has_connection_id() const;
+  inline void clear_connection_id();
+  static const int kConnectionIdFieldNumber = 1;
+  inline ::google::protobuf::int32 connection_id() const;
+  inline void set_connection_id(::google::protobuf::int32 value);
+  
+  // required int32 call_fail_cause = 2;
+  inline bool has_call_fail_cause() const;
+  inline void clear_call_fail_cause();
+  static const int kCallFailCauseFieldNumber = 2;
+  inline ::google::protobuf::int32 call_fail_cause() const;
+  inline void set_call_fail_cause(::google::protobuf::int32 value);
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.CtrlHangupConnRemote)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 connection_id_;
+  ::google::protobuf::int32 call_fail_cause_;
+  friend void  protobuf_AddDesc_ctrl_2eproto();
+  friend void protobuf_AssignDesc_ctrl_2eproto();
+  friend void protobuf_ShutdownFile_ctrl_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static CtrlHangupConnRemote* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class CtrlSetCallTransitionFlag : public ::google::protobuf::Message {
+ public:
+  CtrlSetCallTransitionFlag();
+  virtual ~CtrlSetCallTransitionFlag();
+  
+  CtrlSetCallTransitionFlag(const CtrlSetCallTransitionFlag& from);
+  
+  inline CtrlSetCallTransitionFlag& operator=(const CtrlSetCallTransitionFlag& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CtrlSetCallTransitionFlag& default_instance();
+  
+  void Swap(CtrlSetCallTransitionFlag* other);
+  
+  // implements Message ----------------------------------------------
+  
+  CtrlSetCallTransitionFlag* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const CtrlSetCallTransitionFlag& from);
+  void MergeFrom(const CtrlSetCallTransitionFlag& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required bool flag = 1;
+  inline bool has_flag() const;
+  inline void clear_flag();
+  static const int kFlagFieldNumber = 1;
+  inline bool flag() const;
+  inline void set_flag(bool value);
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.CtrlSetCallTransitionFlag)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  bool flag_;
+  friend void  protobuf_AddDesc_ctrl_2eproto();
+  friend void protobuf_AssignDesc_ctrl_2eproto();
+  friend void protobuf_ShutdownFile_ctrl_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static CtrlSetCallTransitionFlag* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class CtrlReqAddDialingCall : public ::google::protobuf::Message {
+ public:
+  CtrlReqAddDialingCall();
+  virtual ~CtrlReqAddDialingCall();
+  
+  CtrlReqAddDialingCall(const CtrlReqAddDialingCall& from);
+  
+  inline CtrlReqAddDialingCall& operator=(const CtrlReqAddDialingCall& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CtrlReqAddDialingCall& default_instance();
+  
+  void Swap(CtrlReqAddDialingCall* other);
+  
+  // implements Message ----------------------------------------------
+  
+  CtrlReqAddDialingCall* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const CtrlReqAddDialingCall& from);
+  void MergeFrom(const CtrlReqAddDialingCall& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required string phone_number = 1;
+  inline bool has_phone_number() const;
+  inline void clear_phone_number();
+  static const int kPhoneNumberFieldNumber = 1;
+  inline const ::std::string& phone_number() const;
+  inline void set_phone_number(const ::std::string& value);
+  inline void set_phone_number(const char* value);
+  inline void set_phone_number(const char* value, size_t size);
+  inline ::std::string* mutable_phone_number();
+  
+  // @@protoc_insertion_point(class_scope:ril_proto.CtrlReqAddDialingCall)
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::std::string* phone_number_;
+  static const ::std::string _default_phone_number_;
+  friend void  protobuf_AddDesc_ctrl_2eproto();
+  friend void protobuf_AssignDesc_ctrl_2eproto();
+  friend void protobuf_ShutdownFile_ctrl_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static CtrlReqAddDialingCall* default_instance_;
+};
 // ===================================================================
 
 
@@ -432,6 +719,108 @@ inline void CtrlReqSetMTCall::set_phone_number(const char* value, size_t size) {
   phone_number_->assign(reinterpret_cast<const char*>(value), size);
 }
 inline ::std::string* CtrlReqSetMTCall::mutable_phone_number() {
+  _set_bit(0);
+  if (phone_number_ == &_default_phone_number_) {
+    phone_number_ = new ::std::string;
+  }
+  return phone_number_;
+}
+
+// -------------------------------------------------------------------
+
+// CtrlHangupConnRemote
+
+// required int32 connection_id = 1;
+inline bool CtrlHangupConnRemote::has_connection_id() const {
+  return _has_bit(0);
+}
+inline void CtrlHangupConnRemote::clear_connection_id() {
+  connection_id_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 CtrlHangupConnRemote::connection_id() const {
+  return connection_id_;
+}
+inline void CtrlHangupConnRemote::set_connection_id(::google::protobuf::int32 value) {
+  _set_bit(0);
+  connection_id_ = value;
+}
+
+// required int32 call_fail_cause = 2;
+inline bool CtrlHangupConnRemote::has_call_fail_cause() const {
+  return _has_bit(1);
+}
+inline void CtrlHangupConnRemote::clear_call_fail_cause() {
+  call_fail_cause_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 CtrlHangupConnRemote::call_fail_cause() const {
+  return call_fail_cause_;
+}
+inline void CtrlHangupConnRemote::set_call_fail_cause(::google::protobuf::int32 value) {
+  _set_bit(1);
+  call_fail_cause_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// CtrlSetCallTransitionFlag
+
+// required bool flag = 1;
+inline bool CtrlSetCallTransitionFlag::has_flag() const {
+  return _has_bit(0);
+}
+inline void CtrlSetCallTransitionFlag::clear_flag() {
+  flag_ = false;
+  _clear_bit(0);
+}
+inline bool CtrlSetCallTransitionFlag::flag() const {
+  return flag_;
+}
+inline void CtrlSetCallTransitionFlag::set_flag(bool value) {
+  _set_bit(0);
+  flag_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// CtrlReqAddDialingCall
+
+// required string phone_number = 1;
+inline bool CtrlReqAddDialingCall::has_phone_number() const {
+  return _has_bit(0);
+}
+inline void CtrlReqAddDialingCall::clear_phone_number() {
+  if (phone_number_ != &_default_phone_number_) {
+    phone_number_->clear();
+  }
+  _clear_bit(0);
+}
+inline const ::std::string& CtrlReqAddDialingCall::phone_number() const {
+  return *phone_number_;
+}
+inline void CtrlReqAddDialingCall::set_phone_number(const ::std::string& value) {
+  _set_bit(0);
+  if (phone_number_ == &_default_phone_number_) {
+    phone_number_ = new ::std::string;
+  }
+  phone_number_->assign(value);
+}
+inline void CtrlReqAddDialingCall::set_phone_number(const char* value) {
+  _set_bit(0);
+  if (phone_number_ == &_default_phone_number_) {
+    phone_number_ = new ::std::string;
+  }
+  phone_number_->assign(value);
+}
+inline void CtrlReqAddDialingCall::set_phone_number(const char* value, size_t size) {
+  _set_bit(0);
+  if (phone_number_ == &_default_phone_number_) {
+    phone_number_ = new ::std::string;
+  }
+  phone_number_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* CtrlReqAddDialingCall::mutable_phone_number() {
   _set_bit(0);
   if (phone_number_ == &_default_phone_number_) {
     phone_number_ = new ::std::string;

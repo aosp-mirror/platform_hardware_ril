@@ -246,6 +246,11 @@ message ReqHangUp {
   required int32 connection_index           = 1;
 }
 
+// 18 response for RIL_REQUEST_LAST_CALL_FAIL_CAUSE
+message RspLastCallFailCause {
+  required int32 last_call_fail_cause       = 1;
+}
+
 // 19 RIL_REQUEST_SIGNAL_STRENGTH response
 message RspSignalStrength {
     optional RILGWSignalStrength   gw_signalstrength   = 1;

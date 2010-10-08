@@ -254,6 +254,9 @@ dispatchTable[RIL_REQUEST_SWITCH_WAITING_OR_HOLDING_AND_ACTIVE] = { // 15
 dispatchTable[RIL_REQUEST_CONFERENCE] = { // 16
     'components' : [simulatedRadioWorker],
 };
+dispatchTable[RIL_REQUEST_LAST_CALL_FAIL_CAUSE] = { // 18
+    'components' : [simulatedRadioWorker],
+};
 dispatchTable[RIL_REQUEST_SIGNAL_STRENGTH]  = { // 19
     'components' : [simulatedRadioWorker],
 };

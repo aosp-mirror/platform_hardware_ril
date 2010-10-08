@@ -141,6 +141,30 @@ var RADIOSTATE_NV_NOT_READY = 8;          /* Radio is on, but the NV interface i
 var RADIOSTATE_NV_READY = 9;              /* Radio is on and the NV interface is available */
 
 /**
+ * Last call fail cause
+ */
+var CALL_FAIL_UNOBTAINABLE_NUMBER = 1;
+var CALL_FAIL_NORMAL = 16;
+var CALL_FAIL_BUSY = 17;
+var CALL_FAIL_CONGESTION = 34;
+var CALL_FAIL_ACM_LIMIT_EXCEEDED = 68;
+var CALL_FAIL_CALL_BARRED = 240;
+var CALL_FAIL_FDN_BLOCKED = 241;
+var CALL_FAIL_IMSI_UNKNOWN_IN_VLR = 242;
+var CALL_FAIL_IMEI_NOT_ACCEPTED = 243;
+var CALL_FAIL_CDMA_LOCKED_UNTIL_POWER_CYCLE = 1000;
+var CALL_FAIL_CDMA_DROP = 1001;
+var CALL_FAIL_CDMA_INTERCEPT = 1002;
+var CALL_FAIL_CDMA_REORDER = 1003;
+var CALL_FAIL_CDMA_SO_REJECT = 1004;
+var CALL_FAIL_CDMA_RETRY_ORDER = 1005;
+var CALL_FAIL_CDMA_ACCESS_FAILURE = 1006;
+var CALL_FAIL_CDMA_PREEMPTED = 1007;
+var CALL_FAIL_CDMA_NOT_EMERGENCY = 1008; /* For non-emergency number dialed during emergency callback mode */
+var CALL_FAIL_CDMA_ACCESS_BLOCKED = 1009; /* CDMA network access probes blocked */
+var CALL_FAIL_ERROR_UNSPECIFIED = 0xffff;
+
+/**
  * RIL requests
  */
 var RIL_REQUEST_GET_SIM_STATUS = 1
@@ -294,8 +318,13 @@ var CTRL_CMD_SET_RADIO_STATE = 2
  * Control commands in ctrl.proto that will be dispatched to
  * simulatedRadio or simulatedIcc
  */
-var CTRL_CMD_DISPATH_BASE    = 1000
-var CTRL_CMD_SET_MT_CALL     = 1001
+var CTRL_CMD_DISPATH_BASE             = 1000
+var CTRL_CMD_SET_MT_CALL              = 1001
+var CTRL_CMD_HANGUP_CONN_REMOTE       = 1002
+var CTRL_CMD_SET_CALL_TRANSITION_FLAG = 1003
+var CTRL_CMD_SET_CALL_ALERT           = 1004
+var CTRL_CMD_SET_CALL_ACTIVE          = 1005
+var CTRL_CMD_ADD_DIALING_CALL         = 1006
 
 /* status for control commands, defined in ctrl.proto */
 var CTRL_STATUS_OK = 0
