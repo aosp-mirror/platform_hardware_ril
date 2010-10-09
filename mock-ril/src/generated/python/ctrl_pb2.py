@@ -10,7 +10,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = descriptor.FileDescriptor(
   name='ctrl.proto',
   package='ril_proto',
-  serialized_pb='\n\nctrl.proto\x12\tril_proto\x1a\tril.proto\"9\n\x11\x43trlReqRadioState\x12$\n\x05state\x18\x01 \x02(\x0e\x32\x15.ril_proto.RadioState\"9\n\x11\x43trlRspRadioState\x12$\n\x05state\x18\x01 \x02(\x0e\x32\x15.ril_proto.RadioState*X\n\x07\x43trlCmd\x12\x11\n\rCTRL_CMD_ECHO\x10\x00\x12\x1c\n\x18\x43TRL_CMD_GET_RADIO_STATE\x10\x01\x12\x1c\n\x18\x43TRL_CMD_SET_RADIO_STATE\x10\x02*5\n\nCtrlStatus\x12\x12\n\x0e\x43TRL_STATUS_OK\x10\x00\x12\x13\n\x0f\x43TRL_STATUS_ERR\x10\x01\x42\x37\n(com.android.internal.telephony.ril_protoB\x0bRilCtrlCmds')
+  serialized_pb='\n\nctrl.proto\x12\tril_proto\x1a\tril.proto\"9\n\x11\x43trlReqRadioState\x12$\n\x05state\x18\x01 \x02(\x0e\x32\x15.ril_proto.RadioState\"9\n\x11\x43trlRspRadioState\x12$\n\x05state\x18\x01 \x02(\x0e\x32\x15.ril_proto.RadioState\"(\n\x10\x43trlReqSetMTCall\x12\x14\n\x0cphone_number\x18\x01 \x02(\t*s\n\x07\x43trlCmd\x12\x11\n\rCTRL_CMD_ECHO\x10\x00\x12\x1c\n\x18\x43TRL_CMD_GET_RADIO_STATE\x10\x01\x12\x1c\n\x18\x43TRL_CMD_SET_RADIO_STATE\x10\x02\x12\x19\n\x14\x43TRL_CMD_SET_MT_CALL\x10\xe9\x07*5\n\nCtrlStatus\x12\x12\n\x0e\x43TRL_STATUS_OK\x10\x00\x12\x13\n\x0f\x43TRL_STATUS_ERR\x10\x01\x42\x37\n(com.android.internal.telephony.ril_protoB\x0bRilCtrlCmds')
 
 _CTRLCMD = descriptor.EnumDescriptor(
   name='CtrlCmd',
@@ -30,11 +30,15 @@ _CTRLCMD = descriptor.EnumDescriptor(
       name='CTRL_CMD_SET_RADIO_STATE', index=2, number=2,
       options=None,
       type=None),
+    descriptor.EnumValueDescriptor(
+      name='CTRL_CMD_SET_MT_CALL', index=3, number=1001,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=154,
-  serialized_end=242,
+  serialized_start=196,
+  serialized_end=311,
 )
 
 
@@ -55,14 +59,15 @@ _CTRLSTATUS = descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=244,
-  serialized_end=297,
+  serialized_start=313,
+  serialized_end=366,
 )
 
 
 CTRL_CMD_ECHO = 0
 CTRL_CMD_GET_RADIO_STATE = 1
 CTRL_CMD_SET_RADIO_STATE = 2
+CTRL_CMD_SET_MT_CALL = 1001
 CTRL_STATUS_OK = 0
 CTRL_STATUS_ERR = 1
 
@@ -123,6 +128,34 @@ _CTRLRSPRADIOSTATE = descriptor.Descriptor(
   serialized_end=152,
 )
 
+
+_CTRLREQSETMTCALL = descriptor.Descriptor(
+  name='CtrlReqSetMTCall',
+  full_name='ril_proto.CtrlReqSetMTCall',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    descriptor.FieldDescriptor(
+      name='phone_number', full_name='ril_proto.CtrlReqSetMTCall.phone_number', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=154,
+  serialized_end=194,
+)
+
 import ril_pb2
 
 _CTRLREQRADIOSTATE.fields_by_name['state'].enum_type = ril_pb2._RADIOSTATE
@@ -139,5 +172,11 @@ class CtrlRspRadioState(message.Message):
   DESCRIPTOR = _CTRLRSPRADIOSTATE
   
   # @@protoc_insertion_point(class_scope:ril_proto.CtrlRspRadioState)
+
+class CtrlReqSetMTCall(message.Message):
+  __metaclass__ = reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _CTRLREQSETMTCALL
+  
+  # @@protoc_insertion_point(class_scope:ril_proto.CtrlReqSetMTCall)
 
 # @@protoc_insertion_point(module_scope)

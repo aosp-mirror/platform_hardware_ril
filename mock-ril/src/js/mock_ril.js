@@ -272,6 +272,9 @@ dispatchTable[RIL_REQUEST_GET_IMEI] = { // 38
 dispatchTable[RIL_REQUEST_GET_IMEISV] = { // 39
     'components' : [simulatedIccWorker],
 };
+dispatchTable[RIL_REQUEST_ANSWER] = { // 40
+    'components' : [simulatedRadioWorker],
+};
 dispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = { // 45
     'components' : [simulatedRadioWorker],
 };

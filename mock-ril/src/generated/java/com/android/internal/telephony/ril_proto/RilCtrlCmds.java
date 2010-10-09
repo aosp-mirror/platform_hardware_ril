@@ -8,6 +8,7 @@ public final class RilCtrlCmds {
   public static final int CTRL_CMD_ECHO = 0;
   public static final int CTRL_CMD_GET_RADIO_STATE = 1;
   public static final int CTRL_CMD_SET_RADIO_STATE = 2;
+  public static final int CTRL_CMD_SET_MT_CALL = 1001;
   
   // enum CtrlStatus
   public static final int CTRL_STATUS_OK = 0;
@@ -195,6 +196,99 @@ public final class RilCtrlCmds {
             com.google.protobuf.micro.CodedInputStreamMicro input)
         throws java.io.IOException {
       return (CtrlRspRadioState) (new CtrlRspRadioState().mergeFrom(input));
+    }
+    
+  }
+  
+  public static final class CtrlReqSetMTCall extends
+      com.google.protobuf.micro.MessageMicro {
+    public CtrlReqSetMTCall() {}
+    
+    // required string phone_number = 1;
+    public static final int PHONE_NUMBER_FIELD_NUMBER = 1;
+    private boolean hasPhoneNumber;
+    private java.lang.String phoneNumber_ = "";
+    public java.lang.String getPhoneNumber() { return phoneNumber_; }
+    public boolean hasPhoneNumber() { return hasPhoneNumber; }
+    public CtrlReqSetMTCall setPhoneNumber(java.lang.String value) {
+      hasPhoneNumber = true;
+      phoneNumber_ = value;
+      return this;
+    }
+    public CtrlReqSetMTCall clearPhoneNumber() {
+      hasPhoneNumber = false;
+      phoneNumber_ = "";
+      return this;
+    }
+    
+    public final CtrlReqSetMTCall clear() {
+      clearPhoneNumber();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      if (!hasPhoneNumber) return false;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasPhoneNumber()) {
+        output.writeString(1, getPhoneNumber());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasPhoneNumber()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeStringSize(1, getPhoneNumber());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public CtrlReqSetMTCall mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 10: {
+            setPhoneNumber(input.readString());
+            break;
+          }
+        }
+      }
+    }
+    
+    public static CtrlReqSetMTCall parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (CtrlReqSetMTCall) (new CtrlReqSetMTCall().mergeFrom(data));
+    }
+    
+    public static CtrlReqSetMTCall parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (CtrlReqSetMTCall) (new CtrlReqSetMTCall().mergeFrom(input));
     }
     
   }

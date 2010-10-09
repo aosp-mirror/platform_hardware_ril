@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-
+/**
+ * TODO:update tests in the format of test incoming call
+ *      Have a global counter to count passes and failures
+ */
 /**
  * A test to test set signal strength
  */
@@ -79,6 +82,108 @@ if (false) {
     }
 
     testCalls();
+}
+
+/**
+ * A test for creating incoming call
+ */
+if (false) {
+    /* Only one incoming call is in the call list */
+    function verifyIncomingCall() {
+        var calls = simulatedRadio.getCalls();
+        var numIncomingCalls = 0;
+        for (var i = 0; i < calls.length; i++) {
+            if (typeof calls[i] != 'undefined') {
+                if (calls[i].state == CALLSTATE_INCOMING) {
+                    numIncomingCalls++;
+                }
+            }
+        }
+        return (numIncomingCalls == 1);
+    }
+
+    function testStartIncomingCall() {
+        print('testCreateIncomingCall E:');
+
+        var req = new Object();
+        req.reqNum = CTRL_CMD_SET_MT_CALL;
+        req.data = new Object();
+        req.data.phoneNumber = '6502249208';
+
+        var numberTestPass = 0;
+        var numberTestFail = 0;
+
+        // case 1: incoming call is the only active call
+        var result = new Object();
+        result = simulatedRadio.ctrlServerCmdStartInComingCall(req);
+        if ( (result.rilErrCode == CTRL_STATUS_OK) && verifyIncomingCall()) {
+            numberTestPass++;
+        } else {
+            numberTestFail++;
+            print('testStartIncomingCall: TEST CASE 1 FAIL');
+        }
+
+        // case 2: one incoming call, add another incoming call will fail
+        req.data.phoneNumber = '6502223456';
+        result = simulatedRadio.ctrlServerCmdStartInComingCall(req);
+        if ((result.rilErrCode == CTRL_STATUS_ERR) && verifyIncomingCall()) {
+            numberTestPass++;
+        } else {
+            numberTestFail++;
+            print('testStartIncomingCall: TEST CASE 2 FAIL');
+        }
+
+        // case 3: one dialing call, add another incoming call will fail
+        // Make the first call in dialing state
+        var calls = simulatedRadio.getCalls();
+        for (var i = 0; i < calls.length; i++) {
+            if (typeof calls[i] != 'undefined') {
+                if (calls[i].state == CALLSTATE_INCOMING) {
+                    calls[i].state = CALLSTATE_DIALING;
+                    break;
+                }
+            }
+        }
+        result = simulatedRadio.ctrlServerCmdStartInComingCall(req);
+        if (result.rilErrCode == CTRL_STATUS_ERR) {
+            numberTestPass++;
+        } else {
+            numberTestFail++;
+            print('testStartIncomingCall: TEST CASE 3 FAIL');
+        }
+
+        // case 4: one dialing call, adding another incoming call will fail
+        calls[i].state = CALLSTATE_ALERTING;
+        result = simulatedRadio.ctrlServerCmdStartInComingCall(req);
+        if (result.rilErrCode == CTRL_STATUS_ERR) {
+            numberTestPass++;
+        } else {
+            numberTestFail++;
+            print('testStartIncomingCall: TEST CASE 4 FAIL');
+        }
+
+        // case 5: one active call, adding another incoming call will succeed
+        calls[i].state = CALLSTATE_ACTIVE;
+        result = simulatedRadio.ctrlServerCmdStartInComingCall(req);
+        if (result.rilErrCode == CTRL_STATUS_OK) {
+            numberTestPass++;
+        } else {
+            numberTestFail++;
+            print('testStartIncomingCall: TEST CASE 5 FAIL');
+        }
+
+        print('*************TEST RESULT ****************');
+        print('Number of Test Passed: ' + numberTestPass);
+        print('Number of Test Failed: ' + numberTestFail);
+        print('************   End **********************');
+        // after the test, remove any calls
+        for (i = 0; i < calls.length; i++) {
+            simulatedRadio.removeCall(i);
+        }
+        print('testStartIncomingCall X:');
+    }
+
+    testStartIncomingCall();
 }
 
 /**

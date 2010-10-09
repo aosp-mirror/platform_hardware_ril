@@ -10,8 +10,9 @@ import "ril.proto";
 
 enum CtrlCmd {
   CTRL_CMD_ECHO = 0;
-  CTRL_CMD_GET_RADIO_STATE = 1;
-  CTRL_CMD_SET_RADIO_STATE = 2;
+  CTRL_CMD_GET_RADIO_STATE      = 1;
+  CTRL_CMD_SET_RADIO_STATE      = 2;
+  CTRL_CMD_SET_MT_CALL          = 1001;
 }
 
 enum CtrlStatus {
@@ -27,5 +28,10 @@ message CtrlReqRadioState {
 // response of set/get radio state
 message CtrlRspRadioState {
   required ril_proto.RadioState state = 1;
+}
+
+// request of creating an incoming call
+message CtrlReqSetMTCall {
+  required string phone_number         = 1;  // Phone number to display
 }
 
