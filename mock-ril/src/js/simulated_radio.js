@@ -107,6 +107,11 @@ function Radio() {
     // Flag to denote whether an incoming/waiting call is answered
     var incomingCallIsAnswered = false;
 
+    // Call transition flag
+    var callTransitionFlag = false;  // default to auto-transition
+
+    var lastCallFailCause = 0;
+
     // Array of "active" calls
     var calls = Array(maxNumberActiveCalls + 1);
 
@@ -157,6 +162,23 @@ function Radio() {
             c = null;
         }
         return c;
+    }
+
+    /**
+     * @return the first call that is in the given state
+     */
+    this.getCallIdByState = function(callState) {
+        if ((callState < CALLSTATE_ACTIVE) || (callState > CALLSTATE_WAITING)) {
+            return null;
+        }
+        for (var i = 0; i < calls.length; i++) {
+            if (typeof calls[i] != 'undefined') {
+                if (calls[i].state == callState) {
+                    return i;
+                }
+            }
+        }
+        return null;
     }
 
     /** Add an active call
@@ -237,6 +259,27 @@ function Radio() {
                 this.printCall(callArray[i]);
             }
         }
+    }
+
+    /**
+     * Count number of calls in the given state
+     *
+     * @param callState is the give state
+     */
+    this.countCallsInState = function(callState) {
+        var count = 0;
+        if ((callState < CALLSTATE_ACTIVE) || (callState > CALLSTATE_WAITING)) {
+            // not a valid call state
+            return null;
+        }
+        for (var i = 0; i < calls.length; i++) {
+            if (typeof calls[i] != 'undefined') {
+                if (calls[i].state == callState) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     /**
@@ -339,18 +382,21 @@ function Radio() {
                          'callType' : OUTGOING,
                          'callIndex' : newCall.index,
                          'nextState' : CALLSTATE_DIALING});
-        // Update call state to alerting after 1 second
-       simulatedRadioWorker.addDelayed(
-                        {'reqNum' : CMD_CALL_STATE_CHANGE,
-                         'callType' : OUTGOING,
-                         'callIndex' : newCall.index,
-                         'nextState' : CALLSTATE_ALERTING}, 1000);
-       // Update call state to active after 2 seconds
-        simulatedRadioWorker.addDelayed(
-                        {'reqNum' : CMD_CALL_STATE_CHANGE,
-                         'callType' : OUTGOING,
-                         'callIndex': newCall.index,
-                         'nextState' : CALLSTATE_ACTIVE}, 2000);
+        if (!callTransitionFlag) {
+            // for auto transition
+            // Update call state to alerting after 1 second
+            simulatedRadioWorker.addDelayed(
+                {'reqNum' : CMD_CALL_STATE_CHANGE,
+                 'callType' : OUTGOING,
+                 'callIndex' : newCall.index,
+                 'nextState' : CALLSTATE_ALERTING}, 1000);
+            // Update call state to active after 2 seconds
+            simulatedRadioWorker.addDelayed(
+                {'reqNum' : CMD_CALL_STATE_CHANGE,
+                 'callType' : OUTGOING,
+                 'callIndex': newCall.index,
+                 'nextState' : CALLSTATE_ACTIVE}, 2000);
+        }
         return result;
     }
 
@@ -547,6 +593,23 @@ function Radio() {
         // Send out RIL_UNSOL_CALL_STATE_CHANGED after the request is returned
         simulatedRadioWorker.add(
           {'reqNum' : CMD_UNSOL_CALL_STATE_CHANGED});
+        return result;
+    }
+
+    /**
+     * Handle RIL_REQUEST_LAST_CALL_FAIL_CAUSE
+     *
+     * @param req is the request
+     */
+    this.rilRequestLastCallFailCause = function(req) {
+        print('Radio: rilRequestLastCallFailCause E');
+
+        var rsp = new Object();
+        rsp.integers = new Array();
+        rsp.integers[0] = lastCallFailCause;
+
+        result.responseProtobuf = rilSchema[packageNameAndSeperator +
+                                            'RspIntegers'].serialize(rsp);
         return result;
     }
 
@@ -916,14 +979,147 @@ function Radio() {
 
          result.rilErrCode = CTRL_STATUS_OK;
          return result;
-     }
+    }
+
+    /**
+     * Handle control command CTRL_CMD_HANGUP_CONN_REMOTE
+     *   hangup the connection for the given failure cause
+     *
+     *@param req is the control request
+     */
+    this.ctrlServerCmdHangupConnRemote = function(req) {    // 1002
+        print('ctrlServerCmdHangupConnRemote: req.data.connectionId=' + req.data.connectionId +
+              ' req.data.callFailCause' + req.data.callFailCause);
+
+        var connection = req.data.connectionId;
+        var failureCause = req.data.callFailCause;
+
+        this.printCalls(calls);
+        var hangupCall = this.removeCall(connection);
+        if (hangupCall == null) {
+            print('ctrlServerCmdHangupConnRemote: connection id is required.');
+            result.rilErrCode = CTRL_STATUS_ERR;
+            return result;
+        } else {
+            // for incoming call, stop sending call ring
+            if ((hangupCall.state == CALLSTATE_INCOMING) ||
+                (hangupCall.state == CALLSTATE_WAITING)) {
+                incomingCallIsAnswered = true;
+            }
+        }
+        this.printCalls(calls);
+        lastCallFailCause = failureCause;
+
+        // send out call state changed response
+        simulatedRadioWorker.add(
+            {'reqNum' : CMD_UNSOL_CALL_STATE_CHANGED});
+
+        result.rilErrCode = CTRL_STATUS_OK;
+        return result;
+    }
+
+    /**
+     * Set call transition flag
+     */
+    this.ctrlServerCmdSetCallTransitionFlag = function(req) {  // 1003
+        print('ctrlServerCmdSetCallTransitionFlag: flag=' + req.data.flag);
+
+        callTransitionFlag = req.data.flag;
+        result.rilErrCode = CTRL_STATUS_OK;
+        return result;
+    }
+
+    /**
+     * Set the dialing call to alert
+     */
+    this.ctrlServerCmdSetCallAlert = function(req) {    // 1004
+        print('ctrlServerCmdSetCallAlert: E');
+
+        if (callTransitionFlag == false) {
+            print('ctrlServerCmdSetCallAlert: need to set the flag first');
+            result.rilErrCode = CTRL_STATUS_ERR;
+            return result;
+        }
+        if (numberActiveCalls <= 0) {
+            print('ctrlServerCmdSetCallAlert: no active calls');
+            result.rilErrCode = CTRL_STATUS_ERR;
+            return result;
+        }
+        var dialingCalls = this.countCallsInState(CALLSTATE_DIALING);
+        var index = this.getCallIdByState(CALLSTATE_DIALING);
+        if ((dialingCalls == 1) && (index != null)) {
+            calls[index].state = CALLSTATE_ALERTING;
+        } else {
+            // if there 0 or more than one call in dialing state, return error
+            print('ctrlServerCmdSetCallAlert: no valid calls in dialing state');
+            result.rilErrCode = CTRL_STATUS_ERR;
+            return result;
+        }
+        // send unsolicited call state change response
+        simulatedRadioWorker.add(
+            {'reqNum' : CMD_UNSOL_CALL_STATE_CHANGED});
+
+        result.rilErrCode = CTRL_STATUS_OK;
+        return result;
+    }
+
+    /**
+     * Set the alserting call to active
+     */
+    this.ctrlServerCmdSetCallActive = function(req) {   // 1005
+        print('ctrlServerCmdSetCallActive: E');
+
+        if (callTransitionFlag == false) {
+            print('ctrlServerCmdSetCallActive: need to set the flag firt');
+            result.rilErrCode = CTRL_STATUS_ERR;
+            return result;
+        }
+        if (numberActiveCalls <= 0) {
+            print('ctrlServerCmdSetCallActive: no active calls');
+            result.rilErrCode = CTRL_STATUS_ERR;
+            return result;
+        }
+        var alertingCalls = this.countCallsInState(CALLSTATE_ALERTING);
+        var index = this.getCallIdByState(CALLSTATE_ALERTING);
+        if ((alertingCalls == 1) && (index != null)) {
+            calls[index].state = CALLSTATE_ACTIVE;
+        } else {
+            print('ctrlServerCmdSetCallActive: no valid calls in alert state');
+            result.rilErrCode = CTRL_STATUS_ERR;
+            return result;
+        }
+        // send out unsolicited call state change response
+        simulatedRadioWorker.add(
+            {'reqNum' : CMD_UNSOL_CALL_STATE_CHANGED});
+
+        result.rilErrCode = CTRL_STATUS_OK;
+        return result;
+    }
+
+    /**
+     * Add a dialing call
+     */
+    this.ctrlServerCmdAddDialingCall = function(req) {   // 1006
+        print('ctrlServerCmdAddDialingCall: E');
+
+        var phoneNumber = req.data.phoneNumber;
+        var dialingCalls = this.countCallsInState(CALLSTATE_DIALING);
+        if (dialingCalls == 0) {
+            this.addCall(CALLSTATE_DIALING, phoneNumber, '');
+            result.rilErrCode = CTRL_STATUS_OK;
+        } else {
+            print('ctrlServerCmdAddDialingCall: add dialing call failed');
+            result.rilErrCode = CTRL_STATUS_ERR;
+        }
+        return result;
+    }
 
     /**
      * Process the request by dispatching to the request handlers
      */
     this.process = function(req) {
         try {
-            //print('Radio E: req.reqNum=' + req.reqNum + ' req.token=' + req.token);
+            print('Radio E: req.reqNum=' + req.reqNum + ' req.token=' + req.token);
 
             // Assume the result will be true, successful and nothing to return
             result.sendResponse = true;
@@ -949,11 +1145,11 @@ function Radio() {
             }
             if (result.sendResponse) {
                 if (isCtrlServerDispatchCommand(req.reqNum)) {
-                    print('Command ' + req.reqNum + ' is a control server command');
+                    //print('Command ' + req.reqNum + ' is a control server command');
                     sendCtrlRequestComplete(result.rilErrCode, req.reqNum,
                       req.token, result.responseProtobuf);
                 } else {
-                    print('Request ' + req.reqNum + ' is a ril request');
+                    //print('Request ' + req.reqNum + ' is a ril request');
                     sendRilRequestComplete(result.rilErrCode, req.reqNum,
                       req.token, result.responseProtobuf);
                 }
@@ -984,6 +1180,8 @@ function Radio() {
                 this.rilRequestSwitchWaitingOrHoldingAndActive;
     this.radioDispatchTable[RIL_REQUEST_CONFERENCE] = // 16
                 this.rilRequestConference;
+    this.radioDispatchTable[RIL_REQUEST_LAST_CALL_FAIL_CAUSE] = // 18
+                this.rilRequestLastCallFailCause;
     this.radioDispatchTable[RIL_REQUEST_SIGNAL_STRENGTH] = // 19
                 this.rilRequestSignalStrength;
     this.radioDispatchTable[RIL_REQUEST_REGISTRATION_STATE] = // 20
@@ -1007,6 +1205,16 @@ function Radio() {
 
     this.radioDispatchTable[CTRL_CMD_SET_MT_CALL] = //1001
                 this.ctrlServerCmdStartInComingCall;
+    this.radioDispatchTable[CTRL_CMD_HANGUP_CONN_REMOTE] = //1002
+                this.ctrlServerCmdHangupConnRemote;
+    this.radioDispatchTable[CTRL_CMD_SET_CALL_TRANSITION_FLAG] = //1003
+                this.ctrlServerCmdSetCallTransitionFlag;
+    this.radioDispatchTable[CTRL_CMD_SET_CALL_ALERT] =  // 1004
+                this.ctrlServerCmdSetCallAlert;
+    this.radioDispatchTable[CTRL_CMD_SET_CALL_ACTIVE] =  // 1005
+                this.ctrlServerCmdSetCallActive;
+    this.radioDispatchTable[CTRL_CMD_ADD_DIALING_CALL] =  // 1006
+                this.ctrlServerCmdAddDialingCall;
 
     this.radioDispatchTable[CMD_DELAY_TEST] = // 2000
                 this.cmdDelayTest;
@@ -1018,9 +1226,6 @@ function Radio() {
                 this.cmdCallStateChange;
     this.radioDispatchTable[CMD_UNSOL_CALL_RING] = //2004
                 this.cmdUnsolCallRing;
-
-    this.radioDispatchTable[CTRL_CMD_SET_MT_CALL] = //1001
-                this.ctrlServerCmdStartInComingCall;
 
     print('Radio: constructor X');
 }

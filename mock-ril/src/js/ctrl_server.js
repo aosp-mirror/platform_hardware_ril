@@ -161,6 +161,24 @@ ctrlServerDispatchTable[CTRL_CMD_SET_MT_CALL] = { // 1001
     'components' : [simulatedRadioWorker],
     'schemaName' : 'CtrlReqSetMTCall',
 };
+ctrlServerDispatchTable[CTRL_CMD_HANGUP_CONN_REMOTE] = { // 1002
+    'components' : [simulatedRadioWorker],
+    'schemaName' : 'CtrlHangupConnRemote',
+};
+ctrlServerDispatchTable[CTRL_CMD_SET_CALL_TRANSITION_FLAG] = { // 1003
+    'components' : [simulatedRadioWorker],
+    'schemaName' : 'CtrlSetCallTransitionFlag',
+};
+ctrlServerDispatchTable[CTRL_CMD_SET_CALL_ALERT] = { // 1004
+    'components' : [simulatedRadioWorker],
+};
+ctrlServerDispatchTable[CTRL_CMD_SET_CALL_ACTIVE] = { // 1005
+    'components' : [simulatedRadioWorker],
+};
+ctrlServerDispatchTable[CTRL_CMD_ADD_DIALING_CALL] = { // 1006
+    'components' : [simulatedRadioWorker],
+    'schemaName' : 'CtrlReqAddDialingCall',
+};
 
 /**
  * Optional tests
