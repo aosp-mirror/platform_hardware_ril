@@ -105,7 +105,7 @@ function Radio() {
     var maxConnectionsPerCall = 5; // only 5 connections allowed per call
 
     // Flag to denote whether an incoming/waiting call is answered
-    var incomingCallIsAnswered = false;
+    var incomingCallIsProcessed = false;
 
     // Call transition flag
     var callTransitionFlag = false;  // default to auto-transition
@@ -432,7 +432,7 @@ function Radio() {
                         case CALLSTATE_WAITING:
                         case CALLSTATE_INCOMING:
                             this.removeCall(i);
-                            incomingCallIsAnswered = true;
+                            incomingCallIsProcessed = true;
                             break;
                         default:
                             result.rilErrCode = RIL_E_GENERIC_FAILURE;
@@ -708,7 +708,7 @@ function Radio() {
                 } // end of processing call[i]
             } // end of for
         }
-        incomingCallIsAnswered = true;
+        incomingCallIsProcessed = true;
         return result;
     }
 
@@ -923,12 +923,14 @@ function Radio() {
       */
      this.cmdUnsolCallRing = function(req) { // 2004
          print('cmdUnsolCallRing: req.reqNum=' + req.reqNum);
-         sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED);
-         sendRilUnsolicitedResponse(RIL_UNSOL_CALL_RING);
+         if(!incomingCallIsProcessed) {
+             sendRilUnsolicitedResponse(RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED);
+             sendRilUnsolicitedResponse(RIL_UNSOL_CALL_RING);
 
-         // Send the next alert in 3 seconds. [refer to ril.h definition]
-         simulatedRadioWorker.addDelayed(
-             {'reqNum' : CMD_UNSOL_CALL_RING}, 3000);
+             // Send the next alert in 3 seconds. [refer to ril.h definition]
+             simulatedRadioWorker.addDelayed(
+                 {'reqNum' : CMD_UNSOL_CALL_RING}, 3000);
+         }
          result.sendResponse = false;
          return result;
      }
@@ -971,8 +973,8 @@ function Radio() {
          // Add call to the call array
          this.addCall(state, phoneNumber, '');
 
-         // set the incomingCallIsAnswered flag to be false
-         incomingCallIsAnswered = false;
+         // set the incomingCallIsProcessed flag to be false
+         incomingCallIsProcessed = false;
 
          simulatedRadioWorker.add(
            {'reqNum' : CMD_UNSOL_CALL_RING});
@@ -1004,7 +1006,7 @@ function Radio() {
             // for incoming call, stop sending call ring
             if ((hangupCall.state == CALLSTATE_INCOMING) ||
                 (hangupCall.state == CALLSTATE_WAITING)) {
-                incomingCallIsAnswered = true;
+                incomingCallIsProcessed = true;
             }
         }
         this.printCalls(calls);
@@ -1129,11 +1131,7 @@ function Radio() {
             try {
                 // Pass "this" object to each ril request call such that
                 // they have the same scope
-                if ((req.reqNum == CMD_UNSOL_CALL_RING) && incomingCallIsAnswered) {
-                    print('no need to send UNSOL_CALL_RING');
-                } else {
-                    result = (this.radioDispatchTable[req.reqNum]).call(this, req);
-                }
+                result = (this.radioDispatchTable[req.reqNum]).call(this, req);
             } catch (err) {
                 print('Radio:process err = ' + err);
                 print('Radio: Unknown reqNum=' + req.reqNum);
