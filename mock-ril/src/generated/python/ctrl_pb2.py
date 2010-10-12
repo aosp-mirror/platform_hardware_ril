@@ -10,7 +10,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = descriptor.FileDescriptor(
   name='ctrl.proto',
   package='ril_proto',
-  serialized_pb='\n\nctrl.proto\x12\tril_proto\x1a\tril.proto\"9\n\x11\x43trlReqRadioState\x12$\n\x05state\x18\x01 \x02(\x0e\x32\x15.ril_proto.RadioState\"9\n\x11\x43trlRspRadioState\x12$\n\x05state\x18\x01 \x02(\x0e\x32\x15.ril_proto.RadioState\"(\n\x10\x43trlReqSetMTCall\x12\x14\n\x0cphone_number\x18\x01 \x02(\t*s\n\x07\x43trlCmd\x12\x11\n\rCTRL_CMD_ECHO\x10\x00\x12\x1c\n\x18\x43TRL_CMD_GET_RADIO_STATE\x10\x01\x12\x1c\n\x18\x43TRL_CMD_SET_RADIO_STATE\x10\x02\x12\x19\n\x14\x43TRL_CMD_SET_MT_CALL\x10\xe9\x07*5\n\nCtrlStatus\x12\x12\n\x0e\x43TRL_STATUS_OK\x10\x00\x12\x13\n\x0f\x43TRL_STATUS_ERR\x10\x01\x42\x37\n(com.android.internal.telephony.ril_protoB\x0bRilCtrlCmds')
+  serialized_pb='\n\nctrl.proto\x12\tril_proto\x1a\tril.proto\"9\n\x11\x43trlReqRadioState\x12$\n\x05state\x18\x01 \x02(\x0e\x32\x15.ril_proto.RadioState\"9\n\x11\x43trlRspRadioState\x12$\n\x05state\x18\x01 \x02(\x0e\x32\x15.ril_proto.RadioState\"(\n\x10\x43trlReqSetMTCall\x12\x14\n\x0cphone_number\x18\x01 \x02(\t\"F\n\x14\x43trlHangupConnRemote\x12\x15\n\rconnection_id\x18\x01 \x02(\x05\x12\x17\n\x0f\x63\x61ll_fail_cause\x18\x02 \x02(\x05\")\n\x19\x43trlSetCallTransitionFlag\x12\x0c\n\x04\x66lag\x18\x01 \x02(\x08\"-\n\x15\x43trlReqAddDialingCall\x12\x14\n\x0cphone_number\x18\x01 \x02(\t*\x9a\x02\n\x07\x43trlCmd\x12\x11\n\rCTRL_CMD_ECHO\x10\x00\x12\x1c\n\x18\x43TRL_CMD_GET_RADIO_STATE\x10\x01\x12\x1c\n\x18\x43TRL_CMD_SET_RADIO_STATE\x10\x02\x12\x19\n\x14\x43TRL_CMD_SET_MT_CALL\x10\xe9\x07\x12 \n\x1b\x43TRL_CMD_HANGUP_CONN_REMOTE\x10\xea\x07\x12&\n!CTRL_CMD_SET_CALL_TRANSITION_FLAG\x10\xeb\x07\x12\x1c\n\x17\x43TRL_CMD_SET_CALL_ALERT\x10\xec\x07\x12\x1d\n\x18\x43TRL_CMD_SET_CALL_ACTIVE\x10\xed\x07\x12\x1e\n\x19\x43TRL_CMD_ADD_DIALING_CALL\x10\xee\x07*5\n\nCtrlStatus\x12\x12\n\x0e\x43TRL_STATUS_OK\x10\x00\x12\x13\n\x0f\x43TRL_STATUS_ERR\x10\x01\x42\x37\n(com.android.internal.telephony.ril_protoB\x0bRilCtrlCmds')
 
 _CTRLCMD = descriptor.EnumDescriptor(
   name='CtrlCmd',
@@ -34,11 +34,31 @@ _CTRLCMD = descriptor.EnumDescriptor(
       name='CTRL_CMD_SET_MT_CALL', index=3, number=1001,
       options=None,
       type=None),
+    descriptor.EnumValueDescriptor(
+      name='CTRL_CMD_HANGUP_CONN_REMOTE', index=4, number=1002,
+      options=None,
+      type=None),
+    descriptor.EnumValueDescriptor(
+      name='CTRL_CMD_SET_CALL_TRANSITION_FLAG', index=5, number=1003,
+      options=None,
+      type=None),
+    descriptor.EnumValueDescriptor(
+      name='CTRL_CMD_SET_CALL_ALERT', index=6, number=1004,
+      options=None,
+      type=None),
+    descriptor.EnumValueDescriptor(
+      name='CTRL_CMD_SET_CALL_ACTIVE', index=7, number=1005,
+      options=None,
+      type=None),
+    descriptor.EnumValueDescriptor(
+      name='CTRL_CMD_ADD_DIALING_CALL', index=8, number=1006,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=196,
-  serialized_end=311,
+  serialized_start=359,
+  serialized_end=641,
 )
 
 
@@ -59,8 +79,8 @@ _CTRLSTATUS = descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=313,
-  serialized_end=366,
+  serialized_start=643,
+  serialized_end=696,
 )
 
 
@@ -68,6 +88,11 @@ CTRL_CMD_ECHO = 0
 CTRL_CMD_GET_RADIO_STATE = 1
 CTRL_CMD_SET_RADIO_STATE = 2
 CTRL_CMD_SET_MT_CALL = 1001
+CTRL_CMD_HANGUP_CONN_REMOTE = 1002
+CTRL_CMD_SET_CALL_TRANSITION_FLAG = 1003
+CTRL_CMD_SET_CALL_ALERT = 1004
+CTRL_CMD_SET_CALL_ACTIVE = 1005
+CTRL_CMD_ADD_DIALING_CALL = 1006
 CTRL_STATUS_OK = 0
 CTRL_STATUS_ERR = 1
 
@@ -156,6 +181,97 @@ _CTRLREQSETMTCALL = descriptor.Descriptor(
   serialized_end=194,
 )
 
+
+_CTRLHANGUPCONNREMOTE = descriptor.Descriptor(
+  name='CtrlHangupConnRemote',
+  full_name='ril_proto.CtrlHangupConnRemote',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    descriptor.FieldDescriptor(
+      name='connection_id', full_name='ril_proto.CtrlHangupConnRemote.connection_id', index=0,
+      number=1, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    descriptor.FieldDescriptor(
+      name='call_fail_cause', full_name='ril_proto.CtrlHangupConnRemote.call_fail_cause', index=1,
+      number=2, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=196,
+  serialized_end=266,
+)
+
+
+_CTRLSETCALLTRANSITIONFLAG = descriptor.Descriptor(
+  name='CtrlSetCallTransitionFlag',
+  full_name='ril_proto.CtrlSetCallTransitionFlag',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    descriptor.FieldDescriptor(
+      name='flag', full_name='ril_proto.CtrlSetCallTransitionFlag.flag', index=0,
+      number=1, type=8, cpp_type=7, label=2,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=268,
+  serialized_end=309,
+)
+
+
+_CTRLREQADDDIALINGCALL = descriptor.Descriptor(
+  name='CtrlReqAddDialingCall',
+  full_name='ril_proto.CtrlReqAddDialingCall',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    descriptor.FieldDescriptor(
+      name='phone_number', full_name='ril_proto.CtrlReqAddDialingCall.phone_number', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=311,
+  serialized_end=356,
+)
+
 import ril_pb2
 
 _CTRLREQRADIOSTATE.fields_by_name['state'].enum_type = ril_pb2._RADIOSTATE
@@ -178,5 +294,23 @@ class CtrlReqSetMTCall(message.Message):
   DESCRIPTOR = _CTRLREQSETMTCALL
   
   # @@protoc_insertion_point(class_scope:ril_proto.CtrlReqSetMTCall)
+
+class CtrlHangupConnRemote(message.Message):
+  __metaclass__ = reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _CTRLHANGUPCONNREMOTE
+  
+  # @@protoc_insertion_point(class_scope:ril_proto.CtrlHangupConnRemote)
+
+class CtrlSetCallTransitionFlag(message.Message):
+  __metaclass__ = reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _CTRLSETCALLTRANSITIONFLAG
+  
+  # @@protoc_insertion_point(class_scope:ril_proto.CtrlSetCallTransitionFlag)
+
+class CtrlReqAddDialingCall(message.Message):
+  __metaclass__ = reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _CTRLREQADDDIALINGCALL
+  
+  # @@protoc_insertion_point(class_scope:ril_proto.CtrlReqAddDialingCall)
 
 # @@protoc_insertion_point(module_scope)

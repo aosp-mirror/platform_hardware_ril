@@ -2523,6 +2523,99 @@ public final class RilCmds {
     
   }
   
+  public static final class RspLastCallFailCause extends
+      com.google.protobuf.micro.MessageMicro {
+    public RspLastCallFailCause() {}
+    
+    // required int32 last_call_fail_cause = 1;
+    public static final int LAST_CALL_FAIL_CAUSE_FIELD_NUMBER = 1;
+    private boolean hasLastCallFailCause;
+    private int lastCallFailCause_ = 0;
+    public int getLastCallFailCause() { return lastCallFailCause_; }
+    public boolean hasLastCallFailCause() { return hasLastCallFailCause; }
+    public RspLastCallFailCause setLastCallFailCause(int value) {
+      hasLastCallFailCause = true;
+      lastCallFailCause_ = value;
+      return this;
+    }
+    public RspLastCallFailCause clearLastCallFailCause() {
+      hasLastCallFailCause = false;
+      lastCallFailCause_ = 0;
+      return this;
+    }
+    
+    public final RspLastCallFailCause clear() {
+      clearLastCallFailCause();
+      cachedSize = -1;
+      return this;
+    }
+    
+    public final boolean isInitialized() {
+      if (!hasLastCallFailCause) return false;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.micro.CodedOutputStreamMicro output)
+                        throws java.io.IOException {
+      if (hasLastCallFailCause()) {
+        output.writeInt32(1, getLastCallFailCause());
+      }
+    }
+    
+    private int cachedSize = -1;
+    public int getCachedSize() {
+      if (cachedSize < 0) {
+        // getSerializedSize sets cachedSize
+        getSerializedSize();
+      }
+      return cachedSize;
+    }
+    
+    public int getSerializedSize() {
+      int size = 0;
+      if (hasLastCallFailCause()) {
+        size += com.google.protobuf.micro.CodedOutputStreamMicro
+          .computeInt32Size(1, getLastCallFailCause());
+      }
+      cachedSize = size;
+      return size;
+    }
+    
+    public RspLastCallFailCause mergeFrom(
+        com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      while (true) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            return this;
+          default: {
+            if (!parseUnknownField(input, tag)) {
+              return this;
+            }
+            break;
+          }
+          case 8: {
+            setLastCallFailCause(input.readInt32());
+            break;
+          }
+        }
+      }
+    }
+    
+    public static RspLastCallFailCause parseFrom(byte[] data)
+        throws com.google.protobuf.micro.InvalidProtocolBufferMicroException {
+      return (RspLastCallFailCause) (new RspLastCallFailCause().mergeFrom(data));
+    }
+    
+    public static RspLastCallFailCause parseFrom(
+            com.google.protobuf.micro.CodedInputStreamMicro input)
+        throws java.io.IOException {
+      return (RspLastCallFailCause) (new RspLastCallFailCause().mergeFrom(input));
+    }
+    
+  }
+  
   public static final class RspSignalStrength extends
       com.google.protobuf.micro.MessageMicro {
     public RspSignalStrength() {}

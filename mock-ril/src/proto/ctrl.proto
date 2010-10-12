@@ -13,6 +13,11 @@ enum CtrlCmd {
   CTRL_CMD_GET_RADIO_STATE      = 1;
   CTRL_CMD_SET_RADIO_STATE      = 2;
   CTRL_CMD_SET_MT_CALL          = 1001;
+  CTRL_CMD_HANGUP_CONN_REMOTE   = 1002;
+  CTRL_CMD_SET_CALL_TRANSITION_FLAG = 1003;
+  CTRL_CMD_SET_CALL_ALERT           = 1004;
+  CTRL_CMD_SET_CALL_ACTIVE          = 1005;
+  CTRL_CMD_ADD_DIALING_CALL         = 1006;  // this command is for testing
 }
 
 enum CtrlStatus {
@@ -30,8 +35,24 @@ message CtrlRspRadioState {
   required ril_proto.RadioState state = 1;
 }
 
-// request of creating an incoming call
+// 1001: request of creating an incoming call
 message CtrlReqSetMTCall {
   required string phone_number         = 1;  // Phone number to display
 }
 
+// 1002: request of hangup a connection for the given disconnection cause
+message CtrlHangupConnRemote {
+  required int32 connection_id          = 1; // connection id
+  required int32 call_fail_cause        = 2; // call failure cause
+}
+
+// 1003: set call transition flag: true for controlled transition
+//                                 false for auto-transition
+message CtrlSetCallTransitionFlag {
+  required bool flag                    = 1;
+}
+
+// 1006: Add a dialing call
+message CtrlReqAddDialingCall {
+  required string phone_number          = 1; // phone number
+}

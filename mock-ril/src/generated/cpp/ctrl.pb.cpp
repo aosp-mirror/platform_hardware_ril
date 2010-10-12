@@ -23,6 +23,15 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* CtrlReqSetMTCall_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   CtrlReqSetMTCall_reflection_ = NULL;
+const ::google::protobuf::Descriptor* CtrlHangupConnRemote_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  CtrlHangupConnRemote_reflection_ = NULL;
+const ::google::protobuf::Descriptor* CtrlSetCallTransitionFlag_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  CtrlSetCallTransitionFlag_reflection_ = NULL;
+const ::google::protobuf::Descriptor* CtrlReqAddDialingCall_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  CtrlReqAddDialingCall_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* CtrlCmd_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* CtrlStatus_descriptor_ = NULL;
 
@@ -80,6 +89,52 @@ void protobuf_AssignDesc_ctrl_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CtrlReqSetMTCall));
+  CtrlHangupConnRemote_descriptor_ = file->message_type(3);
+  static const int CtrlHangupConnRemote_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlHangupConnRemote, connection_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlHangupConnRemote, call_fail_cause_),
+  };
+  CtrlHangupConnRemote_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      CtrlHangupConnRemote_descriptor_,
+      CtrlHangupConnRemote::default_instance_,
+      CtrlHangupConnRemote_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlHangupConnRemote, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlHangupConnRemote, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(CtrlHangupConnRemote));
+  CtrlSetCallTransitionFlag_descriptor_ = file->message_type(4);
+  static const int CtrlSetCallTransitionFlag_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlSetCallTransitionFlag, flag_),
+  };
+  CtrlSetCallTransitionFlag_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      CtrlSetCallTransitionFlag_descriptor_,
+      CtrlSetCallTransitionFlag::default_instance_,
+      CtrlSetCallTransitionFlag_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlSetCallTransitionFlag, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlSetCallTransitionFlag, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(CtrlSetCallTransitionFlag));
+  CtrlReqAddDialingCall_descriptor_ = file->message_type(5);
+  static const int CtrlReqAddDialingCall_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlReqAddDialingCall, phone_number_),
+  };
+  CtrlReqAddDialingCall_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      CtrlReqAddDialingCall_descriptor_,
+      CtrlReqAddDialingCall::default_instance_,
+      CtrlReqAddDialingCall_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlReqAddDialingCall, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CtrlReqAddDialingCall, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(CtrlReqAddDialingCall));
   CtrlCmd_descriptor_ = file->enum_type(0);
   CtrlStatus_descriptor_ = file->enum_type(1);
 }
@@ -100,6 +155,12 @@ void protobuf_RegisterTypes(const ::std::string&) {
     CtrlRspRadioState_descriptor_, &CtrlRspRadioState::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     CtrlReqSetMTCall_descriptor_, &CtrlReqSetMTCall::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    CtrlHangupConnRemote_descriptor_, &CtrlHangupConnRemote::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    CtrlSetCallTransitionFlag_descriptor_, &CtrlSetCallTransitionFlag::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    CtrlReqAddDialingCall_descriptor_, &CtrlReqAddDialingCall::default_instance());
 }
 
 }  // namespace
@@ -111,6 +172,12 @@ void protobuf_ShutdownFile_ctrl_2eproto() {
   delete CtrlRspRadioState_reflection_;
   delete CtrlReqSetMTCall::default_instance_;
   delete CtrlReqSetMTCall_reflection_;
+  delete CtrlHangupConnRemote::default_instance_;
+  delete CtrlHangupConnRemote_reflection_;
+  delete CtrlSetCallTransitionFlag::default_instance_;
+  delete CtrlSetCallTransitionFlag_reflection_;
+  delete CtrlReqAddDialingCall::default_instance_;
+  delete CtrlReqAddDialingCall_reflection_;
 }
 
 void protobuf_AddDesc_ctrl_2eproto() {
@@ -125,21 +192,35 @@ void protobuf_AddDesc_ctrl_2eproto() {
     "rlReqRadioState\022$\n\005state\030\001 \002(\0162\025.ril_pro"
     "to.RadioState\"9\n\021CtrlRspRadioState\022$\n\005st"
     "ate\030\001 \002(\0162\025.ril_proto.RadioState\"(\n\020Ctrl"
-    "ReqSetMTCall\022\024\n\014phone_number\030\001 \002(\t*s\n\007Ct"
-    "rlCmd\022\021\n\rCTRL_CMD_ECHO\020\000\022\034\n\030CTRL_CMD_GET"
-    "_RADIO_STATE\020\001\022\034\n\030CTRL_CMD_SET_RADIO_STA"
-    "TE\020\002\022\031\n\024CTRL_CMD_SET_MT_CALL\020\351\007*5\n\nCtrlS"
-    "tatus\022\022\n\016CTRL_STATUS_OK\020\000\022\023\n\017CTRL_STATUS"
-    "_ERR\020\001B7\n(com.android.internal.telephony"
-    ".ril_protoB\013RilCtrlCmds", 423);
+    "ReqSetMTCall\022\024\n\014phone_number\030\001 \002(\t\"F\n\024Ct"
+    "rlHangupConnRemote\022\025\n\rconnection_id\030\001 \002("
+    "\005\022\027\n\017call_fail_cause\030\002 \002(\005\")\n\031CtrlSetCal"
+    "lTransitionFlag\022\014\n\004flag\030\001 \002(\010\"-\n\025CtrlReq"
+    "AddDialingCall\022\024\n\014phone_number\030\001 \002(\t*\232\002\n"
+    "\007CtrlCmd\022\021\n\rCTRL_CMD_ECHO\020\000\022\034\n\030CTRL_CMD_"
+    "GET_RADIO_STATE\020\001\022\034\n\030CTRL_CMD_SET_RADIO_"
+    "STATE\020\002\022\031\n\024CTRL_CMD_SET_MT_CALL\020\351\007\022 \n\033CT"
+    "RL_CMD_HANGUP_CONN_REMOTE\020\352\007\022&\n!CTRL_CMD"
+    "_SET_CALL_TRANSITION_FLAG\020\353\007\022\034\n\027CTRL_CMD"
+    "_SET_CALL_ALERT\020\354\007\022\035\n\030CTRL_CMD_SET_CALL_"
+    "ACTIVE\020\355\007\022\036\n\031CTRL_CMD_ADD_DIALING_CALL\020\356"
+    "\007*5\n\nCtrlStatus\022\022\n\016CTRL_STATUS_OK\020\000\022\023\n\017C"
+    "TRL_STATUS_ERR\020\001B7\n(com.android.internal"
+    ".telephony.ril_protoB\013RilCtrlCmds", 753);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ctrl.proto", &protobuf_RegisterTypes);
   CtrlReqRadioState::default_instance_ = new CtrlReqRadioState();
   CtrlRspRadioState::default_instance_ = new CtrlRspRadioState();
   CtrlReqSetMTCall::default_instance_ = new CtrlReqSetMTCall();
+  CtrlHangupConnRemote::default_instance_ = new CtrlHangupConnRemote();
+  CtrlSetCallTransitionFlag::default_instance_ = new CtrlSetCallTransitionFlag();
+  CtrlReqAddDialingCall::default_instance_ = new CtrlReqAddDialingCall();
   CtrlReqRadioState::default_instance_->InitAsDefaultInstance();
   CtrlRspRadioState::default_instance_->InitAsDefaultInstance();
   CtrlReqSetMTCall::default_instance_->InitAsDefaultInstance();
+  CtrlHangupConnRemote::default_instance_->InitAsDefaultInstance();
+  CtrlSetCallTransitionFlag::default_instance_->InitAsDefaultInstance();
+  CtrlReqAddDialingCall::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_ctrl_2eproto);
 }
 
@@ -160,6 +241,11 @@ bool CtrlCmd_IsValid(int value) {
     case 1:
     case 2:
     case 1001:
+    case 1002:
+    case 1003:
+    case 1004:
+    case 1005:
+    case 1006:
       return true;
     default:
       return false;
@@ -831,6 +917,686 @@ void CtrlReqSetMTCall::Swap(CtrlReqSetMTCall* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = CtrlReqSetMTCall_descriptor_;
   metadata.reflection = CtrlReqSetMTCall_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int CtrlHangupConnRemote::kConnectionIdFieldNumber;
+const int CtrlHangupConnRemote::kCallFailCauseFieldNumber;
+#endif  // !_MSC_VER
+
+CtrlHangupConnRemote::CtrlHangupConnRemote()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void CtrlHangupConnRemote::InitAsDefaultInstance() {
+}
+
+CtrlHangupConnRemote::CtrlHangupConnRemote(const CtrlHangupConnRemote& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void CtrlHangupConnRemote::SharedCtor() {
+  _cached_size_ = 0;
+  connection_id_ = 0;
+  call_fail_cause_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+CtrlHangupConnRemote::~CtrlHangupConnRemote() {
+  SharedDtor();
+}
+
+void CtrlHangupConnRemote::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void CtrlHangupConnRemote::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* CtrlHangupConnRemote::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return CtrlHangupConnRemote_descriptor_;
+}
+
+const CtrlHangupConnRemote& CtrlHangupConnRemote::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ctrl_2eproto();  return *default_instance_;
+}
+
+CtrlHangupConnRemote* CtrlHangupConnRemote::default_instance_ = NULL;
+
+CtrlHangupConnRemote* CtrlHangupConnRemote::New() const {
+  return new CtrlHangupConnRemote;
+}
+
+void CtrlHangupConnRemote::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    connection_id_ = 0;
+    call_fail_cause_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool CtrlHangupConnRemote::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required int32 connection_id = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &connection_id_)));
+          _set_bit(0);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_call_fail_cause;
+        break;
+      }
+      
+      // required int32 call_fail_cause = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_call_fail_cause:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &call_fail_cause_)));
+          _set_bit(1);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void CtrlHangupConnRemote::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required int32 connection_id = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->connection_id(), output);
+  }
+  
+  // required int32 call_fail_cause = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->call_fail_cause(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* CtrlHangupConnRemote::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required int32 connection_id = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->connection_id(), target);
+  }
+  
+  // required int32 call_fail_cause = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->call_fail_cause(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int CtrlHangupConnRemote::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required int32 connection_id = 1;
+    if (has_connection_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->connection_id());
+    }
+    
+    // required int32 call_fail_cause = 2;
+    if (has_call_fail_cause()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->call_fail_cause());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void CtrlHangupConnRemote::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const CtrlHangupConnRemote* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const CtrlHangupConnRemote*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void CtrlHangupConnRemote::MergeFrom(const CtrlHangupConnRemote& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_connection_id(from.connection_id());
+    }
+    if (from._has_bit(1)) {
+      set_call_fail_cause(from.call_fail_cause());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void CtrlHangupConnRemote::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void CtrlHangupConnRemote::CopyFrom(const CtrlHangupConnRemote& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool CtrlHangupConnRemote::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  
+  return true;
+}
+
+void CtrlHangupConnRemote::Swap(CtrlHangupConnRemote* other) {
+  if (other != this) {
+    std::swap(connection_id_, other->connection_id_);
+    std::swap(call_fail_cause_, other->call_fail_cause_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata CtrlHangupConnRemote::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = CtrlHangupConnRemote_descriptor_;
+  metadata.reflection = CtrlHangupConnRemote_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int CtrlSetCallTransitionFlag::kFlagFieldNumber;
+#endif  // !_MSC_VER
+
+CtrlSetCallTransitionFlag::CtrlSetCallTransitionFlag()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void CtrlSetCallTransitionFlag::InitAsDefaultInstance() {
+}
+
+CtrlSetCallTransitionFlag::CtrlSetCallTransitionFlag(const CtrlSetCallTransitionFlag& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void CtrlSetCallTransitionFlag::SharedCtor() {
+  _cached_size_ = 0;
+  flag_ = false;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+CtrlSetCallTransitionFlag::~CtrlSetCallTransitionFlag() {
+  SharedDtor();
+}
+
+void CtrlSetCallTransitionFlag::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void CtrlSetCallTransitionFlag::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* CtrlSetCallTransitionFlag::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return CtrlSetCallTransitionFlag_descriptor_;
+}
+
+const CtrlSetCallTransitionFlag& CtrlSetCallTransitionFlag::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ctrl_2eproto();  return *default_instance_;
+}
+
+CtrlSetCallTransitionFlag* CtrlSetCallTransitionFlag::default_instance_ = NULL;
+
+CtrlSetCallTransitionFlag* CtrlSetCallTransitionFlag::New() const {
+  return new CtrlSetCallTransitionFlag;
+}
+
+void CtrlSetCallTransitionFlag::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    flag_ = false;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool CtrlSetCallTransitionFlag::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required bool flag = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &flag_)));
+          _set_bit(0);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void CtrlSetCallTransitionFlag::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required bool flag = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(1, this->flag(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* CtrlSetCallTransitionFlag::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required bool flag = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(1, this->flag(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int CtrlSetCallTransitionFlag::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required bool flag = 1;
+    if (has_flag()) {
+      total_size += 1 + 1;
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void CtrlSetCallTransitionFlag::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const CtrlSetCallTransitionFlag* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const CtrlSetCallTransitionFlag*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void CtrlSetCallTransitionFlag::MergeFrom(const CtrlSetCallTransitionFlag& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_flag(from.flag());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void CtrlSetCallTransitionFlag::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void CtrlSetCallTransitionFlag::CopyFrom(const CtrlSetCallTransitionFlag& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool CtrlSetCallTransitionFlag::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  
+  return true;
+}
+
+void CtrlSetCallTransitionFlag::Swap(CtrlSetCallTransitionFlag* other) {
+  if (other != this) {
+    std::swap(flag_, other->flag_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata CtrlSetCallTransitionFlag::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = CtrlSetCallTransitionFlag_descriptor_;
+  metadata.reflection = CtrlSetCallTransitionFlag_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+const ::std::string CtrlReqAddDialingCall::_default_phone_number_;
+#ifndef _MSC_VER
+const int CtrlReqAddDialingCall::kPhoneNumberFieldNumber;
+#endif  // !_MSC_VER
+
+CtrlReqAddDialingCall::CtrlReqAddDialingCall()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void CtrlReqAddDialingCall::InitAsDefaultInstance() {
+}
+
+CtrlReqAddDialingCall::CtrlReqAddDialingCall(const CtrlReqAddDialingCall& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void CtrlReqAddDialingCall::SharedCtor() {
+  _cached_size_ = 0;
+  phone_number_ = const_cast< ::std::string*>(&_default_phone_number_);
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+CtrlReqAddDialingCall::~CtrlReqAddDialingCall() {
+  SharedDtor();
+}
+
+void CtrlReqAddDialingCall::SharedDtor() {
+  if (phone_number_ != &_default_phone_number_) {
+    delete phone_number_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void CtrlReqAddDialingCall::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* CtrlReqAddDialingCall::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return CtrlReqAddDialingCall_descriptor_;
+}
+
+const CtrlReqAddDialingCall& CtrlReqAddDialingCall::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_ctrl_2eproto();  return *default_instance_;
+}
+
+CtrlReqAddDialingCall* CtrlReqAddDialingCall::default_instance_ = NULL;
+
+CtrlReqAddDialingCall* CtrlReqAddDialingCall::New() const {
+  return new CtrlReqAddDialingCall;
+}
+
+void CtrlReqAddDialingCall::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (_has_bit(0)) {
+      if (phone_number_ != &_default_phone_number_) {
+        phone_number_->clear();
+      }
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool CtrlReqAddDialingCall::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required string phone_number = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_phone_number()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->phone_number().data(), this->phone_number().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void CtrlReqAddDialingCall::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required string phone_number = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->phone_number().data(), this->phone_number().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      1, this->phone_number(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* CtrlReqAddDialingCall::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required string phone_number = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->phone_number().data(), this->phone_number().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->phone_number(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int CtrlReqAddDialingCall::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required string phone_number = 1;
+    if (has_phone_number()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->phone_number());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void CtrlReqAddDialingCall::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const CtrlReqAddDialingCall* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const CtrlReqAddDialingCall*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void CtrlReqAddDialingCall::MergeFrom(const CtrlReqAddDialingCall& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_phone_number(from.phone_number());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void CtrlReqAddDialingCall::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void CtrlReqAddDialingCall::CopyFrom(const CtrlReqAddDialingCall& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool CtrlReqAddDialingCall::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  
+  return true;
+}
+
+void CtrlReqAddDialingCall::Swap(CtrlReqAddDialingCall* other) {
+  if (other != this) {
+    std::swap(phone_number_, other->phone_number_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata CtrlReqAddDialingCall::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = CtrlReqAddDialingCall_descriptor_;
+  metadata.reflection = CtrlReqAddDialingCall_reflection_;
   return metadata;
 }
 

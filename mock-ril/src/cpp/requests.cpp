@@ -415,6 +415,7 @@ int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
     rilReqConversionMap[RIL_REQUEST_HANGUP_FOREGROUND_RESUME_BACKGROUND] = ReqWithNoData; // 14
     rilReqConversionMap[RIL_REQUEST_SWITCH_WAITING_OR_HOLDING_AND_ACTIVE] = ReqWithNoData; // 15
     rilReqConversionMap[RIL_REQUEST_CONFERENCE] = ReqWithNoData;  // 16
+    rilReqConversionMap[RIL_REQUEST_LAST_CALL_FAIL_CAUSE] = ReqWithNoData;  // 18
     rilReqConversionMap[RIL_REQUEST_SIGNAL_STRENGTH] = ReqWithNoData; // 19
     rilReqConversionMap[RIL_REQUEST_REGISTRATION_STATE] = ReqWithNoData; // 20
     rilReqConversionMap[RIL_REQUEST_GPRS_REGISTRATION_STATE] = ReqWithNoData; // 21
