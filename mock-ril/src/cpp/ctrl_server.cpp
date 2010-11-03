@@ -31,9 +31,9 @@
 #include "util.h"
 #include "worker.h"
 
-#include "msgheader.pb.h"
+#include "hardware/ril/mock-ril/src/proto/msgheader.pb.h"
 
-#include "ctrl.pb.h"
+#include "hardware/ril/mock-ril/src/proto/ctrl.pb.h"
 #include "ctrl_server.h"
 
 //#define CONTROL_SERVER_DEBUG

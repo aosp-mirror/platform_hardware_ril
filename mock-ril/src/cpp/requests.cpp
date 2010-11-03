@@ -20,7 +20,7 @@
 #include <telephony/ril.h>
 
 
-#include "ril.pb.h"
+#include "hardware/ril/mock-ril/src/proto/ril.pb.h"
 
 #include "logging.h"
 #include "js_support.h"

@@ -32,7 +32,7 @@
 
 #include <v8.h>
 
-#include "ril.pb.h"
+#include "hardware/ril/mock-ril/src/proto/ril.pb.h"
 
 #include "ctrl_server.h"
 #include "logging.h"

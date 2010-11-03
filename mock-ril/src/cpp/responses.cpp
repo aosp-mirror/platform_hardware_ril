@@ -19,7 +19,7 @@
 #include <v8.h>
 #include <telephony/ril.h>
 
-#include "ril.pb.h"
+#include "hardware/ril/mock-ril/src/proto/ril.pb.h"
 
 #include "logging.h"
 #include "mock_ril.h"
