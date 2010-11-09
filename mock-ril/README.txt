@@ -2,19 +2,13 @@ Mock-ril:
 
 Install:
 
-Install protoc see the external/protobuf/INSTALL.txt and
-external/protobuf/python/README.txt. The short answer is:
-
-    $ cd external/protobuf
-    $ ./configure
-    $ make
-    $ make check
-    $ make install
-    $ cd python
-    $ python setup.py install
-
-If you get "from google.protobuf import xxxx" statements
-that google.protobuf is not found you didn't install the
+The protoc is now part of the Android build but its
+called "aprotoc" so it doesn't conflict with versions
+already installed. If you wish to install it permanetly
+see external/protobuf/INSTALL.txt and
+external/protobuf/python/README.txt.  If you get
+"from google.protobuf import xxxx" statements that
+google.protobuf is not found, you didn't install the
 python support for protobuf. Also on Mac OSX I got an
 error running the protoc tests but installing was fine.
 
@@ -129,5 +123,9 @@ General instructions for testing ril's:
      radio     3212  1     3224   628   ffffffff afd0e4fc S /system/bin/rild
 
      $ adb shell kill 3212
+
+   or
+
+     $ adb shell setprop ctl.restart ril-daemon
 
 5) Make modifications, go to step 3.
