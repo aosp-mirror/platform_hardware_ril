@@ -1626,6 +1626,9 @@ typedef struct {
  *
  * "data" is const char **
  * ((char**)data)[0] indicating CID
+ * ((char**)data)[1] indicating Disconnect Reason
+ *                   0 => No specific reason specified
+ *                   1 => Radio shutdown requested
  *
  * "response" is NULL
  *
