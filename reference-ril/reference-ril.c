@@ -315,19 +315,21 @@ static void requestOrSendDataCallList(RIL_Token *t)
          p_cur = p_cur->p_next)
         n++;
 
-    RIL_Data_Call_Response *responses =
-        alloca(n * sizeof(RIL_Data_Call_Response));
+    RIL_Data_Call_Response_v5 *responses =
+        alloca(n * sizeof(RIL_Data_Call_Response_v5));
 
     int i;
     for (i = 0; i < n; i++) {
+        responses[i].status = -1;
         responses[i].cid = -1;
         responses[i].active = -1;
         responses[i].type = "";
-        responses[i].apn = "";
-        responses[i].address = "";
+        responses[i].ifname = "";
+        responses[i].addresses = "";
+        responses[i].dnses = "";
     }
 
-    RIL_Data_Call_Response *response = responses;
+    RIL_Data_Call_Response_v5 *response = responses;
     for (p_cur = p_response->p_intermediates; p_cur != NULL;
          p_cur = p_cur->p_next) {
         char *line = p_cur->line;
@@ -363,10 +365,6 @@ static void requestOrSendDataCallList(RIL_Token *t)
          p_cur = p_cur->p_next) {
         char *line = p_cur->line;
         int cid;
-        char *type;
-        char *apn;
-        char *address;
-
 
         err = at_tok_start(&line);
         if (err < 0)
@@ -386,37 +384,44 @@ static void requestOrSendDataCallList(RIL_Token *t)
             continue;
         }
 
+        // Assume no error
+        responses[i].status = 0;
+
+        // type
         err = at_tok_nextstr(&line, &out);
         if (err < 0)
             goto error;
-
         responses[i].type = alloca(strlen(out) + 1);
         strcpy(responses[i].type, out);
 
+        // APN ignored for v5
         err = at_tok_nextstr(&line, &out);
         if (err < 0)
             goto error;
 
-        responses[i].apn = alloca(strlen(out) + 1);
-        strcpy(responses[i].apn, out);
+        responses[i].ifname = alloca(strlen(PPP_TTY_PATH) + 1);
+        strcpy(responses[i].ifname, PPP_TTY_PATH);
 
         err = at_tok_nextstr(&line, &out);
         if (err < 0)
             goto error;
 
-        responses[i].address = alloca(strlen(out) + 1);
-        strcpy(responses[i].address, out);
+        responses[i].addresses = alloca(strlen(out) + 1);
+        strcpy(responses[i].addresses, out);
+
+        responses[i].dnses = alloca(1);
+        responses[i].dnses[0] = 0;
     }
 
     at_response_free(p_response);
 
     if (t != NULL)
         RIL_onRequestComplete(*t, RIL_E_SUCCESS, responses,
-                              n * sizeof(RIL_Data_Call_Response));
+                              n * sizeof(RIL_Data_Call_Response_v5));
     else
         RIL_onUnsolicitedResponse(RIL_UNSOL_DATA_CALL_LIST_CHANGED,
                                   responses,
-                                  n * sizeof(RIL_Data_Call_Response));
+                                  n * sizeof(RIL_Data_Call_Response_v5));
 
     return;
 
@@ -960,7 +965,6 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
     char *cmd;
     int err;
     ATResponse *p_response = NULL;
-    char *response[2] = { "1", PPP_TTY_PATH };
 
     apn = ((const char **)data)[2];
 
@@ -1067,7 +1071,8 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
         }
     }
 
-    RIL_onRequestComplete(t, RIL_E_SUCCESS, response, sizeof(response));
+    requestOrSendDataCallList(&t);
+
     at_response_free(p_response);
 
     return;

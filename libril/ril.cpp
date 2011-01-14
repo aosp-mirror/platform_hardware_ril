@@ -217,6 +217,7 @@ static int responseSMS(Parcel &p, void *response, size_t responselen);
 static int responseSIM_IO(Parcel &p, void *response, size_t responselen);
 static int responseCallForwards(Parcel &p, void *response, size_t responselen);
 static int responseDataCallList(Parcel &p, void *response, size_t responselen);
+static int responseSetupDataCall(Parcel &p, void *response, size_t responselen);
 static int responseRaw(Parcel &p, void *response, size_t responselen);
 static int responseSsn(Parcel &p, void *response, size_t responselen);
 static int responseSimStatus(Parcel &p, void *response, size_t responselen);
@@ -1313,6 +1314,13 @@ responseInts(Parcel &p, void *response, size_t responselen) {
     return 0;
 }
 
+/** response is a char **, pointing to an array of char *'s
+    The parcel will begin with the version */
+static int responseStringsWithVersion(int version, Parcel &p, void *response, size_t responselen) {
+    p.writeInt32(version);
+    return responseStrings(p, response, responselen);
+}
+
 /** response is a char **, pointing to an array of char *'s */
 static int responseStrings(Parcel &p, void *response, size_t responselen) {
     int numStrings;
@@ -1465,23 +1473,23 @@ static int responseSMS(Parcel &p, void *response, size_t responselen) {
     return 0;
 }
 
-static int responseDataCallList(Parcel &p, void *response, size_t responselen)
+static int responseDataCallListV3(Parcel &p, void *response, size_t responselen)
 {
     if (response == NULL && responselen != 0) {
         LOGE("invalid response: NULL");
         return RIL_ERRNO_INVALID_RESPONSE;
     }
 
-    if (responselen % sizeof(RIL_Data_Call_Response) != 0) {
+    if (responselen % sizeof(RIL_Data_Call_Response_v3) != 0) {
         LOGE("invalid response length %d expected multiple of %d",
-                (int)responselen, (int)sizeof(RIL_Data_Call_Response));
+                (int)responselen, (int)sizeof(RIL_Data_Call_Response_v3));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
 
-    int num = responselen / sizeof(RIL_Data_Call_Response);
+    int num = responselen / sizeof(RIL_Data_Call_Response_v3);
     p.writeInt32(num);
 
-    RIL_Data_Call_Response *p_cur = (RIL_Data_Call_Response *) response;
+    RIL_Data_Call_Response_v3 *p_cur = (RIL_Data_Call_Response_v3 *) response;
     startResponse;
     int i;
     for (i = 0; i < num; i++) {
@@ -1501,6 +1509,62 @@ static int responseDataCallList(Parcel &p, void *response, size_t responselen)
     closeResponse;
 
     return 0;
+}
+
+static int responseDataCallList(Parcel &p, void *response, size_t responselen)
+{
+    // Write version
+    p.writeInt32(s_callbacks.version);
+
+    if (s_callbacks.version < 5) {
+        return responseDataCallListV3(p, response, responselen);
+    } else {
+        if (response == NULL && responselen != 0) {
+            LOGE("invalid response: NULL");
+            return RIL_ERRNO_INVALID_RESPONSE;
+        }
+
+        if (responselen % sizeof(RIL_Data_Call_Response_v5) != 0) {
+            LOGE("invalid response length %d expected multiple of %d",
+                    (int)responselen, (int)sizeof(RIL_Data_Call_Response_v5));
+            return RIL_ERRNO_INVALID_RESPONSE;
+        }
+
+        int num = responselen / sizeof(RIL_Data_Call_Response_v5);
+        p.writeInt32(num);
+
+        RIL_Data_Call_Response_v5 *p_cur = (RIL_Data_Call_Response_v5 *) response;
+        startResponse;
+        int i;
+        for (i = 0; i < num; i++) {
+            p.writeInt32((int)p_cur[i].status);
+            p.writeInt32(p_cur[i].cid);
+            p.writeInt32(p_cur[i].active);
+            writeStringToParcel(p, p_cur[i].ifname);
+            writeStringToParcel(p, p_cur[i].addresses);
+            writeStringToParcel(p, p_cur[i].dnses);
+            appendPrintBuf("%s[status=%d,cid=%d,%s,%d,%s,%s,%s],", printBuf,
+                p_cur[i].status,
+                p_cur[i].cid,
+                (p_cur[i].active==0)?"down":"up",
+                (char*)p_cur[i].ifname,
+                (char*)p_cur[i].addresses,
+                (char*)p_cur[i].dnses);
+        }
+        removeLastChar;
+        closeResponse;
+    }
+
+    return 0;
+}
+
+static int responseSetupDataCall(Parcel &p, void *response, size_t responselen)
+{
+    if (s_callbacks.version < 5) {
+        return responseStringsWithVersion(s_callbacks.version, p, response, responselen);
+    } else {
+        return responseDataCallList(p, response, responselen);
+    }
 }
 
 static int responseRaw(Parcel &p, void *response, size_t responselen) {
@@ -1705,7 +1769,7 @@ static int responseCdmaInformationRecords(Parcel &p,
                 for (int i = 0 ; i < infoRec->rec.display.alpha_len ; i++) {
                     string8[i] = infoRec->rec.display.alpha_buf[i];
                 }
-                string8[infoRec->rec.display.alpha_len] = '\0';
+                string8[(int)infoRec->rec.display.alpha_len] = '\0';
                 writeStringToParcel(p, (const char*)string8);
                 free(string8);
                 string8 = NULL;
@@ -1725,7 +1789,7 @@ static int responseCdmaInformationRecords(Parcel &p,
                 for (int i = 0 ; i < infoRec->rec.number.len; i++) {
                     string8[i] = infoRec->rec.number.buf[i];
                 }
-                string8[infoRec->rec.number.len] = '\0';
+                string8[(int)infoRec->rec.number.len] = '\0';
                 writeStringToParcel(p, (const char*)string8);
                 free(string8);
                 string8 = NULL;
@@ -1764,7 +1828,7 @@ static int responseCdmaInformationRecords(Parcel &p,
                          i++) {
                     string8[i] = infoRec->rec.redir.redirectingNumber.buf[i];
                 }
-                string8[infoRec->rec.redir.redirectingNumber.len] = '\0';
+                string8[(int)infoRec->rec.redir.redirectingNumber.len] = '\0';
                 writeStringToParcel(p, (const char*)string8);
                 free(string8);
                 string8 = NULL;
@@ -2554,17 +2618,21 @@ RIL_register (const RIL_RadioFunctions *callbacks) {
     int ret;
     int flags;
 
-    if (callbacks == NULL || ((callbacks->version != RIL_VERSION)
-                && (callbacks->version < 2))) { // Remove when partners upgrade to version 3
-        LOGE(
-            "RIL_register: RIL_RadioFunctions * null or invalid version"
-            " (expected %d)", RIL_VERSION);
+    if (callbacks == NULL) {
+        LOGE("RIL_register: RIL_RadioFunctions * null");
         return;
     }
-    if (callbacks->version < RIL_VERSION) {
-        LOGE ("RIL_register: upgrade RIL to version %d current version=%d",
-              RIL_VERSION, callbacks->version);
+    if (callbacks->version < RIL_VERSION_MIN) {
+        LOGE("RIL_register: version %d is to old, min version is %d",
+             callbacks->version, RIL_VERSION_MIN);
+        return;
     }
+    if (callbacks->version > RIL_VERSION) {
+        LOGE("RIL_register: version %d is too new, max version is %d",
+             callbacks->version, RIL_VERSION);
+        return;
+    }
+    LOGE("RIL_register: RIL version %d", callbacks->version);
 
     if (s_registerCalled > 0) {
         LOGE("RIL_register has been called more than once. "
