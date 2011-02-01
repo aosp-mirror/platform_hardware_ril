@@ -160,8 +160,8 @@ typedef struct {
     char *          type;       /* One of the PDP_type values in TS 27.007 section 10.1.1.
                                    For example, "IP", "IPV6", "IPV4V6", or "PPP". */
     char *          apn;
-    char *          address;    /* A space-delimited list of addresses, e.g., "192.0.1.3" or
-                                   "192.0.1.11 2001:db8::1". */
+    char *          address;    /* The IPv4 or IPv6 address assigned to the call, e.g., "192.0.1.3"
+                                   or "2001:db8::1". */
 } RIL_Data_Call_Response;
 
 typedef struct {
