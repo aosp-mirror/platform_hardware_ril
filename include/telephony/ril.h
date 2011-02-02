@@ -113,6 +113,7 @@ typedef enum {
     RADIO_TECH_EVDO_B = 12,
     RADIO_TECH_EHRPD = 13,
     RADIO_TECH_LTE = 14
+    RADIO_TECH_HSPAP = 15; // HSPA+
 } RIL_RadioTechnology;
 
 /* User-to-User signaling Info activation types derived from 3GPP 23.087 v8.0 */
