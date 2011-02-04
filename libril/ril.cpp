@@ -1540,6 +1540,7 @@ static int responseDataCallList(Parcel &p, void *response, size_t responselen)
             p.writeInt32((int)p_cur[i].status);
             p.writeInt32(p_cur[i].cid);
             p.writeInt32(p_cur[i].active);
+            writeStringToParcel(p, p_cur[i].type);
             writeStringToParcel(p, p_cur[i].ifname);
             writeStringToParcel(p, p_cur[i].addresses);
             writeStringToParcel(p, p_cur[i].dnses);

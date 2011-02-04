@@ -33,6 +33,7 @@
 #include <sys/socket.h>
 #include <cutils/sockets.h>
 #include <termios.h>
+#include <sys/system_properties.h>
 
 #define LOG_TAG "RIL"
 #include <utils/Log.h>
@@ -63,7 +64,7 @@ typedef enum {
     SIM_PIN = 3,
     SIM_PUK = 4,
     SIM_NETWORK_PERSONALIZATION = 5
-} SIM_Status; 
+} SIM_Status;
 
 static void onRequest (int request, void *data, size_t datalen, RIL_Token t);
 static RIL_RadioState currentState();
@@ -409,8 +410,48 @@ static void requestOrSendDataCallList(RIL_Token *t)
         responses[i].addresses = alloca(strlen(out) + 1);
         strcpy(responses[i].addresses, out);
 
-        responses[i].dnses = alloca(1);
-        responses[i].dnses[0] = 0;
+        {
+            char  propValue[PROP_VALUE_MAX];
+
+            if (__system_property_get("ro.kernel.qemu", propValue) != 0) {
+                /* We are in the emulator - the dns servers are listed
+                 * by the following system properties, setup in
+                 * /system/etc/init.goldfish.sh:
+                 *  - net.eth0.dns1
+                 *  - net.eth0.dns2
+                 *  - net.eth0.dns3
+                 *  - net.eth0.dns4
+                 */
+                const int   dnslist_sz = 128;
+                char*       dnslist = alloca(dnslist_sz);
+                const char* separator = "";
+                int         nn;
+
+                dnslist[0] = 0;
+                for (nn = 1; nn <= 4; nn++) {
+                    /* Probe net.eth0.dns<n> */
+                    char  propName[PROP_NAME_MAX];
+                    snprintf(propName, sizeof propName, "net.eth0.dns%d", nn);
+
+                    /* Ignore if undefined */
+                    if (__system_property_get(propName, propValue) == 0) {
+                        continue;
+                    }
+
+                    /* Append the DNS IP address */
+                    strlcat(dnslist, separator, dnslist_sz);
+                    strlcat(dnslist, propValue, dnslist_sz);
+                    separator = " ";
+                }
+                responses[i].dnses = dnslist;
+            }
+            else {
+                /* I don't know where we are, so use the public Google DNS
+                 * servers by default.
+                 */
+                responses[i].dnses = "8.8.8.8 8.8.4.4";
+            }
+        }
     }
 
     at_response_free(p_response);
@@ -1046,7 +1087,7 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
             pdp_type = "IP";
         }
 
-        asprintf(&cmd, "AT+CGDCONT=1,\"%s\",\"%s\",,0,0", apn, pdp_type);
+        asprintf(&cmd, "AT+CGDCONT=1,\"%s\",\"%s\",,0,0", pdp_type, apn);
         //FIXME check for error here
         err = at_send_command(cmd, NULL);
         free(cmd);
@@ -1585,7 +1626,7 @@ setRadioState(RIL_RadioState newState)
 }
 
 /** Returns SIM_NOT_READY on error */
-static SIM_Status 
+static SIM_Status
 getSIMStatus()
 {
     ATResponse *p_response = NULL;
