@@ -4,19 +4,19 @@
 
 LOCAL_PATH:= $(call my-dir)
 
+# Directories of source files
+src_cpp := src/cpp
+src_java := src/java
+src_py := src/py
+src_js := src/js
+src_proto := src/proto
+
 ifeq ($(TARGET_ARCH),arm)
 
 # Mock-ril only buid for debug variants
 ifneq ($(filter userdebug eng tests, $(TARGET_BUILD_VARIANT)),)
 
 include $(CLEAR_VARS)
-
-# Directories of source files
-src_cpp=src/cpp
-src_java=src/java
-src_py=src/py
-src_js=src/js
-src_proto=src/proto
 
 LOCAL_SRC_FILES:= \
     $(src_cpp)/ctrl_server.cpp \
