@@ -17,7 +17,7 @@
 #ifndef MOCK_RIL_MOCK_RIL_H_
 #define MOCK_RIL_MOCK_RIL_H_
 
-#include <telephony/ril.h>
+#include "ril.h"
 
 extern const struct RIL_Env *s_rilenv;
 

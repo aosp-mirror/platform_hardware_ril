@@ -15,7 +15,6 @@
 ** limitations under the License.
 */
 
-#include <telephony/ril.h>
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
@@ -34,6 +33,8 @@
 #include <cutils/sockets.h>
 #include <termios.h>
 #include <sys/system_properties.h>
+
+#include "ril.h"
 
 #define LOG_TAG "RIL"
 #include <utils/Log.h>

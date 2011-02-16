@@ -15,7 +15,7 @@
  */
 
 #include <v8.h>
-#include <telephony/ril.h>
+#include "ril.h"
 
 #include "ctrl_server.h"
 #include "logging.h"

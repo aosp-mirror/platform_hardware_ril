@@ -18,7 +18,7 @@
 #define MOCK_RIL_JS_SUPPORT_H_
 
 #include <v8.h>
-#include <telephony/ril.h>
+#include "ril.h"
 
 // The global value of radio state shared between cpp and js code.
 extern RIL_RadioState gRadioState;
