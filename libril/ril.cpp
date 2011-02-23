@@ -2049,6 +2049,34 @@ static void rilEventAddWakeup(struct ril_event *ev) {
     triggerEvLoop();
 }
 
+static void sendSimStatusAppInfo(Parcel &p, int num_apps, RIL_AppStatus appStatus[]) {
+        p.writeInt32(num_apps);
+        startResponse;
+        for (int i = 0; i < num_apps; i++) {
+            p.writeInt32(appStatus[i].app_type);
+            p.writeInt32(appStatus[i].app_state);
+            p.writeInt32(appStatus[i].perso_substate);
+            writeStringToParcel(p, (const char*)(appStatus[i].aid_ptr));
+            writeStringToParcel(p, (const char*)
+                                          (appStatus[i].app_label_ptr));
+            p.writeInt32(appStatus[i].pin1_replaced);
+            p.writeInt32(appStatus[i].pin1);
+            p.writeInt32(appStatus[i].pin2);
+            appendPrintBuf("%s[app_type=%d,app_state=%d,perso_substate=%d,\
+                    aid_ptr=%s,app_label_ptr=%s,pin1_replaced=%d,pin1=%d,pin2=%d],",
+                    printBuf,
+                    appStatus[i].app_type,
+                    appStatus[i].app_state,
+                    appStatus[i].perso_substate,
+                    appStatus[i].aid_ptr,
+                    appStatus[i].app_label_ptr,
+                    appStatus[i].pin1_replaced,
+                    appStatus[i].pin1,
+                    appStatus[i].pin2);
+        }
+        closeResponse;
+}
+
 static int responseSimStatus(Parcel &p, void *response, size_t responselen) {
     int i;
 
@@ -2062,46 +2090,27 @@ static int responseSimStatus(Parcel &p, void *response, size_t responselen) {
         return RIL_ERRNO_INVALID_RESPONSE;
     }
 
-    RIL_CardStatus_v6 *p_cur = ((RIL_CardStatus_v6 *) response);
-
-    p.writeInt32(p_cur->card_state);
-    p.writeInt32(p_cur->universal_pin_state);
-    p.writeInt32(p_cur->gsm_umts_subscription_app_index);
-    p.writeInt32(p_cur->cdma_subscription_app_index);
-
     if (s_callbacks.version == 6) {
-        p.writeInt32(p_cur->ims_subscription_app_index);
-    } else {
-        p.writeInt32(-1);
-    }
-   
-    p.writeInt32(p_cur->cdma_subscription_app_index);
-    p.writeInt32(p_cur->num_applications);
+        RIL_CardStatus_v6 *p_cur = ((RIL_CardStatus_v6 *) response);
 
-    startResponse;
-    for (i = 0; i < p_cur->num_applications; i++) {
-        p.writeInt32(p_cur->applications[i].app_type);
-        p.writeInt32(p_cur->applications[i].app_state);
-        p.writeInt32(p_cur->applications[i].perso_substate);
-        writeStringToParcel(p, (const char*)(p_cur->applications[i].aid_ptr));
-        writeStringToParcel(p, (const char*)
-                                      (p_cur->applications[i].app_label_ptr));
-        p.writeInt32(p_cur->applications[i].pin1_replaced);
-        p.writeInt32(p_cur->applications[i].pin1);
-        p.writeInt32(p_cur->applications[i].pin2);
-        appendPrintBuf("%s[app_type=%d,app_state=%d,perso_substate=%d,\
-                aid_ptr=%s,app_label_ptr=%s,pin1_replaced=%d,pin1=%d,pin2=%d],",
-                printBuf,
-                p_cur->applications[i].app_type,
-                p_cur->applications[i].app_state,
-                p_cur->applications[i].perso_substate,
-                p_cur->applications[i].aid_ptr,
-                p_cur->applications[i].app_label_ptr,
-                p_cur->applications[i].pin1_replaced,
-                p_cur->applications[i].pin1,
-                p_cur->applications[i].pin2);
+        p.writeInt32(p_cur->card_state);
+        p.writeInt32(p_cur->universal_pin_state);
+        p.writeInt32(p_cur->gsm_umts_subscription_app_index);
+        p.writeInt32(p_cur->cdma_subscription_app_index);
+        p.writeInt32(p_cur->ims_subscription_app_index);
+
+        sendSimStatusAppInfo(p, p_cur->num_applications, p_cur->applications);
+    } else {
+        RIL_CardStatus_v5 *p_cur = ((RIL_CardStatus_v5 *) response);
+
+        p.writeInt32(p_cur->card_state);
+        p.writeInt32(p_cur->universal_pin_state);
+        p.writeInt32(p_cur->gsm_umts_subscription_app_index);
+        p.writeInt32(p_cur->cdma_subscription_app_index);
+        p.writeInt32(-1);
+
+        sendSimStatusAppInfo(p, p_cur->num_applications, p_cur->applications);
     }
-    closeResponse;
 
     return 0;
 }

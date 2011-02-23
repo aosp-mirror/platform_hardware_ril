@@ -780,7 +780,7 @@ typedef struct {
  *
  * "data" is NULL
  *
- * "response" is const RIL_CardStatus_v5 *
+ * "response" is const RIL_CardStatus_v6 *
  *
  * Valid errors:
  *  Must never fail
@@ -1529,7 +1529,7 @@ typedef struct {
  * where it assumes all of the EF selection will be done by the
  * callee.
  *
- * "data" is a const RIL_SIM_IO_v5 *
+ * "data" is a const RIL_SIM_IO_v6 *
  * Please note that RIL_SIM_IO has a "PIN2" field which may be NULL,
  * or may specify a PIN2 for operations that require a PIN2 (eg
  * updating FDN records)
@@ -1829,6 +1829,8 @@ typedef struct {
  * ((const char **)data)[2] is the TS 27.007 service class bit vector of
  *                           services to query
  * ((const char **)data)[3] is AID value, See ETSI 102.221 8.1 and 101.220 4, NULL if no value.
+ *                            This is only applicable in the case of Fixed Dialing Numbers
+ *                            (FDN) requests.
  *
  * "response" is an int *
  * ((const int *)response) 0 is the TS 27.007 service class bit vector of
@@ -1859,6 +1861,8 @@ typedef struct {
  *                            service class bit vector. Eg, the string
  *                            "1" means "set this facility for voice services"
  * ((const char **)data)[4] = AID value, See ETSI 102.221 8.1 and 101.220 4, NULL if no value.
+ *                            This is only applicable in the case of Fixed Dialing Numbers
+ *                            (FDN) requests.
  *
  * "response" is int *
  * ((int *)response)[0] is the number of retries remaining, or -1 if unknown
