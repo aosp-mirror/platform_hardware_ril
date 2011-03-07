@@ -12,12 +12,10 @@ src_js := src/js
 src_proto := src/proto
 
 ifeq ($(TARGET_ARCH),arm)
-
 # Mock-ril only buid for debug variants
 ifneq ($(filter userdebug eng tests, $(TARGET_BUILD_VARIANT)),)
 
 include $(CLEAR_VARS)
-
 LOCAL_SRC_FILES:= \
     $(src_cpp)/ctrl_server.cpp \
     $(src_cpp)/experiments.cpp \
@@ -32,7 +30,6 @@ LOCAL_SRC_FILES:= \
     $(src_cpp)/worker.cpp \
     $(src_cpp)/worker_v8.cpp \
     $(call all-proto-files-under, $(src_proto))
-
 
 LOCAL_SHARED_LIBRARIES := \
     libz libcutils libutils libril
@@ -67,7 +64,6 @@ LOCAL_MODULE:= libmock_ril
 include $(BUILD_SHARED_LIBRARY)
 
 endif
-
 endif
 
 # Java librilproto
@@ -83,3 +79,9 @@ LOCAL_SRC_FILES := $(call all-java-files-under, $(src_java)) \
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 # =======================================================
+
+src_cpp :=
+src_java :=
+src_py :=
+src_js :=
+src_proto :=
