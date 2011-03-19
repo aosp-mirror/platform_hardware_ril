@@ -13,10 +13,16 @@ ifneq ($(words $(PROTOC)),1)
 $(error expecting 1 protoc we have $(words $(PROTOC)), PROTOC='$(PROTOC)')
 endif
 
+ifeq ("$(ANDROID_DEVICE)","")
+$(warning Default to ANDROID_DEVICE=passion")
+ANDROID_DEVICE=passion
+endif
+
 # Directories of source files
+device=$(ANDROID_DEVICE)
 src_js=src/js
 src_proto=src/proto
-src_generated=$(top)out/target/product/passion/obj/SHARED_LIBRARIES/libmock_ril_intermediates/proto/hardware/ril/mock-ril/src/proto
+src_generated=$(top)out/target/product/$(device)/obj/SHARED_LIBRARIES/libmock_ril_intermediates/proto/hardware/ril/mock-ril/src/proto
 
 # Directories of generated source files
 gen_src_py=$(src_generated)/python
@@ -37,7 +43,7 @@ all : $(generated)
 .PHONY : ut
 ut :
 	source $(top)build/envsetup.sh ; mmm $(top)frameworks/base/telephony/tests/telephonytests
-	adb install -r $(top)out/target/product/passion/data/app/FrameworksTelephonyTests.apk
+	adb install -r $(top)out/target/product/$(device)/data/app/FrameworksTelephonyTests.apk
 
 t : $(gen_src_desc)/msgheader.desc $(gen_src_py)/msgheader_pb2.py
 
@@ -132,14 +138,15 @@ copy_js_desc :
 	adb push $(gen_src_desc)/ctrl.desc /sdcard/data/
 	adb forward tcp:11111 tcp:54312
 
+
 # Copy the mock ril library
 .PHONY : copy_mockril
 copy_mockril :
-	adb push $(top)out/target/product/passion/system/lib/libmock_ril.so /data/lib/
+	adb push $(top)out/target/product/$(device)/system/lib/libmock_ril.so /data/lib/
 
 .PHONY : install_mockril_tests
 install_mockril_tests :
-	adb install -r $(top)out/target/product/passion/data/app/FrameworksTelephonyTests.apk
+	adb install -r $(top)out/target/product/$(device)/data/app/FrameworksTelephonyTests.apk
 
 # Remove generated files
 .PHONY : clean
