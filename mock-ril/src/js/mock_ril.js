@@ -260,10 +260,10 @@ dispatchTable[RIL_REQUEST_LAST_CALL_FAIL_CAUSE] = { // 18
 dispatchTable[RIL_REQUEST_SIGNAL_STRENGTH]  = { // 19
     'components' : [simulatedRadioWorker],
 };
-dispatchTable[RIL_REQUEST_REGISTRATION_STATE] = { // 20
+dispatchTable[RIL_REQUEST_VOICE_REGISTRATION_STATE] = { // 20
     'components' : [simulatedRadioWorker],
 };
-dispatchTable[RIL_REQUEST_GPRS_REGISTRATION_STATE] = { // 21
+dispatchTable[RIL_REQUEST_DATA_REGISTRATION_STATE] = { // 21
     'components' : [simulatedRadioWorker],
 };
 dispatchTable[RIL_REQUEST_OPERATOR] = { // 22

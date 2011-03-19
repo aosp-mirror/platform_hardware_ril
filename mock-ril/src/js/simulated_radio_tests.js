@@ -26,13 +26,13 @@ if (false) {
         print('testSetSignalStrength E:');
         simulatedRadio.printSignalStrength();
         try {
-            simulatedRadio.setSignalStrength(0, -1, -1, -1, -1, -1, -1);
+            simulatedRadio.setSignalStrength(0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
         } catch (err) {
             print('test failed');
         }
         simulatedRadio.printSignalStrength();
         try {
-            simulatedRadio.setSignalStrength(60, 30, 29 , 28, 27, 26, 25);
+            simulatedRadio.setSignalStrength(60, 30, 29 , 28, 27, 26, 25, 24, 23, 22, 21, 20);
         } catch (err) {
             print('test success: ' + err);
         }

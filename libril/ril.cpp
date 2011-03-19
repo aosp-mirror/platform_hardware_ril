@@ -2085,12 +2085,7 @@ static int responseSimStatus(Parcel &p, void *response, size_t responselen) {
         return RIL_ERRNO_INVALID_RESPONSE;
     }
 
-    if (responselen != sizeof (RIL_CardStatus_v6 *)) {
-        LOGE("responseSimStatus: Expecting pointer\n");
-        return RIL_ERRNO_INVALID_RESPONSE;
-    }
-
-    if (s_callbacks.version == 6) {
+    if (responselen == sizeof (RIL_CardStatus_v6)) {
         RIL_CardStatus_v6 *p_cur = ((RIL_CardStatus_v6 *) response);
 
         p.writeInt32(p_cur->card_state);
@@ -2100,7 +2095,7 @@ static int responseSimStatus(Parcel &p, void *response, size_t responselen) {
         p.writeInt32(p_cur->ims_subscription_app_index);
 
         sendSimStatusAppInfo(p, p_cur->num_applications, p_cur->applications);
-    } else {
+    } else if (responselen == sizeof (RIL_CardStatus_v5)) {
         RIL_CardStatus_v5 *p_cur = ((RIL_CardStatus_v5 *) response);
 
         p.writeInt32(p_cur->card_state);
@@ -2110,6 +2105,9 @@ static int responseSimStatus(Parcel &p, void *response, size_t responselen) {
         p.writeInt32(-1);
 
         sendSimStatusAppInfo(p, p_cur->num_applications, p_cur->applications);
+    } else {
+        LOGE("responseSimStatus: A RilCardStatus_v6 or _v5 expected\n");
+        return RIL_ERRNO_INVALID_RESPONSE;
     }
 
     return 0;
