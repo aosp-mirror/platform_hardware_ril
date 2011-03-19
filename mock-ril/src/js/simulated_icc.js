@@ -41,6 +41,7 @@ function Icc() {
         this.universalPinState = PINSTATE_UNKNOWN;
         this.gsmUmtsSubscriptionAppIndex = 0;
         this.cdmaSubscriptionAppIndex = CARD_MAX_APPS;
+        this.imsSubscriptionAppIndex = CARD_MAX_APPS;
         this.numApplications = 1;
         this.applications = new Array(CARD_MAX_APPS);
 

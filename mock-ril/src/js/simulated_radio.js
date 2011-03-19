@@ -134,9 +134,18 @@ function Radio() {
         this.signalNoiseRatio = 0;
     }
 
+    function LTESignalStrength() {
+        this.signalStrength = -1;
+        this.rsrp = 0;
+        this.rsrq = 0;
+        this.rssnr = 0;
+        this.cqi = 0;
+    }
+
     var gwSignalStrength = new GWSignalStrength;
     var cdmaSignalStrength = new CDMASignalStrength();
     var evdoSignalStrength = new EVDOSignalStrength();
+    var lteSignalStrength = new LTESignalStrength();
 
     /**
      * The the array of calls, this is a sparse
@@ -293,6 +302,11 @@ function Radio() {
         print('evdoRssi: ' + evdoSignalStrength.dbm);
         print('evdoEcio: ' + evdoSignalStrength.ecio);
         print('evdoSnr: '  + evdoSignalStrength.signalNoiseRatio);
+        print('lteRssi: '  + lteSignalStrength.signalStrength);
+        print('lteRsrp: '  + lteSignalStrength.rsrp);
+        print('lteRsrq: '  + lteSignalStrength.rsrq);
+        print('lteRssnr: ' + lteSignalStrength.rssnr);
+        print('lteCqi: '   + lteSignalStrength.cqi);
     }
 
     /**
@@ -302,7 +316,8 @@ function Radio() {
      *        cdmaDbm, cdmaEcio, evdoRssi, evdoEcio, evdoSnr are parameters for CDMA & EVDO
      */
     this.setSignalStrength = function(rssi, bitErrorRate, cdmaDbm, cdmaEcio, evdoRssi,
-                                      evdoEcio, evdoSnr) {
+                                      evdoEcio, evdoSnr, lteSigStrength, lteRsrp,
+                                      lteRsrq, lteRssnr, lteCqi) {
         print('setSignalStrength E');
 
         if (rssi != 99) {
@@ -318,6 +333,11 @@ function Radio() {
         evdoSignalStrength.dbm = evdoRssi;
         evdoSignalStrength.ecio = evdoEcio;
         evdoSignalStrength.signalNoiseRatio = evdoSnr;
+        lteSignalStrength.signalStrength = lteSigStrength;
+        lteSignalStrength.rsrp = lteRsrp;
+        lteSignalStrength.rsrq = lteRsrq;
+        lteSignalStrength.rssnr = lteRssnr;
+        lteSignalStrength.cqi = lteCqi;
 
         // pack the signal strength into RspSignalStrength and send a unsolicited response
         var rsp = new Object();
@@ -325,6 +345,7 @@ function Radio() {
         rsp.gwSignalstrength = gwSignalStrength;
         rsp.cdmSignalstrength = cdmaSignalStrength;
         rsp.evdoSignalstrength = evdoSignalStrength;
+        rsp.lteSignalstrength = lteSignalStrength;
 
         var response = rilSchema[packageNameAndSeperator +
                              'RspSignalStrength'].serialize(rsp);
@@ -633,12 +654,12 @@ function Radio() {
     }
 
     /**
-     * Handle RIL_REQUEST_REGISTRATION_STATE
+     * Handle RIL_REQUEST_VOICE_REGISTRATION_STATE
      *
      * @param req is the Request
      */
-    this.rilRequestRegistrationState = function(req) { // 20
-        print('Radio: rilRequestRegistrationState');
+    this.rilRequestVoiceRegistrationState = function(req) { // 20
+        print('Radio: rilRequestVoiceRegistrationState');
 
         var rsp = new Object();
         rsp.strings = Array();
@@ -664,12 +685,12 @@ function Radio() {
     }
 
     /**
-     * Handle RIL_REQUEST_GPRS_REGISTRATION_STATE
+     * Handle RIL_REQUEST_DATA_REGISTRATION_STATE
      *
      * @param req is the Request
      */
-    this.rilRequestGprsRegistrationState = function(req) { // 21
-        print('Radio: rilRequestGprsRegistrationState');
+    this.rilRequestDataRegistrationState = function(req) { // 21
+        print('Radio: rilRequestDataRegistrationState');
 
         var rsp = new Object();
         rsp.strings = Array();
@@ -1182,10 +1203,10 @@ function Radio() {
                 this.rilRequestLastCallFailCause;
     this.radioDispatchTable[RIL_REQUEST_SIGNAL_STRENGTH] = // 19
                 this.rilRequestSignalStrength;
-    this.radioDispatchTable[RIL_REQUEST_REGISTRATION_STATE] = // 20
-                this.rilRequestRegistrationState;
-    this.radioDispatchTable[RIL_REQUEST_GPRS_REGISTRATION_STATE] = // 21
-                this.rilRequestGprsRegistrationState;
+    this.radioDispatchTable[RIL_REQUEST_VOICE_REGISTRATION_STATE] = // 20
+                this.rilRequestVoiceRegistrationState;
+    this.radioDispatchTable[RIL_REQUEST_DATA_REGISTRATION_STATE] = // 21
+                this.rilRequestDataRegistrationState;
     this.radioDispatchTable[RIL_REQUEST_ANSWER] = // 40
                 this.rilRequestAnswer;
     this.radioDispatchTable[RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE] = // 45
