@@ -74,8 +74,8 @@ static void onCancel (RIL_Token t);
 static const char *getVersion();
 static int isRadioOn();
 static SIM_Status getSIMStatus();
-static int getCardStatus(RIL_CardStatus **pp_card_status);
-static void freeCardStatus(RIL_CardStatus *p_card_status);
+static int getCardStatus(RIL_CardStatus_v6 **pp_card_status);
+static void freeCardStatus(RIL_CardStatus_v6 *p_card_status);
 static void onDataCallListChanged(void *param);
 
 extern const char * requestToString(int request);
@@ -317,8 +317,8 @@ static void requestOrSendDataCallList(RIL_Token *t)
          p_cur = p_cur->p_next)
         n++;
 
-    RIL_Data_Call_Response_v5 *responses =
-        alloca(n * sizeof(RIL_Data_Call_Response_v5));
+    RIL_Data_Call_Response_v6 *responses =
+        alloca(n * sizeof(RIL_Data_Call_Response_v6));
 
     int i;
     for (i = 0; i < n; i++) {
@@ -329,9 +329,10 @@ static void requestOrSendDataCallList(RIL_Token *t)
         responses[i].ifname = "";
         responses[i].addresses = "";
         responses[i].dnses = "";
+        responses[i].gateways = "";
     }
 
-    RIL_Data_Call_Response_v5 *response = responses;
+    RIL_Data_Call_Response_v6 *response = responses;
     for (p_cur = p_response->p_intermediates; p_cur != NULL;
          p_cur = p_cur->p_next) {
         char *line = p_cur->line;
@@ -445,12 +446,16 @@ static void requestOrSendDataCallList(RIL_Token *t)
                     separator = " ";
                 }
                 responses[i].dnses = dnslist;
+
+                /* There is only on gateway in the emulator */
+                responses[i].gateways = "10.0.2.2";
             }
             else {
                 /* I don't know where we are, so use the public Google DNS
-                 * servers by default.
+                 * servers by default and no gateway.
                  */
                 responses[i].dnses = "8.8.8.8 8.8.4.4";
+                responses[i].gateways = "";
             }
         }
     }
@@ -459,11 +464,11 @@ static void requestOrSendDataCallList(RIL_Token *t)
 
     if (t != NULL)
         RIL_onRequestComplete(*t, RIL_E_SUCCESS, responses,
-                              n * sizeof(RIL_Data_Call_Response_v5));
+                              n * sizeof(RIL_Data_Call_Response_v6));
     else
         RIL_onUnsolicitedResponse(RIL_UNSOL_DATA_CALL_LIST_CHANGED,
                                   responses,
-                                  n * sizeof(RIL_Data_Call_Response_v5));
+                                  n * sizeof(RIL_Data_Call_Response_v6));
 
     return;
 
@@ -770,10 +775,10 @@ static void requestRegistrationState(int request, void *data,
     int count = 3;
 
 
-    if (request == RIL_REQUEST_REGISTRATION_STATE) {
+    if (request == RIL_REQUEST_VOICE_REGISTRATION_STATE) {
         cmd = "AT+CREG?";
         prefix = "+CREG:";
-    } else if (request == RIL_REQUEST_GPRS_REGISTRATION_STATE) {
+    } else if (request == RIL_REQUEST_DATA_REGISTRATION_STATE) {
         cmd = "AT+CGREG?";
         prefix = "+CGREG:";
     } else {
@@ -1152,12 +1157,12 @@ static void  requestSIM_IO(void *data, size_t datalen, RIL_Token t)
     RIL_SIM_IO_Response sr;
     int err;
     char *cmd = NULL;
-    RIL_SIM_IO *p_args;
+    RIL_SIM_IO_v6 *p_args;
     char *line;
 
     memset(&sr, 0, sizeof(sr));
 
-    p_args = (RIL_SIM_IO *)data;
+    p_args = (RIL_SIM_IO_v6 *)data;
 
     /* FIXME handle pin2 */
 
@@ -1291,7 +1296,7 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
 
     switch (request) {
         case RIL_REQUEST_GET_SIM_STATUS: {
-            RIL_CardStatus *p_card_status;
+            RIL_CardStatus_v6 *p_card_status;
             char *p_buffer;
             int buffer_size;
 
@@ -1401,8 +1406,8 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
         case RIL_REQUEST_SIGNAL_STRENGTH:
             requestSignalStrength(data, datalen, t);
             break;
-        case RIL_REQUEST_REGISTRATION_STATE:
-        case RIL_REQUEST_GPRS_REGISTRATION_STATE:
+        case RIL_REQUEST_VOICE_REGISTRATION_STATE:
+        case RIL_REQUEST_DATA_REGISTRATION_STATE:
             requestRegistrationState(request, data, datalen, t);
             break;
         case RIL_REQUEST_OPERATOR:
@@ -1710,7 +1715,7 @@ done:
  * This must be freed using freeCardStatus.
  * @return: On success returns RIL_E_SUCCESS
  */
-static int getCardStatus(RIL_CardStatus **pp_card_status) {
+static int getCardStatus(RIL_CardStatus_v6 **pp_card_status) {
     static RIL_AppStatus app_status_array[] = {
         // SIM_ABSENT = 0
         { RIL_APPTYPE_UNKNOWN, RIL_APPSTATE_UNKNOWN, RIL_PERSOSUBSTATE_UNKNOWN,
@@ -1744,11 +1749,12 @@ static int getCardStatus(RIL_CardStatus **pp_card_status) {
     }
 
     // Allocate and initialize base card status.
-    RIL_CardStatus *p_card_status = malloc(sizeof(RIL_CardStatus));
+    RIL_CardStatus_v6 *p_card_status = malloc(sizeof(RIL_CardStatus_v6));
     p_card_status->card_state = card_state;
     p_card_status->universal_pin_state = RIL_PINSTATE_UNKNOWN;
     p_card_status->gsm_umts_subscription_app_index = RIL_CARD_MAX_APPS;
     p_card_status->cdma_subscription_app_index = RIL_CARD_MAX_APPS;
+    p_card_status->ims_subscription_app_index = RIL_CARD_MAX_APPS;
     p_card_status->num_applications = num_apps;
 
     // Initialize application status
@@ -1775,7 +1781,7 @@ static int getCardStatus(RIL_CardStatus **pp_card_status) {
 /**
  * Free the card status returned by getCardStatus
  */
-static void freeCardStatus(RIL_CardStatus *p_card_status) {
+static void freeCardStatus(RIL_CardStatus_v6 *p_card_status) {
     free(p_card_status);
 }
 
@@ -1988,7 +1994,7 @@ static void onUnsolicited (const char *s, const char *sms_pdu)
                 || strStartsWith(s,"+CGREG:")
     ) {
         RIL_onUnsolicitedResponse (
-            RIL_UNSOL_RESPONSE_NETWORK_STATE_CHANGED,
+            RIL_UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED,
             NULL, 0);
 #ifdef WORKAROUND_FAKE_CGEV
         RIL_requestTimedCallback (onDataCallListChanged, NULL, NULL);

@@ -16,7 +16,16 @@ Running/testing:
 
 See "Testing a new ril:" below for general instructions but
 for the mock-ril I've added some targets to the Makefile to
-ease testing.
+ease testing. Also Makefile needs to know the device being
+used as this determines the directory where files are found
+and stored. ANDROID_DEVICE is an environment variable and
+maybe either exported:
+   $ export ANDROID_DEVICE=stingray
+
+or it can be passed on the command line:
+   $ make clean ANDROID_DEVICE=stingray
+
+If it's not set "passion" is the default.
 
 Execute the "first" target first to setup appropriate
 environment:
@@ -86,7 +95,7 @@ TODO: more documentation.
 Testing a new ril:
 
 The Makefile is used to generate files and make testing easier.
-I has several targets:
+and there are has several targets:
 
 all         runs protoc and generates files, ril.desc ril.pb.*
 
