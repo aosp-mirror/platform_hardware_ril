@@ -3623,6 +3623,16 @@ typedef struct {
  */
 #define RIL_UNSOL_EXIT_EMERGENCY_CALLBACK_MODE 1033
 
+/**
+ * RIL_UNSOL_RIL_CONNECTED
+ *
+ * Called the ril connects and returns the version
+ *
+ * "data" is int *
+ * ((int *)data)[0] is RIL_VERSION
+ */
+#define RIL_UNSOL_RIL_CONNECTED 1034
+
 /***********************************************************************/
 
 
