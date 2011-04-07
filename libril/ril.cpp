@@ -2306,6 +2306,11 @@ static void processCommandsCallback(int fd, short flags, void *param) {
 
 
 static void onNewCommandConnect() {
+    // Inform we are connected and the ril version
+    int rilVer = RIL_VERSION;
+    RIL_onUnsolicitedResponse(RIL_UNSOL_RIL_CONNECTED,
+                                    &rilVer, sizeof(rilVer));
+
     // implicit radio state changed
     RIL_onUnsolicitedResponse(RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED,
                                     NULL, 0);
@@ -3217,6 +3222,7 @@ requestToString(int request) {
         case RIL_UNSOL_CDMA_SUBSCRIPTION_CHANGED: return "UNSOL_CDMA_SUBSCRIPTION_CHANGED";
         case RIL_UNSOL_CDMA_PRL_CHANGED: return "UNSOL_CDMA_PRL_CHANGED";
         case RIL_UNSOL_EXIT_EMERGENCY_CALLBACK_MODE: return "UNSOL_EXIT_EMERGENCY_CALLBACK_MODE";
+        case RIL_UNSOL_RIL_CONNECTED: return "UNSOL_RIL_CONNECTED";
         default: return "<unknown request>";
     }
 }
