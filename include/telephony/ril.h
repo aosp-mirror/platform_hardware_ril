@@ -1368,6 +1368,11 @@ typedef struct {
  * RIL_REQUEST_RADIO_POWER
  *
  * Toggle radio on and off (for "airplane" mode)
+ * If the radio is is turned off/on the radio modem subsystem
+ * is expected return to an initialized state. For instance,
+ * any voice and data calls will be terminated and all associated
+ * lists emptied.
+ *
  * "data" is int *
  * ((int *)data)[0] is > 0 for "Radio On"
  * ((int *)data)[0] is == 0 for "Radio Off"
@@ -1472,7 +1477,12 @@ typedef struct {
 /**
  * RIL_REQUEST_SETUP_DATA_CALL
  *
- * Setup a packet data connection
+ * Setup a packet data connection. If RIL_Data_Call_Response_v6.status
+ * return success it is added to the list of data calls and a
+ * RIL_UNSOL_DATA_CALL_LIST_CHANGED is sent. The call remains in the
+ * list until RIL_REQUEST_DEACTIVATE_DATA_CALL is issued or the
+ * radio is powered off/on. This list is returned by RIL_REQUEST_DATA_CALL_LIST
+ * and RIL_UNSOL_DATA_CALL_LIST_CHANGED.
  *
  * The RIL is expected to:
  *  - Create one data call context.
@@ -1798,7 +1808,13 @@ typedef struct {
 /**
  * RIL_REQUEST_DEACTIVATE_DATA_CALL
  *
- * Deactivate packet data connection
+ * Deactivate packet data connection and remove from the
+ * data call list if SUCCESS is returned. Any other return
+ * values should also try to remove the call from the list,
+ * but that may not be possible. In any event a
+ * RIL_REQUEST_RADIO_POWER off/on must clear the list. An
+ * RIL_UNSOL_DATA_CALL_LIST_CHANGED is not expected to be
+ * issued because of an RIL_REQUEST_DEACTIVATE_DATA_CALL.
  *
  * "data" is const char **
  * ((char**)data)[0] indicating CID
@@ -2173,10 +2189,10 @@ typedef struct {
 /**
  * RIL_REQUEST_DATA_CALL_LIST
  *
- * Queries the status of PDP contexts, returning for each
- * its CID, whether or not it is active, and its PDP type,
- * APN, and PDP adddress.
- * replaces RIL_REQUEST_PDP_CONTEXT_LIST
+ * Returns the data call list. An entry is added when a
+ * RIL_REQUEST_SETUP_DATA_CALL is issued and removed on a
+ * RIL_REQUEST_DEACTIVATE_DATA_CALL. The list is emptied
+ * when RIL_REQUEST_RADIO_POWER off/on is issued.
  *
  * "data" is NULL
  * "response" is an array of RIL_Data_Call_Response_v6
@@ -2185,6 +2201,8 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
+ *
+ * See also: RIL_UNSOL_DATA_CALL_LIST_CHANGED
  */
 
 #define RIL_REQUEST_DATA_CALL_LIST 57
@@ -3330,12 +3348,12 @@ typedef struct {
 /**
  * RIL_UNSOL_DATA_CALL_LIST_CHANGED
  *
- * Indicate a PDP context state has changed, or a new context
- * has been activated or deactivated
- * replaces RIL_UNSOL_PDP_CONTEXT_LIST_CHANGED
- *
  * "data" is an array of RIL_Data_Call_Response_v6 identical to that
- * returned by RIL_REQUEST_DATA_CALL_LIST
+ * returned by RIL_REQUEST_DATA_CALL_LIST. It is the complete list
+ * of current data contexts including new contexts that have been
+ * activated. A data call is only removed from this list when the
+ * framework sends a RIL_REQUEST_DEACTIVATE_DATA_CALL or the radio
+ * is powered off/on.
  *
  * See also: RIL_REQUEST_DATA_CALL_LIST
  */
@@ -3598,7 +3616,7 @@ typedef struct {
  * "data" is int *
  * ((int *)data)[0] is == RIL_CdmaSubscriptionSource
  */
-#define RIL_UNSOL_CDMA_SUBSCRIPTION_CHANGED 1031
+#define RIL_UNSOL_CDMA_SUBSCRIPTION_SOURCE_CHANGED 1031
 
 /**
  * RIL_UNSOL_CDMA_PRL_CHANGED
