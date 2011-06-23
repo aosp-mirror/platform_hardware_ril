@@ -323,6 +323,7 @@ static void requestOrSendDataCallList(RIL_Token *t)
     int i;
     for (i = 0; i < n; i++) {
         responses[i].status = -1;
+        responses[i].suggestedRetryTime = -1;
         responses[i].cid = -1;
         responses[i].active = -1;
         responses[i].type = "";
