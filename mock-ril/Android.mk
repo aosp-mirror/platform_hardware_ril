@@ -45,11 +45,8 @@ LOCAL_C_INCLUDES := \
     bionic \
     $(KERNEL_HEADERS)
 
-# stlport conflicts with the host stl library
-ifneq ($(TARGET_SIMULATOR),true)
 LOCAL_SHARED_LIBRARIES += libstlport
 LOCAL_C_INCLUDES += external/stlport/stlport
-endif
 
 # __BSD_VISIBLE for htolexx macros.
 LOCAL_STRIP_MODULE := true
