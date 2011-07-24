@@ -204,7 +204,8 @@ typedef struct {
                                            pre-configured in FW.
                                            The unit is miliseconds.
                                            The value < 0 means no value is suggested.
-                                           The value 0 means retry should be done ASAP. */
+                                           The value 0 means retry should be done ASAP.
+                                           The value of MAX_INT(0x7fffffff) means no retry. */
     int             cid;        /* Context ID, uniquely identifies this call */
     int             active;     /* 0=inactive, 1=active/physical link down, 2=active/physical link up */
     char *          type;       /* One of the PDP_type values in TS 27.007 section 10.1.1.
