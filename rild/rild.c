@@ -33,6 +33,7 @@
 #include <linux/prctl.h>
 
 #include <private/android_filesystem_config.h>
+#include "hardware/qemu_pipe.h"
 
 #define LIB_PATH_PROPERTY   "rild.libpath"
 #define LIB_ARGS_PROPERTY   "rild.libargs"
@@ -175,11 +176,13 @@ int main(int argc, char **argv)
 
                 sleep(1);
 
-                fd = socket_local_client(
-                            QEMUD_SOCKET_NAME,
-                            ANDROID_SOCKET_NAMESPACE_RESERVED,
-                            SOCK_STREAM );
-
+                fd = qemu_pipe_open("qemud:gsm");
+                if (fd < 0) {
+                    fd = socket_local_client(
+                                QEMUD_SOCKET_NAME,
+                                ANDROID_SOCKET_NAMESPACE_RESERVED,
+                                SOCK_STREAM );
+                }
                 if (fd >= 0) {
                     close(fd);
                     snprintf( arg_device, sizeof(arg_device), "%s/%s",
