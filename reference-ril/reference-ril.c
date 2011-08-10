@@ -35,6 +35,7 @@
 #include <sys/system_properties.h>
 
 #include "ril.h"
+#include "hardware/qemu_pipe.h"
 
 #define LOG_TAG "RIL"
 #include <utils/Log.h>
@@ -2072,21 +2073,28 @@ mainLoop(void *param)
                 fd = socket_loopback_client(s_port, SOCK_STREAM);
             } else if (s_device_socket) {
                 if (!strcmp(s_device_path, "/dev/socket/qemud")) {
-                    /* Qemu-specific control socket */
-                    fd = socket_local_client( "qemud",
-                                              ANDROID_SOCKET_NAMESPACE_RESERVED,
-                                              SOCK_STREAM );
-                    if (fd >= 0 ) {
-                        char  answer[2];
+                    /* Before trying to connect to /dev/socket/qemud (which is
+                     * now another "legacy" way of communicating with the
+                     * emulator), we will try to connecto to gsm service via
+                     * qemu pipe. */
+                    fd = qemu_pipe_open("qemud:gsm");
+                    if (fd < 0) {
+                        /* Qemu-specific control socket */
+                        fd = socket_local_client( "qemud",
+                                                  ANDROID_SOCKET_NAMESPACE_RESERVED,
+                                                  SOCK_STREAM );
+                        if (fd >= 0 ) {
+                            char  answer[2];
 
-                        if ( write(fd, "gsm", 3) != 3 ||
-                             read(fd, answer, 2) != 2 ||
-                             memcmp(answer, "OK", 2) != 0)
-                        {
-                            close(fd);
-                            fd = -1;
-                        }
-                   }
+                            if ( write(fd, "gsm", 3) != 3 ||
+                                 read(fd, answer, 2) != 2 ||
+                                 memcmp(answer, "OK", 2) != 0)
+                            {
+                                close(fd);
+                                fd = -1;
+                            }
+                       }
+                    }
                 }
                 else
                     fd = socket_local_client( s_device_path,
