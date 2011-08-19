@@ -3205,6 +3205,22 @@ typedef struct {
  */
 #define RIL_REQUEST_CDMA_GET_SUBSCRIPTION_SOURCE 104
 
+/**
+ * RIL_REQUEST_ISIM_AUTHENTICATION
+ *
+ * Request the ISIM application on the UICC to perform AKA
+ * challenge/response algorithm for IMS authentication
+ *
+ * "data" is a const char * containing the challenge string in Base64 format
+ * "response" is a const char * containing the response in Base64 format
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_ISIM_AUTHENTICATION 105
+
 /***********************************************************************/
 
 
