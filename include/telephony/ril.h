@@ -3221,6 +3221,54 @@ typedef struct {
  */
 #define RIL_REQUEST_ISIM_AUTHENTICATION 105
 
+/**
+ * RIL_REQUEST_ACKNOWLEDGE_INCOMING_GSM_SMS_WITH_PDU
+ *
+ * Acknowledge successful or failed receipt of SMS previously indicated
+ * via RIL_UNSOL_RESPONSE_NEW_SMS, including acknowledgement TPDU to send
+ * as the RP-User-Data element of the RP-ACK or RP-ERROR PDU.
+ *
+ * "data" is const char **
+ * ((const char **)data)[0] is "1" on successful receipt (send RP-ACK)
+ *                          is "0" on failed receipt (send RP-ERROR)
+ * ((const char **)data)[1] is the acknowledgement TPDU in hexadecimal format
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_ACKNOWLEDGE_INCOMING_GSM_SMS_WITH_PDU 106
+
+/**
+ * RIL_REQUEST_STK_SEND_ENVELOPE_WITH_STATUS
+ *
+ * Requests to send a SAT/USAT envelope command to SIM.
+ * The SAT/USAT envelope command refers to 3GPP TS 11.14 and 3GPP TS 31.111.
+ *
+ * This request has one difference from RIL_REQUEST_STK_SEND_ENVELOPE_COMMAND:
+ * the SW1 and SW2 status bytes from the UICC response are returned along with
+ * the response data, using the same structure as RIL_REQUEST_SIM_IO.
+ *
+ * The RIL implementation shall perform the normal processing of a '91XX'
+ * response in SW1/SW2 to retrieve the pending proactive command and send it
+ * as an unsolicited response, as RIL_REQUEST_STK_SEND_ENVELOPE_COMMAND does.
+ *
+ * "data" is a const char * containing the SAT/USAT command
+ * in hexadecimal format starting with command tag
+ *
+ * "response" is a const RIL_SIM_IO_Response *
+ *
+ * Valid errors:
+ *  RIL_E_SUCCESS
+ *  RIL_E_RADIO_NOT_AVAILABLE (radio resetting)
+ *  RIL_E_GENERIC_FAILURE
+ */
+#define RIL_REQUEST_STK_SEND_ENVELOPE_WITH_STATUS 107
+
+
 /***********************************************************************/
 
 
