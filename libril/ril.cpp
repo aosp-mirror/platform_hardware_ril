@@ -2609,6 +2609,8 @@ eventLoop(void *param) {
     // Only returns on error
     ril_event_loop();
     LOGE ("error in event_loop_base errno:%d", errno);
+    // kill self to restart on error
+    kill(0, SIGKILL);
 
     return NULL;
 }
