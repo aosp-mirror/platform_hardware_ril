@@ -2230,7 +2230,7 @@ static void processWakeupCallback(int fd, short flags, void *param) {
     char buff[16];
     int ret;
 
-    LOGV("processWakeupCallback");
+    ALOGV("processWakeupCallback");
 
     /* empty our wakeup socket out */
     do {
