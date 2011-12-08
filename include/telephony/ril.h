@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-#define RIL_VERSION 6     /* Current version */
+#define RIL_VERSION 7     /* Current version */
 #define RIL_VERSION_MIN 2 /* Minimum RIL_VERSION supported */
 
 #define CDMA_ALPHA_INFO_BUFFER_LENGTH 64
@@ -71,6 +71,7 @@ typedef enum {
 typedef enum {
     RADIO_STATE_OFF = 0,                   /* Radio explictly powered off (eg CFUN=0) */
     RADIO_STATE_UNAVAILABLE = 1,           /* Radio unavailable (eg, resetting or not booted) */
+    /* States 2-9 below are deprecated. Just leaving them here for backward compatibility. */
     RADIO_STATE_SIM_NOT_READY = 2,         /* Radio is on, but the SIM interface is not ready */
     RADIO_STATE_SIM_LOCKED_OR_ABSENT = 3,  /* SIM PIN locked, PUK required, network
                                               personalization locked, or SIM absent */
@@ -80,7 +81,8 @@ typedef enum {
     RADIO_STATE_RUIM_LOCKED_OR_ABSENT = 7, /* RUIM PIN locked, PUK required, network
                                               personalization locked, or RUIM absent */
     RADIO_STATE_NV_NOT_READY = 8,          /* Radio is on, but the NV interface is not available */
-    RADIO_STATE_NV_READY = 9               /* Radio is on and the NV interface is available */
+    RADIO_STATE_NV_READY = 9,              /* Radio is on and the NV interface is available */
+    RADIO_STATE_ON = 10                    /* Radio is on */
 } RIL_RadioState;
 
 typedef enum {
@@ -99,7 +101,8 @@ typedef enum {
     RADIO_TECH_EVDO_B = 12,
     RADIO_TECH_EHRPD = 13,
     RADIO_TECH_LTE = 14,
-    RADIO_TECH_HSPAP = 15 // HSPA+
+    RADIO_TECH_HSPAP = 15, // HSPA+
+    RADIO_TECH_GSM = 16 // Only supports voice
 } RIL_RadioTechnology;
 
 // Do we want to split Data from Voice and the use
@@ -1013,7 +1016,7 @@ typedef struct {
  *
  * Get the SIM IMSI
  *
- * Only valid when radio state is "RADIO_STATE_SIM_READY"
+ * Only valid when radio state is "RADIO_STATE_ON"
  *
  * "data" is const char **
  * ((const char **)data)[0] is AID value, See ETSI 102.221 8.1 and 101.220 4, NULL if no value.
@@ -3268,6 +3271,23 @@ typedef struct {
  */
 #define RIL_REQUEST_STK_SEND_ENVELOPE_WITH_STATUS 107
 
+/**
+ * RIL_REQUEST_VOICE_RADIO_TECH
+ *
+ * Query the radio technology type (3GPP/3GPP2) used for voice. Query is valid only
+ * when radio state is RADIO_STATE_ON
+ *
+ * "data" is NULL
+ * "response" is int *
+ * ((int *) response)[0] is of type const RIL_RadioTechnology
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_VOICE_RADIO_TECH 108
+
 
 /***********************************************************************/
 
@@ -3521,8 +3541,8 @@ typedef struct {
  * SIM_FILE_UPDATE, AID(application ID) of the card application
  * triggering the REFRESH if the result is SIM_INIT, or NULL for any other result.
  *
- * Note: If the radio state changes as a result of the SIM refresh (eg,
- * SIM_READY -> SIM_LOCKED_OR_ABSENT), RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED
+ * Note: If the SIM state changes as a result of the SIM refresh (eg,
+ * SIM_READY -> SIM_LOCKED_OR_ABSENT), RIL_UNSOL_RESPONSE_SIM_STATUS_CHANGED
  * should be sent.
  */
 #define RIL_UNSOL_SIM_REFRESH 1017
@@ -3731,6 +3751,19 @@ typedef struct {
  * ((int *)data)[0] is RIL_VERSION
  */
 #define RIL_UNSOL_RIL_CONNECTED 1034
+
+/**
+ * RIL_UNSOL_VOICE_RADIO_TECH_CHANGED
+ *
+ * Indicates that voice technology has changed. Contains new radio technology
+ * as a data in the message.
+ *
+ * "data" is int *
+ * ((int *)data)[0] is of type const RIL_RadioTechnology
+ *
+ */
+#define RIL_UNSOL_VOICE_RADIO_TECH_CHANGED 1035
+
 
 /***********************************************************************/
 
