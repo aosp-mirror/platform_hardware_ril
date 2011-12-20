@@ -30,7 +30,7 @@
 //#define WORKER_V8_V8_DEBUG
 #ifdef  WORKER_V8_V8_DEBUG
 
-#define DBG(...) LOGD(__VA_ARGS__)
+#define DBG(...) ALOGD(__VA_ARGS__)
 
 #else
 
@@ -193,13 +193,13 @@ void WorkerV8Init() {
 }
 
 void testWorkerV8(v8::Handle<v8::Context> context) {
-    LOGD("testWorkerV8 E: ********");
+    ALOGD("testWorkerV8 E: ********");
     v8::HandleScope handle_scope;
 
     v8::TryCatch try_catch;
     try_catch.SetVerbose(true);
 
-    LOGD("testWorkerV8 runJs");
+    ALOGD("testWorkerV8 runJs");
     runJs(context, &try_catch, "local-string",
         "var w1 = new Worker(function (msg) {"
         "     print('w1: ' + msg);\n"
@@ -214,7 +214,7 @@ void testWorkerV8(v8::Handle<v8::Context> context) {
         "w1.add('two');\n"
         "w1.addDelayed('four', 2000);\n"
     );
-    LOGD("testWorkerV8 X: ********");
+    ALOGD("testWorkerV8 X: ********");
 }
 
 extern void WorkerV8ObjectTemplateInit(v8::Handle<v8::ObjectTemplate> target) {

@@ -92,11 +92,11 @@ namespace android {
     #define startRequest           sprintf(printBuf, "(")
     #define closeRequest           sprintf(printBuf, "%s)", printBuf)
     #define printRequest(token, req)           \
-            LOGD("[%04d]> %s %s", token, requestToString(req), printBuf)
+            ALOGD("[%04d]> %s %s", token, requestToString(req), printBuf)
 
     #define startResponse           sprintf(printBuf, "%s {", printBuf)
     #define closeResponse           sprintf(printBuf, "%s}", printBuf)
-    #define printResponse           LOGD("%s", printBuf)
+    #define printResponse           ALOGD("%s", printBuf)
 
     #define clearPrintBuf           printBuf[0] = 0
     #define removeLastChar          printBuf[strlen(printBuf)-1] = 0
@@ -337,7 +337,7 @@ issueLocalRequest(int request, void *data, int len) {
     ret = pthread_mutex_unlock(&s_pendingRequestsMutex);
     assert (ret == 0);
 
-    LOGD("C[locl]> %s", requestToString(request));
+    ALOGD("C[locl]> %s", requestToString(request));
 
     s_callbacks.onRequest(request, data, len, pRI);
 }
@@ -2249,7 +2249,7 @@ static int responseCdmaSms(Parcel &p, void *response, size_t responselen) {
     uint8_t uct;
     void* dest;
 
-    LOGD("Inside responseCdmaSms");
+    ALOGD("Inside responseCdmaSms");
 
     if (response == NULL && responselen != 0) {
         LOGE("invalid response: NULL");
@@ -2465,7 +2465,7 @@ static void listenCallback (int fd, short flags, void *param) {
             LOGE("Error on getpwuid() errno: %d", errno);
         }
     } else {
-        LOGD("Error on getsockopt() errno: %d", errno);
+        ALOGD("Error on getsockopt() errno: %d", errno);
     }
 
     if ( !is_phone_socket ) {
@@ -2877,7 +2877,7 @@ RIL_onRequestComplete(RIL_Token t, RIL_Errno e, void *response, size_t responsel
     if (pRI->local > 0) {
         // Locally issued command...void only!
         // response does not go back up the command socket
-        LOGD("C[locl]< %s", requestToString(pRI->pCI->requestNumber));
+        ALOGD("C[locl]< %s", requestToString(pRI->pCI->requestNumber));
 
         goto done;
     }
@@ -2910,7 +2910,7 @@ RIL_onRequestComplete(RIL_Token t, RIL_Errno e, void *response, size_t responsel
         }
 
         if (s_fdCommand < 0) {
-            LOGD ("RIL onRequestComplete: Command channel closed");
+            ALOGD ("RIL onRequestComplete: Command channel closed");
         }
         sendResponse(p);
     }
@@ -2937,11 +2937,11 @@ static void
 wakeTimeoutCallback (void *param) {
     // We're using "param != NULL" as a cancellation mechanism
     if (param == NULL) {
-        //LOGD("wakeTimeout: releasing wake lock");
+        //ALOGD("wakeTimeout: releasing wake lock");
 
         releaseWakeLock();
     } else {
-        //LOGD("wakeTimeout: releasing wake lock CANCELLED");
+        //ALOGD("wakeTimeout: releasing wake lock CANCELLED");
     }
 }
 
@@ -2961,7 +2961,7 @@ decodeVoiceRadioTechnology (RIL_RadioState radioState) {
             return RADIO_TECH_1xRTT;
 
         default:
-            LOGD("decodeVoiceRadioTechnology: Invoked with incorrect RadioState");
+            ALOGD("decodeVoiceRadioTechnology: Invoked with incorrect RadioState");
             return -1;
     }
 }
@@ -2982,7 +2982,7 @@ decodeCdmaSubscriptionSource (RIL_RadioState radioState) {
             return CDMA_SUBSCRIPTION_SOURCE_NV;
 
         default:
-            LOGD("decodeCdmaSubscriptionSource: Invoked with incorrect RadioState");
+            ALOGD("decodeCdmaSubscriptionSource: Invoked with incorrect RadioState");
             return -1;
     }
 }
@@ -3001,7 +3001,7 @@ decodeSimStatus (RIL_RadioState radioState) {
        case RADIO_STATE_RUIM_LOCKED_OR_ABSENT:
            return radioState;
        default:
-           LOGD("decodeSimStatus: Invoked with incorrect RadioState");
+           ALOGD("decodeSimStatus: Invoked with incorrect RadioState");
            return -1;
    }
 }

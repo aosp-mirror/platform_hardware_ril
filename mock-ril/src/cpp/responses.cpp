@@ -35,7 +35,7 @@
 //#define RESPONSES_DEBUG
 #ifdef  RESPONSES_DEBUG
 
-#define DBG(...) LOGD(__VA_ARGS__)
+#define DBG(...) ALOGD(__VA_ARGS__)
 
 #else
 
@@ -501,7 +501,7 @@ v8::Handle<v8::Value> SendRilUnsolicitedResponse(const v8::Arguments& args) {
 }
 
 int responsesInit(v8::Handle<v8::Context> context) {
-    LOGD("responsesInit E");
+    ALOGD("responsesInit E");
     int status = STATUS_OK;
 
     rilRspConversionMap[RIL_REQUEST_GET_SIM_STATUS] = RspGetSimStatus; // 1
@@ -531,6 +531,6 @@ int responsesInit(v8::Handle<v8::Context> context) {
     unsolRilRspConversionMap[RIL_UNSOL_SIGNAL_STRENGTH] = UnsolRspSignalStrength;  // 1009
 
 
-    LOGD("responsesInit X: status=%d", status);
+    ALOGD("responsesInit X: status=%d", status);
     return STATUS_OK;
 }
