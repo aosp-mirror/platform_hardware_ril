@@ -39,17 +39,17 @@ void testStlPort() {
     int data[] = {1, 2, 3};
 
     int *param = data;
-    LOGD("before push q.size=%d", q.size());
+    ALOGD("before push q.size=%d", q.size());
     q.push(param);
-    LOGD("after push q.size=%d", q.size());
+    ALOGD("after push q.size=%d", q.size());
     void *p = q.front();
     if (p == param) {
-        LOGD("q.push succeeded");
+        ALOGD("q.push succeeded");
     } else {
-        LOGD("q.push failed");
+        ALOGD("q.push failed");
     }
     q.pop();
-    LOGD("after pop q.size=%d", q.size());
+    ALOGD("after pop q.size=%d", q.size());
 }
 
 v8::Handle<v8::Value> GetReqScreenState(v8::Local<v8::String> property,
@@ -59,7 +59,7 @@ v8::Handle<v8::Value> GetReqScreenState(v8::Local<v8::String> property,
             v8::Local<v8::External>::Cast(self->GetInternalField(0));
     void *p = wrap->Value();
     int state = static_cast<int *>(p)[0];
-    LOGD("GetReqScreenState state=%d", state);
+    ALOGD("GetReqScreenState state=%d", state);
     return v8::Integer::New(state);
 }
 
@@ -73,7 +73,7 @@ bool callOnRilRequest(v8::Handle<v8::Context> context, int request,
     v8::Handle<v8::Value> onRilRequestFunctionValue = context->Global()->Get(name);
     if(!onRilRequestFunctionValue->IsFunction()) {
         // Wasn't a function
-        LOGD("callOnRilRequest X wasn't a function");
+        ALOGD("callOnRilRequest X wasn't a function");
         return false;
     }
     v8::Handle<v8::Function> onRilRequestFunction =
@@ -87,9 +87,9 @@ bool callOnRilRequest(v8::Handle<v8::Context> context, int request,
             v8::ObjectTemplate::New()->NewInstance();
     switch(request) {
         case(RIL_REQUEST_SCREEN_STATE): {
-            LOGD("callOnRilRequest RIL_REQUEST_SCREEN_STATE");
+            ALOGD("callOnRilRequest RIL_REQUEST_SCREEN_STATE");
             if (datalen < sizeof(int)) {
-                LOGD("callOnRilRequest err size < sizeof int");
+                ALOGD("callOnRilRequest err size < sizeof int");
             } else {
                 v8::Handle<v8::ObjectTemplate> params_obj_template =
                         v8::ObjectTemplate::New();
@@ -105,7 +105,7 @@ bool callOnRilRequest(v8::Handle<v8::Context> context, int request,
             break;
         }
         default: {
-            LOGD("callOnRilRequest X unknown request");
+            ALOGD("callOnRilRequest X unknown request");
             break;
         }
     }
@@ -117,19 +117,19 @@ bool callOnRilRequest(v8::Handle<v8::Context> context, int request,
     v8::Handle<v8::Value> result =
         onRilRequestFunction->Call(context->Global(), argc, argv);
     if (try_catch.HasCaught()) {
-        LOGD("callOnRilRequest error");
+        ALOGD("callOnRilRequest error");
         ReportException(&try_catch);
         retValue = false;
     } else {
         v8::String::Utf8Value result_string(result);
-        LOGD("callOnRilRequest result=%s", ToCString(result_string));
+        ALOGD("callOnRilRequest result=%s", ToCString(result_string));
         retValue = true;
     }
     return retValue;
 }
 
 void testOnRilRequestUsingCppRequestObjs(v8::Handle<v8::Context> context) {
-    LOGD("testOnRilRequestUsingCppRequestObjs E:");
+    ALOGD("testOnRilRequestUsingCppRequestObjs E:");
     v8::HandleScope handle_scope;
 
     v8::TryCatch try_catch;
@@ -149,94 +149,94 @@ void testOnRilRequestUsingCppRequestObjs(v8::Handle<v8::Context> context) {
         callOnRilRequest(context, RIL_REQUEST_SCREEN_STATE, data,
                 sizeof(data), NULL);
     }
-    LOGD("testOnRilRequestUsingCppRequestObjs X:");
+    ALOGD("testOnRilRequestUsingCppRequestObjs X:");
 }
 
 void testReqScreenStateProtobuf() {
     v8::HandleScope handle_scope;
     v8::TryCatch try_catch;
 
-    LOGD("testReqScreenStateProtobuf E");
+    ALOGD("testReqScreenStateProtobuf E");
 
-    LOGD("create ReqScreenState");
+    ALOGD("create ReqScreenState");
     ril_proto::ReqScreenState* ss = new ril_proto::ReqScreenState();
     ss->set_state(true);
     bool state = ss->state();
-    LOGD("state=%d", state);
+    ALOGD("state=%d", state);
     ss->set_state(false);
     state = ss->state();
-    LOGD("state=%d", state);
+    ALOGD("state=%d", state);
     int len = ss->ByteSize();
-    LOGD("create buffer len=%d", len);
+    ALOGD("create buffer len=%d", len);
     char *buffer = new char[len];
-    LOGD("serialize");
+    ALOGD("serialize");
     bool ok = ss->SerializeToArray(buffer, len);
     if (!ok) {
-        LOGD("testReqScreenStateProtobuf X: Could not serialize ss");
+        ALOGD("testReqScreenStateProtobuf X: Could not serialize ss");
         return;
     }
-    LOGD("ReqScreenState serialized ok");
+    ALOGD("ReqScreenState serialized ok");
     ril_proto::ReqScreenState *newSs = new ril_proto::ReqScreenState();
     ok = newSs->ParseFromArray(buffer, len);
     if (!ok) {
-        LOGD("testReqScreenStateProtobuf X: Could not deserialize ss");
+        ALOGD("testReqScreenStateProtobuf X: Could not deserialize ss");
         return;
     }
-    LOGD("newSs->state=%d", newSs->state());
+    ALOGD("newSs->state=%d", newSs->state());
 
     delete [] buffer;
     delete ss;
     delete newSs;
-    LOGD("testReqScreenStateProtobuf X");
+    ALOGD("testReqScreenStateProtobuf X");
 }
 
 void testReqHangUpProtobuf() {
     v8::HandleScope handle_scope;
     v8::TryCatch try_catch;
 
-    LOGD("testReqHangUpProtobuf E");
+    ALOGD("testReqHangUpProtobuf E");
 
-    LOGD("create ReqHangUp");
+    ALOGD("create ReqHangUp");
     ril_proto::ReqHangUp* hu = new ril_proto::ReqHangUp();
     hu->set_connection_index(3);
     bool connection_index = hu->connection_index();
-    LOGD("connection_index=%d", connection_index);
+    ALOGD("connection_index=%d", connection_index);
     hu->set_connection_index(2);
     connection_index = hu->connection_index();
-    LOGD("connection_index=%d", connection_index);
-    LOGD("create buffer");
+    ALOGD("connection_index=%d", connection_index);
+    ALOGD("create buffer");
     int len = hu->ByteSize();
     char *buffer = new char[len];
-    LOGD("serialize");
+    ALOGD("serialize");
     bool ok = hu->SerializeToArray(buffer, len);
     if (!ok) {
-        LOGD("testReqHangUpProtobuf X: Could not serialize hu");
+        ALOGD("testReqHangUpProtobuf X: Could not serialize hu");
         return;
     }
-    LOGD("ReqHangUp serialized ok");
+    ALOGD("ReqHangUp serialized ok");
     ril_proto::ReqHangUp *newHu = new ril_proto::ReqHangUp();
     ok = newHu->ParseFromArray(buffer, len);
     if (!ok) {
-        LOGD("testReqHangUpProtobuf X: Could not deserialize hu");
+        ALOGD("testReqHangUpProtobuf X: Could not deserialize hu");
         return;
     }
-    LOGD("newHu->connection_index=%d", newHu->connection_index());
+    ALOGD("newHu->connection_index=%d", newHu->connection_index());
 
     delete [] buffer;
     delete hu;
     delete newHu;
-    LOGD("testReqHangUpProtobuf X");
+    ALOGD("testReqHangUpProtobuf X");
 }
 
 void testProtobufV8(v8::Handle<v8::Context> context) {
-    LOGD("testProtobufV8 E:");
+    ALOGD("testProtobufV8 E:");
     v8::HandleScope handle_scope;
 
     v8::TryCatch try_catch;
     try_catch.SetVerbose(true);
 
     if (try_catch.HasCaught()) {
-        LOGD("TryCatch.hasCaught is true after protobuf_v8::init");
+        ALOGD("TryCatch.hasCaught is true after protobuf_v8::init");
         ReportException(&try_catch);
     }
     runJs(context, &try_catch, "local-string",
@@ -268,14 +268,14 @@ void testProtobufV8(v8::Handle<v8::Context> context) {
         "print('serializedOriginalReqScreenState.length=' + serializedOriginalReqScreenState.length);\n"
         "newReqScreenState = ReqScreenStateSchema.parse(serializedOriginalReqScreenState);\n"
         "print('newReqScreenState: state=' + newReqScreenState.state);\n");
-    LOGD("testProtobufV8 X");
+    ALOGD("testProtobufV8 X");
 }
 
 void experiments(v8::Handle<v8::Context> context) {
-    LOGD("experiments E: ********");
+    ALOGD("experiments E: ********");
     testStlPort();
     testReqScreenStateProtobuf();
     testOnRilRequestUsingCppRequestObjs(context);
     testProtobufV8(context);
-    LOGD("experiments X: ********\n");
+    ALOGD("experiments X: ********\n");
 }

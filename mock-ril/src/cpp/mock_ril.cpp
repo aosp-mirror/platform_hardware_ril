@@ -59,7 +59,7 @@ extern void RIL_register(const RIL_RadioFunctions *callbacks);
 //#define MOCK_RIL_DEBUG
 #ifdef  MOCK_RIL_DEBUG
 
-#define DBG(...) LOGD(__VA_ARGS__)
+#define DBG(...) ALOGD(__VA_ARGS__)
 
 #else
 
@@ -243,7 +243,7 @@ class UnsolicitedThread : public WorkerThread {
 
     void * Worker(void *param)
     {
-        LOGD("UnsolicitedThread::Worker E param=%p", param);
+        ALOGD("UnsolicitedThread::Worker E param=%p", param);
 
         v8::Locker locker;
 
@@ -261,7 +261,7 @@ class UnsolicitedThread : public WorkerThread {
             v8::Locker locker;
         }
 
-        LOGD("UnsolicitedThread::Worker X param=%p", param);
+        ALOGD("UnsolicitedThread::Worker X param=%p", param);
 
         return NULL;
     }
@@ -296,7 +296,7 @@ const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc,
     int ret;
     pthread_attr_t attr;
 
-    LOGD("RIL_Init E: ----------------");
+    ALOGD("RIL_Init E: ----------------");
 
     // Initialize V8
     v8::V8::Initialize();
@@ -335,13 +335,13 @@ const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc,
     responsesInit(context);
 
 #if 0
-    LOGD("RIL_Init run tests #####################");
+    ALOGD("RIL_Init run tests #####################");
     testJsSupport(context);
     testRequests(context);
     experiments(context);
     testWorker();
     testWorkerV8(context);
-    LOGD("RIL_Init tests completed ###############");
+    ALOGD("RIL_Init tests completed ###############");
 #endif
 
     // Register our call backs so when we startMockRil
@@ -357,6 +357,6 @@ const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc,
     ut->Run(NULL);
 #endif
 
-    LOGD("RIL_Init X: ----------------");
+    ALOGD("RIL_Init X: ----------------");
     return &s_callbacks;
 }

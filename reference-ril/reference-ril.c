@@ -1033,12 +1033,12 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
     int retry = 10;
     const char *pdp_type;
 
-    LOGD("requesting data connection to APN '%s'", apn);
+    ALOGD("requesting data connection to APN '%s'", apn);
 
     fd = open ("/dev/qmi", O_RDWR);
     if (fd >= 0) { /* the device doesn't exist on the emulator */
 
-        LOGD("opened the qmi device\n");
+        ALOGD("opened the qmi device\n");
         asprintf(&cmd, "up:%s", apn);
         len = strlen(cmd);
 
@@ -1070,7 +1070,7 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
                 goto error;
             } else {
                 status[rlen] = '\0';
-                LOGD("### status: %s", status);
+                ALOGD("### status: %s", status);
             }
         } while (strncmp(status, "STATE=up", 8) && strcmp(status, "online") && --retry);
 
@@ -1083,7 +1083,7 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
 
         qmistatus = system("netcfg rmnet0 dhcp");
 
-        LOGD("netcfg rmnet0 dhcp: status %d\n", qmistatus);
+        ALOGD("netcfg rmnet0 dhcp: status %d\n", qmistatus);
 
         if (qmistatus < 0) goto error;
 
@@ -1273,7 +1273,7 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
     ATResponse *p_response;
     int err;
 
-    LOGD("onRequest: %s", requestToString(request));
+    ALOGD("onRequest: %s", requestToString(request));
 
     /* Ignore all requests except RIL_REQUEST_GET_SIM_STATUS
      * when RADIO_STATE_UNAVAILABLE.
@@ -1506,12 +1506,12 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
             int i;
             const char ** cur;
 
-            LOGD("got OEM_HOOK_STRINGS: 0x%8p %lu", data, (long)datalen);
+            ALOGD("got OEM_HOOK_STRINGS: 0x%8p %lu", data, (long)datalen);
 
 
             for (i = (datalen / sizeof (char *)), cur = (const char **)data ;
                     i > 0 ; cur++, i --) {
-                LOGD("> '%s'", *cur);
+                ALOGD("> '%s'", *cur);
             }
 
             // echo back strings

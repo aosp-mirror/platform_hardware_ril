@@ -23,7 +23,7 @@
 //#define WORKER_DEBUG
 #ifdef  WORKER_DEBUG
 
-#define DBG(...) LOGD(__VA_ARGS__)
+#define DBG(...) ALOGD(__VA_ARGS__)
 
 #else
 
@@ -306,7 +306,7 @@ void WorkerQueue::AddDelayed(void *p, int delay_in_ms) {
 
 class TestWorkerQueue : public WorkerQueue {
     virtual void Process(void *p) {
-        LOGD("TestWorkerQueue::Process: EX p=%p", p);
+        ALOGD("TestWorkerQueue::Process: EX p=%p", p);
     }
 };
 
@@ -314,7 +314,7 @@ class TesterThread : public WorkerThread {
   public:
     void * Worker(void *param)
     {
-        LOGD("TesterThread::Worker E param=%p", param);
+        ALOGD("TesterThread::Worker E param=%p", param);
         WorkerQueue *wq = (WorkerQueue *)param;
 
         // Test AddDelayed
@@ -327,7 +327,7 @@ class TesterThread : public WorkerThread {
         wq->AddDelayed((void *)2000, 2000);
 
         for (int i = 1; isRunning(); i++) {
-            LOGD("TesterThread: looping %d", i);
+            ALOGD("TesterThread: looping %d", i);
             wq->Add((void *)i);
             wq->Add((void *)i);
             wq->Add((void *)i);
@@ -335,14 +335,14 @@ class TesterThread : public WorkerThread {
             sleep(1);
         }
 
-        LOGD("TesterThread::Worker X param=%p", param);
+        ALOGD("TesterThread::Worker X param=%p", param);
 
         return NULL;
     }
 };
 
 void testWorker() {
-    LOGD("testWorker E: ********");
+    ALOGD("testWorker E: ********");
 
     // Test we can create a thread and delete it
     TesterThread *tester = new TesterThread();
@@ -350,18 +350,18 @@ void testWorker() {
 
     TestWorkerQueue *wq = new TestWorkerQueue();
     if (wq->Run() == STATUS_OK) {
-        LOGD("testWorker WorkerQueue %p running", wq);
+        ALOGD("testWorker WorkerQueue %p running", wq);
 
         // Test we can run a thread, stop it then delete it
         tester = new TesterThread();
         tester->Run(wq);
-        LOGD("testWorker tester %p running", tester);
+        ALOGD("testWorker tester %p running", tester);
         sleep(10);
-        LOGD("testWorker tester %p stopping", tester);
+        ALOGD("testWorker tester %p stopping", tester);
         tester->Stop();
-        LOGD("testWorker tester %p stopped", tester);
+        ALOGD("testWorker tester %p stopped", tester);
         wq->Stop();
-        LOGD("testWorker wq %p stopped", wq);
+        ALOGD("testWorker wq %p stopped", wq);
     }
-    LOGD("testWorker X: ********\n");
+    ALOGD("testWorker X: ********\n");
 }

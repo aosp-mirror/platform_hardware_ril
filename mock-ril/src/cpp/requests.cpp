@@ -38,7 +38,7 @@
 //#define REQUESTS_DEBUG
 #ifdef  REQUESTS_DEBUG
 
-#define DBG(...) LOGD(__VA_ARGS__)
+#define DBG(...) ALOGD(__VA_ARGS__)
 
 #else
 
@@ -403,7 +403,7 @@ void RilRequestWorkerQueue::Process(void *p) {
 }
 
 int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
-    LOGD("requestsInit E");
+    ALOGD("requestsInit E");
 
     rilReqConversionMap[RIL_REQUEST_GET_SIM_STATUS] = ReqWithNoData; // 1
     rilReqConversionMap[RIL_REQUEST_ENTER_SIM_PIN] = ReqEnterSimPin; // 2
@@ -433,7 +433,7 @@ int requestsInit(v8::Handle<v8::Context> context, RilRequestWorkerQueue **rwq) {
     *rwq = new RilRequestWorkerQueue(context);
     int status = (*rwq)->Run();
 
-    LOGD("requestsInit X: status=%d", status);
+    ALOGD("requestsInit X: status=%d", status);
     return status;
 }
 
@@ -446,7 +446,7 @@ void testRilRequest(v8::Handle<v8::Context> context, int request, const void *da
     ReqConversionMap::iterator itr;
     int status;
 
-    LOGD("testRilRequest: request=%d", request);
+    ALOGD("testRilRequest: request=%d", request);
 
     itr = rilReqConversionMap.find(request);
     if (itr != rilReqConversionMap.end()) {
@@ -463,7 +463,7 @@ void testRilRequest(v8::Handle<v8::Context> context, int request, const void *da
 }
 
 void testRequests(v8::Handle<v8::Context> context) {
-    LOGD("testRequests E: ********");
+    ALOGD("testRequests E: ********");
 
     v8::TryCatch try_catch;
 
@@ -521,5 +521,5 @@ void testRequests(v8::Handle<v8::Context> context) {
         }
     }
 
-    LOGD("testRequests X: ********\n");
+    ALOGD("testRequests X: ********\n");
 }

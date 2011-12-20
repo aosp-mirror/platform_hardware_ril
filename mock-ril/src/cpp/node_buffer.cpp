@@ -41,7 +41,7 @@
 //#define BUFFER_DEBUG
 #ifdef  BUFFER_DEBUG
 
-#define DBG(...) LOGD(__VA_ARGS__)
+#define DBG(...) ALOGD(__VA_ARGS__)
 
 #else
 

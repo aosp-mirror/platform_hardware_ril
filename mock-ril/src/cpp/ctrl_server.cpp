@@ -39,7 +39,7 @@
 //#define CONTROL_SERVER_DEBUG
 #ifdef  CONTROL_SERVER_DEBUG
 
-#define DBG(...) LOGD(__VA_ARGS__)
+#define DBG(...) ALOGD(__VA_ARGS__)
 
 #else
 
@@ -356,7 +356,7 @@ class CtrlServerThread : public WorkerThread {
                     if (status != STATUS_OK) break;
 
                     if (mh.cmd() == ril_proto::CTRL_CMD_ECHO) {
-                        LOGD("CtrlServerThread::Worker echo");
+                        ALOGD("CtrlServerThread::Worker echo");
                         status = WriteMessage(&mh, buffer);
                         if (status != STATUS_OK) break;
                     } else {
@@ -450,14 +450,14 @@ void ctrlServerInit(v8::Handle<v8::Context> context) {
     if (status != STATUS_OK) {
         LOGE("mock_ril control server could not start");
     } else {
-        LOGD("CtrlServer started");
+        ALOGD("CtrlServer started");
     }
 
 #if 0
-    LOGD("Test CtrlServerThread stop sleeping 10 seconds...");
+    ALOGD("Test CtrlServerThread stop sleeping 10 seconds...");
     v8::Unlocker unlocker;
     sleep(10);
-    LOGD("Test CtrlServerThread call Stop");
+    ALOGD("Test CtrlServerThread call Stop");
     g_ctrl_server->Stop();
     v8::Locker locker;
 
