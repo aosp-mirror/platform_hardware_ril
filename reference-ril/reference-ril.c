@@ -618,7 +618,7 @@ static void requestGetCurrentCalls(void *data, size_t datalen, RIL_Token t)
                     && p_calls[i].state == RIL_CALL_ACTIVE
                     && s_repollCallsCount < REPOLL_CALLS_COUNT_MAX
             ) {
-                LOGI(
+                ALOGI(
                     "Hit WORKAROUND_ERRONOUS_ANSWER case."
                     " Repoll count: %d\n", s_repollCallsCount);
                 s_repollCallsCount++;
@@ -2026,7 +2026,7 @@ static void onUnsolicited (const char *s, const char *sms_pdu)
 /* Called on command or reader thread */
 static void onATReaderClosed()
 {
-    LOGI("AT channel closed\n");
+    ALOGI("AT channel closed\n");
     at_close();
     s_closed = 1;
 
@@ -2036,7 +2036,7 @@ static void onATReaderClosed()
 /* Called on command thread */
 static void onATTimeout()
 {
-    LOGI("AT channel timeout; closing\n");
+    ALOGI("AT channel timeout; closing\n");
     at_close();
 
     s_closed = 1;
@@ -2133,7 +2133,7 @@ mainLoop(void *param)
         sleep(1);
 
         waitForClose();
-        LOGI("Re-opening after close");
+        ALOGI("Re-opening after close");
     }
 }
 
@@ -2158,18 +2158,18 @@ const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc, char **a
                     usage(argv[0]);
                     return NULL;
                 }
-                LOGI("Opening loopback port %d\n", s_port);
+                ALOGI("Opening loopback port %d\n", s_port);
             break;
 
             case 'd':
                 s_device_path = optarg;
-                LOGI("Opening tty device %s\n", s_device_path);
+                ALOGI("Opening tty device %s\n", s_device_path);
             break;
 
             case 's':
                 s_device_path   = optarg;
                 s_device_socket = 1;
-                LOGI("Opening socket %s\n", s_device_path);
+                ALOGI("Opening socket %s\n", s_device_path);
             break;
 
             default:
@@ -2203,18 +2203,18 @@ int main (int argc, char **argv)
                 if (s_port == 0) {
                     usage(argv[0]);
                 }
-                LOGI("Opening loopback port %d\n", s_port);
+                ALOGI("Opening loopback port %d\n", s_port);
             break;
 
             case 'd':
                 s_device_path = optarg;
-                LOGI("Opening tty device %s\n", s_device_path);
+                ALOGI("Opening tty device %s\n", s_device_path);
             break;
 
             case 's':
                 s_device_path   = optarg;
                 s_device_socket = 1;
-                LOGI("Opening socket %s\n", s_device_path);
+                ALOGI("Opening socket %s\n", s_device_path);
             break;
 
             default:

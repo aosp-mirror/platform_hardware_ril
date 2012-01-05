@@ -2329,11 +2329,11 @@ static void onNewCommandConnect() {
     if (s_callbacks.getVersion != NULL) {
         const char *version;
         version = s_callbacks.getVersion();
-        LOGI("RIL Daemon version: %s\n", version);
+        ALOGI("RIL Daemon version: %s\n", version);
 
         property_set(PROPERTY_RIL_IMPL, version);
     } else {
-        LOGI("RIL Daemon version: unavailable\n");
+        ALOGI("RIL Daemon version: unavailable\n");
         property_set(PROPERTY_RIL_IMPL, "unavailable");
     }
 
@@ -2409,7 +2409,7 @@ static void listenCallback (int fd, short flags, void *param) {
         LOGE ("Error setting O_NONBLOCK errno:%d", errno);
     }
 
-    LOGI("libril: new connection");
+    ALOGI("libril: new connection");
 
     p_rs = record_stream_new(s_fdCommand, MAX_COMMAND_BYTES);
 
@@ -2477,11 +2477,11 @@ static void debugCallback (int fd, short flags, void *param) {
 
     switch (atoi(args[0])) {
         case 0:
-            LOGI ("Connection on debug port: issuing reset.");
+            ALOGI ("Connection on debug port: issuing reset.");
             issueLocalRequest(RIL_REQUEST_RESET_RADIO, NULL, 0);
             break;
         case 1:
-            LOGI ("Connection on debug port: issuing radio power off.");
+            ALOGI ("Connection on debug port: issuing radio power off.");
             data = 0;
             issueLocalRequest(RIL_REQUEST_RADIO_POWER, &data, sizeof(int));
             // Close the socket
@@ -2489,12 +2489,12 @@ static void debugCallback (int fd, short flags, void *param) {
             s_fdCommand = -1;
             break;
         case 2:
-            LOGI ("Debug port: issuing unsolicited voice network change.");
+            ALOGI ("Debug port: issuing unsolicited voice network change.");
             RIL_onUnsolicitedResponse(RIL_UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED,
                                       NULL, 0);
             break;
         case 3:
-            LOGI ("Debug port: QXDM log enable.");
+            ALOGI ("Debug port: QXDM log enable.");
             qxdm_data[0] = 65536;     // head.func_tag
             qxdm_data[1] = 16;        // head.len
             qxdm_data[2] = 1;         // mode: 1 for 'start logging'
@@ -2505,7 +2505,7 @@ static void debugCallback (int fd, short flags, void *param) {
                               6 * sizeof(int));
             break;
         case 4:
-            LOGI ("Debug port: QXDM log disable.");
+            ALOGI ("Debug port: QXDM log disable.");
             qxdm_data[0] = 65536;
             qxdm_data[1] = 16;
             qxdm_data[2] = 0;          // mode: 0 for 'stop logging'
@@ -2516,7 +2516,7 @@ static void debugCallback (int fd, short flags, void *param) {
                               6 * sizeof(int));
             break;
         case 5:
-            LOGI("Debug port: Radio On");
+            ALOGI("Debug port: Radio On");
             data = 1;
             issueLocalRequest(RIL_REQUEST_RADIO_POWER, &data, sizeof(int));
             sleep(2);
@@ -2524,28 +2524,28 @@ static void debugCallback (int fd, short flags, void *param) {
             issueLocalRequest(RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC, NULL, 0);
             break;
         case 6:
-            LOGI("Debug port: Setup Data Call, Apn :%s\n", args[1]);
+            ALOGI("Debug port: Setup Data Call, Apn :%s\n", args[1]);
             actData[0] = args[1];
             issueLocalRequest(RIL_REQUEST_SETUP_DATA_CALL, &actData,
                               sizeof(actData));
             break;
         case 7:
-            LOGI("Debug port: Deactivate Data Call");
+            ALOGI("Debug port: Deactivate Data Call");
             issueLocalRequest(RIL_REQUEST_DEACTIVATE_DATA_CALL, &deactData,
                               sizeof(deactData));
             break;
         case 8:
-            LOGI("Debug port: Dial Call");
+            ALOGI("Debug port: Dial Call");
             dialData.clir = 0;
             dialData.address = args[1];
             issueLocalRequest(RIL_REQUEST_DIAL, &dialData, sizeof(dialData));
             break;
         case 9:
-            LOGI("Debug port: Answer Call");
+            ALOGI("Debug port: Answer Call");
             issueLocalRequest(RIL_REQUEST_ANSWER, NULL, 0);
             break;
         case 10:
-            LOGI("Debug port: End Call");
+            ALOGI("Debug port: End Call");
             issueLocalRequest(RIL_REQUEST_HANGUP, &hangupData,
                               sizeof(hangupData));
             break;
