@@ -2077,7 +2077,7 @@ static int responseCdmaCallWaiting(Parcel &p, void *response,
     }
 
     if (responselen < sizeof(RIL_CDMA_CallWaiting_v6)) {
-        LOGW("Upgrade to ril version %d\n", RIL_VERSION);
+        ALOGW("Upgrade to ril version %d\n", RIL_VERSION);
     }
 
     RIL_CDMA_CallWaiting_v6 *p_cur = ((RIL_CDMA_CallWaiting_v6 *) response);
@@ -2368,7 +2368,7 @@ static void processCommandsCallback(int fd, short flags, void *param) {
         if (ret != 0) {
             LOGE("error on reading command socket errno:%d\n", errno);
         } else {
-            LOGW("EOS.  Closing command socket.");
+            ALOGW("EOS.  Closing command socket.");
         }
 
         close(s_fdCommand);
@@ -3074,7 +3074,7 @@ void RIL_onUnsolicitedResponse(int unsolResponse, void *data,
 
     if (s_registerCalled == 0) {
         // Ignore RIL_onUnsolicitedResponse before RIL_register
-        LOGW("RIL_onUnsolicitedResponse called before RIL_register");
+        ALOGW("RIL_onUnsolicitedResponse called before RIL_register");
         return;
     }
 
