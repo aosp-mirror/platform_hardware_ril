@@ -280,12 +280,12 @@ void startMockRil(v8::Handle<v8::Context> context) {
 
     v8::Handle<v8::Value> result = start->Call(context->Global(), 0, NULL);
     if (try_catch.HasCaught()) {
-        LOGE("startMockRil error");
+        ALOGE("startMockRil error");
         ReportException(&try_catch);
-        LOGE("FATAL ERROR: Unsable to startMockRil.");
+        ALOGE("FATAL ERROR: Unsable to startMockRil.");
     } else {
         v8::String::Utf8Value result_string(result);
-        LOGE("startMockRil result=%s", ToCString(result_string));
+        ALOGE("startMockRil result=%s", ToCString(result_string));
     }
 
 }
@@ -326,7 +326,7 @@ const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc,
         runJs(context, &try_catch, "mock_ril.js", buffer);
         if (try_catch.HasCaught()) {
             // TODO: Change to event this is fatal
-            LOGE("FATAL ERROR: Unable to run mock_ril.js");
+            ALOGE("FATAL ERROR: Unable to run mock_ril.js");
         }
     }
 

@@ -208,7 +208,7 @@ static int callFromCLCCLine(char *line, RIL_Call *p_call)
     return 0;
 
 error:
-    LOGE("invalid CLCC line\n");
+    ALOGE("invalid CLCC line\n");
     return -1;
 }
 
@@ -517,7 +517,7 @@ static void requestQueryNetworkSelectionMode(
     return;
 error:
     at_response_free(p_response);
-    LOGE("requestQueryNetworkSelectionMode must never return error when radio is on");
+    ALOGE("requestQueryNetworkSelectionMode must never return error when radio is on");
     RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
 }
 
@@ -757,7 +757,7 @@ static void requestSignalStrength(void *data, size_t datalen, RIL_Token t)
     return;
 
 error:
-    LOGE("requestSignalStrength must never return an error when radio is on");
+    ALOGE("requestSignalStrength must never return an error when radio is on");
     RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
     at_response_free(p_response);
 }
@@ -892,7 +892,7 @@ static void requestRegistrationState(int request, void *data,
 
     return;
 error:
-    LOGE("requestRegistrationState must never return an error when radio is on");
+    ALOGE("requestRegistrationState must never return an error when radio is on");
     RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
     at_response_free(p_response);
 }
@@ -963,7 +963,7 @@ static void requestOperator(void *data, size_t datalen, RIL_Token t)
 
     return;
 error:
-    LOGE("requestOperator must not return error when radio is on");
+    ALOGE("requestOperator must not return error when radio is on");
     RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
     at_response_free(p_response);
 }
@@ -1048,7 +1048,7 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
             } while (written < 0 && errno == EINTR);
 
             if (written < 0) {
-                LOGE("### ERROR writing to /dev/qmi");
+                ALOGE("### ERROR writing to /dev/qmi");
                 close(fd);
                 goto error;
             }
@@ -1065,7 +1065,7 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
             } while (rlen < 0 && errno == EINTR);
 
             if (rlen < 0) {
-                LOGE("### ERROR reading from /dev/qmi");
+                ALOGE("### ERROR reading from /dev/qmi");
                 close(fd);
                 goto error;
             } else {
@@ -1077,7 +1077,7 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
         close(fd);
 
         if (retry == 0) {
-            LOGE("### Failed to get data connection up\n");
+            ALOGE("### Failed to get data connection up\n");
             goto error;
         }
 
@@ -1143,7 +1143,7 @@ static void requestSMSAcknowledge(void *data, size_t datalen, RIL_Token t)
     } else if (ackSuccess == 0)  {
         err = at_send_command("AT+CNMA=2", NULL);
     } else {
-        LOGE("unsupported arg to RIL_REQUEST_SMS_ACKNOWLEDGE\n");
+        ALOGE("unsupported arg to RIL_REQUEST_SMS_ACKNOWLEDGE\n");
         goto error;
     }
 
@@ -1975,7 +1975,7 @@ static void onUnsolicited (const char *s, const char *sms_pdu)
         err = at_tok_nextstr(&line, &response);
 
         if (err != 0) {
-            LOGE("invalid NITZ line %s\n", s);
+            ALOGE("invalid NITZ line %s\n", s);
         } else {
             RIL_onUnsolicitedResponse (
                 RIL_UNSOL_NITZ_TIME_RECEIVED,
@@ -2122,7 +2122,7 @@ mainLoop(void *param)
         ret = at_open(fd, onUnsolicited);
 
         if (ret < 0) {
-            LOGE ("AT error %d on at_open\n", ret);
+            ALOGE ("AT error %d on at_open\n", ret);
             return 0;
         }
 

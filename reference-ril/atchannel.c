@@ -290,7 +290,7 @@ static void processLine(const char *line)
         break;
 
         default: /* this should never be reached */
-            LOGE("Unsupported AT command type %d\n", s_type);
+            ALOGE("Unsupported AT command type %d\n", s_type);
             handleUnsolicited(line);
         break;
     }
@@ -371,7 +371,7 @@ static const char *readline()
 
     while (p_eol == NULL) {
         if (0 == MAX_AT_RESPONSE - (p_read - s_ATBuffer)) {
-            LOGE("ERROR: Input line exceeded buffer\n");
+            ALOGE("ERROR: Input line exceeded buffer\n");
             /* ditch buffer and start over again */
             s_ATBufferCur = s_ATBuffer;
             *s_ATBufferCur = '\0';

@@ -198,7 +198,7 @@ class CtrlServerThread : public WorkerThread {
         server_accept_socket_ = socket_inaddr_any_server(
             MOCK_RIL_CONTROL_SERVER_SOCKET, SOCK_STREAM);
         if (server_accept_socket_ < 0) {
-            LOGE("CtrlServerThread::Run error creating server_accept_socket_ '%s'",
+            ALOGE("CtrlServerThread::Run error creating server_accept_socket_ '%s'",
                     strerror(errno));
             return STATUS_ERR;
         }
@@ -207,7 +207,7 @@ class CtrlServerThread : public WorkerThread {
         stop_server_fd_ = socket_loopback_server(
                 MOCK_RIL_CONTROL_SERVER_STOPPING_SOCKET, SOCK_STREAM);
         if (stop_server_fd_ < 0) {
-            LOGE("CtrlServerThread::Run error creating stop_server_fd_ '%s'",
+            ALOGE("CtrlServerThread::Run error creating stop_server_fd_ '%s'",
                     strerror(errno));
             return STATUS_ERR;
         }
@@ -216,7 +216,7 @@ class CtrlServerThread : public WorkerThread {
         stop_client_fd_ = socket_loopback_client(
                 MOCK_RIL_CONTROL_SERVER_STOPPING_SOCKET, SOCK_STREAM);
         if (stop_client_fd_ < 0) {
-            LOGE("CtrlServerThread::Run error creating stop_client_fd_ '%s'",
+            ALOGE("CtrlServerThread::Run error creating stop_client_fd_ '%s'",
                     strerror(errno));
             return STATUS_ERR;
         }
@@ -224,7 +224,7 @@ class CtrlServerThread : public WorkerThread {
         // Accept the connection of the stop_client_fd_
         stopper_fd_ = accept(stop_server_fd_, NULL, NULL);
         if (stopper_fd_ < 0) {
-            LOGE("CtrlServerThread::Run error accepting stop_client_fd '%s'",
+            ALOGE("CtrlServerThread::Run error accepting stop_client_fd '%s'",
                     strerror(errno));
             return STATUS_ERR;
         }
@@ -241,7 +241,7 @@ class CtrlServerThread : public WorkerThread {
             done_ = true;
             int rv = send(stop_client_fd_, &done_, sizeof(done_), 0);
             if (rv <= 0) {
-                LOGE("CtrlServerThread::Stop could not send stop"
+                ALOGE("CtrlServerThread::Stop could not send stop"
                             "WE WILL PROBABLY HANG");
             }
             WaitUntilStopped();
@@ -308,7 +308,7 @@ class CtrlServerThread : public WorkerThread {
         }
 
         if (status != STATUS_OK) {
-            LOGE("sendToCtrlServer Error: status=%d", status);
+            ALOGE("sendToCtrlServer Error: status=%d", status);
             // An error report complete now
             mh->set_length_data(0);
             mh->set_status(ril_proto::CTRL_STATUS_ERR);
@@ -407,7 +407,7 @@ v8::Handle<v8::Value> SendCtrlRequestComplete(const v8::Arguments& args) {
      */
     if (args.Length() < 3) {
         // Expecting a reqNum, ERROR and token
-        LOGE("SendCtrlRequestComplete X %d parameters"
+        ALOGE("SendCtrlRequestComplete X %d parameters"
              " expecting at least 3: status, reqNum, and token",
                 args.Length());
         return v8::Undefined();
@@ -448,7 +448,7 @@ void ctrlServerInit(v8::Handle<v8::Context> context) {
     g_ctrl_server = new CtrlServerThread(context);
     status = g_ctrl_server->Run();
     if (status != STATUS_OK) {
-        LOGE("mock_ril control server could not start");
+        ALOGE("mock_ril control server could not start");
     } else {
         ALOGD("CtrlServer started");
     }
@@ -465,7 +465,7 @@ void ctrlServerInit(v8::Handle<v8::Context> context) {
     g_ctrl_server = new CtrlServerThread(context);
     status = g_ctrl_server->Run();
     if (status != STATUS_OK) {
-        LOGE("mock_ril control server could not start");
+        ALOGE("mock_ril control server could not start");
     } else {
         DBG("mock_ril control server started");
     }
