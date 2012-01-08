@@ -73,7 +73,7 @@ int ReqEnterSimPin(Buffer **pBuffer,
 
     DBG("ReqEnterSimPin E");
     if (datalen < sizeof(int)) {
-        LOGE("ReqEnterSimPin: data to small err size < sizeof int");
+        ALOGE("ReqEnterSimPin: data to small err size < sizeof int");
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqEnterSimPin *req = new ril_proto::ReqEnterSimPin();
@@ -101,7 +101,7 @@ int ReqDial(Buffer **pBuffer,
     DBG("data=%p datalen=%d t=%p", data, datalen, t);
 
     if (datalen < sizeof(int)) {
-        LOGE("ReqDial: data to small err size < sizeof int");
+        ALOGE("ReqDial: data to small err size < sizeof int");
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqDial *req = new ril_proto::ReqDial();
@@ -158,7 +158,7 @@ int ReqHangUp(Buffer **pBuffer,
 
     DBG("ReqHangUp E");
     if (datalen < sizeof(int)) {
-        LOGE("ReqHangUp: data to small err size < sizeof int");
+        ALOGE("ReqHangUp: data to small err size < sizeof int");
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqHangUp *req = new ril_proto::ReqHangUp();
@@ -185,7 +185,7 @@ int ReqSeparateConnection (Buffer **pBuffer,
 
     DBG("ReqSeparateConnection E");
     if (datalen < sizeof(int)) {
-        LOGE("ReqSetMute: data to small err size < sizeof int");
+        ALOGE("ReqSetMute: data to small err size < sizeof int");
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqSeparateConnection *req = new ril_proto::ReqSeparateConnection();
@@ -213,7 +213,7 @@ int ReqSetMute(Buffer **pBuffer,
 
     DBG("ReqSetMute E");
     if (datalen < sizeof(int)) {
-        LOGE("ReqSetMute: data to small err size < sizeof int");
+        ALOGE("ReqSetMute: data to small err size < sizeof int");
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqSetMute *req = new ril_proto::ReqSetMute();
@@ -242,7 +242,7 @@ int ReqScreenState(Buffer **pBuffer,
     DBG("ReqScreenState E data=%p datalen=%d t=%p",
          data, datalen, t);
     if (datalen < sizeof(int)) {
-        LOGE("ReqScreenState: data to small err size < sizeof int");
+        ALOGE("ReqScreenState: data to small err size < sizeof int");
         status = STATUS_BAD_DATA;
     } else {
         ril_proto::ReqScreenState *req = new ril_proto::ReqScreenState();
@@ -293,7 +293,7 @@ int callOnRilRequest(v8::Handle<v8::Context> context, int cmd,
     v8::Handle<v8::Value> result =
         onRilRequestFunction->Call(context->Global(), argc, argv);
     if (try_catch.HasCaught()) {
-        LOGE("callOnRilRequest error");
+        ALOGE("callOnRilRequest error");
         ReportException(&try_catch);
         status = STATUS_ERR;
     } else {
@@ -350,7 +350,7 @@ void RilRequestWorkerQueue::AddRequest (const int request,
     if (itr != rilReqConversionMap.end()) {
         status = itr->second(&buffer, data, datalen, token);
     } else {
-        LOGE("RilRequestWorkerQueue:AddRequest: X unknown request %d", request);
+        ALOGE("RilRequestWorkerQueue:AddRequest: X unknown request %d", request);
         status = STATUS_UNSUPPORTED_REQUEST;
     }
 
@@ -452,13 +452,13 @@ void testRilRequest(v8::Handle<v8::Context> context, int request, const void *da
     if (itr != rilReqConversionMap.end()) {
         status = itr->second(&buffer, data, sizeof(data), (void *)0x12345677);
     } else {
-        LOGE("testRequests X unknown request %d", request);
+        ALOGE("testRequests X unknown request %d", request);
         status = STATUS_UNSUPPORTED_REQUEST;
     }
     if (status == STATUS_OK) {
         callOnRilRequest(context, request, buffer, (void *)0x12345677);
     } else {
-        LOGE("testRilRequest X, serialize error");
+        ALOGE("testRilRequest X, serialize error");
     }
 }
 

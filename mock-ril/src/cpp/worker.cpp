@@ -96,19 +96,19 @@ int WorkerThread::Run(void *workerParam) {
 
     ret = pthread_attr_init(&attr_);
     if (ret != 0) {
-        LOGE("RIL_Init X: pthread_attr_init failed err=%s", strerror(ret));
+        ALOGE("RIL_Init X: pthread_attr_init failed err=%s", strerror(ret));
         return STATUS_ERR;
     }
     ret = pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_DETACHED);
     if (ret != 0) {
-        LOGE("RIL_Init X: pthread_attr_setdetachstate failed err=%s",
+        ALOGE("RIL_Init X: pthread_attr_setdetachstate failed err=%s",
                 strerror(ret));
         return STATUS_ERR;
     }
     ret = pthread_create(&tid_, &attr_,
                 (void * (*)(void *))&WorkerThread::Work, this);
     if (ret != 0) {
-        LOGE("RIL_Init X: pthread_create failed err=%s", strerror(ret));
+        ALOGE("RIL_Init X: pthread_create failed err=%s", strerror(ret));
         return STATUS_ERR;
     }
 

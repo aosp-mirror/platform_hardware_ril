@@ -290,12 +290,12 @@ void runJs(v8::Handle<v8::Context> context, v8::TryCatch *try_catch,
     v8::Handle<v8::Script> script = v8::Script::Compile(
                 v8::String::New(code), v8::String::New(fileName));
     if (try_catch->HasCaught()) {
-        LOGE("-- Compiling the source failed");
+        ALOGE("-- Compiling the source failed");
     } else {
         // Run the resulting script
         v8::Handle<v8::Value> result = script->Run();
         if (try_catch->HasCaught()) {
-            LOGE("-- Running the script failed");
+            ALOGE("-- Running the script failed");
         }
     }
 }

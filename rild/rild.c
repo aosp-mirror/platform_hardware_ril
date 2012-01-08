@@ -199,7 +199,7 @@ int main(int argc, char **argv)
                     break;
             }
             if (!done) {
-                LOGE("could not connect to %s socket (giving up): %s",
+                ALOGE("could not connect to %s socket (giving up): %s",
                     QEMUD_SOCKET_NAME, strerror(errno));
                 while(1)
                     sleep(0x00ffffff);
