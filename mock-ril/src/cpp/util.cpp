@@ -44,20 +44,20 @@ void LogErrorMessage(v8::Handle<v8::Message> message,
         // V8 didn't provide any extra information about this error; just
         // print the exception.
         if (alternate_message == NULL || strlen(alternate_message) == 0) {
-            LOGD("LogErrorMessage no message");
+            ALOGD("LogErrorMessage no message");
         } else {
-            LOGD("LogErrorMessage no message: %s", alternate_message);
+            ALOGD("LogErrorMessage no message: %s", alternate_message);
         }
     } else {
         v8::String::Utf8Value filename(message->GetScriptResourceName());
         const char* filename_string = ToCString(filename);
         int linenum = message->GetLineNumber();
-        LOGD("file:%s line:%i", filename_string, linenum);
+        ALOGD("file:%s line:%i", filename_string, linenum);
 
         // Print line of source code.
         v8::String::Utf8Value sourceline(message->GetSourceLine());
         const char* sourceline_string = ToCString(sourceline);
-        LOGD("%s", sourceline_string);
+        ALOGD("%s", sourceline_string);
 
         // Print location information under source line
         int start = message->GetStartColumn();
@@ -72,8 +72,8 @@ void LogErrorMessage(v8::Handle<v8::Message> message,
         memset(error_string, ' ', start);
         memset(&error_string[start], '^', lenErr);
         error_string[size-1] = 0;
-        LOGD("%s", error_string);
-        LOGD("%s", ToCString(v8::String::Utf8Value(message->Get())));
+        ALOGD("%s", error_string);
+        ALOGD("%s", ToCString(v8::String::Utf8Value(message->Get())));
         delete [] error_string;
     }
 }

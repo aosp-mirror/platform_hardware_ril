@@ -34,7 +34,7 @@
 //#define JS_SUPPORT_DEBUG
 #ifdef  JS_SUPPORT_DEBUG
 
-#define DBG(...) LOGD(__VA_ARGS__)
+#define DBG(...) ALOGD(__VA_ARGS__)
 
 #else
 
@@ -88,7 +88,7 @@ v8::Handle<v8::Value> Print(const v8::Arguments& args) {
         const char* cstr = ToCString(strUtf8);
         offset += snprintf(&str[offset], str_size, "%s", cstr);
     }
-    LOGD("%s", str);
+    ALOGD("%s", str);
     delete [] str;
     return v8::Undefined();
 }
@@ -290,18 +290,18 @@ void runJs(v8::Handle<v8::Context> context, v8::TryCatch *try_catch,
     v8::Handle<v8::Script> script = v8::Script::Compile(
                 v8::String::New(code), v8::String::New(fileName));
     if (try_catch->HasCaught()) {
-        LOGE("-- Compiling the source failed");
+        ALOGE("-- Compiling the source failed");
     } else {
         // Run the resulting script
         v8::Handle<v8::Value> result = script->Run();
         if (try_catch->HasCaught()) {
-            LOGE("-- Running the script failed");
+            ALOGE("-- Running the script failed");
         }
     }
 }
 
 void testRadioState(v8::Handle<v8::Context> context) {
-    LOGD("testRadioState E:");
+    ALOGD("testRadioState E:");
     v8::HandleScope handle_scope;
 
     v8::TryCatch try_catch;
@@ -314,11 +314,11 @@ void testRadioState(v8::Handle<v8::Context> context) {
         "}\n"
         "gRadioState = 1;\n"
         "print('last gRadioState=' + gRadioState);\n");
-    LOGD("testRadioState X:");
+    ALOGD("testRadioState X:");
 }
 
 void testMsSleep(v8::Handle<v8::Context> context) {
-    LOGD("testMsSleep E:");
+    ALOGD("testMsSleep E:");
     v8::HandleScope handle_scope;
 
     v8::TryCatch try_catch;
@@ -330,22 +330,22 @@ void testMsSleep(v8::Handle<v8::Context> context) {
         "  print('msSleep ' + sleeptime);\n"
         "  msSleep(sleeptime);\n"
         "}\n");
-    LOGD("testMsSleep X:");
+    ALOGD("testMsSleep X:");
 }
 
 void testPrint(v8::Handle<v8::Context> context) {
-    LOGD("testPrint E:");
+    ALOGD("testPrint E:");
     v8::HandleScope handle_scope;
 
     v8::TryCatch try_catch;
     try_catch.SetVerbose(true);
 
     runJs(context, &try_catch, "local-string", "print(\"Hello\")");
-    LOGD("testPrint X:");
+    ALOGD("testPrint X:");
 }
 
 void testCompileError(v8::Handle<v8::Context> context) {
-    LOGD("testCompileError E:");
+    ALOGD("testCompileError E:");
     v8::HandleScope handle_scope;
 
     v8::TryCatch try_catch;
@@ -353,11 +353,11 @@ void testCompileError(v8::Handle<v8::Context> context) {
 
     // +++ generate a compile time error
     runJs(context, &try_catch, "local-string", "+++");
-    LOGD("testCompileError X:");
+    ALOGD("testCompileError X:");
 }
 
 void testRuntimeError(v8::Handle<v8::Context> context) {
-    LOGD("testRuntimeError E:");
+    ALOGD("testRuntimeError E:");
     v8::HandleScope handle_scope;
 
     v8::TryCatch try_catch;
@@ -369,7 +369,7 @@ void testRuntimeError(v8::Handle<v8::Context> context) {
         "  print(\"Hi there\");\n"
         "}\n"
         "helloo()");
-    LOGD("testRuntimeError X:");
+    ALOGD("testRuntimeError X:");
 }
 
 void testReadFile() {
@@ -377,18 +377,18 @@ void testReadFile() {
     size_t length;
     int status;
 
-    LOGD("testReadFile E:");
+    ALOGD("testReadFile E:");
 
     status = ReadFile("/sdcard/data/no-file", &buffer, &length);
-    LOGD("testReadFile expect status != 0, status=%d, buffer=%p, length=%d",
+    ALOGD("testReadFile expect status != 0, status=%d, buffer=%p, length=%d",
             status, buffer, length);
 
-    LOGD("testReadFile X:");
+    ALOGD("testReadFile X:");
 }
 
 
 void testReadFileToStringBuffer(v8::Handle<v8::Context> context) {
-    LOGD("testReadFileToStringBuffer E:");
+    ALOGD("testReadFileToStringBuffer E:");
     v8::HandleScope handle_scope;
 
     v8::TryCatch try_catch;
@@ -399,11 +399,11 @@ void testReadFileToStringBuffer(v8::Handle<v8::Context> context) {
         "print(\"fileContents:\\n\" + fileContents);\n"
         "buffer = readFileToBuffer(\"ril.desc\");\n"
         "print(\"buffer.length=\" + buffer.length);\n");
-    LOGD("testReadFileToStringBuffer X:");
+    ALOGD("testReadFileToStringBuffer X:");
 }
 
 void testJsSupport(v8::Handle<v8::Context> context) {
-    LOGD("testJsSupport E: ********");
+    ALOGD("testJsSupport E: ********");
     testRadioState(context);
     testMsSleep(context);
     testPrint(context);
@@ -411,5 +411,5 @@ void testJsSupport(v8::Handle<v8::Context> context) {
     testRuntimeError(context);
     testReadFile();
     testReadFileToStringBuffer(context);
-    LOGD("testJsSupport X: ********\n");
+    ALOGD("testJsSupport X: ********\n");
 }

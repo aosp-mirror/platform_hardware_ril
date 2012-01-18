@@ -208,7 +208,7 @@ static int callFromCLCCLine(char *line, RIL_Call *p_call)
     return 0;
 
 error:
-    LOGE("invalid CLCC line\n");
+    ALOGE("invalid CLCC line\n");
     return -1;
 }
 
@@ -517,7 +517,7 @@ static void requestQueryNetworkSelectionMode(
     return;
 error:
     at_response_free(p_response);
-    LOGE("requestQueryNetworkSelectionMode must never return error when radio is on");
+    ALOGE("requestQueryNetworkSelectionMode must never return error when radio is on");
     RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
 }
 
@@ -618,7 +618,7 @@ static void requestGetCurrentCalls(void *data, size_t datalen, RIL_Token t)
                     && p_calls[i].state == RIL_CALL_ACTIVE
                     && s_repollCallsCount < REPOLL_CALLS_COUNT_MAX
             ) {
-                LOGI(
+                ALOGI(
                     "Hit WORKAROUND_ERRONOUS_ANSWER case."
                     " Repoll count: %d\n", s_repollCallsCount);
                 s_repollCallsCount++;
@@ -757,7 +757,7 @@ static void requestSignalStrength(void *data, size_t datalen, RIL_Token t)
     return;
 
 error:
-    LOGE("requestSignalStrength must never return an error when radio is on");
+    ALOGE("requestSignalStrength must never return an error when radio is on");
     RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
     at_response_free(p_response);
 }
@@ -892,7 +892,7 @@ static void requestRegistrationState(int request, void *data,
 
     return;
 error:
-    LOGE("requestRegistrationState must never return an error when radio is on");
+    ALOGE("requestRegistrationState must never return an error when radio is on");
     RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
     at_response_free(p_response);
 }
@@ -963,7 +963,7 @@ static void requestOperator(void *data, size_t datalen, RIL_Token t)
 
     return;
 error:
-    LOGE("requestOperator must not return error when radio is on");
+    ALOGE("requestOperator must not return error when radio is on");
     RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
     at_response_free(p_response);
 }
@@ -1033,12 +1033,12 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
     int retry = 10;
     const char *pdp_type;
 
-    LOGD("requesting data connection to APN '%s'", apn);
+    ALOGD("requesting data connection to APN '%s'", apn);
 
     fd = open ("/dev/qmi", O_RDWR);
     if (fd >= 0) { /* the device doesn't exist on the emulator */
 
-        LOGD("opened the qmi device\n");
+        ALOGD("opened the qmi device\n");
         asprintf(&cmd, "up:%s", apn);
         len = strlen(cmd);
 
@@ -1048,7 +1048,7 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
             } while (written < 0 && errno == EINTR);
 
             if (written < 0) {
-                LOGE("### ERROR writing to /dev/qmi");
+                ALOGE("### ERROR writing to /dev/qmi");
                 close(fd);
                 goto error;
             }
@@ -1065,25 +1065,25 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
             } while (rlen < 0 && errno == EINTR);
 
             if (rlen < 0) {
-                LOGE("### ERROR reading from /dev/qmi");
+                ALOGE("### ERROR reading from /dev/qmi");
                 close(fd);
                 goto error;
             } else {
                 status[rlen] = '\0';
-                LOGD("### status: %s", status);
+                ALOGD("### status: %s", status);
             }
         } while (strncmp(status, "STATE=up", 8) && strcmp(status, "online") && --retry);
 
         close(fd);
 
         if (retry == 0) {
-            LOGE("### Failed to get data connection up\n");
+            ALOGE("### Failed to get data connection up\n");
             goto error;
         }
 
         qmistatus = system("netcfg rmnet0 dhcp");
 
-        LOGD("netcfg rmnet0 dhcp: status %d\n", qmistatus);
+        ALOGD("netcfg rmnet0 dhcp: status %d\n", qmistatus);
 
         if (qmistatus < 0) goto error;
 
@@ -1143,7 +1143,7 @@ static void requestSMSAcknowledge(void *data, size_t datalen, RIL_Token t)
     } else if (ackSuccess == 0)  {
         err = at_send_command("AT+CNMA=2", NULL);
     } else {
-        LOGE("unsupported arg to RIL_REQUEST_SMS_ACKNOWLEDGE\n");
+        ALOGE("unsupported arg to RIL_REQUEST_SMS_ACKNOWLEDGE\n");
         goto error;
     }
 
@@ -1273,7 +1273,7 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
     ATResponse *p_response;
     int err;
 
-    LOGD("onRequest: %s", requestToString(request));
+    ALOGD("onRequest: %s", requestToString(request));
 
     /* Ignore all requests except RIL_REQUEST_GET_SIM_STATUS
      * when RADIO_STATE_UNAVAILABLE.
@@ -1506,12 +1506,12 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
             int i;
             const char ** cur;
 
-            LOGD("got OEM_HOOK_STRINGS: 0x%8p %lu", data, (long)datalen);
+            ALOGD("got OEM_HOOK_STRINGS: 0x%8p %lu", data, (long)datalen);
 
 
             for (i = (datalen / sizeof (char *)), cur = (const char **)data ;
                     i > 0 ; cur++, i --) {
-                LOGD("> '%s'", *cur);
+                ALOGD("> '%s'", *cur);
             }
 
             // echo back strings
@@ -1975,7 +1975,7 @@ static void onUnsolicited (const char *s, const char *sms_pdu)
         err = at_tok_nextstr(&line, &response);
 
         if (err != 0) {
-            LOGE("invalid NITZ line %s\n", s);
+            ALOGE("invalid NITZ line %s\n", s);
         } else {
             RIL_onUnsolicitedResponse (
                 RIL_UNSOL_NITZ_TIME_RECEIVED,
@@ -2026,7 +2026,7 @@ static void onUnsolicited (const char *s, const char *sms_pdu)
 /* Called on command or reader thread */
 static void onATReaderClosed()
 {
-    LOGI("AT channel closed\n");
+    ALOGI("AT channel closed\n");
     at_close();
     s_closed = 1;
 
@@ -2036,7 +2036,7 @@ static void onATReaderClosed()
 /* Called on command thread */
 static void onATTimeout()
 {
-    LOGI("AT channel timeout; closing\n");
+    ALOGI("AT channel timeout; closing\n");
     at_close();
 
     s_closed = 1;
@@ -2122,7 +2122,7 @@ mainLoop(void *param)
         ret = at_open(fd, onUnsolicited);
 
         if (ret < 0) {
-            LOGE ("AT error %d on at_open\n", ret);
+            ALOGE ("AT error %d on at_open\n", ret);
             return 0;
         }
 
@@ -2133,7 +2133,7 @@ mainLoop(void *param)
         sleep(1);
 
         waitForClose();
-        LOGI("Re-opening after close");
+        ALOGI("Re-opening after close");
     }
 }
 
@@ -2158,18 +2158,18 @@ const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc, char **a
                     usage(argv[0]);
                     return NULL;
                 }
-                LOGI("Opening loopback port %d\n", s_port);
+                ALOGI("Opening loopback port %d\n", s_port);
             break;
 
             case 'd':
                 s_device_path = optarg;
-                LOGI("Opening tty device %s\n", s_device_path);
+                ALOGI("Opening tty device %s\n", s_device_path);
             break;
 
             case 's':
                 s_device_path   = optarg;
                 s_device_socket = 1;
-                LOGI("Opening socket %s\n", s_device_path);
+                ALOGI("Opening socket %s\n", s_device_path);
             break;
 
             default:
@@ -2203,18 +2203,18 @@ int main (int argc, char **argv)
                 if (s_port == 0) {
                     usage(argv[0]);
                 }
-                LOGI("Opening loopback port %d\n", s_port);
+                ALOGI("Opening loopback port %d\n", s_port);
             break;
 
             case 'd':
                 s_device_path = optarg;
-                LOGI("Opening tty device %s\n", s_device_path);
+                ALOGI("Opening tty device %s\n", s_device_path);
             break;
 
             case 's':
                 s_device_path   = optarg;
                 s_device_socket = 1;
-                LOGI("Opening socket %s\n", s_device_path);
+                ALOGI("Opening socket %s\n", s_device_path);
             break;
 
             default:

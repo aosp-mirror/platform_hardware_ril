@@ -34,7 +34,7 @@
 //#define PROTOBUF_V8_DEBUG
 #ifdef  PROTOBUF_V8_DEBUG
 
-#define DBG(...) LOGD(__VA_ARGS__)
+#define DBG(...) ALOGD(__VA_ARGS__)
 
 #else
 
@@ -372,7 +372,7 @@ namespace protobuf_v8 {
           } else {
             str_value = ToCString(value);
             // TODO: Why can str_value be corrupted sometimes?
-            LOGD("str_value=%s", str_value);
+            ALOGD("str_value=%s", str_value);
             vd = ed->FindValueByName(str_value);
             if (vd == NULL) {
               snprintf(error_buff, sizeof(error_buff),

@@ -35,7 +35,7 @@
 //#define RESPONSES_DEBUG
 #ifdef  RESPONSES_DEBUG
 
-#define DBG(...) LOGD(__VA_ARGS__)
+#define DBG(...) ALOGD(__VA_ARGS__)
 
 #else
 
@@ -346,7 +346,7 @@ RIL_Errno RspOperator(
 void UnsolRspSignalStrength(int cmd, Buffer* buffer) {
 
     DBG("UnsolRspSignalStrength E");
-    LOGE("unsolicited response command: %d", cmd);
+    ALOGE("unsolicited response command: %d", cmd);
     // Retrieve response from response message
     ril_proto::RspSignalStrength *rsp = new ril_proto::RspSignalStrength();
     rsp->ParseFromArray(buffer->data(), buffer->length());
@@ -395,7 +395,7 @@ v8::Handle<v8::Value> SendRilRequestComplete(const v8::Arguments& args) {
      */
     if (args.Length() < REQUEST_COMPLETE_REQUIRED_CMDS) {
         // Expecting a cmd, ERROR and token
-        LOGE("SendRilRequestComplete X %d parameters"
+        ALOGE("SendRilRequestComplete X %d parameters"
              " expecting at least %d: rilErrno, cmd, and token",
                 args.Length(), REQUEST_COMPLETE_REQUIRED_CMDS);
         return v8::Undefined();
@@ -430,7 +430,7 @@ v8::Handle<v8::Value> SendRilRequestComplete(const v8::Arguments& args) {
             rilErrno = RIL_E_SUCCESS;
         } else {
             // There was a buffer but we don't support the resonse yet.
-            LOGE("SendRilRequestComplete: No conversion routine for cmd %d,"
+            ALOGE("SendRilRequestComplete: No conversion routine for cmd %d,"
                     " return RIL_E_REQUEST_NOT_SUPPORTED", cmd);
             rilErrno = RIL_E_REQUEST_NOT_SUPPORTED;
         }
@@ -462,7 +462,7 @@ v8::Handle<v8::Value> SendRilUnsolicitedResponse(const v8::Arguments& args) {
      */
     if (args.Length() < UNSOL_RESPONSE_REQUIRED_CMDS) {
         // Expecting a cmd
-        LOGE("SendRilUnsolicitedResponse X %d parameters"
+        ALOGE("SendRilUnsolicitedResponse X %d parameters"
              " expecting at least a cmd",
                 args.Length());
         return v8::Undefined();
@@ -488,7 +488,7 @@ v8::Handle<v8::Value> SendRilUnsolicitedResponse(const v8::Arguments& args) {
             datalen = 0;
         } else {
             // There was a buffer but we don't support the response yet.
-            LOGE("SendRilUnsolicitedResponse: No conversion routine for cmd %d,"
+            ALOGE("SendRilUnsolicitedResponse: No conversion routine for cmd %d,"
                     " return RIL_E_REQUEST_NOT_SUPPORTED", cmd);
             data = NULL;
             datalen = 0;
@@ -501,7 +501,7 @@ v8::Handle<v8::Value> SendRilUnsolicitedResponse(const v8::Arguments& args) {
 }
 
 int responsesInit(v8::Handle<v8::Context> context) {
-    LOGD("responsesInit E");
+    ALOGD("responsesInit E");
     int status = STATUS_OK;
 
     rilRspConversionMap[RIL_REQUEST_GET_SIM_STATUS] = RspGetSimStatus; // 1
@@ -531,6 +531,6 @@ int responsesInit(v8::Handle<v8::Context> context) {
     unsolRilRspConversionMap[RIL_UNSOL_SIGNAL_STRENGTH] = UnsolRspSignalStrength;  // 1009
 
 
-    LOGD("responsesInit X: status=%d", status);
+    ALOGD("responsesInit X: status=%d", status);
     return STATUS_OK;
 }
