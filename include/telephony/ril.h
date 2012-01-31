@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 #define RIL_VERSION 7     /* Current version */
-#define RIL_VERSION_MIN 2 /* Minimum RIL_VERSION supported */
+#define RIL_VERSION_MIN 6 /* Minimum RIL_VERSION supported */
 
 #define CDMA_ALPHA_INFO_BUFFER_LENGTH 64
 #define CDMA_NUMBER_INFO_BUFFER_LENGTH 81
@@ -532,15 +532,31 @@ typedef struct
   RIL_AppStatus applications[RIL_CARD_MAX_APPS];
 } RIL_CardStatus_v6;
 
-/* The result of a SIM refresh, returned in data[0] of RIL_UNSOL_SIM_REFRESH */
+/** The result of a SIM refresh, returned in data[0] of RIL_UNSOL_SIM_REFRESH
+ *      or as part of RIL_SimRefreshResponse_v7
+ */
 typedef enum {
     /* A file on SIM has been updated.  data[1] contains the EFID. */
     SIM_FILE_UPDATE = 0,
-    /* SIM initialized.  All files should be re-read. data[1] contains AID that caused REFRESH */
+    /* SIM initialized.  All files should be re-read. */
     SIM_INIT = 1,
     /* SIM reset.  SIM power required, SIM may be locked and all files should be re-read. */
     SIM_RESET = 2
 } RIL_SimRefreshResult;
+
+typedef struct {
+    RIL_SimRefreshResult result;
+    int                  ef_id; /* is the EFID of the updated file if the result is */
+                                /* SIM_FILE_UPDATE or 0 for any other result. */
+    char *               aid;   /* is AID(application ID) of the card application */
+                                /* See ETSI 102.221 8.1 and 101.220 4 */
+                                /*     For SIM_FILE_UPDATE result it can be set to AID of */
+                                /*         application in which updated EF resides or it can be */
+                                /*         NULL if EF is outside of an application. */
+                                /*     For SIM_INIT result this field is set to AID of */
+                                /*         application that caused REFRESH */
+                                /*     For SIM_RESET result it is NULL. */
+} RIL_SimRefreshResponse_v7;
 
 /* Deprecated, use RIL_CDMA_CallWaiting_v6 */
 typedef struct {
@@ -3535,11 +3551,14 @@ typedef struct {
  * Indicates that file(s) on the SIM have been updated, or the SIM
  * has been reinitialized.
  *
+ * In the case where RIL is version 6 or older:
  * "data" is an int *
  * ((int *)data)[0] is a RIL_SimRefreshResult.
  * ((int *)data)[1] is the EFID of the updated file if the result is
- * SIM_FILE_UPDATE, AID(application ID) of the card application
- * triggering the REFRESH if the result is SIM_INIT, or NULL for any other result.
+ * SIM_FILE_UPDATE or NULL for any other result.
+ *
+ * In the case where RIL is version 7:
+ * "data" is a RIL_SimRefreshResponse_v7 *
  *
  * Note: If the SIM state changes as a result of the SIM refresh (eg,
  * SIM_READY -> SIM_LOCKED_OR_ABSENT), RIL_UNSOL_RESPONSE_SIM_STATUS_CHANGED

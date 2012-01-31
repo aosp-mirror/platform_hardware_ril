@@ -232,6 +232,7 @@ static int responseRilSignalStrength(Parcel &p,void *response, size_t responsele
 static int responseCallRing(Parcel &p, void *response, size_t responselen);
 static int responseCdmaSignalInfoRecord(Parcel &p,void *response, size_t responselen);
 static int responseCdmaCallWaiting(Parcel &p,void *response, size_t responselen);
+static int responseSimRefresh(Parcel &p, void *response, size_t responselen);
 
 static int decodeVoiceRadioTechnology (RIL_RadioState radioState);
 static int decodeCdmaSubscriptionSource (RIL_RadioState radioState);
@@ -2109,6 +2110,40 @@ static int responseCdmaCallWaiting(Parcel &p, void *response,
             p_cur->signalInfoRecord.signal,
             p_cur->number_type,
             p_cur->number_plan);
+    closeResponse;
+
+    return 0;
+}
+
+static int responseSimRefresh(Parcel &p, void *response, size_t responselen) {
+    if (response == NULL && responselen != 0) {
+        ALOGE("responseSimRefresh: invalid response: NULL");
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    startResponse;
+    if (s_callbacks.version == 7) {
+        RIL_SimRefreshResponse_v7 *p_cur = ((RIL_SimRefreshResponse_v7 *) response);
+        p.writeInt32(p_cur->result);
+        p.writeInt32(p_cur->ef_id);
+        writeStringToParcel(p, p_cur->aid);
+
+        appendPrintBuf("%sresult=%d, ef_id=%d, aid=%s",
+                printBuf,
+                p_cur->result,
+                p_cur->ef_id,
+                p_cur->aid);
+    } else {
+        int *p_cur = ((int *) response);
+        p.writeInt32(p_cur[0]);
+        p.writeInt32(p_cur[1]);
+        writeStringToParcel(p, NULL);
+
+        appendPrintBuf("%sresult=%d, ef_id=%d",
+                printBuf,
+                p_cur[0],
+                p_cur[1]);
+    }
     closeResponse;
 
     return 0;
