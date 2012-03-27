@@ -11,6 +11,7 @@ src_py := src/py
 src_js := src/js
 src_proto := src/proto
 
+ifneq ($(TARGET_BUILD_PDK), true)
 ifeq ($(TARGET_ARCH),arm)
 # Mock-ril only buid for debug variants
 ifneq ($(filter userdebug eng tests, $(TARGET_BUILD_VARIANT)),)
@@ -75,6 +76,8 @@ LOCAL_SRC_FILES := $(call all-java-files-under, $(src_java)) \
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 # =======================================================
+
+endif
 
 src_cpp :=
 src_java :=
