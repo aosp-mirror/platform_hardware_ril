@@ -1017,49 +1017,51 @@ dispatchGsmBrSmsCnf(Parcel &p, RequestInfo *pRI) {
         goto invalid;
     }
 
-    RIL_GSM_BroadcastSmsConfigInfo gsmBci[num];
-    RIL_GSM_BroadcastSmsConfigInfo *gsmBciPtrs[num];
+    {
+        RIL_GSM_BroadcastSmsConfigInfo gsmBci[num];
+        RIL_GSM_BroadcastSmsConfigInfo *gsmBciPtrs[num];
 
-    startRequest;
-    for (int i = 0 ; i < num ; i++ ) {
-        gsmBciPtrs[i] = &gsmBci[i];
+        startRequest;
+        for (int i = 0 ; i < num ; i++ ) {
+            gsmBciPtrs[i] = &gsmBci[i];
 
-        status = p.readInt32(&t);
-        gsmBci[i].fromServiceId = (int) t;
+            status = p.readInt32(&t);
+            gsmBci[i].fromServiceId = (int) t;
 
-        status = p.readInt32(&t);
-        gsmBci[i].toServiceId = (int) t;
+            status = p.readInt32(&t);
+            gsmBci[i].toServiceId = (int) t;
 
-        status = p.readInt32(&t);
-        gsmBci[i].fromCodeScheme = (int) t;
+            status = p.readInt32(&t);
+            gsmBci[i].fromCodeScheme = (int) t;
 
-        status = p.readInt32(&t);
-        gsmBci[i].toCodeScheme = (int) t;
+            status = p.readInt32(&t);
+            gsmBci[i].toCodeScheme = (int) t;
 
-        status = p.readInt32(&t);
-        gsmBci[i].selected = (uint8_t) t;
+            status = p.readInt32(&t);
+            gsmBci[i].selected = (uint8_t) t;
 
-        appendPrintBuf("%s [%d: fromServiceId=%d, toServiceId =%d, \
-              fromCodeScheme=%d, toCodeScheme=%d, selected =%d]", printBuf, i,
-              gsmBci[i].fromServiceId, gsmBci[i].toServiceId,
-              gsmBci[i].fromCodeScheme, gsmBci[i].toCodeScheme,
-              gsmBci[i].selected);
-    }
-    closeRequest;
+            appendPrintBuf("%s [%d: fromServiceId=%d, toServiceId =%d, \
+                  fromCodeScheme=%d, toCodeScheme=%d, selected =%d]", printBuf, i,
+                  gsmBci[i].fromServiceId, gsmBci[i].toServiceId,
+                  gsmBci[i].fromCodeScheme, gsmBci[i].toCodeScheme,
+                  gsmBci[i].selected);
+        }
+        closeRequest;
 
-    if (status != NO_ERROR) {
-        goto invalid;
-    }
+        if (status != NO_ERROR) {
+            goto invalid;
+        }
 
-    s_callbacks.onRequest(pRI->pCI->requestNumber,
-                          gsmBciPtrs,
-                          num * sizeof(RIL_GSM_BroadcastSmsConfigInfo *),
-                          pRI);
+        s_callbacks.onRequest(pRI->pCI->requestNumber,
+                              gsmBciPtrs,
+                              num * sizeof(RIL_GSM_BroadcastSmsConfigInfo *),
+                              pRI);
 
 #ifdef MEMSET_FREED
-    memset(gsmBci, 0, num * sizeof(RIL_GSM_BroadcastSmsConfigInfo));
-    memset(gsmBciPtrs, 0, num * sizeof(RIL_GSM_BroadcastSmsConfigInfo *));
+        memset(gsmBci, 0, num * sizeof(RIL_GSM_BroadcastSmsConfigInfo));
+        memset(gsmBciPtrs, 0, num * sizeof(RIL_GSM_BroadcastSmsConfigInfo *));
 #endif
+    }
 
     return;
 
@@ -1079,41 +1081,43 @@ dispatchCdmaBrSmsCnf(Parcel &p, RequestInfo *pRI) {
         goto invalid;
     }
 
-    RIL_CDMA_BroadcastSmsConfigInfo cdmaBci[num];
-    RIL_CDMA_BroadcastSmsConfigInfo *cdmaBciPtrs[num];
+    {
+        RIL_CDMA_BroadcastSmsConfigInfo cdmaBci[num];
+        RIL_CDMA_BroadcastSmsConfigInfo *cdmaBciPtrs[num];
 
-    startRequest;
-    for (int i = 0 ; i < num ; i++ ) {
-        cdmaBciPtrs[i] = &cdmaBci[i];
+        startRequest;
+        for (int i = 0 ; i < num ; i++ ) {
+            cdmaBciPtrs[i] = &cdmaBci[i];
 
-        status = p.readInt32(&t);
-        cdmaBci[i].service_category = (int) t;
+            status = p.readInt32(&t);
+            cdmaBci[i].service_category = (int) t;
 
-        status = p.readInt32(&t);
-        cdmaBci[i].language = (int) t;
+            status = p.readInt32(&t);
+            cdmaBci[i].language = (int) t;
 
-        status = p.readInt32(&t);
-        cdmaBci[i].selected = (uint8_t) t;
+            status = p.readInt32(&t);
+            cdmaBci[i].selected = (uint8_t) t;
 
-        appendPrintBuf("%s [%d: service_category=%d, language =%d, \
-              entries.bSelected =%d]", printBuf, i, cdmaBci[i].service_category,
-              cdmaBci[i].language, cdmaBci[i].selected);
-    }
-    closeRequest;
+            appendPrintBuf("%s [%d: service_category=%d, language =%d, \
+                  entries.bSelected =%d]", printBuf, i, cdmaBci[i].service_category,
+                  cdmaBci[i].language, cdmaBci[i].selected);
+        }
+        closeRequest;
 
-    if (status != NO_ERROR) {
-        goto invalid;
-    }
+        if (status != NO_ERROR) {
+            goto invalid;
+        }
 
-    s_callbacks.onRequest(pRI->pCI->requestNumber,
-                          cdmaBciPtrs,
-                          num * sizeof(RIL_CDMA_BroadcastSmsConfigInfo *),
-                          pRI);
+        s_callbacks.onRequest(pRI->pCI->requestNumber,
+                              cdmaBciPtrs,
+                              num * sizeof(RIL_CDMA_BroadcastSmsConfigInfo *),
+                              pRI);
 
 #ifdef MEMSET_FREED
-    memset(cdmaBci, 0, num * sizeof(RIL_CDMA_BroadcastSmsConfigInfo));
-    memset(cdmaBciPtrs, 0, num * sizeof(RIL_CDMA_BroadcastSmsConfigInfo *));
+        memset(cdmaBci, 0, num * sizeof(RIL_CDMA_BroadcastSmsConfigInfo));
+        memset(cdmaBciPtrs, 0, num * sizeof(RIL_CDMA_BroadcastSmsConfigInfo *));
 #endif
+    }
 
     return;
 
