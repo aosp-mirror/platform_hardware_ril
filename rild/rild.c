@@ -245,7 +245,7 @@ OpenLib:
     dlHandle = dlopen(rilLibPath, RTLD_NOW);
 
     if (dlHandle == NULL) {
-        fprintf(stderr, "dlopen failed: %s\n", dlerror());
+        ALOGE("dlopen failed: %s", dlerror());
         exit(-1);
     }
 
@@ -254,7 +254,7 @@ OpenLib:
     rilInit = (const RIL_RadioFunctions *(*)(const struct RIL_Env *, int, char **))dlsym(dlHandle, "RIL_Init");
 
     if (rilInit == NULL) {
-        fprintf(stderr, "RIL_Init not defined or exported in %s\n", rilLibPath);
+        ALOGE("RIL_Init not defined or exported in %s\n", rilLibPath);
         exit(-1);
     }
 
