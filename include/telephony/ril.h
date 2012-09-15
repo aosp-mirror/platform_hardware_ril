@@ -1364,6 +1364,14 @@ typedef struct {
  * ((const char **)response)[5] The maximum number of simultaneous Data Calls that can be
  *                              established using RIL_REQUEST_SETUP_DATA_CALL.
  *
+ * The values at offsets 6..10 are optional LTE location information. If a value
+ * is unknown that value is NULL. If all values are NULL, none need to be present.
+ *  ((const char **)response)[6] is TAC, a 16-bit Tracking Area Code.
+ *  ((const char **)response)[7] is CID, a 0-503 Physical Cell Identifier.
+ *  ((const char **)response)[8] is ECI, a 28-bit E-UTRAN Cell Identifier.
+ *  ((const char **)response)[9] is CSGID, a 27-bit Closed Subscriber Group Identity.
+ *  ((const char **)response)[10] is TADV, a 6-bit timing advance value.
+ *
  * LAC and CID are in hexadecimal format.
  * valid LAC are 0x0000 - 0xffff
  * valid CID are 0x00000000 - 0x0fffffff
