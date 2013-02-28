@@ -29,7 +29,7 @@
 #include <utils/Log.h>
 #include <cutils/properties.h>
 #include <cutils/sockets.h>
-#include <linux/capability.h>
+#include <sys/capability.h>
 #include <linux/prctl.h>
 
 #include <private/android_filesystem_config.h>
