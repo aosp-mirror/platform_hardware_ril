@@ -31,6 +31,7 @@
 #include <cutils/jstring.h>
 
 #include <sys/types.h>
+#include <sys/limits.h>
 #include <pwd.h>
 
 #include <stdio.h>
@@ -1999,22 +2000,43 @@ static int responseRilSignalStrength(Parcel &p,
         p.writeInt32(p_cur->EVDO_SignalStrength.ecio);
         p.writeInt32(p_cur->EVDO_SignalStrength.signalNoiseRatio);
         if (responselen >= sizeof (RIL_SignalStrength_v6)) {
-            p.writeInt32(p_cur->LTE_SignalStrength.signalStrength);
-
             /*
-             * ril version <=6 receives negative values for rsrp
-             * workaround for backward compatibility
+             * Fixup LTE for backwards compatibility
              */
-            p_cur->LTE_SignalStrength.rsrp =
-                    ((s_callbacks.version <= 6) && (p_cur->LTE_SignalStrength.rsrp < 0 )) ?
-                        -(p_cur->LTE_SignalStrength.rsrp) : p_cur->LTE_SignalStrength.rsrp;
+            if (s_callbacks.version <= 6) {
+                // signalStrength: -1 -> 99
+                if (p_cur->LTE_SignalStrength.signalStrength == -1) {
+                    p_cur->LTE_SignalStrength.signalStrength = 99;
+                }
+                // rsrp: -1 -> INT_MAX all other negative value to positive.
+                // So remap here
+                if (p_cur->LTE_SignalStrength.rsrp == -1) {
+                    p_cur->LTE_SignalStrength.rsrp = INT_MAX;
+                } else if (p_cur->LTE_SignalStrength.rsrp < -1) {
+                    p_cur->LTE_SignalStrength.rsrp = -p_cur->LTE_SignalStrength.rsrp;
+                }
+                // rsrq: -1 -> INT_MAX
+                if (p_cur->LTE_SignalStrength.rsrq == -1) {
+                    p_cur->LTE_SignalStrength.rsrq = INT_MAX;
+                }
+                // Not remapping rssnr is already using INT_MAX
 
+                // cqi: -1 -> INT_MAX
+                if (p_cur->LTE_SignalStrength.cqi == -1) {
+                    p_cur->LTE_SignalStrength.cqi = INT_MAX;
+                }
+            }
+            p.writeInt32(p_cur->LTE_SignalStrength.signalStrength);
             p.writeInt32(p_cur->LTE_SignalStrength.rsrp);
             p.writeInt32(p_cur->LTE_SignalStrength.rsrq);
             p.writeInt32(p_cur->LTE_SignalStrength.rssnr);
             p.writeInt32(p_cur->LTE_SignalStrength.cqi);
         } else {
-            memset(&p_cur->LTE_SignalStrength, sizeof (RIL_LTE_SignalStrength), 0);
+            p.writeInt32(99);
+            p.writeInt32(INT_MAX);
+            p.writeInt32(INT_MAX);
+            p.writeInt32(INT_MAX);
+            p.writeInt32(INT_MAX);
         }
 
         startResponse;
