@@ -8,6 +8,7 @@ LOCAL_SRC_FILES:= \
 
 
 LOCAL_SHARED_LIBRARIES := \
+	liblog \
 	libcutils \
 	libril \
 	libdl
@@ -27,6 +28,7 @@ LOCAL_SRC_FILES:= \
 	radiooptions.c
 
 LOCAL_SHARED_LIBRARIES := \
+	liblog \
 	libcutils \
 
 LOCAL_CFLAGS := \
