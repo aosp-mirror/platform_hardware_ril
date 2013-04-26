@@ -3482,6 +3482,20 @@ typedef struct {
  */
 #define RIL_REQUEST_SET_UNSOL_CELL_INFO_LIST_RATE 110
 
+/**
+ * RIL_REQUEST_SET_INITIAL_ATTACH_APN
+ *
+ * Set an apn to initial attach network
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  GENERIC_FAILURE
+ *  SUBSCRIPTION_NOT_AVAILABLE
+ */
+#define RIL_REQUEST_SET_INITIAL_ATTACH_APN 111
+
 /***********************************************************************/
 
 
@@ -4039,6 +4053,14 @@ typedef struct {
     RIL_Cancel onCancel;
     RIL_GetVersion getVersion;
 } RIL_RadioFunctions;
+
+typedef struct {
+    char *apn;
+    char *protocol;
+    int authtype;
+    char *username;
+    char *password;
+} RIL_InitialAttachApn;
 
 #ifdef RIL_SHLIB
 struct RIL_Env {
