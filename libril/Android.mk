@@ -5,7 +5,8 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
     ril.cpp \
-    ril_event.cpp
+    ril_event.cpp \
+    record_stream.c
 
 LOCAL_SHARED_LIBRARIES := \
     liblog \
@@ -29,7 +30,8 @@ ifneq ($(ANDROID_BIONIC_TRANSITION),)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
-    ril.cpp
+    ril.cpp \
+    record_stream.c
 
 LOCAL_STATIC_LIBRARIES := \
     libutils_static \
