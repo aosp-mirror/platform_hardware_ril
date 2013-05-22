@@ -1,4 +1,4 @@
-/* libs/cutils/record_stream.c
+/*
 **
 ** Copyright 2006, The Android Open Source Project
 **
@@ -19,7 +19,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <errno.h>
-#include "record_stream.h"
+#include <telephony/record_stream.h>
 #include <string.h>
 #include <stdint.h>
 #ifdef HAVE_WINSOCK

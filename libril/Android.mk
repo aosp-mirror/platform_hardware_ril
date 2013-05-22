@@ -5,15 +5,15 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
     ril.cpp \
-    ril_event.cpp \
-    record_stream.c
+    ril_event.cpp
 
 LOCAL_SHARED_LIBRARIES := \
     liblog \
     libutils \
     libbinder \
     libcutils \
-    libhardware_legacy
+    libhardware_legacy \
+    librilutils
 
 LOCAL_CFLAGS :=
 
@@ -30,12 +30,12 @@ ifneq ($(ANDROID_BIONIC_TRANSITION),)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
-    ril.cpp \
-    record_stream.c
+    ril.cpp
 
 LOCAL_STATIC_LIBRARIES := \
     libutils_static \
-    libcutils
+    libcutils \
+    librilutils_static
 
 LOCAL_CFLAGS :=
 
