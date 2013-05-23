@@ -4,7 +4,8 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
-    librilutils.c
+    librilutils.c \
+    record_stream.c
 
 LOCAL_CFLAGS :=
 
@@ -20,7 +21,8 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
-    librilutils.c
+    librilutils.c \
+    record_stream.c
 
 LOCAL_STATIC_LIBRARIES :=
 
