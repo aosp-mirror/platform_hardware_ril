@@ -1543,6 +1543,7 @@ static void dispatchRilCdmaSmsWriteArgs(Parcel &p, RequestInfo *pRI) {
     uint8_t  uct;
     status_t status;
     int32_t  digitCount;
+    int32_t  digitLimit;
 
     memset(&rcsw, 0, sizeof(rcsw));
 
@@ -1573,7 +1574,9 @@ static void dispatchRilCdmaSmsWriteArgs(Parcel &p, RequestInfo *pRI) {
     status = p.read(&uct,sizeof(uct));
     rcsw.message.sAddress.number_of_digits = (uint8_t) uct;
 
-    for(digitCount = 0 ; digitCount < RIL_CDMA_SMS_ADDRESS_MAX; digitCount ++) {
+    digitLimit = MIN((rcsw.message.sAddress.number_of_digits), RIL_CDMA_SMS_ADDRESS_MAX);
+
+    for(digitCount = 0 ; digitCount < digitLimit; digitCount ++) {
         status = p.read(&uct,sizeof(uct));
         rcsw.message.sAddress.digits[digitCount] = (uint8_t) uct;
     }
@@ -1587,7 +1590,9 @@ static void dispatchRilCdmaSmsWriteArgs(Parcel &p, RequestInfo *pRI) {
     status = p.read(&uct,sizeof(uct));
     rcsw.message.sSubAddress.number_of_digits = (uint8_t) uct;
 
-    for(digitCount = 0 ; digitCount < RIL_CDMA_SMS_SUBADDRESS_MAX; digitCount ++) {
+    digitLimit = MIN((rcsw.message.sSubAddress.number_of_digits), RIL_CDMA_SMS_SUBADDRESS_MAX);
+
+    for(digitCount = 0 ; digitCount < digitLimit; digitCount ++) {
         status = p.read(&uct,sizeof(uct));
         rcsw.message.sSubAddress.digits[digitCount] = (uint8_t) uct;
     }
@@ -1595,7 +1600,9 @@ static void dispatchRilCdmaSmsWriteArgs(Parcel &p, RequestInfo *pRI) {
     status = p.readInt32(&t);
     rcsw.message.uBearerDataLen = (int) t;
 
-    for(digitCount = 0 ; digitCount < RIL_CDMA_SMS_BEARER_DATA_MAX; digitCount ++) {
+    digitLimit = MIN((rcsw.message.uBearerDataLen), RIL_CDMA_SMS_BEARER_DATA_MAX);
+
+    for(digitCount = 0 ; digitCount < digitLimit; digitCount ++) {
         status = p.read(&uct, sizeof(uct));
         rcsw.message.aBearerData[digitCount] = (uint8_t) uct;
     }
