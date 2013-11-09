@@ -3532,13 +3532,16 @@ typedef struct {
  * ((int *)response)[0] is registration state:
  *              0 - Not registered
  *              1 - Registered
- * ((int *)response)[1] is bitmap of the supported services:
- *          & 0x1 - SMS supported
  *
- * If IMS is registered and supports SMS, then ((int *) response)[2]
+ * If ((int*)response)[0] is = 1, then ((int *) response)[1]
  * must follow with IMS SMS format:
  *
- * ((int *) response)[2] is of type const RIL_IMS_SMS_Format
+ * ((int *) response)[1] is of type RIL_RadioTechnologyFamily
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_IMS_REGISTRATION_STATE 112
 
@@ -4055,22 +4058,18 @@ typedef struct {
  */
 #define RIL_UNSOL_CELL_INFO_LIST 1036
 
-/*
+/**
  * RIL_UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED
  *
  * Called when IMS registration state has changed
  *
- * "data" is int *
- * ((int *)response)[0] is registration state:
- *              0 - Not registered
- *              1 - Registered
- * ((int *)response)[1] is bitmap of the services supported:
- *          & 0x1 - SMS supported
+ * To get IMS registration state and IMS SMS format, callee needs to invoke the
+ * following request on main thread:
  *
- * If IMS is registered and supports SMS, then ((int *) response)[2]
- * must follow with IMS SMS format:
+ * RIL_REQUEST_IMS_REGISTRATION_STATE
  *
- * ((int *) response)[2] is of type const RIL_IMS_SMS_Format
+ * "data" is NULL
+ *
  */
 #define RIL_UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED 1037
 
