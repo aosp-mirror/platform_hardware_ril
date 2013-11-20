@@ -42,7 +42,7 @@
 static void usage(const char *argv0)
 {
     fprintf(stderr, "Usage: %s -l <ril impl library> [-- <args for impl library>]\n", argv0);
-    exit(-1);
+    exit(EXIT_FAILURE);
 }
 
 extern void RIL_register (const RIL_RadioFunctions *callbacks);
@@ -89,12 +89,23 @@ void switchUser() {
     setuid(AID_RADIO);
 
     struct __user_cap_header_struct header;
-    struct __user_cap_data_struct cap;
-    header.version = _LINUX_CAPABILITY_VERSION;
+    memset(&header, 0, sizeof(header));
+    header.version = _LINUX_CAPABILITY_VERSION_3;
     header.pid = 0;
-    cap.effective = cap.permitted = (1 << CAP_NET_ADMIN) | (1 << CAP_NET_RAW);
-    cap.inheritable = 0;
-    capset(&header, &cap);
+
+    struct __user_cap_data_struct data[2];
+    memset(&data, 0, sizeof(data));
+
+    data[CAP_TO_INDEX(CAP_NET_ADMIN)].effective |= CAP_TO_MASK(CAP_NET_ADMIN);
+    data[CAP_TO_INDEX(CAP_NET_ADMIN)].permitted |= CAP_TO_MASK(CAP_NET_ADMIN);
+
+    data[CAP_TO_INDEX(CAP_NET_RAW)].effective |= CAP_TO_MASK(CAP_NET_RAW);
+    data[CAP_TO_INDEX(CAP_NET_RAW)].permitted |= CAP_TO_MASK(CAP_NET_RAW);
+
+    if (capset(&header, &data[0]) == -1) {
+        RLOGE("capset failed: %s", strerror(errno));
+        exit(EXIT_FAILURE);
+    }
 }
 
 int main(int argc, char **argv)
@@ -246,7 +257,7 @@ OpenLib:
 
     if (dlHandle == NULL) {
         RLOGE("dlopen failed: %s", dlerror());
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     RIL_startEventLoop();
@@ -255,7 +266,7 @@ OpenLib:
 
     if (rilInit == NULL) {
         RLOGE("RIL_Init not defined or exported in %s\n", rilLibPath);
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     if (hasLibArgs) {
