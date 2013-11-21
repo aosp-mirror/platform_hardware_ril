@@ -289,9 +289,7 @@ OpenLib:
 
 done:
 
-    while(1) {
-        // sleep(UINT32_MAX) seems to return immediately on bionic
-        sleep(0x00ffffff);
+    while (true) {
+        sleep(UINT32_MAX);
     }
 }
-
