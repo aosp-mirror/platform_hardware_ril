@@ -33,11 +33,6 @@
 #define LOG_TAG "AT"
 #include <utils/Log.h>
 
-#ifdef HAVE_ANDROID_OS
-/* for IOCTL's */
-#include <linux/omap_csmi.h>
-#endif /*HAVE_ANDROID_OS*/
-
 #include "misc.h"
 
 #ifdef HAVE_ANDROID_OS
@@ -59,10 +54,6 @@ static ATUnsolHandler s_unsolHandler;
 
 static char s_ATBuffer[MAX_AT_RESPONSE+1];
 static char *s_ATBufferCur = s_ATBuffer;
-
-static int s_ackPowerIoctl; /* true if TTY has android byte-count
-                                handshake for low power*/
-static int s_readCount = 0;
 
 #if AT_DEBUG
 void  AT_DUMP(const char*  prefix, const char*  buff, int  len)
@@ -385,7 +376,6 @@ static const char *readline()
 
         if (count > 0) {
             AT_DUMP( "<< ", p_read, count );
-            s_readCount += count;
 
             p_read[count] = '\0';
 
@@ -467,14 +457,6 @@ static void *readerLoop(void *arg)
         } else {
             processLine(line);
         }
-
-#ifdef HAVE_ANDROID_OS
-        if (s_ackPowerIoctl > 0) {
-            /* acknowledge that bytes have been read and processed */
-            ioctl(s_fd, OMAP_CSMI_TTY_ACK, &s_readCount);
-            s_readCount = 0;
-        }
-#endif /*HAVE_ANDROID_OS*/
     }
 
     onReaderClosed();
@@ -597,40 +579,6 @@ int at_open(int fd, ATUnsolHandler h)
     s_responsePrefix = NULL;
     s_smsPDU = NULL;
     sp_response = NULL;
-
-    /* Android power control ioctl */
-#ifdef HAVE_ANDROID_OS
-#ifdef OMAP_CSMI_POWER_CONTROL
-    ret = ioctl(fd, OMAP_CSMI_TTY_ENABLE_ACK);
-    if(ret == 0) {
-        int ack_count;
-		int read_count;
-        int old_flags;
-        char sync_buf[256];
-        old_flags = fcntl(fd, F_GETFL, 0);
-        fcntl(fd, F_SETFL, old_flags | O_NONBLOCK);
-        do {
-            ioctl(fd, OMAP_CSMI_TTY_READ_UNACKED, &ack_count);
-			read_count = 0;
-            do {
-                ret = read(fd, sync_buf, sizeof(sync_buf));
-				if(ret > 0)
-					read_count += ret;
-            } while(ret > 0 || (ret < 0 && errno == EINTR));
-            ioctl(fd, OMAP_CSMI_TTY_ACK, &ack_count);
-         } while(ack_count > 0 || read_count > 0);
-        fcntl(fd, F_SETFL, old_flags);
-        s_readCount = 0;
-        s_ackPowerIoctl = 1;
-    }
-    else
-        s_ackPowerIoctl = 0;
-
-#else // OMAP_CSMI_POWER_CONTROL
-    s_ackPowerIoctl = 0;
-
-#endif // OMAP_CSMI_POWER_CONTROL
-#endif /*HAVE_ANDROID_OS*/
 
     pthread_attr_init (&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
