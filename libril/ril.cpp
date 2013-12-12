@@ -3543,7 +3543,7 @@ processRadioState(RIL_RadioState newRadioState) {
 }
 
 extern "C"
-void RIL_onUnsolicitedResponse(int unsolResponse, void *data,
+void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
                                 size_t datalen)
 {
     int unsolResponseIndex;
@@ -3598,7 +3598,7 @@ void RIL_onUnsolicitedResponse(int unsolResponse, void *data,
     p.writeInt32 (unsolResponse);
 
     ret = s_unsolResponses[unsolResponseIndex]
-                .responseFunction(p, data, datalen);
+                .responseFunction(p, const_cast<void*>(data), datalen);
     if (ret != 0) {
         // Problem with the response. Don't continue;
         goto error_exit;
