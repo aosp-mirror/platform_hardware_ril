@@ -3616,7 +3616,7 @@ typedef struct {
  *
  * "response" is int *
  * ((int *)data)[0] contains the session id of the logical channel.
- * A value of 0 indicates an invalid session id.
+ * A value of -1 indicates an invalid session id.
  *
  * Valid errors:
  *  SUCCESS
