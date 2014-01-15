@@ -216,6 +216,9 @@ static void dispatchCdmaSmsAck(Parcel &p, RequestInfo *pRI);
 static void dispatchGsmBrSmsCnf(Parcel &p, RequestInfo *pRI);
 static void dispatchCdmaBrSmsCnf(Parcel &p, RequestInfo *pRI);
 static void dispatchRilCdmaSmsWriteArgs(Parcel &p, RequestInfo *pRI);
+static void dispatchNVReadItem(Parcel &p, RequestInfo *pRI);
+static void dispatchNVWriteItem(Parcel &p, RequestInfo *pRI);
+
 static int responseInts(Parcel &p, void *response, size_t responselen);
 static int responseStrings(Parcel &p, void *response, size_t responselen);
 static int responseString(Parcel &p, void *response, size_t responselen);
@@ -1581,6 +1584,82 @@ invalid:
     invalidCommandBlock(pRI);
     return;
 }
+
+static void dispatchNVReadItem(Parcel &p, RequestInfo *pRI) {
+    RIL_NV_ReadItem nvri;
+    int32_t  t;
+    status_t status;
+
+    memset(&nvri, 0, sizeof(nvri));
+
+    status = p.readInt32(&t);
+    nvri.itemID = (RIL_NV_Item) t;
+
+    if (status != NO_ERROR) {
+        goto invalid;
+    }
+
+    startRequest;
+    appendPrintBuf("%snvri.itemID=%d, ", printBuf, nvri.itemID);
+    closeRequest;
+
+    printRequest(pRI->token, pRI->pCI->requestNumber);
+
+    s_callbacks.onRequest(pRI->pCI->requestNumber, &nvri, sizeof(nvri), pRI);
+
+#ifdef MEMSET_FREED
+    memset(&nvri, 0, sizeof(nvri));
+#endif
+
+    return;
+
+invalid:
+    invalidCommandBlock(pRI);
+    return;
+}
+
+static void dispatchNVWriteItem(Parcel &p, RequestInfo *pRI) {
+    RIL_NV_WriteItem nvwi;
+    int32_t  t;
+    status_t status;
+
+    memset(&nvwi, 0, sizeof(nvwi));
+
+    status = p.readInt32(&t);
+    nvwi.itemID = (RIL_NV_Item) t;
+
+    nvwi.value = strdupReadString(p);
+
+    if (status != NO_ERROR || nvwi.value == NULL) {
+        goto invalid;
+    }
+
+    startRequest;
+    appendPrintBuf("%snvwi.itemID=%d, value=%s, ", printBuf, nvwi.itemID,
+            nvwi.value);
+    closeRequest;
+
+    printRequest(pRI->token, pRI->pCI->requestNumber);
+
+    s_callbacks.onRequest(pRI->pCI->requestNumber, &nvwi, sizeof(nvwi), pRI);
+
+#ifdef MEMSET_FREED
+    memsetString(nvwi.value);
+#endif
+
+    free(nvwi.value);
+
+#ifdef MEMSET_FREED
+    memset(&nvwi, 0, sizeof(nvwi));
+#endif
+
+    return;
+
+invalid:
+    invalidCommandBlock(pRI);
+    return;
+}
+
 
 static int
 blockingWrite(int fd, const void *buffer, size_t len) {
