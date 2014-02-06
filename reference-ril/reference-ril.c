@@ -2858,14 +2858,14 @@ int query_ctec(ModemInfo *mdm, int *current, int32_t *preferred)
     int err;
     int res;
 
-    RLOGD("query_ctec. current: %d, preferred: %d", (int)current, (int) preferred);
+    RLOGD("query_ctec. current: %p, preferred: %p", current, preferred);
     err = at_send_command_singleline("AT+CTEC?", "+CTEC:", &response);
     if (!err && response->success) {
         res = parse_technology_response(response->p_intermediates->line, current, preferred);
         at_response_free(response);
         return res;
     }
-    RLOGE("Error executing command: %d. response: %x. status: %d", err, (int)response, response? response->success : -1);
+    RLOGE("Error executing command: %d. response: %p. status: %d", err, response, response? response->success : -1);
     at_response_free(response);
     return -1;
 }
