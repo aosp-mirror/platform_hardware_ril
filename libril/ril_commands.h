@@ -136,4 +136,3 @@
     {RIL_REQUEST_NV_WRITE_ITEM, dispatchNVWriteItem, responseVoid},
     {RIL_REQUEST_NV_WRITE_CDMA_PRL, dispatchRaw, responseVoid},
     {RIL_REQUEST_NV_RESET_CONFIG, dispatchInts, responseVoid},
-    {RIL_REQUEST_SET_RADIO_MODE, dispatchInts, responseVoid},
