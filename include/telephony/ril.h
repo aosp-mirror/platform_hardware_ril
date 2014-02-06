@@ -3734,8 +3734,9 @@ typedef struct {
  * This is used for device configuration by some CDMA operators.
  *
  * "data" is int *
- * ((int *)data)[0] is 1 for a factory reset (RTN)
- * ((int *)data)[0] is 2 for a radio reset (SCRTN)
+ * ((int *)data)[0] is 1 to reload all NV items
+ * ((int *)data)[0] is 2 for erase NV reset (SCRTN)
+ * ((int *)data)[0] is 3 for factory reset (RTN)
  *
  * "response" is NULL
  *
@@ -3745,26 +3746,6 @@ typedef struct {
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_NV_RESET_CONFIG 121
-
-/**
- * RIL_REQUEST_SET_RADIO_MODE
- *
- * Set radio mode. The exact meaning of these states is defined by the OEM.
- *
- * "data" is int *
- * ((int *)data)[0] is 0 for "offline mode"
- * ((int *)data)[0] is 1 for "online mode"
- * ((int *)data)[0] is 2 for "low-power mode"
- * ((int *)data)[0] is 3 for "reset radio"
- *
- * "response" is NULL
- *
- * Valid errors:
- *  SUCCESS
- *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
- */
-#define RIL_REQUEST_SET_RADIO_MODE 122
 
 
 /***********************************************************************/
