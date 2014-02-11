@@ -2172,7 +2172,9 @@ typedef struct {
  *  RADIO_NOT_AVAILABLE
  *  ILLEGAL_SIM_OR_ME
  *  GENERIC_FAILURE
- *
+ *  CSG_UNAUTHORIZED
+ *  ATTACH_TEMP_BARRED
+ * 
  * Note: Returns ILLEGAL_SIM_OR_ME when the failure is permanent and
  *       no retries needed, such as illegal SIM or ME.
  *       Returns GENERIC_FAILURE for all other causes that might be
