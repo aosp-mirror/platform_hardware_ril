@@ -1655,7 +1655,7 @@ sendResponse (Parcel &p) {
     return sendResponseRaw(p.data(), p.dataSize());
 }
 
-/** response is an int* pointing to an array of ints*/
+/** response is an int* pointing to an array of ints */
 
 static int
 responseInts(Parcel &p, void *response, size_t responselen) {
@@ -1673,7 +1673,7 @@ responseInts(Parcel &p, void *response, size_t responselen) {
 
     int *p_int = (int *) response;
 
-    numInts = responselen / sizeof(int *);
+    numInts = responselen / sizeof(int);
     p.writeInt32 (numInts);
 
     /* each int*/
