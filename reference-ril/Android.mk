@@ -35,7 +35,6 @@ ifeq (foo,foo)
   #build shared library
   LOCAL_SHARED_LIBRARIES += \
       libcutils libutils
-  LOCAL_LDLIBS += -lpthread
   LOCAL_CFLAGS += -DRIL_SHLIB
   LOCAL_MODULE:= libreference-ril
   include $(BUILD_SHARED_LIBRARY)
