@@ -1,0 +1,304 @@
+option java_package = "org.android.btsap";
+option java_outer_classname = "SapApi";
+
+//
+// SAP Interface to RIL
+//
+// The protocol for the binary wire format to RIL shall consist of
+// the serialized format of MsgHeader.
+// MsgHeader payload field will contain the serialized format of
+// the actual message being sent, as described by the type and id
+// fields.
+// e.g. If type = REQUEST and id == RIL_SIM_SAP_CONNECT, payload
+// will contain the serialized wire format of a
+// RIL_SIM_SAP_CONNECT_REQ message.
+//
+
+// Message Header
+// Each SAP message stream will always be prepended with a MsgHeader
+message MsgHeader {
+          required fixed32 token = 1; // generated dynamically
+          required MsgType type = 2;
+          required MsgId id = 3;
+          required Error error = 4;
+          required bytes payload = 5;
+}
+
+enum MsgType {
+        UNKNOWN = 0;
+        REQUEST = 1;
+        RESPONSE = 2;
+        UNSOL_RESPONSE = 3;
+     }
+
+enum MsgId {
+        UNKNOWN_REQ = 0;
+
+        //
+        // For MsgType: REQUEST ,MsgId: RIL_SIM_SAP_CONNECT, Error: RIL_E_UNUSED,
+        //              Message: message RIL_SIM_SAP_CONNECT_REQ
+        // For MsgType: RESPONSE, MsgId: RIL_SIM_SAP_CONNECT, Error:Valid errors,
+        //              Message: message RIL_SIM_SAP_CONNECT_RSP
+        //
+        RIL_SIM_SAP_CONNECT = 1;
+
+        //
+        // For MsgType: REQUEST ,MsgId: RIL_SIM_SAP_DISCONNECT, Error: RIL_E_UNUSED,
+        //              Message: message RIL_SIM_SAP_DISCONNECT_REQ
+        // For MsgType: RESPONSE, MsgId: RIL_SIM_SAP_DISCONNECT, Error:Valid errors,
+        //              Message: message RIL_SIM_SAP_DISCONNECT_RSP
+        // For MsgType: UNSOL_RESPONSE, MsgId: RIL_SIM_SAP_DISCONNECT, Error: RIL_E_UNUSED,
+        //              Message: message RIL_SIM_SAP_DISCONNECT_IND
+        //
+        RIL_SIM_SAP_DISCONNECT = 2;
+
+        //
+        // For MsgType: REQUEST ,MsgId: RIL_SIM_SAP_APDU, Error: RIL_E_UNUSED,
+        //              Message: message RIL_SIM_SAP_APDU_REQ
+        // For MsgType: RESPONSE, MsgId: RIL_SIM_SAP_APDU, Error:Valid errors,
+        //              Message: message RIL_SIM_SAP_APDU_RSP
+        //
+        RIL_SIM_SAP_APDU = 3;
+
+        //
+        // For MsgType: REQUEST ,MsgId: RIL_SIM_SAP_TRANSFER_ATR, Error: RIL_E_UNUSED,
+        //              Message: message RIL_SIM_SAP_TRANSFER_ATR_REQ
+        // For MsgType: RESPONSE, MsgId: RIL_SIM_SAP_TRANSFER_ATR, Error:Valid errors,
+        //              Message: message RIL_SIM_SAP_TRANSFER_ATR_RSP
+        //
+        RIL_SIM_SAP_TRANSFER_ATR = 4;
+
+        //
+        // For MsgType: REQUEST ,MsgId: RIL_SIM_SAP_POWER, Error: RIL_E_UNUSED,
+        //              Message: message RIL_SIM_SAP_POWER_REQ
+        // For MsgType: RESPONSE, MsgId: RIL_SIM_SAP_POWER, Error:Valid errors,
+        //              Message: message RIL_SIM_SAP_POWER_RSP
+        //
+        RIL_SIM_SAP_POWER = 5;
+
+        //
+        // For MsgType: REQUEST ,MsgId: RIL_SIM_SAP_RESET_SIM, Error: RIL_E_UNUSED,
+        //              Message: message RIL_SIM_SAP_RESET_SIM_REQ
+        // For MsgType: RESPONSE, MsgId: RIL_SIM_SAP_RESET_SIM, Error:Valid errors,
+        //              Message: message RIL_SIM_SAP_RESET_SIM_RSP
+        //
+        RIL_SIM_SAP_RESET_SIM = 6;
+
+        //
+        // For MsgType: UNSOL_RESPONSE, MsgId: RIL_SIM_SAP_STATUS, Error: RIL_E_UNUSED,
+        //              Message: message RIL_SIM_SAP_STATUS_IND
+        //
+        RIL_SIM_SAP_STATUS = 7;
+
+        //
+        // For MsgType: REQUEST ,MsgId: RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS, Error: RIL_E_UNUSED,
+        //              Message: message RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS_REQ
+        // For MsgType: RESPONSE, MsgId: RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS, Error:Valid errors,
+        //              Message: message RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS_RSP
+        //
+        RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS = 8;
+
+        //
+        // For MsgType: UNSOL_RESPONSE, MsgId: RIL_SIM_SAP_ERROR_RESP, Error: RIL_E_UNUSED,
+        //              Message: message RIL_SIM_SAP_ERROR_RSP
+        //
+        RIL_SIM_SAP_ERROR_RESP = 9;
+
+        //
+        // For MsgType: REQUEST ,MsgId: RIL_SIM_SAP_SET_TRANSFER_PROTOCOL, Error: RIL_E_UNUSED,
+        //              Message: message RIL_SIM_SAP_SET_TRANSFER_PROTOCOL_REQ
+        // For MsgType: RESPONSE, MsgId: RIL_SIM_SAP_SET_TRANSFER_PROTOCOL, Error:Valid errors,
+        //              Message: message RIL_SIM_SAP_SET_TRANSFER_PROTOCOL_RSP
+        //
+        RIL_SIM_SAP_SET_TRANSFER_PROTOCOL = 10;
+     }
+
+    enum Error {
+            RIL_E_SUCCESS = 0;
+            RIL_E_RADIO_NOT_AVAILABLE = 1;
+            RIL_E_GENERIC_FAILURE = 2;
+            RIL_E_REQUEST_NOT_SUPPORTED = 3;
+            RIL_E_CANCELLED = 4;
+            RIL_E_INVALID_PARAMETER = 5;
+            RIL_E_UNUSED = 6;
+    }
+
+// SAP 1.1 spec 5.1.1
+message RIL_SIM_SAP_CONNECT_REQ {
+    required int32 max_message_size = 1;
+}
+
+// SAP 1.1 spec 5.1.2
+message RIL_SIM_SAP_CONNECT_RSP {
+    enum Response {
+        RIL_E_SUCCESS = 0;
+        RIL_E_SAP_CONNECT_FAILURE = 1;
+        RIL_E_SAP_MSG_SIZE_TOO_LARGE = 2;
+        RIL_E_SAP_MSG_SIZE_TOO_SMALL = 3;
+        RIL_E_SAP_CONNECT_OK_CALL_ONGOING = 4;
+    }
+    required Response response = 1;
+// must be present for RIL_E_SAP_MSG_SIZE_TOO_LARGE and contain the
+// the suitable message size
+   optional int32 max_message_size = 2;
+}
+
+// SAP 1.1 spec 5.1.3
+message RIL_SIM_SAP_DISCONNECT_REQ {
+     //no params
+}
+
+
+// SAP 1.1 spec 5.1.4
+message RIL_SIM_SAP_DISCONNECT_RSP {
+    //no params
+}
+
+
+// SAP 1.1 spec 5.1.5
+message RIL_SIM_SAP_DISCONNECT_IND {
+    enum DisconnectType {
+        RIL_S_DISCONNECT_TYPE_GRACEFUL = 0;
+        RIL_S_DISCONNECT_TYPE_IMMEDIATE = 1;
+    }
+    required DisconnectType disconnectType = 1;
+}
+
+// SAP 1.1 spec 5.1.6
+message RIL_SIM_SAP_APDU_REQ { //handles both APDU and APDU7816
+    enum Type {
+        RIL_TYPE_APDU = 0;
+        RIL_TYPE_APDU7816 = 1;
+    }
+    required Type type = 1;
+    required bytes command = 2;
+}
+
+// SAP 1.1 spec 5.1.7
+message RIL_SIM_SAP_APDU_RSP { //handles both APDU and APDU7816
+    enum Type {
+        RIL_TYPE_APDU = 0;
+        RIL_TYPE_APDU7816 = 1;
+    }
+    required Type type = 1;
+    enum Response {
+        RIL_E_SUCCESS = 0;
+        RIL_E_GENERIC_FAILURE = 1;
+        RIL_E_SIM_NOT_READY = 2;
+        RIL_E_SIM_ALREADY_POWERED_OFF = 3;
+        RIL_E_SIM_ABSENT = 4;
+    }
+    required Response response = 2;
+    optional bytes apduResponse = 3;
+}
+
+// SAP 1.1 spec 5.1.8
+message RIL_SIM_SAP_TRANSFER_ATR_REQ {
+    // no params
+}
+
+// SAP 1.1 spec 5.1.9
+message RIL_SIM_SAP_TRANSFER_ATR_RSP {
+    enum Response {
+        RIL_E_SUCCESS = 0;
+        RIL_E_GENERIC_FAILURE = 1;
+        RIL_E_SIM_ALREADY_POWERED_OFF = 3;
+        RIL_E_SIM_ALREADY_POWERED_ON = 18;
+        RIL_E_SIM_ABSENT = 4;
+        RIL_E_SIM_DATA_NOT_AVAILABLE = 6;
+    }
+    required Response response = 1;
+
+    optional bytes atr = 2; //must be present on SUCCESS
+}
+
+
+// SAP 1.1 spec 5.1.10 +5.1.12
+message RIL_SIM_SAP_POWER_REQ {
+    required bool state = 1;  //true = on, False = off
+}
+
+// SAP 1.1 spec 5.1.11 +5.1.13
+message RIL_SIM_SAP_POWER_RSP {
+    enum Response {
+        RIL_E_SUCCESS = 0;
+        RIL_E_GENERIC_FAILURE = 2;
+        RIL_E_SIM_ABSENT = 11;
+        RIL_E_SIM_ALREADY_POWERED_OFF = 17;
+        RIL_E_SIM_ALREADY_POWERED_ON = 18;
+    }
+    required Response response = 1;
+}
+
+// SAP 1.1 spec 5.1.14
+message RIL_SIM_SAP_RESET_SIM_REQ {
+    // no params
+}
+
+// SAP 1.1 spec 5.1.15
+message RIL_SIM_SAP_RESET_SIM_RSP {
+    enum Response {
+        RIL_E_SUCCESS = 0;
+        RIL_E_GENERIC_FAILURE = 2;
+        RIL_E_SIM_ABSENT = 11;
+        RIL_E_SIM_NOT_READY = 16;
+        RIL_E_SIM_ALREADY_POWERED_OFF = 17;
+    }
+    required Response response = 1;
+}
+
+// SAP 1.1 spec 5.1.16
+message RIL_SIM_SAP_STATUS_IND {
+    enum Status {
+        RIL_SIM_STATUS_UNKNOWN_ERROR = 0;
+        RIL_SIM_STATUS_CARD_RESET = 1;
+        RIL_SIM_STATUS_CARD_NOT_ACCESSIBLE = 2;
+        RIL_SIM_STATUS_CARD_REMOVED = 3;
+        RIL_SIM_STATUS_CARD_INSERTED = 4;
+        RIL_SIM_STATUS_RECOVERED = 5;
+    }
+    required Status statusChange = 1;
+}
+
+// SAP 1.1 spec 5.1.17
+message RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS_REQ {
+    //no params
+
+}
+
+// SAP 1.1 spec 5.1.18
+message RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS_RSP {
+    enum Response {
+        RIL_E_SUCCESS = 0;
+        RIL_E_GENERIC_FAILURE = 2;
+        RIL_E_SIM_DATA_NOT_AVAILABLE = 6;
+    }
+    required Response response = 1;
+    optional int32 CardReaderStatus = 2;
+}
+
+// SAP 1.1 spec 5.1.19
+message RIL_SIM_SAP_ERROR_RSP {
+    //no params
+}
+
+// SAP 1.1 spec 5.1.20
+message RIL_SIM_SAP_SET_TRANSFER_PROTOCOL_REQ {
+    enum Protocol {
+        t0 = 0;
+        t1 = 1;
+    }
+    required Protocol protocol = 1;
+}
+
+// SAP 1.1 spec 5.1.21
+message RIL_SIM_SAP_SET_TRANSFER_PROTOCOL_RSP {
+    enum Response {
+        RIL_E_SUCCESS = 0;
+        RIL_E_GENERIC_FAILURE = 2;
+        RIL_E_SIM_ABSENT = 11;
+        RIL_E_SIM_NOT_READY = 16;
+        RIL_E_SIM_ALREADY_POWERED_OFF = 17;
+    }
+    required Response response = 1;
+}
