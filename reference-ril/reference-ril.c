@@ -43,6 +43,9 @@
 #define LOG_TAG "RIL"
 #include <utils/Log.h>
 
+static void *noopRemoveWarning( void *a ) { return a; }
+#define RIL_UNUSED_PARM(a) noopRemoveWarning((void *)&(a));
+
 #define MAX_AT_RESPONSE 0x1000
 
 /* pathname returned from RIL_REQUEST_SETUP_DATA_CALL / RIL_REQUEST_SETUP_DEFAULT_PDP */
@@ -429,8 +432,8 @@ static void requestOrSendDataCallList(RIL_Token *t)
          p_cur = p_cur->p_next)
         n++;
 
-    RIL_Data_Call_Response_v6 *responses =
-        alloca(n * sizeof(RIL_Data_Call_Response_v6));
+    RIL_Data_Call_Response_v9 *responses =
+        alloca(n * sizeof(RIL_Data_Call_Response_v9));
 
     int i;
     for (i = 0; i < n; i++) {
@@ -443,9 +446,10 @@ static void requestOrSendDataCallList(RIL_Token *t)
         responses[i].addresses = "";
         responses[i].dnses = "";
         responses[i].gateways = "";
+        responses[i].pcscf = "";
     }
 
-    RIL_Data_Call_Response_v6 *response = responses;
+    RIL_Data_Call_Response_v9 *response = responses;
     for (p_cur = p_response->p_intermediates; p_cur != NULL;
          p_cur = p_cur->p_next) {
         char *line = p_cur->line;
@@ -577,11 +581,11 @@ static void requestOrSendDataCallList(RIL_Token *t)
 
     if (t != NULL)
         RIL_onRequestComplete(*t, RIL_E_SUCCESS, responses,
-                              n * sizeof(RIL_Data_Call_Response_v6));
+                              n * sizeof(RIL_Data_Call_Response_v9));
     else
         RIL_onUnsolicitedResponse(RIL_UNSOL_DATA_CALL_LIST_CHANGED,
                                   responses,
-                                  n * sizeof(RIL_Data_Call_Response_v6));
+                                  n * sizeof(RIL_Data_Call_Response_v9));
 
     return;
 
@@ -1939,6 +1943,21 @@ static void requestSetCellInfoListRate(void *data, size_t datalen, RIL_Token t)
     RIL_onRequestComplete(t, RIL_E_SUCCESS, NULL, 0);
 }
 
+static void requestGetHardwareConfig(void *data, size_t datalen, RIL_Token t)
+{
+   // TODO - hook this up with real query/info from radio.
+
+   RIL_HardwareConfig hwCfg;
+
+   RIL_UNUSED_PARM(data);
+   RIL_UNUSED_PARM(datalen);
+
+   hwCfg.type = -1;
+
+   RIL_onRequestComplete(t, RIL_E_SUCCESS, &hwCfg, sizeof(hwCfg));
+}
+
+
 /*** Callback methods from the RIL library to us ***/
 
 /**
@@ -2283,6 +2302,10 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
 
         case RIL_REQUEST_SET_UNSOL_CELL_INFO_LIST_RATE:
             requestSetCellInfoListRate(data, datalen, t);
+            break;
+
+        case RIL_REQUEST_GET_HARDWARE_CONFIG:
+            requestGetHardwareConfig(data, datalen, t);
             break;
 
         /* CDMA Specific Requests */
@@ -3213,6 +3236,14 @@ static void onATTimeout()
     /* FIXME cause a radio reset here */
 
     setRadioState (RADIO_STATE_UNAVAILABLE);
+}
+
+/* Called to pass hardware configuration information to telephony
+ * framework.
+ */
+static void setHardwareConfiguration(int num, RIL_HardwareConfig *cfg)
+{
+   RIL_onUnsolicitedResponse(RIL_UNSOL_HARDWARE_CONFIG_CHANGED, cfg, num*sizeof(*cfg));
 }
 
 static void usage(char *s)

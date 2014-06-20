@@ -136,3 +136,6 @@
     {RIL_REQUEST_NV_WRITE_ITEM, dispatchNVWriteItem, responseVoid},
     {RIL_REQUEST_NV_WRITE_CDMA_PRL, dispatchRaw, responseVoid},
     {RIL_REQUEST_NV_RESET_CONFIG, dispatchInts, responseVoid},
+    {RIL_REQUEST_SET_UICC_SUBSCRIPTION, dispatchUiccSubscripton, responseVoid},
+    {RIL_REQUEST_ALLOW_DATA, dispatchInts, responseVoid},
+    {RIL_REQUEST_GET_HARDWARE_CONFIG, dispatchVoid, responseHardwareConfig},
