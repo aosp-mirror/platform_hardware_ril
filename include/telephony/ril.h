@@ -3945,7 +3945,7 @@ typedef struct {
 #define RIL_REQUEST_GET_HARDWARE_CONFIG 124
 
 /**
- * RIL_REQUEST_ICC_SIM_AUTHENTICATION
+ * RIL_REQUEST_SIM_AUTHENTICATION
  *
  * Returns the response of SIM Authentication through RIL to a
  * challenge request.
@@ -3963,7 +3963,7 @@ typedef struct {
  *      int   sw2;
  *      char *simResponse;          Response in Base64 format, see 3GPP TS 31.102 7.1.2
  */
-#define RIL_REQUEST_ICC_SIM_AUTHENTICATION 125
+#define RIL_REQUEST_SIM_AUTHENTICATION 125
 
 /***********************************************************************/
 
@@ -4608,6 +4608,21 @@ typedef struct {
     char *username;
     char *password;
 } RIL_InitialAttachApn;
+
+typedef struct {
+    int authContext;            /* P2 value of authentication command, see P2 parameter in
+                                   3GPP TS 31.102 7.1.2 */
+    char *authData;             /* the challenge string in Base64 format, see 3GPP
+                                   TS 31.102 7.1.2 */
+    char *aid;                  /* AID value, See ETSI 102.221 8.1 and 101.220 4,
+                                   NULL if no value. */
+} RIL_SimAuthentication;
+
+typedef struct {
+    int sw1;
+    int sw2;
+    char *simResponse;          /* Response in Base64 format, see 3GPP TS 31.102 7.1.2 */
+} RIL_SimAuthenticationResponse;
 
 #ifdef RIL_SHLIB
 struct RIL_Env {

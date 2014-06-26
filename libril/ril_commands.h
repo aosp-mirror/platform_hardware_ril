@@ -139,3 +139,4 @@
     {RIL_REQUEST_SET_UICC_SUBSCRIPTION, dispatchUiccSubscripton, responseVoid},
     {RIL_REQUEST_ALLOW_DATA, dispatchInts, responseVoid},
     {RIL_REQUEST_GET_HARDWARE_CONFIG, dispatchVoid, responseHardwareConfig},
+    {RIL_REQUEST_SIM_AUTHENTICATION, dispatchString, responseString},
