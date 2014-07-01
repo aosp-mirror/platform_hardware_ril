@@ -4685,12 +4685,6 @@ typedef struct {
                                    NULL if no value. */
 } RIL_SimAuthentication;
 
-typedef struct {
-    int sw1;
-    int sw2;
-    char *simResponse;          /* Response in Base64 format, see 3GPP TS 31.102 7.1.2 */
-} RIL_SimAuthenticationResponse;
-
 #ifdef RIL_SHLIB
 struct RIL_Env {
     /**
