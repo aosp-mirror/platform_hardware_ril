@@ -27,6 +27,8 @@ endif
 LOCAL_MODULE:= rild
 LOCAL_MODULE_TAGS := optional
 
+LOCAL_C_INCLUDES += $(TARGET_OUT_HEADERS)/libril
+
 include $(BUILD_EXECUTABLE)
 
 # For radiooptions binary
