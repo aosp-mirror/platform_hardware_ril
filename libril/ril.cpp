@@ -300,6 +300,7 @@ static int responseCdmaCallWaiting(Parcel &p,void *response, size_t responselen)
 static int responseSimRefresh(Parcel &p, void *response, size_t responselen);
 static int responseCellInfoList(Parcel &p, void *response, size_t responselen);
 static int responseHardwareConfig(Parcel &p, void *response, size_t responselen);
+static int responseDcRtInfo(Parcel &p, void *response, size_t responselen);
 
 static int decodeVoiceRadioTechnology (RIL_RadioState radioState);
 static int decodeCdmaSubscriptionSource (RIL_RadioState radioState);
@@ -3182,6 +3183,27 @@ static int responseCdmaSms(Parcel &p, void *response, size_t responselen) {
     return 0;
 }
 
+static int responseDcRtInfo(Parcel &p, void *response, size_t responselen)
+{
+    int num = responselen / sizeof(RIL_DcRtInfo);
+    if ((responselen % sizeof(RIL_DcRtInfo) != 0) || (num != 1)) {
+        RLOGE("invalid response length %d expected multiple of %d",
+                (int)responselen, (int)sizeof(RIL_DcRtInfo));
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    startResponse;
+    RIL_DcRtInfo *pDcRtInfo = (RIL_DcRtInfo *)response;
+    p.writeInt64(pDcRtInfo->time);
+    p.writeInt32(pDcRtInfo->powerState);
+    appendPrintBuf("%s[time=%d,powerState=%d]", printBuf,
+        pDcRtInfo->time,
+        pDcRtInfo->powerState);
+    closeResponse;
+
+    return 0;
+}
+
 /**
  * A write on the wakeup fd is done just to pop us out of select()
  * We empty the buffer here and then ril_event will reset the timers on the
@@ -4519,6 +4541,8 @@ requestToString(int request) {
         case RIL_REQUEST_ALLOW_DATA: return "ALLOW_DATA";
         case RIL_REQUEST_GET_HARDWARE_CONFIG: return "GET_HARDWARE_CONFIG";
         case RIL_REQUEST_SIM_AUTHENTICATION: return "SIM_AUTHENTICATION";
+        case RIL_REQUEST_GET_DC_RT_INFO: return "GET_DC_RT_INFO";
+        case RIL_REQUEST_SET_DC_RT_INFO_RATE: return "SET_DC_RT_INFO_RATE";
         case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED: return "UNSOL_RESPONSE_RADIO_STATE_CHANGED";
         case RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED: return "UNSOL_RESPONSE_CALL_STATE_CHANGED";
         case RIL_UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED: return "UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED";
@@ -4559,6 +4583,7 @@ requestToString(int request) {
         case RIL_UNSOL_UICC_SUBSCRIPTION_STATUS_CHANGED: return "UNSOL_UICC_SUBSCRIPTION_STATUS_CHANGED";
         case RIL_UNSOL_SRVCC_STATE_NOTIFY: return "UNSOL_SRVCC_STATE_NOTIFY";
         case RIL_UNSOL_HARDWARE_CONFIG_CHANGED: return "HARDWARE_CONFIG_CHANGED";
+        case RIL_UNSOL_DC_RT_INFO_CHANGED: return "UNSOL_DC_RT_INFO_CHANGED";
         default: return "<unknown request>";
     }
 }

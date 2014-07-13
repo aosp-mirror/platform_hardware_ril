@@ -1147,6 +1147,25 @@ typedef struct {
 } RIL_HardwareConfig;
 
 /**
+ * Data connection power state
+ */
+typedef enum {
+    RIL_DC_POWER_STATE_LOW      = 1,        // Low power state
+    RIL_DC_POWER_STATE_MEDIUM   = 2,        // Medium power state
+    RIL_DC_POWER_STATE_HIGH     = 3,        // High power state
+    RIL_DC_POWER_STATE_UNKNOWN  = INT32_MAX // Unknown state
+} RIL_DcPowerStates;
+
+/**
+ * Data connection real time info
+ */
+typedef struct {
+    uint64_t                    time;       // Time in nanos as returned by ril_nano_time
+    RIL_DcPowerStates           powerState; // Current power state
+} RIL_DcRtInfo;
+
+
+/**
  * RIL_REQUEST_GET_SIM_STATUS
  *
  * Requests status of the SIM interface and the SIM card
@@ -3965,6 +3984,42 @@ typedef struct {
  */
 #define RIL_REQUEST_SIM_AUTHENTICATION 125
 
+/**
+ * RIL_REQUEST_GET_DC_RT_INFO
+ *
+ * Requests the Data Connection Real Time Info
+ *
+ * "data" is NULL
+ *
+ * "response" is the most recent RIL_DcRtInfo
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ * See also: RIL_UNSOL_DC_RT_INFO_CHANGED
+ */
+#define RIL_REQUEST_GET_DC_RT_INFO 126
+
+/**
+ * RIL_REQUEST_SET_DC_RT_INFO_RATE
+ *
+ * This is the minimum number of milliseconds between successive
+ * RIL_UNSOL_DC_RT_INFO_CHANGED messages and defines the highest rate
+ * at which RIL_UNSOL_DC_RT_INFO_CHANGED's will be sent. A value of
+ * 0 means send as fast as possible.
+ *
+ * "data" The number of milliseconds as an int
+ *
+ * "response" is null
+ *
+ * Valid errors:
+ *  SUCCESS must not fail
+ */
+#define RIL_REQUEST_SET_DC_RT_INFO_RATE 127
+
+
 /***********************************************************************/
 
 
@@ -4508,6 +4563,18 @@ typedef struct {
  *
  */
 #define RIL_UNSOL_HARDWARE_CONFIG_CHANGED 1040
+
+/**
+ * RIL_UNSOL_DC_RT_INFO_CHANGED
+ *
+ * Sent when the DC_RT_STATE changes but the time
+ * between these messages must not be less than the
+ * value set by RIL_REQUEST_SET_DC_RT_RATE.
+ *
+ * "data" is the most recent RIL_DcRtInfo
+ *
+ */
+#define RIL_UNSOL_DC_RT_INFO_CHANGED 1041
 
 /***********************************************************************/
 
