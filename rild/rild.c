@@ -30,7 +30,7 @@
 #include <cutils/properties.h>
 #include <cutils/sockets.h>
 #include <sys/capability.h>
-#include <linux/prctl.h>
+#include <sys/prctl.h>
 
 #include <private/android_filesystem_config.h>
 #include "hardware/qemu_pipe.h"
