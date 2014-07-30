@@ -1981,7 +1981,7 @@ responseInts(Parcel &p, void *response, size_t responselen) {
         return RIL_ERRNO_INVALID_RESPONSE;
     }
     if (responselen % sizeof(int) != 0) {
-        RLOGE("invalid response length %d expected multiple of %d\n",
+        RLOGE("responseInts: invalid response length %d expected multiple of %d\n",
             (int)responselen, (int)sizeof(int));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
@@ -2019,7 +2019,7 @@ static int responseStrings(Parcel &p, void *response, size_t responselen) {
         return RIL_ERRNO_INVALID_RESPONSE;
     }
     if (responselen % sizeof(char *) != 0) {
-        RLOGE("invalid response length %d expected multiple of %d\n",
+        RLOGE("responseStrings: invalid response length %d expected multiple of %d\n",
             (int)responselen, (int)sizeof(char *));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
@@ -2075,7 +2075,7 @@ static int responseCallList(Parcel &p, void *response, size_t responselen) {
     }
 
     if (responselen % sizeof (RIL_Call *) != 0) {
-        RLOGE("invalid response length %d expected multiple of %d\n",
+        RLOGE("responseCallList: invalid response length %d expected multiple of %d\n",
             (int)responselen, (int)sizeof (RIL_Call *));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
@@ -2170,10 +2170,13 @@ static int responseDataCallListV4(Parcel &p, void *response, size_t responselen)
     }
 
     if (responselen % sizeof(RIL_Data_Call_Response_v4) != 0) {
-        RLOGE("invalid response length %d expected multiple of %d",
+        RLOGE("responseDataCallListV4: invalid response length %d expected multiple of %d",
                 (int)responselen, (int)sizeof(RIL_Data_Call_Response_v4));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
+
+    // Write version
+    p.writeInt32(4);
 
     int num = responselen / sizeof(RIL_Data_Call_Response_v4);
     p.writeInt32(num);
@@ -2201,16 +2204,19 @@ static int responseDataCallListV4(Parcel &p, void *response, size_t responselen)
 
 static int responseDataCallListV6(Parcel &p, void *response, size_t responselen)
 {
-   if (response == NULL && responselen != 0) {
+    if (response == NULL && responselen != 0) {
         RLOGE("invalid response: NULL");
         return RIL_ERRNO_INVALID_RESPONSE;
     }
 
     if (responselen % sizeof(RIL_Data_Call_Response_v6) != 0) {
-        RLOGE("invalid response length %d expected multiple of %d",
+        RLOGE("responseDataCallListV6: invalid response length %d expected multiple of %d",
                 (int)responselen, (int)sizeof(RIL_Data_Call_Response_v6));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
+
+    // Write version
+    p.writeInt32(6);
 
     int num = responselen / sizeof(RIL_Data_Call_Response_v6);
     p.writeInt32(num);
@@ -2247,10 +2253,8 @@ static int responseDataCallListV6(Parcel &p, void *response, size_t responselen)
 
 static int responseDataCallList(Parcel &p, void *response, size_t responselen)
 {
-    // Write version
-    p.writeInt32(s_callbacks.version);
-
     if (s_callbacks.version < 5) {
+        RLOGD("responseDataCallList: v4");
         return responseDataCallListV4(p, response, responselen);
     } else {
         if (response == NULL && responselen != 0) {
@@ -2260,14 +2264,18 @@ static int responseDataCallList(Parcel &p, void *response, size_t responselen)
 
         // Support v6 or v9 with new rils
         if (responselen % sizeof(RIL_Data_Call_Response_v6) == 0) {
+            RLOGD("responseDataCallList: v6");
             return responseDataCallListV6(p, response, responselen);
         }
 
         if (responselen % sizeof(RIL_Data_Call_Response_v9) != 0) {
-            RLOGE("invalid response length %d expected multiple of %d",
+            RLOGE("responseDataCallList: invalid response length %d expected multiple of %d",
                     (int)responselen, (int)sizeof(RIL_Data_Call_Response_v9));
             return RIL_ERRNO_INVALID_RESPONSE;
         }
+
+        // Write version
+        p.writeInt32(10);
 
         int num = responselen / sizeof(RIL_Data_Call_Response_v9);
         p.writeInt32(num);
@@ -2367,7 +2375,7 @@ static int responseCallForwards(Parcel &p, void *response, size_t responselen) {
     }
 
     if (responselen % sizeof(RIL_CallForwardInfo *) != 0) {
-        RLOGE("invalid response length %d expected multiple of %d",
+        RLOGE("responseCallForwards: invalid response length %d expected multiple of %d",
                 (int)responselen, (int)sizeof(RIL_CallForwardInfo *));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
@@ -2436,7 +2444,7 @@ static int responseCellList(Parcel &p, void *response, size_t responselen) {
     }
 
     if (responselen % sizeof (RIL_NeighboringCell *) != 0) {
-        RLOGE("invalid response length %d expected multiple of %d\n",
+        RLOGE("responseCellList: invalid response length %d expected multiple of %d\n",
             (int)responselen, (int)sizeof (RIL_NeighboringCell *));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
@@ -2485,7 +2493,7 @@ static int responseCdmaInformationRecords(Parcel &p,
     }
 
     if (responselen != sizeof (RIL_CDMA_InformationRecords)) {
-        RLOGE("invalid response length %d expected multiple of %d\n",
+        RLOGE("responseCdmaInformationRecords: invalid response length %d expected multiple of %d\n",
             (int)responselen, (int)sizeof (RIL_CDMA_InformationRecords *));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
@@ -2847,7 +2855,7 @@ static int responseCellInfoList(Parcel &p, void *response, size_t responselen)
     }
 
     if (responselen % sizeof(RIL_CellInfo) != 0) {
-        RLOGE("invalid response length %d expected multiple of %d",
+        RLOGE("responseCellInfoList: invalid response length %d expected multiple of %d",
                 (int)responselen, (int)sizeof(RIL_CellInfo));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
@@ -2996,7 +3004,7 @@ static int responseHardwareConfig(Parcel &p, void *response, size_t responselen)
    }
 
    if (responselen % sizeof(RIL_HardwareConfig) != 0) {
-       RLOGE("invalid response length %d expected multiple of %d",
+       RLOGE("responseHardwareConfig: invalid response length %d expected multiple of %d",
           (int)responselen, (int)sizeof(RIL_HardwareConfig));
        return RIL_ERRNO_INVALID_RESPONSE;
    }
@@ -3229,7 +3237,7 @@ static int responseDcRtInfo(Parcel &p, void *response, size_t responselen)
 {
     int num = responselen / sizeof(RIL_DcRtInfo);
     if ((responselen % sizeof(RIL_DcRtInfo) != 0) || (num != 1)) {
-        RLOGE("invalid response length %d expected multiple of %d",
+        RLOGE("responseDcRtInfo: invalid response length %d expected multiple of %d",
                 (int)responselen, (int)sizeof(RIL_DcRtInfo));
         return RIL_ERRNO_INVALID_RESPONSE;
     }
