@@ -4018,6 +4018,11 @@ RIL_onRequestComplete(RIL_Token t, RIL_Errno e, void *response, size_t responsel
 
     pRI = (RequestInfo *)t;
 
+    if (!checkAndDequeueRequestInfo(pRI)) {
+        RLOGE ("RIL_onRequestComplete: invalid RIL_Token");
+        return;
+    }
+
     socket_id = pRI->socket_id;
 #if (SIM_COUNT >= 2)
     if (socket_id == RIL_SOCKET_2) {
@@ -4035,11 +4040,6 @@ RIL_onRequestComplete(RIL_Token t, RIL_Errno e, void *response, size_t responsel
 #endif
 #endif
     RLOGD("RequestComplete, %s", rilSocketIdToString(socket_id));
-
-    if (!checkAndDequeueRequestInfo(pRI)) {
-        RLOGE ("RIL_onRequestComplete: invalid RIL_Token");
-        return;
-    }
 
     if (pRI->local > 0) {
         // Locally issued command...void only!
