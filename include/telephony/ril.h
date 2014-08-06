@@ -414,7 +414,8 @@ typedef struct {
 typedef struct {
     int sw1;
     int sw2;
-    char *simResponse;  /* In hex string format ([a-fA-F0-9]*). */
+    char *simResponse;  /* In hex string format ([a-fA-F0-9]*), except for SIM_AUTHENTICATION
+                           response for which it is in Base64 format, see 3GPP TS 31.102 7.1.2 */
 } RIL_SIM_IO_Response;
 
 /* See also com.android.internal.telephony.gsm.CallForwardInfo */
