@@ -1165,40 +1165,6 @@ typedef struct {
     RIL_DcPowerStates           powerState; // Current power state
 } RIL_DcRtInfo;
 
-/**
- * Data profile to modem
- */
-typedef struct {
-    /* id of the data profile */
-    int profileId;
-    /* the APN to connect to */
-    char* apn;
-    /** one of the PDP_type values in TS 27.007 section 10.1.1.
-     * For example, "IP", "IPV6", "IPV4V6", or "PPP".
-     */
-    char* protocol;
-    /** authentication protocol used for this PDP context
-     * (None: 0, PAP: 1, CHAP: 2, PAP&CHAP: 3)
-     */
-    int authType;
-    /* the username for APN, or NULL */
-    char* user;
-    /* the password for APN, or NULL */
-    char* password;
-    /* the profile type, TYPE_COMMON-0, TYPE_3GPP-1, TYPE_3GPP2-2 */
-    int type;
-    /* the period in seconds to limit the maximum connections */
-    int maxConnsTime;
-    /* the maximum connections during maxConnsTime */
-    int maxConns;
-    /** the required wait time in seconds after a successful UE initiated
-     * disconnect of a given PDN connection before the device can send
-     * a new PDN connection request for that given PDN
-     */
-    int waitTime;
-    /* true to enable the profile, 0 to disable, 1 to enable */
-    int enabled;
-} RIL_DataProfileInfo;
 
 /**
  * RIL_REQUEST_GET_SIM_STATUS
@@ -4054,21 +4020,7 @@ typedef struct {
  */
 #define RIL_REQUEST_SET_DC_RT_INFO_RATE 127
 
-/**
- * RIL_REQUEST_SET_DATA_PROFILE
- *
- * Set data profile in modem
- * "data" is an const RIL_DataProfileInfo **
- * "datalen" is count * sizeof(const RIL_DataProfileInfo *)
- * "response" is NULL
- *
- * Valid errors:
- *  SUCCESS
- *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
- *  SUBSCRIPTION_NOT_AVAILABLE
- */
-#define RIL_REQUEST_SET_DATA_PROFILE 128
+
 /***********************************************************************/
 
 
