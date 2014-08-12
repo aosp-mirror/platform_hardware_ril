@@ -276,7 +276,6 @@ static void dispatchNVReadItem(Parcel &p, RequestInfo *pRI);
 static void dispatchNVWriteItem(Parcel &p, RequestInfo *pRI);
 static void dispatchUiccSubscripton(Parcel &p, RequestInfo *pRI);
 static void dispatchSimAuthentication(Parcel &p, RequestInfo *pRI);
-static void dispatchDataProfile(Parcel &p, RequestInfo *pRI);
 static int responseInts(Parcel &p, void *response, size_t responselen);
 static int responseStrings(Parcel &p, void *response, size_t responselen);
 static int responseString(Parcel &p, void *response, size_t responselen);
@@ -1873,80 +1872,6 @@ static void dispatchSimAuthentication(Parcel &p, RequestInfo *pRI)
 #endif
 
     return;
-invalid:
-    invalidCommandBlock(pRI);
-    return;
-}
-
-static void dispatchDataProfile(Parcel &p, RequestInfo *pRI) {
-    int32_t t;
-    status_t status;
-    int32_t num;
-
-    status = p.readInt32(&num);
-    if (status != NO_ERROR) {
-        goto invalid;
-    }
-
-    {
-        RIL_DataProfileInfo dataProfiles[num];
-        RIL_DataProfileInfo *dataProfilePtrs[num];
-
-        startRequest;
-        for (int i = 0 ; i < num ; i++ ) {
-            dataProfilePtrs[i] = &dataProfiles[i];
-
-            status = p.readInt32(&t);
-            dataProfiles[i].profileId = (int) t;
-
-            dataProfiles[i].apn = strdupReadString(p);
-            dataProfiles[i].protocol = strdupReadString(p);
-            status = p.readInt32(&t);
-            dataProfiles[i].authType = (int) t;
-
-            dataProfiles[i].user = strdupReadString(p);
-            dataProfiles[i].password = strdupReadString(p);
-
-            status = p.readInt32(&t);
-            dataProfiles[i].type = (int) t;
-
-            status = p.readInt32(&t);
-            dataProfiles[i].maxConnsTime = (int) t;
-            status = p.readInt32(&t);
-            dataProfiles[i].maxConns = (int) t;
-            status = p.readInt32(&t);
-            dataProfiles[i].waitTime = (int) t;
-
-            status = p.readInt32(&t);
-            dataProfiles[i].enabled = (int) t;
-
-            appendPrintBuf("%s [%d: profileId=%d, apn =%s, protocol =%s, authType =%d, \
-                  user =%s, password =%s, type =%d, maxConnsTime =%d, maxConns =%d, \
-                  waitTime =%d, enabled =%d]", printBuf, i, dataProfiles[i].profileId,
-                  dataProfiles[i].apn, dataProfiles[i].protocol, dataProfiles[i].authType,
-                  dataProfiles[i].user, dataProfiles[i].password, dataProfiles[i].type,
-                  dataProfiles[i].maxConnsTime, dataProfiles[i].maxConns,
-                  dataProfiles[i].waitTime, dataProfiles[i].enabled);
-        }
-        closeRequest;
-        printRequest(pRI->token, pRI->pCI->requestNumber);
-
-        if (status != NO_ERROR) {
-            goto invalid;
-        }
-        CALL_ONREQUEST(pRI->pCI->requestNumber,
-                              dataProfilePtrs,
-                              num * sizeof(RIL_DataProfileInfo *),
-                              pRI, pRI->socket_id);
-
-#ifdef MEMSET_FREED
-        memset(dataProfiles, 0, num * sizeof(RIL_DataProfileInfo));
-        memset(dataProfilePtrs, 0, num * sizeof(RIL_DataProfileInfo *));
-#endif
-    }
-
-    return;
-
 invalid:
     invalidCommandBlock(pRI);
     return;
@@ -4668,7 +4593,6 @@ requestToString(int request) {
         case RIL_REQUEST_SIM_AUTHENTICATION: return "SIM_AUTHENTICATION";
         case RIL_REQUEST_GET_DC_RT_INFO: return "GET_DC_RT_INFO";
         case RIL_REQUEST_SET_DC_RT_INFO_RATE: return "SET_DC_RT_INFO_RATE";
-        case RIL_REQUEST_SET_DATA_PROFILE: return "SET_DATA_PROFILE";
         case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED: return "UNSOL_RESPONSE_RADIO_STATE_CHANGED";
         case RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED: return "UNSOL_RESPONSE_CALL_STATE_CHANGED";
         case RIL_UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED: return "UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED";
