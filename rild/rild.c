@@ -175,12 +175,7 @@ int main(int argc, char **argv)
         static char   arg_device[32];
         int           done = 0;
 
-#if __LP64__
-#define  REFERENCE_RIL_PATH  "/system/lib64/libreference-ril.so"
-#else
-#define  REFERENCE_RIL_PATH  "/system/lib/libreference-ril.so"
-#endif
-
+#define  REFERENCE_RIL_PATH  "libreference-ril.so"
 
         /* first, read /proc/cmdline into memory */
         char          buffer[1024], *p, *q;
