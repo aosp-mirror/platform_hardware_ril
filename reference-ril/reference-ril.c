@@ -398,6 +398,23 @@ error:
     RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
 }
 
+static void requestShutdown(RIL_Token t)
+{
+    int onOff;
+
+    int err;
+    ATResponse *p_response = NULL;
+
+    if (sState != RADIO_STATE_OFF) {
+        err = at_send_command("AT+CFUN=0", &p_response);
+        setRadioState(RADIO_STATE_UNAVAILABLE);
+    }
+
+    at_response_free(p_response);
+    RIL_onRequestComplete(t, RIL_E_SUCCESS, NULL, 0);
+    return;
+}
+
 static void requestOrSendDataCallList(RIL_Token *t);
 
 static void onDataCallListChanged(void *param __unused)
@@ -2306,6 +2323,10 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
 
         case RIL_REQUEST_GET_HARDWARE_CONFIG:
             requestGetHardwareConfig(data, datalen, t);
+            break;
+
+        case RIL_REQUEST_SHUTDOWN:
+            requestShutdown(t);
             break;
 
         /* CDMA Specific Requests */

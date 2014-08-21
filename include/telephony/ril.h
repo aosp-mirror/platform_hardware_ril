@@ -4069,6 +4069,24 @@ typedef struct {
  *  SUBSCRIPTION_NOT_AVAILABLE
  */
 #define RIL_REQUEST_SET_DATA_PROFILE 128
+
+/**
+ * RIL_REQUEST_SHUTDOWN
+ *
+ * Device is shutting down. All further commands are ignored
+ * and RADIO_NOT_AVAILABLE must be returned.
+ *
+ * "data" is null
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_SHUTDOWN 129
+
+
 /***********************************************************************/
 
 
