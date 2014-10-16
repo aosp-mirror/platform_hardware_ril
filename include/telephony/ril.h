@@ -531,7 +531,11 @@ typedef enum {
 typedef enum {
     RIL_DATA_PROFILE_DEFAULT    = 0,
     RIL_DATA_PROFILE_TETHERED   = 1,
-    RIL_DATA_PROFILE_OEM_BASE   = 1000    /* Start of OEM-specific profiles */
+    RIL_DATA_PROFILE_IMS        = 2,
+    RIL_DATA_PROFILE_FOTA       = 3,
+    RIL_DATA_PROFILE_CBS        = 4,
+    RIL_DATA_PROFILE_OEM_BASE   = 1000,    /* Start of OEM-specific profiles */
+    RIL_DATA_PROFILE_INVALID    = 0xFFFFFFFF
 } RIL_DataProfile;
 
 /* Used by RIL_UNSOL_SUPP_SVC_NOTIFICATION */
@@ -4061,6 +4065,7 @@ typedef struct {
  * RIL_REQUEST_SET_DATA_PROFILE
  *
  * Set data profile in modem
+ * Modem should erase existed profiles from framework, and apply new profiles
  * "data" is an const RIL_DataProfileInfo **
  * "datalen" is count * sizeof(const RIL_DataProfileInfo *)
  * "response" is NULL
