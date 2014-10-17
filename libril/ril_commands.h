@@ -144,3 +144,5 @@
     {RIL_REQUEST_SET_DC_RT_INFO_RATE, dispatchInts, responseVoid},
     {RIL_REQUEST_SET_DATA_PROFILE, dispatchDataProfile, responseVoid},
     {RIL_REQUEST_SHUTDOWN, dispatchVoid, responseVoid},
+    {RIL_REQUEST_GET_RADIO_CAPABILITY, dispatchVoid, responseRadioCapability},
+    {RIL_REQUEST_SET_RADIO_CAPABILITY, dispatchRadioCapability, responseRadioCapability},
