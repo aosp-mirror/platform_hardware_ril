@@ -277,6 +277,7 @@ static void dispatchNVWriteItem(Parcel &p, RequestInfo *pRI);
 static void dispatchUiccSubscripton(Parcel &p, RequestInfo *pRI);
 static void dispatchSimAuthentication(Parcel &p, RequestInfo *pRI);
 static void dispatchDataProfile(Parcel &p, RequestInfo *pRI);
+static void dispatchRadioCapability(Parcel &p, RequestInfo *pRI);
 static int responseInts(Parcel &p, void *response, size_t responselen);
 static int responseStrings(Parcel &p, void *response, size_t responselen);
 static int responseString(Parcel &p, void *response, size_t responselen);
@@ -303,7 +304,7 @@ static int responseSimRefresh(Parcel &p, void *response, size_t responselen);
 static int responseCellInfoList(Parcel &p, void *response, size_t responselen);
 static int responseHardwareConfig(Parcel &p, void *response, size_t responselen);
 static int responseDcRtInfo(Parcel &p, void *response, size_t responselen);
-
+static int responseRadioCapability(Parcel &p, void *response, size_t responselen);
 static int decodeVoiceRadioTechnology (RIL_RadioState radioState);
 static int decodeCdmaSubscriptionSource (RIL_RadioState radioState);
 static RIL_RadioState processRadioState(RIL_RadioState newRadioState);
@@ -378,6 +379,26 @@ strdupReadString(Parcel &p) {
     s16 = p.readString16Inplace(&stringlen);
 
     return strndup16to8(s16, stringlen);
+}
+
+static status_t
+readStringFromParcelInplace(Parcel &p, char *str, size_t maxLen) {
+    size_t s16Len;
+    const char16_t *s16;
+
+    s16 = p.readString16Inplace(&s16Len);
+    if (s16 == NULL) {
+        return NO_MEMORY;
+    }
+    size_t strLen = strnlen16to8(s16, s16Len);
+    if ((strLen + 1) > maxLen) {
+        return NO_MEMORY;
+    }
+    if (strncpy16to8(str, s16, strLen) == NULL) {
+        return NO_MEMORY;
+    } else {
+        return NO_ERROR;
+    }
 }
 
 static void writeStringToParcel(Parcel &p, const char *s) {
@@ -1952,6 +1973,67 @@ invalid:
     return;
 }
 
+static void dispatchRadioCapability(Parcel &p, RequestInfo *pRI){
+    RIL_RadioCapability rc;
+    int32_t t;
+    status_t status;
+
+    memset (&rc, 0, sizeof(RIL_RadioCapability));
+
+    status = p.readInt32(&t);
+    rc.version = (int)t;
+    if (status != NO_ERROR) {
+        goto invalid;
+    }
+
+    status = p.readInt32(&t);
+    rc.session= (int)t;
+    if (status != NO_ERROR) {
+        goto invalid;
+    }
+
+    status = p.readInt32(&t);
+    rc.phase= (int)t;
+    if (status != NO_ERROR) {
+        goto invalid;
+    }
+
+    status = p.readInt32(&t);
+    rc.rat = (int)t;
+    if (status != NO_ERROR) {
+        goto invalid;
+    }
+
+    status = readStringFromParcelInplace(p, rc.logicalModemUuid, sizeof(rc.logicalModemUuid));
+    if (status != NO_ERROR) {
+        goto invalid;
+    }
+
+    status = p.readInt32(&t);
+    rc.status = (int)t;
+
+    if (status != NO_ERROR) {
+        goto invalid;
+    }
+
+    startRequest;
+    appendPrintBuf("%s [version:%d, session:%d, phase:%d, rat:%d, \
+            logicalModem:%d, status:%d", printBuf, rc.version, rc.session
+            rc.phase, rc.rat, rc.logicalModem, rc.session);
+
+    closeRequest;
+    printRequest(pRI->token, pRI->pCI->requestNumber);
+
+    CALL_ONREQUEST(pRI->pCI->requestNumber,
+                &rc,
+                sizeof(RIL_RadioCapability),
+                pRI, pRI->socket_id);
+    return;
+invalid:
+    invalidCommandBlock(pRI);
+    return;
+}
+
 static int
 blockingWrite(int fd, const void *buffer, size_t len) {
     size_t writeOffset = 0;
@@ -3120,6 +3202,40 @@ static int responseHardwareConfig(Parcel &p, void *response, size_t responselen)
    removeLastChar;
    closeResponse;
    return 0;
+}
+
+static int responseRadioCapability(Parcel &p, void *response, size_t responselen) {
+    if (response == NULL) {
+        RLOGE("invalid response: NULL");
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    if (responselen != sizeof (RIL_RadioCapability) ) {
+        RLOGE("invalid response length was %d expected %d",
+                (int)responselen, (int)sizeof (RIL_SIM_IO_Response));
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    RIL_RadioCapability *p_cur = (RIL_RadioCapability *) response;
+    p.writeInt32(p_cur->version);
+    p.writeInt32(p_cur->session);
+    p.writeInt32(p_cur->phase);
+    p.writeInt32(p_cur->rat);
+    writeStringToParcel(p, p_cur->logicalModemUuid);
+    p.writeInt32(p_cur->status);
+
+    startResponse;
+    appendPrintBuf("%s[version=%d,session=%d,phase=%d,\
+            rat=%s,logicalModem=%s,status=%d]",
+            printBuf,
+            p_cur->version,
+            p_cur->session,
+            p_cur->phase,
+            p_cur->rat,
+            p_cur->logicalModem,
+            p_cur->status);
+    closeResponse;
+    return 0;
 }
 
 static void triggerEvLoop() {
@@ -4662,6 +4778,8 @@ requestToString(int request) {
         case RIL_REQUEST_SIM_OPEN_CHANNEL: return "SIM_OPEN_CHANNEL";
         case RIL_REQUEST_SIM_CLOSE_CHANNEL: return "SIM_CLOSE_CHANNEL";
         case RIL_REQUEST_SIM_TRANSMIT_APDU_CHANNEL: return "SIM_TRANSMIT_APDU_CHANNEL";
+        case RIL_REQUEST_GET_RADIO_CAPABILITY: return "RIL_REQUEST_GET_RADIO_CAPABILITY";
+        case RIL_REQUEST_SET_RADIO_CAPABILITY: return "RIL_REQUEST_SET_RADIO_CAPABILITY";
         case RIL_REQUEST_SET_UICC_SUBSCRIPTION: return "SET_UICC_SUBSCRIPTION";
         case RIL_REQUEST_ALLOW_DATA: return "ALLOW_DATA";
         case RIL_REQUEST_GET_HARDWARE_CONFIG: return "GET_HARDWARE_CONFIG";
@@ -4711,6 +4829,7 @@ requestToString(int request) {
         case RIL_UNSOL_HARDWARE_CONFIG_CHANGED: return "HARDWARE_CONFIG_CHANGED";
         case RIL_UNSOL_DC_RT_INFO_CHANGED: return "UNSOL_DC_RT_INFO_CHANGED";
         case RIL_REQUEST_SHUTDOWN: return "SHUTDOWN";
+        case RIL_UNSOL_RADIO_CAPABILITY: return "RIL_UNSOL_RADIO_CAPABILITY";
         default: return "<unknown request>";
     }
 }
