@@ -182,7 +182,7 @@ typedef enum {
     RC_PHASE_UNSOL_RSP  = 3,  // UNSOL_RSP is sent with RIL_UNSOL_RADIO_CAPABILITY
     RC_PHASE_FINISH     = 4   // FINISH is sent after all commands have completed. If an error
                               // occurs in any previous command the RIL_RadioAccessesFamily and
-                              // LogicalModem fields will be the prior configuration thus
+                              // logicalModemUuid fields will be the prior configuration thus
                               // restoring the configuration to the previous value. An error
                               // returned by this command will generally be ignored or may
                               // cause that logical modem to be removed from service.
@@ -199,7 +199,7 @@ typedef enum {
 
 #define RIL_RADIO_CAPABILITY_VERSION 1
 typedef struct {
-    int version;            // Version of structure, RIL_RadioCapability_Version
+    int version;            // Version of structure, RIL_RADIO_CAPABILITY_VERSION
     int session;            // Unique session value defined by framework returned in all "responses/unsol"
     int phase;              // CONFIGURED, START, APPLY, FINISH
     int rat;                // RIL_RadioAccessFamily for the radio
