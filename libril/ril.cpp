@@ -2018,8 +2018,8 @@ static void dispatchRadioCapability(Parcel &p, RequestInfo *pRI){
 
     startRequest;
     appendPrintBuf("%s [version:%d, session:%d, phase:%d, rat:%d, \
-            logicalModem:%d, status:%d", printBuf, rc.version, rc.session
-            rc.phase, rc.rat, rc.logicalModem, rc.session);
+            logicalModemUuid:%s, status:%d", printBuf, rc.version, rc.session
+            rc.phase, rc.rat, rc.logicalModemUuid, rc.session);
 
     closeRequest;
     printRequest(pRI->token, pRI->pCI->requestNumber);
@@ -3226,13 +3226,13 @@ static int responseRadioCapability(Parcel &p, void *response, size_t responselen
 
     startResponse;
     appendPrintBuf("%s[version=%d,session=%d,phase=%d,\
-            rat=%s,logicalModem=%s,status=%d]",
+            rat=%s,logicalModemUuid=%s,status=%d]",
             printBuf,
             p_cur->version,
             p_cur->session,
             p_cur->phase,
             p_cur->rat,
-            p_cur->logicalModem,
+            p_cur->logicalModemUuid,
             p_cur->status);
     closeResponse;
     return 0;
