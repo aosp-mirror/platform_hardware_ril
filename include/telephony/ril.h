@@ -46,7 +46,7 @@ extern "C" {
 #define SIM_COUNT 1
 #endif
 
-#define RIL_VERSION 10     /* Current version */
+#define RIL_VERSION 11     /* Current version */
 #define RIL_VERSION_MIN 6 /* Minimum RIL_VERSION supported */
 
 #define CDMA_ALPHA_INFO_BUFFER_LENGTH 64
@@ -379,7 +379,43 @@ typedef struct {
                                    to point connections. */
     char *          pcscf;    /* the Proxy Call State Control Function address
                                  via PCO(Protocol Configuration Option) for IMS client. */
-} RIL_Data_Call_Response_v9; // FIXME: Change to v10
+} RIL_Data_Call_Response_v9;
+
+typedef struct {
+    int             status;     /* A RIL_DataCallFailCause, 0 which is PDP_FAIL_NONE if no error */
+    int             suggestedRetryTime; /* If status != 0, this fields indicates the suggested retry
+                                           back-off timer value RIL wants to override the one
+                                           pre-configured in FW.
+                                           The unit is miliseconds.
+                                           The value < 0 means no value is suggested.
+                                           The value 0 means retry should be done ASAP.
+                                           The value of INT_MAX(0x7fffffff) means no retry. */
+    int             cid;        /* Context ID, uniquely identifies this call */
+    int             active;     /* 0=inactive, 1=active/physical link down, 2=active/physical link up */
+    char *          type;       /* One of the PDP_type values in TS 27.007 section 10.1.1.
+                                   For example, "IP", "IPV6", "IPV4V6", or "PPP". If status is
+                                   PDP_FAIL_ONLY_SINGLE_BEARER_ALLOWED this is the type supported
+                                   such as "IP" or "IPV6" */
+    char *          ifname;     /* The network interface name */
+    char *          addresses;  /* A space-delimited list of addresses with optional "/" prefix length,
+                                   e.g., "192.0.1.3" or "192.0.1.11/16 2001:db8::1/64".
+                                   May not be empty, typically 1 IPv4 or 1 IPv6 or
+                                   one of each. If the prefix length is absent the addresses
+                                   are assumed to be point to point with IPv4 having a prefix
+                                   length of 32 and IPv6 128. */
+    char *          dnses;      /* A space-delimited list of DNS server addresses,
+                                   e.g., "192.0.1.3" or "192.0.1.11 2001:db8::1".
+                                   May be empty. */
+    char *          gateways;   /* A space-delimited list of default gateway addresses,
+                                   e.g., "192.0.1.3" or "192.0.1.11 2001:db8::1".
+                                   May be empty in which case the addresses represent point
+                                   to point connections. */
+    char *          pcscf;    /* the Proxy Call State Control Function address
+                                 via PCO(Protocol Configuration Option) for IMS client. */
+    int             mtu;        /* MTU received from network
+                                   Value <= 0 means network has either not sent a value or
+                                   sent an invalid value */
+} RIL_Data_Call_Response_v11;
 
 typedef enum {
     RADIO_TECH_3GPP = 1, /* 3GPP Technologies - GSM, WCDMA */
@@ -2103,7 +2139,7 @@ typedef struct {
  *                          For example, "IP", "IPV6", "IPV4V6", or "PPP".
  * ((const char **)data)[7] Optional connection property parameters, format to be defined.
  *
- * "response" is a RIL_Data_Call_Response_v6
+ * "response" is a RIL_Data_Call_Response_v11
  *
  * FIXME may need way to configure QoS settings
  *

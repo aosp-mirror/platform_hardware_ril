@@ -51,6 +51,9 @@ static void *noopRemoveWarning( void *a ) { return a; }
 /* pathname returned from RIL_REQUEST_SETUP_DATA_CALL / RIL_REQUEST_SETUP_DEFAULT_PDP */
 #define PPP_TTY_PATH "eth0"
 
+// Default MTU value
+#define DEFAULT_MTU 1500
+
 #ifdef USE_TI_COMMANDS
 
 // Enable a workaround
@@ -449,8 +452,8 @@ static void requestOrSendDataCallList(RIL_Token *t)
          p_cur = p_cur->p_next)
         n++;
 
-    RIL_Data_Call_Response_v9 *responses =
-        alloca(n * sizeof(RIL_Data_Call_Response_v9));
+    RIL_Data_Call_Response_v11 *responses =
+        alloca(n * sizeof(RIL_Data_Call_Response_v11));
 
     int i;
     for (i = 0; i < n; i++) {
@@ -464,9 +467,10 @@ static void requestOrSendDataCallList(RIL_Token *t)
         responses[i].dnses = "";
         responses[i].gateways = "";
         responses[i].pcscf = "";
+        responses[i].mtu = 0;
     }
 
-    RIL_Data_Call_Response_v9 *response = responses;
+    RIL_Data_Call_Response_v11 *response = responses;
     for (p_cur = p_response->p_intermediates; p_cur != NULL;
          p_cur = p_cur->p_next) {
         char *line = p_cur->line;
@@ -583,6 +587,7 @@ static void requestOrSendDataCallList(RIL_Token *t)
 
                 /* There is only on gateway in the emulator */
                 responses[i].gateways = "10.0.2.2";
+                responses[i].mtu = DEFAULT_MTU;
             }
             else {
                 /* I don't know where we are, so use the public Google DNS
@@ -598,11 +603,11 @@ static void requestOrSendDataCallList(RIL_Token *t)
 
     if (t != NULL)
         RIL_onRequestComplete(*t, RIL_E_SUCCESS, responses,
-                              n * sizeof(RIL_Data_Call_Response_v9));
+                              n * sizeof(RIL_Data_Call_Response_v11));
     else
         RIL_onUnsolicitedResponse(RIL_UNSOL_DATA_CALL_LIST_CHANGED,
                                   responses,
-                                  n * sizeof(RIL_Data_Call_Response_v9));
+                                  n * sizeof(RIL_Data_Call_Response_v11));
 
     return;
 
