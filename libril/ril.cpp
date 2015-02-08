@@ -710,6 +710,7 @@ dispatchSmsWrite (Parcel &p, RequestInfo *pRI) {
     int32_t t;
     status_t status;
 
+    ALOGD("dispatchSmsWrite");
     memset (&args, 0, sizeof(args));
 
     status = p.readInt32(&t);
@@ -762,6 +763,7 @@ dispatchDial (Parcel &p, RequestInfo *pRI) {
     int32_t uusPresent;
     status_t status;
 
+    ALOGD("dispatchDial");
     memset (&dial, 0, sizeof(dial));
 
     dial.address = strdupReadString(p);
@@ -866,6 +868,7 @@ dispatchSIM_IO (Parcel &p, RequestInfo *pRI) {
     int size;
     status_t status;
 
+    ALOGD("dispatchSIM_IO");
     memset (&simIO, 0, sizeof(simIO));
 
     // note we only check status at the end
@@ -943,6 +946,7 @@ dispatchSIM_APDU (Parcel &p, RequestInfo *pRI) {
     status_t status;
     RIL_SIM_APDU apdu;
 
+    ALOGD("dispatchSIM_APDU");
     memset (&apdu, 0, sizeof(RIL_SIM_APDU));
 
     // Note we only check status at the end. Any single failure leads to
@@ -1012,6 +1016,7 @@ dispatchCallForward(Parcel &p, RequestInfo *pRI) {
     int32_t t;
     status_t status;
 
+    ALOGD("dispatchCallForward");
     memset (&cff, 0, sizeof(cff));
 
     // note we only check status at the end
@@ -1355,6 +1360,7 @@ dispatchCdmaSmsAck(Parcel &p, RequestInfo *pRI) {
     status_t status;
     int32_t digitCount;
 
+    ALOGD("dispatchCdmaSmsAck");
     memset(&rcsa, 0, sizeof(rcsa));
 
     status = p.readInt32(&t);
@@ -4428,11 +4434,7 @@ static void
 wakeTimeoutCallback (void *param) {
     // We're using "param != NULL" as a cancellation mechanism
     if (param == NULL) {
-        //RLOGD("wakeTimeout: releasing wake lock");
-
         releaseWakeLock();
-    } else {
-        //RLOGD("wakeTimeout: releasing wake lock CANCELLED");
     }
 }
 
