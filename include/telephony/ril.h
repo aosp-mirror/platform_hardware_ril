@@ -4340,9 +4340,7 @@ typedef struct {
  *
  * Used to get phone radio capablility.
  *
- * "data" is int *
- * ((int *)data)[0] is the phone radio access family defined in
- * RadioAccessFamily. It's a bit mask value to represent the support type.
+ * "data" is the RIL_RadioCapability structure
  *
  * Valid errors:
  *  SUCCESS
