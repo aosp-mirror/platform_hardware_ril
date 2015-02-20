@@ -52,6 +52,7 @@ extern void RIL_register (const RIL_RadioFunctions *callbacks);
 extern void RIL_onRequestComplete(RIL_Token t, RIL_Errno e,
                            void *response, size_t responselen);
 
+extern void RIL_setRilSocketName(char *);
 
 #if defined(ANDROID_MULTI_SIM)
 extern void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
