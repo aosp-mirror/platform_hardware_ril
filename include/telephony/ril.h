@@ -113,7 +113,8 @@ typedef enum {
     RIL_E_SS_MODIFIED_TO_DIAL = 24,             /* SS request modified to DIAL */
     RIL_E_SS_MODIFIED_TO_USSD = 25,             /* SS request modified to USSD */
     RIL_E_SUBSCRIPTION_NOT_SUPPORTED = 26,      /* Subscription not supported by RIL */
-    RIL_E_SS_MODIFIED_TO_SS = 27                /* SS request modified to different SS request */
+    RIL_E_SS_MODIFIED_TO_SS = 27,               /* SS request modified to different SS request */
+    RIL_E_LCE_NOT_SUPPORTED = 28                /* LCE service not supported by RIL */
 
 
 } RIL_Errno;
@@ -565,6 +566,27 @@ typedef struct {
                         * Level index of CPICH Received Signal Code Power in UMTS
                         */
 } RIL_NeighboringCell;
+
+typedef struct {
+  char lce_status;                 /* LCE service status:
+                                    * -1 = not supported;
+                                    * 0 = stopped;
+                                    * 1 = active.
+                                    */
+  unsigned int actual_interval_ms; /* actual LCE reporting interval,
+                                    * meaningful only if LCEStatus = 1.
+                                    */
+} RIL_LceStatusInfo;
+
+typedef struct {
+  unsigned int last_hop_capacity_kbps; /* last-hop cellular capacity: bytes/second. */
+  unsigned char confidence_level;      /* capacity estimate confidence: 0-100 */
+  unsigned char lce_suspended;         /* LCE report going to be suspended? (e.g., radio
+                                        * moves to inactive state or network type change)
+                                        * 1 = suspended;
+                                        * 0 = not suspended.
+                                        */
+} RIL_LceDataInfo;
 
 /* See RIL_REQUEST_LAST_CALL_FAIL_CAUSE */
 typedef enum {
@@ -4348,6 +4370,52 @@ typedef struct {
  */
 #define RIL_REQUEST_SET_RADIO_CAPABILITY 131
 
+/**
+ * RIL_REQUEST_START_LCE
+ *
+ * Start Link Capacity Estimate (LCE) service if supported by the radio.
+ *
+ * "data" is const int *
+ * ((const int*)data)[0] specifies the desired reporting interval (ms).
+ *
+ * "response" is the RIL_LCEStatusInfo.
+ *
+ * Valid errors:
+ * SUCCESS
+ * RADIO_NOT_AVAILABLE
+ * LCE_NOT_SUPPORTED
+ */
+#define RIL_REQUEST_START_LCE 132
+
+/**
+ * RIL_REQUEST_STOP_LCE
+ *
+ * Stop Link Capacity Estimate (LCE) service, the STOP operation should be
+ * idempotent for the radio modem.
+ *
+ * "response" is the RIL_LCEStatusInfo.
+ *
+ * Valid errors:
+ * SUCCESS
+ * RADIO_NOT_AVAILABLE
+ * LCE_NOT_SUPPORTED
+ */
+#define RIL_REQUEST_STOP_LCE 133
+
+/**
+ * RIL_REQUEST_PULL_LCEDATA
+ *
+ * Pull LCE service for capacity information.
+ *
+ * "response" is the RIL_LCEDataInfo.
+ *
+ * Valid errors:
+ * SUCCESS
+ * RADIO_NOT_AVAILABLE
+ * LCE_NOT_SUPPORTED
+ */
+#define RIL_REQUEST_PULL_LCEDATA 134
+
 
 /***********************************************************************/
 
@@ -4936,6 +5004,16 @@ typedef struct {
  *
  */
 #define RIL_UNSOL_STK_CC_ALPHA_NOTIFY 1044
+
+/**
+ * RIL_UNSOL_LCEDATA_RECV
+ *
+ * Called when there is an incoming Link Capacity Estimate (LCE) info report.
+ *
+ * "data" is the RIL_LCEDataInfo structure.
+ *
+ */
+#define RIL_UNSOL_LCEDATA_RECV 1045
 
 /***********************************************************************/
 
