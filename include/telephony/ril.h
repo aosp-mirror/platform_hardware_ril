@@ -579,7 +579,7 @@ typedef struct {
 } RIL_LceStatusInfo;
 
 typedef struct {
-  unsigned int last_hop_capacity_kbps; /* last-hop cellular capacity: bytes/second. */
+  unsigned int last_hop_capacity_kbps; /* last-hop cellular capacity: kilobits/second. */
   unsigned char confidence_level;      /* capacity estimate confidence: 0-100 */
   unsigned char lce_suspended;         /* LCE report going to be suspended? (e.g., radio
                                         * moves to inactive state or network type change)
@@ -4375,8 +4375,9 @@ typedef struct {
  *
  * "data" is const int *
  * ((const int*)data)[0] specifies the desired reporting interval (ms).
+ * ((const int*)data)[1] specifies the LCE service mode. 1: PULL; 0: PUSH.
  *
- * "response" is the RIL_LCEStatusInfo.
+ * "response" is the RIL_LceStatusInfo.
  *
  * Valid errors:
  * SUCCESS
@@ -4391,7 +4392,7 @@ typedef struct {
  * Stop Link Capacity Estimate (LCE) service, the STOP operation should be
  * idempotent for the radio modem.
  *
- * "response" is the RIL_LCEStatusInfo.
+ * "response" is the RIL_LceStatusInfo.
  *
  * Valid errors:
  * SUCCESS
@@ -4405,7 +4406,7 @@ typedef struct {
  *
  * Pull LCE service for capacity information.
  *
- * "response" is the RIL_LCEDataInfo.
+ * "response" is the RIL_LceDataInfo.
  *
  * Valid errors:
  * SUCCESS
@@ -5008,7 +5009,7 @@ typedef struct {
  *
  * Called when there is an incoming Link Capacity Estimate (LCE) info report.
  *
- * "data" is the RIL_LCEDataInfo structure.
+ * "data" is the RIL_LceDataInfo structure.
  *
  */
 #define RIL_UNSOL_LCEDATA_RECV 1045
