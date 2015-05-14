@@ -616,6 +616,11 @@ typedef enum {
     CALL_FAIL_ERROR_UNSPECIFIED = 0xffff
 } RIL_LastCallFailCause;
 
+typedef struct {
+  RIL_LastCallFailCause cause_code;
+  char *                vendor_cause;
+} RIL_LastCallFailCauseInfo;
+
 /* See RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE */
 typedef enum {
     PDP_FAIL_NONE = 0, /* No error, connection ok */

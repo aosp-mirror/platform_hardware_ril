@@ -270,6 +270,7 @@ static void dispatchSimAuthentication(Parcel &p, RequestInfo *pRI);
 static void dispatchDataProfile(Parcel &p, RequestInfo *pRI);
 static void dispatchRadioCapability(Parcel &p, RequestInfo *pRI);
 static int responseInts(Parcel &p, void *response, size_t responselen);
+static int responseFailCause(Parcel &p, void *response, size_t responselen);
 static int responseStrings(Parcel &p, void *response, size_t responselen);
 static int responseString(Parcel &p, void *response, size_t responselen);
 static int responseVoid(Parcel &p, void *response, size_t responselen);
@@ -2166,6 +2167,35 @@ responseInts(Parcel &p, void *response, size_t responselen) {
     }
     removeLastChar;
     closeResponse;
+
+    return 0;
+}
+
+// Response is an int or RIL_LastCallFailCauseInfo.
+// Currently, only Shamu plans to use RIL_LastCallFailCauseInfo.
+// TODO(yjl): Let all implementations use RIL_LastCallFailCauseInfo.
+static int responseFailCause(Parcel &p, void *response, size_t responselen) {
+    if (response == NULL && responselen != 0) {
+        RLOGE("invalid response: NULL");
+        return RIL_ERRNO_INVALID_RESPONSE;
+    }
+
+    if (responselen == sizeof(int)) {
+      return responseInts(p, response, responselen);
+    } else if (responselen == sizeof(RIL_LastCallFailCauseInfo)) {
+      startResponse;
+      RIL_LastCallFailCauseInfo *p_fail_cause_info = (RIL_LastCallFailCauseInfo *) response;
+      appendPrintBuf("%s[cause_code=%d,vendor_cause=%s]", printBuf, p_fail_cause_info->cause_code,
+                     p_fail_cause_info->vendor_cause);
+      p.writeInt32(p_fail_cause_info->cause_code);
+      writeStringToParcel(p, p_fail_cause_info->vendor_cause);
+      removeLastChar;
+      closeResponse;
+    } else {
+      RLOGE("responseFailCause: invalid response length %d expected an int or "
+            "RIL_LastCallFailCauseInfo", (int)responselen);
+      return RIL_ERRNO_INVALID_RESPONSE;
+    }
 
     return 0;
 }

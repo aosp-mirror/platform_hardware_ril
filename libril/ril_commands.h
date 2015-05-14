@@ -32,7 +32,7 @@
     {RIL_REQUEST_SWITCH_WAITING_OR_HOLDING_AND_ACTIVE, dispatchVoid, responseVoid},
     {RIL_REQUEST_CONFERENCE, dispatchVoid, responseVoid},
     {RIL_REQUEST_UDUB, dispatchVoid, responseVoid},
-    {RIL_REQUEST_LAST_CALL_FAIL_CAUSE, dispatchVoid, responseInts},
+    {RIL_REQUEST_LAST_CALL_FAIL_CAUSE, dispatchVoid, responseFailCause},
     {RIL_REQUEST_SIGNAL_STRENGTH, dispatchVoid, responseRilSignalStrength},
     {RIL_REQUEST_VOICE_REGISTRATION_STATE, dispatchVoid, responseStrings},
     {RIL_REQUEST_DATA_REGISTRATION_STATE, dispatchVoid, responseStrings},
