@@ -1412,14 +1412,7 @@ typedef struct {
 } RIL_DataProfileInfo;
 
 /* Tx Power Levels */
-typedef enum {
-   RIL_TX_POWER_LEVEL_ONE =  0,
-   RIL_TX_POWER_LEVEL_TWO = 1,
-   RIL_TX_POWER_LEVEL_THREE = 2,
-   RIL_TX_POWER_LEVEL_FOUR = 3,
-   RIL_TX_POWER_LEVEL_FIVE = 4,
-   RIL_TX_POWER_LEVEL_MAX = 5
-} RIL_TxPowerLevel;
+#define RIL_NUM_TX_POWER_LEVELS     5
 
 typedef struct {
 
@@ -1430,7 +1423,7 @@ typedef struct {
   uint32_t idle_mode_time_ms;
 
   /* period (in ms) for which Tx is active */
-  uint32_t tx_mode_time_ms[RIL_TX_POWER_LEVEL_MAX];
+  uint32_t tx_mode_time_ms[RIL_NUM_TX_POWER_LEVELS];
 
   /* period (in ms) for which Rx is active */
   uint32_t rx_mode_time_ms;
