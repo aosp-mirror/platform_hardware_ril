@@ -2181,7 +2181,12 @@ static int responseFailCause(Parcel &p, void *response, size_t responselen) {
     }
 
     if (responselen == sizeof(int)) {
-      return responseInts(p, response, responselen);
+      startResponse;
+      int *p_int = (int *) response;
+      appendPrintBuf("%s%d,", printBuf, p_int[0]);
+      p.writeInt32(p_int[0]);
+      removeLastChar;
+      closeResponse;
     } else if (responselen == sizeof(RIL_LastCallFailCauseInfo)) {
       startResponse;
       RIL_LastCallFailCauseInfo *p_fail_cause_info = (RIL_LastCallFailCauseInfo *) response;
