@@ -26,6 +26,7 @@ endif
 
 LOCAL_MODULE:= rild
 LOCAL_MODULE_TAGS := optional
+LOCAL_INIT_RC := rild.rc
 
 include $(BUILD_EXECUTABLE)
 
