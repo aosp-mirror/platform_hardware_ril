@@ -7,7 +7,10 @@ LOCAL_SRC_FILES:= \
     librilutils.c \
     record_stream.c
 
-LOCAL_CFLAGS :=
+LOCAL_C_INCLUDES += \
+    $(LOCAL_PATH)/../include
+LOCAL_EXPORT_C_INCLUDE_DIRS := \
+    $(LOCAL_PATH)/../include
 
 LOCAL_MODULE:= librilutils
 
@@ -22,9 +25,10 @@ LOCAL_SRC_FILES:= \
     librilutils.c \
     record_stream.c
 
-LOCAL_STATIC_LIBRARIES :=
-
-LOCAL_CFLAGS :=
+LOCAL_C_INCLUDES += \
+    $(LOCAL_PATH)/../include
+LOCAL_EXPORT_C_INCLUDE_DIRS := \
+    $(LOCAL_PATH)/../include
 
 LOCAL_MODULE:= librilutils_static
 
