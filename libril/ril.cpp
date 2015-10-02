@@ -2026,7 +2026,7 @@ static void dispatchRadioCapability(Parcel &p, RequestInfo *pRI){
 
     startRequest;
     appendPrintBuf("%s [version:%d, session:%d, phase:%d, rat:%d, \
-            logicalModemUuid:%s, status:%d", printBuf, rc.version, rc.session
+            logicalModemUuid:%s, status:%d", printBuf, rc.version, rc.session,
             rc.phase, rc.rat, rc.logicalModemUuid, rc.session);
 
     closeRequest;
