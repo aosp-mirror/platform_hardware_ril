@@ -4562,7 +4562,7 @@ typedef struct {
  * RIL_REQUEST_VOICE_RADIO_TECH
  *
  * Query the radio technology type (3GPP/3GPP2) used for voice. Query is valid only
- * when radio state is RADIO_STATE_ON
+ * when radio state is not RADIO_STATE_UNAVAILABLE
  *
  * "data" is NULL
  * "response" is int *
