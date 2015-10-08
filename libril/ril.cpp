@@ -1718,12 +1718,12 @@ static void dispatchDataCall(Parcel& p, RequestInfo *pRI) {
 static void dispatchVoiceRadioTech(Parcel& p, RequestInfo *pRI) {
     RIL_RadioState state = CALL_ONSTATEREQUEST((RIL_SOCKET_ID)pRI->socket_id);
 
-    if ((RADIO_STATE_UNAVAILABLE == state) || (RADIO_STATE_OFF == state)) {
+    if (RADIO_STATE_UNAVAILABLE == state) {
         RIL_onRequestComplete(pRI, RIL_E_RADIO_NOT_AVAILABLE, NULL, 0);
     }
 
-    // RILs that support RADIO_STATE_ON should support this request.
-    if (RADIO_STATE_ON == state) {
+    // If radio is available then RIL should support this request.
+    if ((RADIO_STATE_ON == state) || (RADIO_STATE_OFF == state)){
         dispatchVoid(p, pRI);
         return;
     }
