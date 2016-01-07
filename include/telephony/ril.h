@@ -632,6 +632,8 @@ typedef enum {
        as the UI layer needs to distinguish these
        cases for error notification and potential retries. */
     PDP_FAIL_OPERATOR_BARRED = 0x08,               /* no retry */
+    PDP_FAIL_NAS_SIGNALLING = 0x0E,
+    PDP_FAIL_LLC_SNDCP = 0x19,
     PDP_FAIL_INSUFFICIENT_RESOURCES = 0x1A,
     PDP_FAIL_MISSING_UKNOWN_APN = 0x1B,            /* no retry */
     PDP_FAIL_UNKNOWN_PDP_ADDRESS_TYPE = 0x1C,      /* no retry */
@@ -644,10 +646,44 @@ typedef enum {
     PDP_FAIL_NSAPI_IN_USE = 0x23,                  /* no retry */
     PDP_FAIL_REGULAR_DEACTIVATION = 0x24,          /* possibly restart radio,
                                                       based on framework config */
+    PDP_FAIL_QOS_NOT_ACCEPTED = 0x25,
+    PDP_FAIL_NETWORK_FAILURE = 0x26,
+    PDP_FAIL_UMTS_REACTIVATION_REQ = 0x27,
+    PDP_FAIL_FEATURE_NOT_SUPP = 0x28,
+    PDP_FAIL_TFT_SEMANTIC_ERROR = 0x29,
+    PDP_FAIL_TFT_SYTAX_ERROR = 0x2A,
+    PDP_FAIL_UNKNOWN_PDP_CONTEXT = 0x2B,
+    PDP_FAIL_FILTER_SEMANTIC_ERROR = 0x2C,
+    PDP_FAIL_FILTER_SYTAX_ERROR = 0x2D,
+    PDP_FAIL_PDP_WITHOUT_ACTIVE_TFT = 0x2E,
     PDP_FAIL_ONLY_IPV4_ALLOWED = 0x32,             /* no retry */
     PDP_FAIL_ONLY_IPV6_ALLOWED = 0x33,             /* no retry */
     PDP_FAIL_ONLY_SINGLE_BEARER_ALLOWED = 0x34,
-    PDP_FAIL_PROTOCOL_ERRORS   = 0x6F,             /* no retry */
+    PDP_FAIL_ESM_INFO_NOT_RECEIVED = 0x35,
+    PDP_FAIL_PDN_CONN_DOES_NOT_EXIST = 0x36,
+    PDP_FAIL_MULTI_CONN_TO_SAME_PDN_NOT_ALLOWED = 0x37,
+    PDP_FAIL_MAX_ACTIVE_PDP_CONTEXT_REACHED = 0x41,
+    PDP_FAIL_UNSUPPORTED_APN_IN_CURRENT_PLMN = 0x42,
+    PDP_FAIL_INVALID_TRANSACTION_ID = 0x51,
+    PDP_FAIL_MESSAGE_INCORRECT_SEMANTIC = 0x5F,
+    PDP_FAIL_INVALID_MANDATORY_INFO = 0x60,
+    PDP_FAIL_MESSAGE_TYPE_UNSUPPORTED = 0x61,
+    PDP_FAIL_MSG_TYPE_NONCOMPATIBLE_STATE = 0x62,
+    PDP_FAIL_UNKNOWN_INFO_ELEMENT = 0x63,
+    PDP_FAIL_CONDITIONAL_IE_ERROR = 0x64,
+    PDP_FAIL_MSG_AND_PROTOCOL_STATE_UNCOMPATIBLE = 0x65,
+    PDP_FAIL_PROTOCOL_ERRORS = 0x6F,             /* no retry */
+    PDP_FAIL_APN_TYPE_CONFLICT = 0x70,
+    PDP_FAIL_INVALID_PCSCF_ADDR = 0x71,
+    PDP_FAIL_INTERNAL_CALL_PREEMPT_BY_HIGH_PRIO_APN = 0x72,
+    PDP_FAIL_EMM_ACCESS_BARRED = 0x73,
+    PDP_FAIL_EMERGENCY_IFACE_ONLY = 0x74,
+    PDP_FAIL_IFACE_MISMATCH = 0x75,
+    PDP_FAIL_COMPANION_IFACE_IN_USE = 0x76,
+    PDP_FAIL_IP_ADDRESS_MISMATCH = 0x77,
+    PDP_FAIL_IFACE_AND_POL_FAMILY_MISMATCH = 0x78,
+    PDP_FAIL_EMM_ACCESS_BARRED_INFINITE_RETRY = 0x79,
+    PDP_FAIL_AUTH_FAILURE_ON_EMERGENCY_CALL = 0x7A,
 
     /* Not mentioned in the specification */
     PDP_FAIL_VOICE_REGISTRATION_FAIL = -1,
@@ -663,7 +699,8 @@ typedef enum {
                                              mode was up on same APN/data profile - no retry until
                                              tethered call is off */
 
-    PDP_FAIL_ERROR_UNSPECIFIED = 0xffff,  /* retry silently */
+    PDP_FAIL_ERROR_UNSPECIFIED = 0xffff,  /* retry silently. Will be deprecated soon as
+                                             new error codes are added making this unnecessary */
 } RIL_DataCallFailCause;
 
 /* See RIL_REQUEST_SETUP_DATA_CALL */
