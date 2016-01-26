@@ -57,17 +57,15 @@ extern "C" {
  * or data structure version to use.
  *
  * Documentation of RIL version and associated changes
- * RIL_VERSION = 12 : This version corresponds to updated data structures namely
+ * RIL_VERSION = 11 : This version corresponds to updated data structures namely
  *                    RIL_Data_Call_Response_v11, RIL_SIM_IO_v6, RIL_CardStatus_v6,
  *                    RIL_SimRefreshResponse_v7, RIL_CDMA_CallWaiting_v6,
- *                    RIL_LTE_SignalStrength_v8, RIL_SignalStrength_v10, RIL_SignalStrength_v10,
- *                    RIL_CellIdentityGsm_v12, RIL_CellIdentityWcdma_v12, RIL_CellIdentityLte_v12,
- *                    RIL_CellInfoGsm_v12, RIL_CellInfoWcdma_v12, RIL_CellInfoLte_v12, RIL_CellInfo_v12.
+ *                    RIL_LTE_SignalStrength_v8 & RIL_SignalStrength_v10.
  *
- * RIL_VERSION = 13 : This version includes new wakelock semantics.
+ * RIL_VERSION = 12 : This version includes new wakelock semantics.
  */
-#define RIL_VERSION 12
-#define LAST_IMPRECISE_RIL_VERSION 12 // Better self-documented name
+#define RIL_VERSION 11
+#define LAST_IMPRECISE_RIL_VERSION 11 // Better self-documented name
 #define RIL_VERSION_MIN 6 /* Minimum RIL_VERSION supported */
 
 #define CDMA_ALPHA_INFO_BUFFER_LENGTH 64
@@ -1004,13 +1002,6 @@ typedef struct {
 typedef struct {
     int signalStrength;  /* Valid values are (0-31, 99) as defined in TS 27.007 8.5 */
     int bitErrorRate;    /* bit error rate (0-7, 99) as defined in TS 27.007 8.5 */
-    int timingAdvance;   /* Timing Advance in bit periods. 1 bit period = 48/13 us.
-                          * INT_MAX denotes invalid value */
-} RIL_GSM_SignalStrength_v12;
-
-typedef struct {
-    int signalStrength;  /* Valid values are (0-31, 99) as defined in TS 27.007 8.5 */
-    int bitErrorRate;    /* bit error rate (0-7, 99) as defined in TS 27.007 8.5 */
 } RIL_SignalStrengthWcdma;
 
 typedef struct {
@@ -1119,6 +1110,7 @@ typedef struct {
     RIL_TD_SCDMA_SignalStrength TD_SCDMA_SignalStrength;
 } RIL_SignalStrength_v10;
 
+/** RIL_CellIdentityGsm */
 typedef struct {
     int mcc;    /* 3-digit Mobile Country Code, 0..999, INT_MAX if unknown */
     int mnc;    /* 2 or 3-digit Mobile Network Code, 0..999, INT_MAX if unknown */
@@ -1126,15 +1118,7 @@ typedef struct {
     int cid;    /* 16-bit GSM Cell Identity described in TS 27.007, 0..65535, INT_MAX if unknown  */
 } RIL_CellIdentityGsm;
 
-typedef struct {
-    int mcc;    /* 3-digit Mobile Country Code, 0..999, INT_MAX if unknown */
-    int mnc;    /* 2 or 3-digit Mobile Network Code, 0..999, INT_MAX if unknown */
-    int lac;    /* 16-bit Location Area Code, 0..65535, INT_MAX if unknown  */
-    int cid;    /* 16-bit GSM Cell Identity described in TS 27.007, 0..65535, INT_MAX if unknown  */
-    int arfcn;  /* 16-bit GSM Absolute RF channel number, INT_MAX if unknown */
-    uint8_t bsic;/* 6-bit Base Station Identity Code */
-} RIL_CellIdentityGsm_v12;
-
+/** RIL_CellIdentityWcdma */
 typedef struct {
     int mcc;    /* 3-digit Mobile Country Code, 0..999, INT_MAX if unknown  */
     int mnc;    /* 2 or 3-digit Mobile Network Code, 0..999, INT_MAX if unknown  */
@@ -1143,15 +1127,7 @@ typedef struct {
     int psc;    /* 9-bit UMTS Primary Scrambling Code described in TS 25.331, 0..511, INT_MAX if unknown */
 } RIL_CellIdentityWcdma;
 
-typedef struct {
-    int mcc;    /* 3-digit Mobile Country Code, 0..999, INT_MAX if unknown  */
-    int mnc;    /* 2 or 3-digit Mobile Network Code, 0..999, INT_MAX if unknown  */
-    int lac;    /* 16-bit Location Area Code, 0..65535, INT_MAX if unknown  */
-    int cid;    /* 28-bit UMTS Cell Identity described in TS 25.331, 0..268435455, INT_MAX if unknown  */
-    int psc;    /* 9-bit UMTS Primary Scrambling Code described in TS 25.331, 0..511, INT_MAX if unknown */
-    int uarfcn; /* 16-bit UMTS Absolute RF Channel Number, INT_MAX if unknown */
-} RIL_CellIdentityWcdma_v12;
-
+/** RIL_CellIdentityCdma */
 typedef struct {
     int networkId;      /* Network Id 0..65535, INT_MAX if unknown */
     int systemId;       /* CDMA System Id 0..32767, INT_MAX if unknown  */
@@ -1167,6 +1143,7 @@ typedef struct {
                          * to +90 degrees). INT_MAX if unknown */
 } RIL_CellIdentityCdma;
 
+/** RIL_CellIdentityLte */
 typedef struct {
     int mcc;    /* 3-digit Mobile Country Code, 0..999, INT_MAX if unknown  */
     int mnc;    /* 2 or 3-digit Mobile Network Code, 0..999, INT_MAX if unknown  */
@@ -1175,15 +1152,7 @@ typedef struct {
     int tac;    /* 16-bit tracking area code, INT_MAX if unknown  */
 } RIL_CellIdentityLte;
 
-typedef struct {
-    int mcc;    /* 3-digit Mobile Country Code, 0..999, INT_MAX if unknown  */
-    int mnc;    /* 2 or 3-digit Mobile Network Code, 0..999, INT_MAX if unknown  */
-    int ci;     /* 28-bit Cell Identity described in TS ???, INT_MAX if unknown */
-    int pci;    /* physical cell id 0..503, INT_MAX if unknown  */
-    int tac;    /* 16-bit tracking area code, INT_MAX if unknown  */
-    int earfcn; /* 18-bit LTE Absolute RC Channel Number, INT_MAX if unknown */
-} RIL_CellIdentityLte_v12;
-
+/** RIL_CellIdentityTdscdma */
 typedef struct {
     int mcc;    /* 3-digit Mobile Country Code, 0..999, INT_MAX if unknown  */
     int mnc;    /* 2 or 3-digit Mobile Network Code, 0..999, INT_MAX if unknown  */
@@ -1192,42 +1161,32 @@ typedef struct {
     int cpid;    /* 8-bit Cell Parameters ID described in TS 25.331, 0..127, INT_MAX if unknown */
 } RIL_CellIdentityTdscdma;
 
+/** RIL_CellInfoGsm */
 typedef struct {
   RIL_CellIdentityGsm   cellIdentityGsm;
   RIL_GW_SignalStrength signalStrengthGsm;
 } RIL_CellInfoGsm;
 
-typedef struct {
-  RIL_CellIdentityGsm_v12   cellIdentityGsm;
-  RIL_GSM_SignalStrength_v12 signalStrengthGsm;
-} RIL_CellInfoGsm_v12;
-
+/** RIL_CellInfoWcdma */
 typedef struct {
   RIL_CellIdentityWcdma cellIdentityWcdma;
   RIL_SignalStrengthWcdma signalStrengthWcdma;
 } RIL_CellInfoWcdma;
 
-typedef struct {
-  RIL_CellIdentityWcdma_v12 cellIdentityWcdma;
-  RIL_SignalStrengthWcdma signalStrengthWcdma;
-} RIL_CellInfoWcdma_v12;
-
+/** RIL_CellInfoCdma */
 typedef struct {
   RIL_CellIdentityCdma      cellIdentityCdma;
   RIL_CDMA_SignalStrength   signalStrengthCdma;
   RIL_EVDO_SignalStrength   signalStrengthEvdo;
 } RIL_CellInfoCdma;
 
+/** RIL_CellInfoLte */
 typedef struct {
   RIL_CellIdentityLte        cellIdentityLte;
   RIL_LTE_SignalStrength_v8  signalStrengthLte;
 } RIL_CellInfoLte;
 
-typedef struct {
-  RIL_CellIdentityLte_v12    cellIdentityLte;
-  RIL_LTE_SignalStrength_v8  signalStrengthLte;
-} RIL_CellInfoLte_v12;
-
+/** RIL_CellInfoTdscdma */
 typedef struct {
   RIL_CellIdentityTdscdma cellIdentityTdscdma;
   RIL_TD_SCDMA_SignalStrength signalStrengthTdscdma;
@@ -1264,20 +1223,6 @@ typedef struct {
     RIL_CellInfoTdscdma tdscdma;
   } CellInfo;
 } RIL_CellInfo;
-
-typedef struct {
-  RIL_CellInfoType  cellInfoType;   /* cell type for selecting from union CellInfo */
-  int               registered;     /* !0 if this cell is registered 0 if not registered */
-  RIL_TimeStampType timeStampType;  /* type of time stamp represented by timeStamp */
-  uint64_t          timeStamp;      /* Time in nanos as returned by ril_nano_time */
-  union {
-    RIL_CellInfoGsm_v12     gsm;
-    RIL_CellInfoCdma        cdma;
-    RIL_CellInfoLte_v12     lte;
-    RIL_CellInfoWcdma_v12   wcdma;
-    RIL_CellInfoTdscdma     tdscdma;
-  } CellInfo;
-} RIL_CellInfo_v12;
 
 /* Names of the CDMA info records (C.S0005 section 3.7.5) */
 typedef enum {
@@ -4139,7 +4084,7 @@ typedef struct {
  *
  * "data" is NULL
  *
- * "response" is an array of  RIL_CellInfo_v12.
+ * "response" is an array of  RIL_CellInfo.
  */
 #define RIL_REQUEST_GET_CELL_INFO_LIST 109
 
@@ -5101,7 +5046,7 @@ typedef struct {
  *
  * "data" is NULL
  *
- * "response" is an array of RIL_CellInfo_v12.
+ * "response" is an array of RIL_CellInfo.
  */
 #define RIL_UNSOL_CELL_INFO_LIST 1036
 
