@@ -46,7 +46,26 @@ extern "C" {
 #define SIM_COUNT 1
 #endif
 
-#define RIL_VERSION 11     /* Current version */
+/*
+ * RIL version.
+ * Value of RIL_VERSION should not be changed in future. Here onwards,
+ * when a new change is supposed to be introduced  which could involve new
+ * schemes added like Wakelocks, data structures added/updated, etc, we would
+ * just document RIL version associated with that change below. When OEM updates its
+ * RIL with those changes, they would return that new RIL version during RIL_REGISTER.
+ * We should make use of the returned version by vendor to identify appropriate scheme
+ * or data structure version to use.
+ *
+ * Documentation of RIL version and associated changes
+ * RIL_VERSION = 11 : This version corresponds to updated data structures namely
+ *                    RIL_Data_Call_Response_v11, RIL_SIM_IO_v6, RIL_CardStatus_v6,
+ *                    RIL_SimRefreshResponse_v7, RIL_CDMA_CallWaiting_v6,
+ *                    RIL_LTE_SignalStrength_v8 & RIL_SignalStrength_v10.
+ *
+ * RIL_VERSION = 12 : This version includes new wakelock semantics.
+ */
+#define RIL_VERSION 11
+#define LAST_IMPRECISE_RIL_VERSION 11 // Better self-documented name
 #define RIL_VERSION_MIN 6 /* Minimum RIL_VERSION supported */
 
 #define CDMA_ALPHA_INFO_BUFFER_LENGTH 64
