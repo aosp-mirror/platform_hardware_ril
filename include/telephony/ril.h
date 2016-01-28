@@ -136,8 +136,21 @@ typedef enum {
     RIL_E_SS_MODIFIED_TO_USSD = 25,             /* SS request modified to USSD */
     RIL_E_SUBSCRIPTION_NOT_SUPPORTED = 26,      /* Subscription not supported by RIL */
     RIL_E_SS_MODIFIED_TO_SS = 27,               /* SS request modified to different SS request */
-    RIL_E_LCE_NOT_SUPPORTED = 36                /* LCE service not supported(36 in RILConstants.java) */
-
+    RIL_E_LCE_NOT_SUPPORTED = 36,               /* LCE service not supported(36 in RILConstants.java) */
+    RIL_E_NO_MEMORY = 37,                       /* Not sufficient memory to process the request */
+    RIL_E_INTERNAL_ERR = 38,                    /* Hit unexpected vendor internal error scenario */
+    RIL_E_SYSTEM_ERR = 39,                      /* Hit platform or system error */
+    RIL_E_MODEM_ERR = 40,                       /* Hit unexpected modem error */
+    RIL_E_INVALID_STATE = 41,                   /* Can not process the request as vendor RIL is in
+                                                   invalid state. */
+    RIL_E_NO_RESOURCES = 42,                    /* Not sufficient resource to process the request */
+    RIL_E_SIM_ERR = 43,                         /* Received error from SIM card */
+    RIL_E_INVALID_ARGUMENTS = 44,               /* Received invalid arguments in request */
+    RIL_E_INVALID_SIM_STATE = 45,               /* Can not process the request in current SIM state */
+    RIL_E_INVALID_MODEM_STATE = 46,             /* Can not process the request in current Modem state */
+    RIL_E_INVALID_CALL_ID = 47,                 /* Received invalid call id in request */
+    RIL_E_NO_SMS_TO_ACK = 48,                   /* ACK received when there is no SMS to ack */
+    RIL_E_NETWORK_ERR = 49                      /* Received error from network */
 
 } RIL_Errno;
 
