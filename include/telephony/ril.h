@@ -150,8 +150,8 @@ typedef enum {
     RIL_E_INVALID_MODEM_STATE = 46,             /* Can not process the request in current Modem state */
     RIL_E_INVALID_CALL_ID = 47,                 /* Received invalid call id in request */
     RIL_E_NO_SMS_TO_ACK = 48,                   /* ACK received when there is no SMS to ack */
-    RIL_E_NETWORK_ERR = 49                      /* Received error from network */
-
+    RIL_E_NETWORK_ERR = 49,                     /* Received error from network */
+    RIL_E_REQUEST_RATE_LIMITED = 50             /* Operation denied due to overly-frequent requests */
 } RIL_Errno;
 
 typedef enum {
