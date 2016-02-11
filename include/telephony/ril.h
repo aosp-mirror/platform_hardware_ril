@@ -151,7 +151,34 @@ typedef enum {
     RIL_E_INVALID_CALL_ID = 47,                 /* Received invalid call id in request */
     RIL_E_NO_SMS_TO_ACK = 48,                   /* ACK received when there is no SMS to ack */
     RIL_E_NETWORK_ERR = 49,                     /* Received error from network */
-    RIL_E_REQUEST_RATE_LIMITED = 50             /* Operation denied due to overly-frequent requests */
+    RIL_E_REQUEST_RATE_LIMITED = 50,            /* Operation denied due to overly-frequent requests */
+    // OEM specific error codes. To be used by OEM when they don't want to reveal
+    // specific error codes which would be replaced by Generic failure.
+    RIL_E_OEM_ERROR_1 = 501,
+    RIL_E_OEM_ERROR_2 = 502,
+    RIL_E_OEM_ERROR_3 = 503,
+    RIL_E_OEM_ERROR_4 = 504,
+    RIL_E_OEM_ERROR_5 = 505,
+    RIL_E_OEM_ERROR_6 = 506,
+    RIL_E_OEM_ERROR_7 = 507,
+    RIL_E_OEM_ERROR_8 = 508,
+    RIL_E_OEM_ERROR_9 = 509,
+    RIL_E_OEM_ERROR_10 = 510,
+    RIL_E_OEM_ERROR_11 = 511,
+    RIL_E_OEM_ERROR_12 = 512,
+    RIL_E_OEM_ERROR_13 = 513,
+    RIL_E_OEM_ERROR_14 = 514,
+    RIL_E_OEM_ERROR_15 = 515,
+    RIL_E_OEM_ERROR_16 = 516,
+    RIL_E_OEM_ERROR_17 = 517,
+    RIL_E_OEM_ERROR_18 = 518,
+    RIL_E_OEM_ERROR_19 = 519,
+    RIL_E_OEM_ERROR_20 = 520,
+    RIL_E_OEM_ERROR_21 = 521,
+    RIL_E_OEM_ERROR_22 = 522,
+    RIL_E_OEM_ERROR_23 = 523,
+    RIL_E_OEM_ERROR_24 = 524,
+    RIL_E_OEM_ERROR_25 = 525
 } RIL_Errno;
 
 typedef enum {
@@ -764,6 +791,24 @@ typedef enum {
     PDP_FAIL_IFACE_AND_POL_FAMILY_MISMATCH = 0x78,
     PDP_FAIL_EMM_ACCESS_BARRED_INFINITE_RETRY = 0x79,
     PDP_FAIL_AUTH_FAILURE_ON_EMERGENCY_CALL = 0x7A,
+
+    // OEM specific error codes. To be used by OEMs when they don't want to
+    // reveal error code which would be replaced by PDP_FAIL_ERROR_UNSPECIFIED
+    PDP_FAIL_OEM_DCFAILCAUSE_1 = 0x1001,
+    PDP_FAIL_OEM_DCFAILCAUSE_2 = 0x1002,
+    PDP_FAIL_OEM_DCFAILCAUSE_3 = 0x1003,
+    PDP_FAIL_OEM_DCFAILCAUSE_4 = 0x1004,
+    PDP_FAIL_OEM_DCFAILCAUSE_5 = 0x1005,
+    PDP_FAIL_OEM_DCFAILCAUSE_6 = 0x1006,
+    PDP_FAIL_OEM_DCFAILCAUSE_7 = 0x1007,
+    PDP_FAIL_OEM_DCFAILCAUSE_8 = 0x1008,
+    PDP_FAIL_OEM_DCFAILCAUSE_9 = 0x1009,
+    PDP_FAIL_OEM_DCFAILCAUSE_10 = 0x100A,
+    PDP_FAIL_OEM_DCFAILCAUSE_11 = 0x100B,
+    PDP_FAIL_OEM_DCFAILCAUSE_12 = 0x100C,
+    PDP_FAIL_OEM_DCFAILCAUSE_13 = 0x100D,
+    PDP_FAIL_OEM_DCFAILCAUSE_14 = 0x100E,
+    PDP_FAIL_OEM_DCFAILCAUSE_15 = 0x100F,
 
     /* Not mentioned in the specification */
     PDP_FAIL_VOICE_REGISTRATION_FAIL = -1,
