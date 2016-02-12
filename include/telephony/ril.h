@@ -251,6 +251,28 @@ typedef enum {
 } RIL_RadioAccessFamily;
 
 typedef enum {
+    BAND_MODE_UNSPECIFIED = 0,      //"unspecified" (selected by baseband automatically)
+    BAND_MODE_EURO = 1,             //"EURO band" (GSM-900 / DCS-1800 / WCDMA-IMT-2000)
+    BAND_MODE_USA = 2,              //"US band" (GSM-850 / PCS-1900 / WCDMA-850 / WCDMA-PCS-1900)
+    BAND_MODE_JPN = 3,              //"JPN band" (WCDMA-800 / WCDMA-IMT-2000)
+    BAND_MODE_AUS = 4,              //"AUS band" (GSM-900 / DCS-1800 / WCDMA-850 / WCDMA-IMT-2000)
+    BAND_MODE_AUS_2 = 5,            //"AUS band 2" (GSM-900 / DCS-1800 / WCDMA-850)
+    BAND_MODE_CELL_800 = 6,         //"Cellular" (800-MHz Band)
+    BAND_MODE_PCS = 7,              //"PCS" (1900-MHz Band)
+    BAND_MODE_JTACS = 8,            //"Band Class 3" (JTACS Band)
+    BAND_MODE_KOREA_PCS = 9,        //"Band Class 4" (Korean PCS Band)
+    BAND_MODE_5_450M = 10,          //"Band Class 5" (450-MHz Band)
+    BAND_MODE_IMT2000 = 11,         //"Band Class 6" (2-GMHz IMT2000 Band)
+    BAND_MODE_7_700M_2 = 12,        //"Band Class 7" (Upper 700-MHz Band)
+    BAND_MODE_8_1800M = 13,         //"Band Class 8" (1800-MHz Band)
+    BAND_MODE_9_900M = 14,          //"Band Class 9" (900-MHz Band)
+    BAND_MODE_10_800M_2 = 15,       //"Band Class 10" (Secondary 800-MHz Band)
+    BAND_MODE_EURO_PAMR_400M = 16,  //"Band Class 11" (400-MHz European PAMR Band)
+    BAND_MODE_AWS = 17,             //"Band Class 15" (AWS Band)
+    BAND_MODE_USA_2500M = 18        //"Band Class 16" (US 2.5-GHz Band)
+} RIL_RadioBandMode;
+
+typedef enum {
     RC_PHASE_CONFIGURED = 0,  // LM is configured is initial value and value after FINISH completes
     RC_PHASE_START      = 1,  // START is sent before Apply and indicates that an APPLY will be
                               // forthcoming with these same parameters
@@ -3287,25 +3309,7 @@ typedef struct {
  * Assign a specified band for RF configuration.
  *
  * "data" is int *
- * ((int *)data)[0] is == 0 for "unspecified" (selected by baseband automatically)
- * ((int *)data)[0] is == 1 for "EURO band" (GSM-900 / DCS-1800 / WCDMA-IMT-2000)
- * ((int *)data)[0] is == 2 for "US band" (GSM-850 / PCS-1900 / WCDMA-850 / WCDMA-PCS-1900)
- * ((int *)data)[0] is == 3 for "JPN band" (WCDMA-800 / WCDMA-IMT-2000)
- * ((int *)data)[0] is == 4 for "AUS band" (GSM-900 / DCS-1800 / WCDMA-850 / WCDMA-IMT-2000)
- * ((int *)data)[0] is == 5 for "AUS band 2" (GSM-900 / DCS-1800 / WCDMA-850)
- * ((int *)data)[0] is == 6 for "Cellular (800-MHz Band)"
- * ((int *)data)[0] is == 7 for "PCS (1900-MHz Band)"
- * ((int *)data)[0] is == 8 for "Band Class 3 (JTACS Band)"
- * ((int *)data)[0] is == 9 for "Band Class 4 (Korean PCS Band)"
- * ((int *)data)[0] is == 10 for "Band Class 5 (450-MHz Band)"
- * ((int *)data)[0] is == 11 for "Band Class 6 (2-GMHz IMT2000 Band)"
- * ((int *)data)[0] is == 12 for "Band Class 7 (Upper 700-MHz Band)"
- * ((int *)data)[0] is == 13 for "Band Class 8 (1800-MHz Band)"
- * ((int *)data)[0] is == 14 for "Band Class 9 (900-MHz Band)"
- * ((int *)data)[0] is == 15 for "Band Class 10 (Secondary 800-MHz Band)"
- * ((int *)data)[0] is == 16 for "Band Class 11 (400-MHz European PAMR Band)"
- * ((int *)data)[0] is == 17 for "Band Class 15 (AWS Band)"
- * ((int *)data)[0] is == 18 for "Band Class 16 (US 2.5-GHz Band)"
+ * ((int *)data)[0] is a RIL_RadioBandMode
  *
  * "response" is NULL
  *
@@ -3313,6 +3317,8 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  GENERIC_FAILURE
+ *
+ * See also: RIL_REQUEST_QUERY_AVAILABLE_BAND_MODE
  */
 #define RIL_REQUEST_SET_BAND_MODE 65
 
@@ -3324,28 +3330,8 @@ typedef struct {
  * "data" is NULL
  *
  * "response" is int *
- * "response" points to an array of int's, the int[0] is the size of array, reset is one for
- * each available band mode.
- *
- *  0 for "unspecified" (selected by baseband automatically)
- *  1 for "EURO band" (GSM-900 / DCS-1800 / WCDMA-IMT-2000)
- *  2 for "US band" (GSM-850 / PCS-1900 / WCDMA-850 / WCDMA-PCS-1900)
- *  3 for "JPN band" (WCDMA-800 / WCDMA-IMT-2000)
- *  4 for "AUS band" (GSM-900 / DCS-1800 / WCDMA-850 / WCDMA-IMT-2000)
- *  5 for "AUS band 2" (GSM-900 / DCS-1800 / WCDMA-850)
- *  6 for "Cellular (800-MHz Band)"
- *  7 for "PCS (1900-MHz Band)"
- *  8 for "Band Class 3 (JTACS Band)"
- *  9 for "Band Class 4 (Korean PCS Band)"
- *  10 for "Band Class 5 (450-MHz Band)"
- *  11 for "Band Class 6 (2-GMHz IMT2000 Band)"
- *  12 for "Band Class 7 (Upper 700-MHz Band)"
- *  13 for "Band Class 8 (1800-MHz Band)"
- *  14 for "Band Class 9 (900-MHz Band)"
- *  15 for "Band Class 10 (Secondary 800-MHz Band)"
- *  16 for "Band Class 11 (400-MHz European PAMR Band)"
- *  17 for "Band Class 15 (AWS Band)"
- *  18 for "Band Class 16 (US 2.5-GHz Band)"
+ * "response" points to an array of int's, the int[0] is the size of array;
+ * subsequent values are a list of RIL_RadioBandMode listing supported modes.
  *
  * Valid errors:
  *  SUCCESS
