@@ -32,6 +32,8 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/../include
 LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/../include
 
 LOCAL_MODULE:= libril
+LOCAL_CLANG := true
+LOCAL_SANITIZE := integer
 
 LOCAL_COPY_HEADERS_TO := libril
 LOCAL_COPY_HEADERS := ril_ex.h
