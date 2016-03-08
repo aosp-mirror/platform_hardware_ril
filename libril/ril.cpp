@@ -42,7 +42,6 @@
 #include <errno.h>
 #include <assert.h>
 #include <ctype.h>
-#include <alloca.h>
 #include <sys/un.h>
 #include <assert.h>
 #include <netinet/in.h>
@@ -640,7 +639,7 @@ dispatchStrings (Parcel &p, RequestInfo *pRI) {
     startRequest;
     if (countStrings == 0) {
         // just some non-null pointer
-        pStrings = (char **)alloca(sizeof(char *));
+        pStrings = (char **)calloc(1, sizeof(char *));
         if (pStrings == NULL) {
             RLOGE("Memory allocation failed for request %s",
                     requestToString(pRI->pCI->requestNumber));
@@ -649,13 +648,13 @@ dispatchStrings (Parcel &p, RequestInfo *pRI) {
         }
 
         datalen = 0;
-    } else if (((int)countStrings) == -1) {
+    } else if (countStrings < 0) {
         pStrings = NULL;
         datalen = 0;
     } else {
         datalen = sizeof(char *) * countStrings;
 
-        pStrings = (char **)alloca(datalen);
+        pStrings = (char **)calloc(countStrings, sizeof(char *));
         if (pStrings == NULL) {
             RLOGE("Memory allocation failed for request %s",
                     requestToString(pRI->pCI->requestNumber));
@@ -685,6 +684,7 @@ dispatchStrings (Parcel &p, RequestInfo *pRI) {
 #ifdef MEMSET_FREED
         memset(pStrings, 0, datalen);
 #endif
+        free(pStrings);
     }
 
     return;
@@ -703,12 +703,12 @@ dispatchInts (Parcel &p, RequestInfo *pRI) {
 
     status = p.readInt32 (&count);
 
-    if (status != NO_ERROR || count == 0) {
+    if (status != NO_ERROR || count <= 0) {
         goto invalid;
     }
 
     datalen = sizeof(int) * count;
-    pInts = (int *)alloca(datalen);
+    pInts = (int *)calloc(count, sizeof(int));
     if (pInts == NULL) {
         RLOGE("Memory allocation failed for request %s", requestToString(pRI->pCI->requestNumber));
         return;
@@ -723,6 +723,7 @@ dispatchInts (Parcel &p, RequestInfo *pRI) {
         appendPrintBuf("%s%d,", printBuf, t);
 
         if (status != NO_ERROR) {
+            free(pInts);
             goto invalid;
         }
    }
@@ -736,7 +737,7 @@ dispatchInts (Parcel &p, RequestInfo *pRI) {
 #ifdef MEMSET_FREED
     memset(pInts, 0, datalen);
 #endif
-
+    free(pInts);
     return;
 invalid:
     invalidCommandBlock(pRI);
@@ -1316,7 +1317,7 @@ dispatchImsGsmSms(Parcel &p, RequestInfo *pRI, uint8_t retry, int32_t messageRef
                     (int)rism.tech, (int)rism.retry, rism.messageRef);
     if (countStrings == 0) {
         // just some non-null pointer
-        pStrings = (char **)alloca(sizeof(char *));
+        pStrings = (char **)calloc(1, sizeof(char *));
         if (pStrings == NULL) {
             RLOGE("Memory allocation failed for request %s",
                     requestToString(pRI->pCI->requestNumber));
@@ -1325,13 +1326,18 @@ dispatchImsGsmSms(Parcel &p, RequestInfo *pRI, uint8_t retry, int32_t messageRef
         }
 
         datalen = 0;
-    } else if (((int)countStrings) == -1) {
+    } else if (countStrings < 0) {
         pStrings = NULL;
         datalen = 0;
     } else {
+        if (countStrings > (INT_MAX/sizeof(char *))) {
+            RLOGE("Invalid value of countStrings: \n");
+            closeRequest;
+            return;
+        }
         datalen = sizeof(char *) * countStrings;
 
-        pStrings = (char **)alloca(datalen);
+        pStrings = (char **)calloc(countStrings, sizeof(char *));
         if (pStrings == NULL) {
             RLOGE("Memory allocation failed for request %s",
                     requestToString(pRI->pCI->requestNumber));
@@ -1364,6 +1370,7 @@ dispatchImsGsmSms(Parcel &p, RequestInfo *pRI, uint8_t retry, int32_t messageRef
 #ifdef MEMSET_FREED
         memset(pStrings, 0, datalen);
 #endif
+        free(pStrings);
     }
 
 #ifdef MEMSET_FREED
@@ -1983,20 +1990,20 @@ static void dispatchDataProfile(Parcel &p, RequestInfo *pRI) {
     int32_t num;
 
     status = p.readInt32(&num);
-    if (status != NO_ERROR) {
+    if (status != NO_ERROR || num < 0) {
         goto invalid;
     }
 
     {
         RIL_DataProfileInfo *dataProfiles =
-                (RIL_DataProfileInfo *)malloc(num * sizeof(RIL_DataProfileInfo));
+                (RIL_DataProfileInfo *)calloc(num, sizeof(RIL_DataProfileInfo));
         if (dataProfiles == NULL) {
             RLOGE("Memory allocation failed for request %s",
                     requestToString(pRI->pCI->requestNumber));
             return;
         }
         RIL_DataProfileInfo **dataProfilePtrs =
-                (RIL_DataProfileInfo **)malloc(num * sizeof(RIL_DataProfileInfo *));
+                (RIL_DataProfileInfo **)calloc(num, sizeof(RIL_DataProfileInfo *));
         if (dataProfilePtrs == NULL) {
             RLOGE("Memory allocation failed for request %s",
                     requestToString(pRI->pCI->requestNumber));
@@ -2876,8 +2883,7 @@ static int responseCdmaInformationRecords(Parcel &p,
                          CDMA_ALPHA_INFO_BUFFER_LENGTH);
                     return RIL_ERRNO_INVALID_RESPONSE;
                 }
-                string8 = (char*) malloc((infoRec->rec.display.alpha_len + 1)
-                                                             * sizeof(char) );
+                string8 = (char*) calloc(infoRec->rec.display.alpha_len + 1, sizeof(char));
                 if (string8 == NULL) {
                     RLOGE("Memory allocation failed for responseCdmaInformationRecords");
                     closeRequest;
@@ -2901,8 +2907,7 @@ static int responseCdmaInformationRecords(Parcel &p,
                          CDMA_NUMBER_INFO_BUFFER_LENGTH);
                     return RIL_ERRNO_INVALID_RESPONSE;
                 }
-                string8 = (char*) malloc((infoRec->rec.number.len + 1)
-                                                             * sizeof(char) );
+                string8 = (char*) calloc(infoRec->rec.number.len + 1, sizeof(char));
                 if (string8 == NULL) {
                     RLOGE("Memory allocation failed for responseCdmaInformationRecords");
                     closeRequest;
@@ -2943,8 +2948,8 @@ static int responseCdmaInformationRecords(Parcel &p,
                          CDMA_NUMBER_INFO_BUFFER_LENGTH);
                     return RIL_ERRNO_INVALID_RESPONSE;
                 }
-                string8 = (char*) malloc((infoRec->rec.redir.redirectingNumber
-                                          .len + 1) * sizeof(char) );
+                string8 = (char*) calloc(infoRec->rec.redir.redirectingNumber.len + 1,
+                        sizeof(char));
                 if (string8 == NULL) {
                     RLOGE("Memory allocation failed for responseCdmaInformationRecords");
                     closeRequest;
@@ -4263,7 +4268,13 @@ static void debugCallback (int fd, short flags, void *param) {
         return;
     }
 
-    args = (char **) malloc(sizeof(char*) * number);
+    if (number < 0) {
+        RLOGE ("Invalid number of arguments: \n");
+        close(acceptFD);
+        return;
+    }
+
+    args = (char **) calloc(number, sizeof(char*));
     if (args == NULL) {
         RLOGE("Memory allocation failed for debug args");
         close(acceptFD);
@@ -4278,9 +4289,15 @@ static void debugCallback (int fd, short flags, void *param) {
             close(acceptFD);
             return;
         }
+        if (len == INT_MAX || len < 0) {
+            RLOGE("Invalid value of len: \n");
+            freeDebugCallbackArgs(i, args);
+            close(acceptFD);
+            return;
+        }
 
         // +1 for null-term
-        args[i] = (char *) malloc((sizeof(char) * len) + 1);
+        args[i] = (char *) calloc(len + 1, sizeof(char));
         if (args[i] == NULL) {
             RLOGE("Memory allocation failed for debug args");
             freeDebugCallbackArgs(i, args);
@@ -5250,7 +5267,7 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
             s_lastNITZTimeData = NULL;
         }
 
-        s_lastNITZTimeData = malloc(p.dataSize());
+        s_lastNITZTimeData = calloc(p.dataSize(), 1);
         if (s_lastNITZTimeData == NULL) {
              RLOGE("Memory allocation failed in RIL_onUnsolicitedResponse");
              goto error_exit;
@@ -5278,7 +5295,7 @@ internalRequestTimedCallback (RIL_TimedCallback callback, void *param,
     struct timeval myRelativeTime;
     UserCallbackInfo *p_info;
 
-    p_info = (UserCallbackInfo *) malloc (sizeof(UserCallbackInfo));
+    p_info = (UserCallbackInfo *) calloc(1, sizeof(UserCallbackInfo));
     if (p_info == NULL) {
         RLOGE("Memory allocation failed in internalRequestTimedCallback");
         return p_info;
