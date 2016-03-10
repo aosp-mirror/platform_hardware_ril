@@ -447,6 +447,7 @@ static void *readerLoop(void *arg)
             line2 = readline();
 
             if (line2 == NULL) {
+                free(line1);
                 break;
             }
 
