@@ -152,6 +152,11 @@ typedef enum {
     RIL_E_NO_SMS_TO_ACK = 48,                   /* ACK received when there is no SMS to ack */
     RIL_E_NETWORK_ERR = 49,                     /* Received error from network */
     RIL_E_REQUEST_RATE_LIMITED = 50,            /* Operation denied due to overly-frequent requests */
+    RIL_E_SIM_BUSY = 51,                        /* SIM is busy */
+    RIL_E_SIM_FULL = 52,                        /* The target EF is full */
+    RIL_E_NETWORK_REJECT = 53,                  /* Request is rejected by network */
+    RIL_E_OPERATION_NOT_ALLOWED = 54,           /* Not allowed the request now */
+    RIL_E_EMPTY_RECORD = 55,                    /* The request record is empty */
     // OEM specific error codes. To be used by OEM when they don't want to reveal
     // specific error codes which would be replaced by Generic failure.
     RIL_E_OEM_ERROR_1 = 501,
@@ -2294,6 +2299,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_RADIO_POWER 23
@@ -2346,6 +2352,7 @@ typedef struct {
  *  RADIO_NOT_AVAILABLE
  *  SMS_SEND_FAIL_RETRY
  *  FDN_CHECK_FAILURE
+ *  NETWORK_REJECT
  *  GENERIC_FAILURE
  *
  * FIXME how do we specify TP-Message-Reference if we need to resend?
@@ -2377,6 +2384,7 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  SMS_SEND_FAIL_RETRY
+ *  NETWORK_REJECT
  *  GENERIC_FAILURE
  *
  */
@@ -2493,6 +2501,8 @@ typedef struct {
  *  USSD_MODIFIED_TO_DIAL
  *  USSD_MODIFIED_TO_SS
  *  USSD_MODIFIED_TO_USSD
+ *  SIM_BUSY
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_CANCEL_USSD, RIL_UNSOL_ON_USSD
@@ -2511,6 +2521,8 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  SIM_BUSY
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  */
 
@@ -2887,6 +2899,7 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  ILLEGAL_SIM_OR_ME
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  *
  * Note: Returns ILLEGAL_SIM_OR_ME when the failure is permanent and
@@ -2912,6 +2925,7 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  ILLEGAL_SIM_OR_ME
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  *
  * Note: Returns ILLEGAL_SIM_OR_ME when the failure is permanent and
@@ -2947,6 +2961,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  *
  */
@@ -2985,6 +3000,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_DTMF, RIL_REQUEST_DTMF_START
@@ -3003,6 +3019,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  EMPTY_RECORD
  *  GENERIC_FAILURE
  *
  */
@@ -3263,6 +3280,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  SIM_BUSY
  *  GENERIC_FAILURE
  *
  * See also: RIL_UNSOL_SUPP_SVC_NOTIFICATION.
@@ -3281,6 +3299,7 @@ typedef struct {
  *
  * Valid errors:
  *  SUCCESS
+ *  SIM_FULL
  *  GENERIC_FAILURE
  *
  */
@@ -3298,6 +3317,7 @@ typedef struct {
  *
  * Valid errors:
  *  SUCCESS
+ *  SIM_FULL
  *  GENERIC_FAILURE
  *
  */
@@ -3316,6 +3336,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_QUERY_AVAILABLE_BAND_MODE
@@ -3395,6 +3416,8 @@ typedef struct {
  * Valid errors:
  *  RIL_E_SUCCESS
  *  RIL_E_RADIO_NOT_AVAILABLE (radio resetting)
+ *  SIM_BUSY
+ *  OPERATION_NOT_ALLOWED
  *  RIL_E_GENERIC_FAILURE
  */
 #define RIL_REQUEST_STK_SEND_ENVELOPE_COMMAND 69
@@ -3413,6 +3436,7 @@ typedef struct {
  * Valid errors:
  *  RIL_E_SUCCESS
  *  RIL_E_RADIO_NOT_AVAILABLE (radio resetting)
+ *  RIL_E_OPERATION_NOT_ALLOWED
  *  RIL_E_GENERIC_FAILURE
  */
 #define RIL_REQUEST_STK_SEND_TERMINAL_RESPONSE 70
@@ -3434,6 +3458,7 @@ typedef struct {
  * Valid errors:
  *  RIL_E_SUCCESS
  *  RIL_E_RADIO_NOT_AVAILABLE (radio resetting)
+ *  RIL_E_OPERATION_NOT_ALLOWED
  *  RIL_E_GENERIC_FAILURE
  */
 #define RIL_REQUEST_STK_HANDLE_CALL_SETUP_REQUESTED_FROM_SIM 71
@@ -3467,6 +3492,7 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  GENERIC_FAILURE
+ *  OPERATION_NOT_ALLOWED
  *  MODE_NOT_SUPPORTED
  */
 #define RIL_REQUEST_SET_PREFERRED_NETWORK_TYPE 73
@@ -3757,6 +3783,7 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  SMS_SEND_FAIL_RETRY
+ *  NETWORK_REJECT
  *  GENERIC_FAILURE
  *
  */
@@ -3933,6 +3960,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  SIM_FULL
  *  GENERIC_FAILURE
  *
  */
@@ -3998,6 +4026,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  *
  */
@@ -4153,6 +4182,8 @@ typedef struct {
  * Valid errors:
  *  RIL_E_SUCCESS
  *  RIL_E_RADIO_NOT_AVAILABLE (radio resetting)
+ *  SIM_BUSY
+ *  OPERATION_NOT_ALLOWED
  *  RIL_E_GENERIC_FAILURE
  */
 #define RIL_REQUEST_STK_SEND_ENVELOPE_WITH_STATUS 107
@@ -4264,6 +4295,7 @@ typedef struct {
  *  RADIO_NOT_AVAILABLE
  *  SMS_SEND_FAIL_RETRY
  *  FDN_CHECK_FAILURE
+ *  NETWORK_REJECT
  *  GENERIC_FAILURE
  *
  */
@@ -4557,6 +4589,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SHUTDOWN 129
@@ -4571,6 +4604,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_GET_RADIO_CAPABILITY 130
@@ -4590,6 +4624,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS means a RIL_UNSOL_RADIO_CAPABILITY will be sent within 30 seconds.
  *  RADIO_NOT_AVAILABLE
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_RADIO_CAPABILITY 131
