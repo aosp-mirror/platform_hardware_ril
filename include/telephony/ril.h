@@ -157,6 +157,12 @@ typedef enum {
     RIL_E_NETWORK_REJECT = 53,                  /* Request is rejected by network */
     RIL_E_OPERATION_NOT_ALLOWED = 54,           /* Not allowed the request now */
     RIL_E_EMPTY_RECORD = 55,                    /* The request record is empty */
+    RIL_E_INVALID_SMS_FORMAT = 56,              /* Invalid sms format */
+    RIL_E_ENCODING_ERR = 57,                    /* Message not encoded properly */
+    RIL_E_INVALID_SMSC_ADDRESS = 58,            /* SMSC address specified is invalid */
+    RIL_E_NO_SUCH_ENTRY = 59,                   /* No such entry present to perform the request */
+    RIL_E_NETWORK_NOT_READY = 60,               /* Network is not ready to perform the request */
+    RIL_E_NOT_PROVISIONED = 61,                 /* Device doesnot have this value provisioned */
     // OEM specific error codes. To be used by OEM when they don't want to reveal
     // specific error codes which would be replaced by Generic failure.
     RIL_E_OEM_ERROR_1 = 501,
@@ -2353,6 +2359,17 @@ typedef struct {
  *  SMS_SEND_FAIL_RETRY
  *  FDN_CHECK_FAILURE
  *  NETWORK_REJECT
+ *  INVALID_STATE
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  REQUEST_RATE_LIMITED
+ *  INVALID_SMS_FORMAT
+ *  SYSTEM_ERR
+ *  ENCODING_ERR
+ *  INVALID_SMSC_ADDRESS
+ *  MODEM_ERR
+ *  NETWORK_ERR
+ *  MODE_NOT_SUPPORTED
  *  GENERIC_FAILURE
  *
  * FIXME how do we specify TP-Message-Reference if we need to resend?
@@ -2385,6 +2402,18 @@ typedef struct {
  *  RADIO_NOT_AVAILABLE
  *  SMS_SEND_FAIL_RETRY
  *  NETWORK_REJECT
+ *  INVALID_STATE
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  INVALID_SMS_FORMAT
+ *  SYSTEM_ERR
+ *  REQUEST_RATE_LIMITED
+ *  FDN_CHECK_FAILURE
+ *  MODEM_ERR
+ *  NETWORK_ERR
+ *  ENCODING_ERR
+ *  INVALID_SMSC_ADDRESS
+ *  MODE_NOT_SUPPORTED
  *  GENERIC_FAILURE
  *
  */
@@ -3067,6 +3096,9 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  REQUEST_RATE_LIMITED
  *  GENERIC_FAILURE
  */
 
@@ -3087,6 +3119,8 @@ typedef struct {
  *  SS_MODIFIED_TO_DIAL
  *  SS_MODIFIED_TO_USSD
  *  SS_MODIFIED_TO_SS
+ *  NO_MEMORY
+ *  REQUEST_RATE_LIMITED
  *  GENERIC_FAILURE
  */
 
@@ -3300,6 +3334,16 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  SIM_FULL
+ *  INVALID_ARGUMENTS
+ *  INVALID_SMS_FORMAT
+ *  INTERNAL_ERR
+ *  MODEM_ERR
+ *  ENCODING_ERR
+ *  NO_MEMORY
+ *  NO_RESOURCES
+ *  INVALID_MODEM_STATE
+ *  MODE_NOT_SUPPORTED
+ *  INVALID_SMSC_ADDRESS
  *  GENERIC_FAILURE
  *
  */
@@ -3318,6 +3362,12 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  SIM_FULL
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  REQUEST_RATE_LIMITED
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  NO_SUCH_ENTRY
  *  GENERIC_FAILURE
  *
  */
@@ -3784,6 +3834,18 @@ typedef struct {
  *  RADIO_NOT_AVAILABLE
  *  SMS_SEND_FAIL_RETRY
  *  NETWORK_REJECT
+ *  INVALID_STATE
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  REQUEST_RATE_LIMITED
+ *  INVALID_SMS_FORMAT
+ *  SYSTEM_ERR
+ *  FDN_CHECK_FAILURE
+ *  MODEM_ERR
+ *  NETWORK_ERR
+ *  ENCODING_ERR
+ *  INVALID_SMSC_ADDRESS
+ *  MODE_NOT_SUPPORTED
  *  GENERIC_FAILURE
  *
  */
@@ -3802,6 +3864,17 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_ARGUMENTS
+ *  NO_SMS_TO_ACK
+ *  INVALID_STATE
+ *  NO_MEMORY
+ *  REQUEST_RATE_LIMITED
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INVALID_STATE
+ *  MODE_NOT_SUPPORTED
+ *  NETWORK_NOT_READY
+ *  INVALID_MODEM_STATE
  *  GENERIC_FAILURE
  *
  */
@@ -3820,6 +3893,13 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_STATE
+ *  NO_MEMORY
+ *  REQUEST_RATE_LIMITED
+ *  SYSTEM_ERR
+ *  NO_RESOURCES
+ *  MODEM_ERR
+ *  SYSTEM_ERR
  *  GENERIC_FAILURE
  *
  */
@@ -3838,6 +3918,13 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_STATE
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  REQUEST_RATE_LIMITED
+ *  MODEM_ERR
+ *  SYSTEM_ERR
  *  GENERIC_FAILURE
  *
  */
@@ -3858,6 +3945,12 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_STATE
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  REQUEST_RATE_LIMITED
+ *  MODEM_ERR
  *  GENERIC_FAILURE
  *
  */
@@ -3876,6 +3969,13 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_STATE
+ *  NO_MEMORY
+ *  REQUEST_RATE_LIMITED
+ *  SYSTEM_ERR
+ *  NO_RESOURCES
+ *  MODEM_ERR
+ *  SYSTEM_ERR
  *  GENERIC_FAILURE
  *
  */
@@ -3894,6 +3994,13 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_STATE
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  REQUEST_RATE_LIMITED
+ *  MODEM_ERR
+ *  SYSTEM_ERR
  *  GENERIC_FAILURE
  *
  */
@@ -3914,6 +4021,12 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_STATE
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  REQUEST_RATE_LIMITED
+ *  MODEM_ERR
  *  GENERIC_FAILURE
  *
  */
@@ -3961,6 +4074,16 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  SIM_FULL
+ *  INVALID_ARGUMENTS
+ *  INVALID_SMS_FORMAT
+ *  INTERNAL_ERR
+ *  MODEM_ERR
+ *  ENCODING_ERR
+ *  NO_MEMORY
+ *  NO_RESOURCES
+ *  INVALID_MODEM_STATE
+ *  MODE_NOT_SUPPORTED
+ *  INVALID_SMSC_ADDRESS
  *  GENERIC_FAILURE
  *
  */
@@ -3979,6 +4102,12 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  REQUEST_RATE_LIMITED
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  NO_SUCH_ENTRY
  *  GENERIC_FAILURE
  *
  */
@@ -4044,6 +4173,14 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  NO_MEMORY
+ *  REQUEST_RATE_LIMITED
+ *  SYSTEM_ERR
+ *  INTERNAL_ERR
+ *  MODEM_ERR
+ *  INVALID_ARGUMENTS
+ *  INVALID_MODEM_STATE
+ *  NOT_PROVISIONED
  *  GENERIC_FAILURE
  *
  */
@@ -4061,6 +4198,13 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_ARGUMENTS
+ *  INVALID_SMS_FORMAT
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  REQUEST_RATE_LIMITED
+ *  MODEM_ERR
+ *  NO_RESOURCES
  *  GENERIC_FAILURE
  *
  */
@@ -4080,6 +4224,12 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  INVALID_STATE
+ *  SYSTEM_ERR
+ *  REQUEST_RATE_LIMITED
+ *  MODEM_ERR
  *  GENERIC_FAILURE
  *
  */
@@ -4296,6 +4446,17 @@ typedef struct {
  *  SMS_SEND_FAIL_RETRY
  *  FDN_CHECK_FAILURE
  *  NETWORK_REJECT
+ *  INVALID_ARGUMENTS
+ *  INVALID_STATE
+ *  NO_MEMORY
+ *  INVALID_SMS_FORMAT
+ *  SYSTEM_ERR
+ *  REQUEST_RATE_LIMITED
+ *  MODEM_ERR
+ *  NETWORK_ERR
+ *  ENCODING_ERR
+ *  INVALID_SMSC_ADDRESS
+ *  MODE_NOT_SUPPORTED
  *  GENERIC_FAILURE
  *
  */
