@@ -141,8 +141,7 @@ typedef enum {
     RIL_E_INTERNAL_ERR = 38,                    /* Hit unexpected vendor internal error scenario */
     RIL_E_SYSTEM_ERR = 39,                      /* Hit platform or system error */
     RIL_E_MODEM_ERR = 40,                       /* Hit unexpected modem error */
-    RIL_E_INVALID_STATE = 41,                   /* Can not process the request as vendor RIL is in
-                                                   invalid state. */
+    RIL_E_INVALID_STATE = 41,                   /* Unexpected request for the current state */
     RIL_E_NO_RESOURCES = 42,                    /* Not sufficient resource to process the request */
     RIL_E_SIM_ERR = 43,                         /* Received error from SIM card */
     RIL_E_INVALID_ARGUMENTS = 44,               /* Received invalid arguments in request */
@@ -163,6 +162,11 @@ typedef enum {
     RIL_E_NO_SUCH_ENTRY = 59,                   /* No such entry present to perform the request */
     RIL_E_NETWORK_NOT_READY = 60,               /* Network is not ready to perform the request */
     RIL_E_NOT_PROVISIONED = 61,                 /* Device doesnot have this value provisioned */
+    RIL_E_NO_SUBSCRIPTION = 62,                 /* Device doesnot have subscription */
+    RIL_E_NO_NETWORK_FOUND = 63,                /* Network cannot be found */
+    RIL_E_DEVICE_IN_USE = 64,                   /* Operation cannot be performed because the device
+                                                   is currently in use */
+    RIL_E_ABORTED = 65,                         /* Operation aborted */
     // OEM specific error codes. To be used by OEM when they don't want to reveal
     // specific error codes which would be replaced by Generic failure.
     RIL_E_OEM_ERROR_1 = 501,
@@ -1875,6 +1879,7 @@ typedef struct {
  *
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  NO_MEMORY
  *  GENERIC_FAILURE
  *      (request will be made again in a few hundred msec)
  */
@@ -1898,6 +1903,19 @@ typedef struct {
  *  DIAL_MODIFIED_TO_USSD
  *  DIAL_MODIFIED_TO_SS
  *  DIAL_MODIFIED_TO_DIAL
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  INVALID_STATE
+ *  NO_RESOURCES
+ *  INTERNAL_ERR
+ *  FDN_CHECK_FAILURE
+ *  MODEM_ERR
+ *  NO_SUBSCRIPTION
+ *  NO_NETWORK_FOUND
+ *  INVALID_CALL_ID
+ *  DEVICE_IN_USE
+ *  MODE_NOT_SUPPORTED
+ *  ABORTED
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_DIAL 10
@@ -1937,6 +1955,14 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  INVALID_STATE
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  NO_MEMORY
+ *  INVALID_CALL_ID
+ *  INVALID_ARGUMENTS
  *  GENERIC_FAILURE
  */
 
@@ -1956,6 +1982,15 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  INVALID_STATE
+ *  NO_MEMORY
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  NO_MEMORY
+ *  INVALID_CALL_ID
+ *  NO_RESOURCES
+ *  OPERATION_NOT_ALLOWED
+ *  INVALID_ARGUMENTS
  *  GENERIC_FAILURE
  */
 
@@ -1975,6 +2010,14 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  INVALID_STATE
+ *  NO_MEMORY
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_CALL_ID
+ *  OPERATION_NOT_ALLOWED
+ *  INVALID_ARGUMENTS
+ *  NO_RESOURCES
  *  GENERIC_FAILURE
  */
 
@@ -2003,6 +2046,14 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  INVALID_STATE
+ *  NO_MEMORY
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_STATE
+ *  INVALID_ARGUMENTS
+ *  INVALID_CALL_ID
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  */
 
@@ -2020,6 +2071,13 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  NO_MEMORY
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_STATE
+ *  INVALID_CALL_ID
+ *  INVALID_ARGUMENTS
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_CONFERENCE 16
@@ -2036,6 +2094,14 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  INVALID_STATE
+ *  NO_RESOURCES
+ *  NO_MEMORY
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_CALL_ID
+ *  OPERATION_NOT_ALLOWED
+ *  INVALID_ARGUMENTS
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_UDUB 17
@@ -2063,6 +2129,7 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  NO_MEMORY
  *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE
@@ -2328,6 +2395,12 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_ARGUMENTS
+ *  NO_RESOURCES
+ *  NO_MEMORY
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_CALL_ID
  *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_DTMF_STOP, RIL_REQUEST_DTMF_START
@@ -2532,6 +2605,13 @@ typedef struct {
  *  USSD_MODIFIED_TO_USSD
  *  SIM_BUSY
  *  OPERATION_NOT_ALLOWED
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  ABORTED
+ *  SYSTEM_ERR
+ *  INVALID_STATE
  *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_CANCEL_USSD, RIL_UNSOL_ON_USSD
@@ -2552,6 +2632,10 @@ typedef struct {
  *  RADIO_NOT_AVAILABLE
  *  SIM_BUSY
  *  OPERATION_NOT_ALLOWED
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  NO_MEMORY
+ *  INVALID_STATE
  *  GENERIC_FAILURE
  */
 
@@ -2572,6 +2656,11 @@ typedef struct {
  *  SS_MODIFIED_TO_DIAL
  *  SS_MODIFIED_TO_USSD
  *  SS_MODIFIED_TO_SS
+ *  NO_MEMORY
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  FDN_CHECK_FAILURE
+ *  SYSTEM_ERR
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_GET_CLIR 31
@@ -2590,6 +2679,8 @@ typedef struct {
  *  SS_MODIFIED_TO_DIAL
  *  SS_MODIFIED_TO_USSD
  *  SS_MODIFIED_TO_SS
+ *  INVALID_ARGUMENTS
+ *  SYSTEM_ERR
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_CLIR 32
@@ -2616,6 +2707,13 @@ typedef struct {
  *  SS_MODIFIED_TO_DIAL
  *  SS_MODIFIED_TO_USSD
  *  SS_MODIFIED_TO_SS
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  NO_MEMORY
+ *  FDN_CHECK_FAILURE
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_QUERY_CALL_FORWARD_STATUS 33
@@ -2635,6 +2733,13 @@ typedef struct {
  *  SS_MODIFIED_TO_DIAL
  *  SS_MODIFIED_TO_USSD
  *  SS_MODIFIED_TO_SS
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_STATE
+ *  FDN_CHECK_FAILURE
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_CALL_FORWARD 34
@@ -2664,6 +2769,12 @@ typedef struct {
  *  SS_MODIFIED_TO_DIAL
  *  SS_MODIFIED_TO_USSD
  *  SS_MODIFIED_TO_SS
+ *  NO_MEMORY
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  NO_MEMORY
+ *  FDN_CHECK_FAILURE
+ *  INVALID_ARGUMENTS
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_QUERY_CALL_WAITING 35
@@ -2686,6 +2797,12 @@ typedef struct {
  *  SS_MODIFIED_TO_DIAL
  *  SS_MODIFIED_TO_USSD
  *  SS_MODIFIED_TO_SS
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_STATE
+ *  FDN_CHECK_FAILURE
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_CALL_WAITING 36
@@ -2771,6 +2888,12 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  INVALID_STATE
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_CALL_ID
  *  GENERIC_FAILURE
  */
 
@@ -2831,6 +2954,12 @@ typedef struct {
  *  SS_MODIFIED_TO_DIAL
  *  SS_MODIFIED_TO_USSD
  *  SS_MODIFIED_TO_SS
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  INTERNAL_ERR
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  FDN_CHECK_FAILURE
  *  GENERIC_FAILURE
  *
  */
@@ -2863,6 +2992,12 @@ typedef struct {
  *  SS_MODIFIED_TO_DIAL
  *  SS_MODIFIED_TO_USSD
  *  SS_MODIFIED_TO_SS
+ *  INVALID_ARGUMENTS
+ *  INTERNAL_ERR
+ *  NO_MEMORY
+ *  MODEM_ERR
+ *  INVALID_STATE
+ *  FDN_CHECK_FAILURE
  *  GENERIC_FAILURE
  *
  */
@@ -2888,6 +3023,12 @@ typedef struct {
  *  SS_MODIFIED_TO_DIAL
  *  SS_MODIFIED_TO_USSD
  *  SS_MODIFIED_TO_SS
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  SYSTEM_ERR
+ *  FDN_CHECK_FAILURE
  *  GENERIC_FAILURE
  *
  */
@@ -3012,6 +3153,13 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_ARGUMENTS
+ *  NO_RESOURCES
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_CALL_ID
  *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_DTMF, RIL_REQUEST_DTMF_STOP
@@ -3030,6 +3178,13 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  OPERATION_NOT_ALLOWED
+ *  NO_RESOURCES
+ *  NO_MEMORY
+ *  INVALID_ARGUMENTS
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_CALL_ID
  *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_DTMF, RIL_REQUEST_DTMF_START
@@ -3075,6 +3230,16 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  INVALID_ARGUMENTS
+ *  INVALID_STATE
+ *  NO_RESOURCES
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_CALL_ID
+ *  INVALID_STATE
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SEPARATE_CONNECTION 52
@@ -3142,6 +3307,11 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  FDN_CHECK_FAILURE
  *  GENERIC_FAILURE
  */
 
@@ -3315,6 +3485,11 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  SIM_BUSY
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INTERNAL_ERR
  *  GENERIC_FAILURE
  *
  * See also: RIL_UNSOL_SUPP_SVC_NOTIFICATION.
@@ -3524,6 +3699,16 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
+ *  INVALID_STATE
+ *  NO_RESOURCES
+ *  NO_MEMORY
+ *  INVALID_ARGUMENTS
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_CALL_ID
+ *  INVALID_STATE
+ *  OPERATION_NOT_ALLOWED
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_EXPLICIT_CALL_TRANSFER 72
@@ -3685,6 +3870,14 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_ARGUMENTS
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  NO_MEMOR
+ *  INVALID_ARGUMENTS
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  NO_MEMORYY
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_TTY_MODE 80
@@ -3707,6 +3900,10 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  NO_MEMORY
+ *  INVALID_ARGUMENTS
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_QUERY_TTY_MODE 81
@@ -3726,6 +3923,12 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_ARGUMENTS
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  NO_MEMORY
+ *  INVALID_CALL_ID
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_CDMA_SET_PREFERRED_VOICE_PRIVACY_MODE 82
@@ -3746,6 +3949,10 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  NO_MEMORY
+ *  INVALID_ARGUMENTS
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_CDMA_QUERY_PREFERRED_VOICE_PRIVACY_MODE 83
@@ -3763,6 +3970,13 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_CALL_ID
+ *  INVALID_STATE
  *  GENERIC_FAILURE
  *
  */
@@ -3785,6 +3999,12 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
+ *  INVALID_ARGUMENTS
+ *  NO_MEMORY
+ *  SYSTEM_ERR
+ *  MODEM_ERR
+ *  INTERNAL_ERR
+ *  INVALID_CALL_ID
  *  GENERIC_FAILURE
  *
  */
