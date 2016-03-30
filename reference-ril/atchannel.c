@@ -86,6 +86,7 @@ static int writeCtrlZ (const char *s);
 static int writeline (const char *s);
 
 #ifndef USE_NP
+#define NS_PER_S 1000000000
 static void setTimespecRelative(struct timespec *p_ts, long long msec)
 {
     struct timeval tv;
@@ -97,6 +98,11 @@ static void setTimespecRelative(struct timespec *p_ts, long long msec)
        a relative time again */
     p_ts->tv_sec = tv.tv_sec + (msec / 1000);
     p_ts->tv_nsec = (tv.tv_usec + (msec % 1000) * 1000L ) * 1000L;
+    /* assuming tv.tv_usec < 10^6 */
+    if (p_ts->tv_nsec >= NS_PER_S) {
+        p_ts->tv_sec++;
+        p_ts->tv_nsec -= NS_PER_S;
+    }
 }
 #endif /*USE_NP*/
 
