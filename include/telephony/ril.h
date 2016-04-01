@@ -5867,6 +5867,22 @@ struct RIL_Env {
  */
 const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc, char **argv);
 
+/**
+ *  If BT SAP(SIM Access Profile) is supported, then RIL implementations must define RIL_SAP_Init
+ *  for initializing RIL_RadioFunctions used for BT SAP communcations. It is called whenever RILD
+ *  starts or modem restarts. Returns handlers for SAP related request that are made on SAP
+ *  sepecific socket, analogous to the RIL_RadioFunctions returned by the call to RIL_Init
+ *  and used on the general RIL socket.
+ *  argc and argv will be command line arguments intended for the RIL implementation
+ *  Return NULL on error.
+ *
+ * @param env is environment point defined as RIL_Env
+ * @param argc number of arguments
+ * @param argv list fo arguments
+ *
+ */
+const RIL_RadioFunctions *RIL_SAP_Init(const struct RIL_Env *env, int argc, char **argv);
+
 #else /* RIL_SHLIB */
 
 /**
