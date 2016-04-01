@@ -35,10 +35,6 @@
 
 #include "misc.h"
 
-#ifdef HAVE_PTHREAD_COND_TIMEDWAIT_RELATIVE
-#define USE_NP 1
-#endif /* HAVE_PTHREAD_COND_TIMEDWAIT_RELATIVE */
-
 
 #define NUM_ELEMS(x) (sizeof(x)/sizeof(x[0]))
 
@@ -85,7 +81,6 @@ static void onReaderClosed();
 static int writeCtrlZ (const char *s);
 static int writeline (const char *s);
 
-#ifndef USE_NP
 #define NS_PER_S 1000000000
 static void setTimespecRelative(struct timespec *p_ts, long long msec)
 {
@@ -93,9 +88,6 @@ static void setTimespecRelative(struct timespec *p_ts, long long msec)
 
     gettimeofday(&tv, (struct timezone *) NULL);
 
-    /* what's really funny about this is that I know
-       pthread_cond_timedwait just turns around and makes this
-       a relative time again */
     p_ts->tv_sec = tv.tv_sec + (msec / 1000);
     p_ts->tv_nsec = (tv.tv_usec + (msec % 1000) * 1000L ) * 1000L;
     /* assuming tv.tv_usec < 10^6 */
@@ -104,7 +96,6 @@ static void setTimespecRelative(struct timespec *p_ts, long long msec)
         p_ts->tv_nsec -= NS_PER_S;
     }
 }
-#endif /*USE_NP*/
 
 static void sleepMsec(long long msec)
 {
@@ -678,9 +669,7 @@ static int at_send_command_full_nolock (const char *command, ATCommandType type,
                     long long timeoutMsec, ATResponse **pp_outResponse)
 {
     int err = 0;
-#ifndef USE_NP
     struct timespec ts;
-#endif /*USE_NP*/
 
     if(sp_response != NULL) {
         err = AT_ERROR_COMMAND_PENDING;
@@ -698,19 +687,13 @@ static int at_send_command_full_nolock (const char *command, ATCommandType type,
     s_smsPDU = smspdu;
     sp_response = at_response_new();
 
-#ifndef USE_NP
     if (timeoutMsec != 0) {
         setTimespecRelative(&ts, timeoutMsec);
     }
-#endif /*USE_NP*/
 
     while (sp_response->finalResponse == NULL && s_readerClosed == 0) {
         if (timeoutMsec != 0) {
-#ifdef USE_NP
-            err = pthread_cond_timeout_np(&s_commandcond, &s_commandmutex, timeoutMsec);
-#else
             err = pthread_cond_timedwait(&s_commandcond, &s_commandmutex, &ts);
-#endif /*USE_NP*/
         } else {
             err = pthread_cond_wait(&s_commandcond, &s_commandmutex);
         }
