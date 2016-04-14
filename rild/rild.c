@@ -184,7 +184,7 @@ int main(int argc, char **argv) {
     }
     if (strncmp(clientId, "0", MAX_CLIENT_ID_LENGTH)) {
         strlcat(rild, clientId, MAX_SOCKET_NAME_LENGTH);
-        Ril_setRilSocketName(rild);
+        RIL_setRilSocketName(rild);
     }
 
     if (rilLibPath == NULL) {
