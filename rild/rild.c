@@ -105,7 +105,10 @@ void switchUser() {
     char debuggable[PROP_VALUE_MAX];
 
     prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
-    setuid(AID_RADIO);
+    if (setresuid(AID_RADIO, AID_RADIO, AID_RADIO) == -1) {
+        RLOGE("setresuid failed: %s", strerror(errno));
+        exit(EXIT_FAILURE);
+    }
 
     struct __user_cap_header_struct header;
     memset(&header, 0, sizeof(header));
