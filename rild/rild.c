@@ -180,7 +180,8 @@ int main(int argc, char **argv) {
         exit(0);
     }
     if (strncmp(clientId, "0", MAX_CLIENT_ID_LENGTH)) {
-        RIL_setRilSocketName(strncat(rild, clientId, MAX_SOCKET_NAME_LENGTH));
+        strlcat(rild, clientId, MAX_SOCKET_NAME_LENGTH);
+        Ril_setRilSocketName(rild);
     }
 
     if (rilLibPath == NULL) {
