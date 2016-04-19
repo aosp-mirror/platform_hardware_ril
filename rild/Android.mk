@@ -6,14 +6,14 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES:= \
 	rild.c
 
-
 LOCAL_SHARED_LIBRARIES := \
-	liblog \
 	libcutils \
-	libril \
-	libdl
+	libdl \
+	liblog \
+	libminijail \
+	libril
 
-# temporary hack for broken vendor rils
+# Temporary hack for broken vendor RILs.
 LOCAL_WHOLE_STATIC_LIBRARIES := \
 	librilutils_static
 

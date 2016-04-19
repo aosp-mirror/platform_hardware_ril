@@ -33,6 +33,7 @@
 #include <sys/prctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <libminijail.h>
 #include <libril/ril_ex.h>
 
 #include <private/android_filesystem_config.h>
@@ -103,34 +104,13 @@ static int make_argv(char * args, char ** argv) {
  */
 void switchUser() {
     char debuggable[PROP_VALUE_MAX];
+    struct minijail *j = minijail_new();
+    minijail_change_uid(j, AID_RADIO);
+    minijail_use_caps(j, CAP_MASK_LONG(CAP_BLOCK_SUSPEND) |
+                         CAP_MASK_LONG(CAP_NET_ADMIN) |
+                         CAP_MASK_LONG(CAP_NET_RAW));
 
-    prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
-    if (setresuid(AID_RADIO, AID_RADIO, AID_RADIO) == -1) {
-        RLOGE("setresuid failed: %s", strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-
-    struct __user_cap_header_struct header;
-    memset(&header, 0, sizeof(header));
-    header.version = _LINUX_CAPABILITY_VERSION_3;
-    header.pid = 0;
-
-    struct __user_cap_data_struct data[MAX_CAP_NUM];
-    memset(&data, 0, sizeof(data));
-
-    data[CAP_TO_INDEX(CAP_NET_ADMIN)].effective |= CAP_TO_MASK(CAP_NET_ADMIN);
-    data[CAP_TO_INDEX(CAP_NET_ADMIN)].permitted |= CAP_TO_MASK(CAP_NET_ADMIN);
-
-    data[CAP_TO_INDEX(CAP_NET_RAW)].effective |= CAP_TO_MASK(CAP_NET_RAW);
-    data[CAP_TO_INDEX(CAP_NET_RAW)].permitted |= CAP_TO_MASK(CAP_NET_RAW);
-
-    data[CAP_TO_INDEX(CAP_BLOCK_SUSPEND)].effective |= CAP_TO_MASK(CAP_BLOCK_SUSPEND);
-    data[CAP_TO_INDEX(CAP_BLOCK_SUSPEND)].permitted |= CAP_TO_MASK(CAP_BLOCK_SUSPEND);
-
-    if (capset(&header, &data[0]) == -1) {
-        RLOGE("capset failed: %s", strerror(errno));
-        exit(EXIT_FAILURE);
-    }
+    minijail_enter(j);
 
     /*
      * Debuggable build only:
@@ -143,12 +123,12 @@ void switchUser() {
 }
 
 int main(int argc, char **argv) {
-    const char * rilLibPath = NULL;
+    const char *rilLibPath = NULL;
     char **rilArgv;
     void *dlHandle;
     const RIL_RadioFunctions *(*rilInit)(const struct RIL_Env *, int, char **);
     const RIL_RadioFunctions *(*rilUimInit)(const struct RIL_Env *, int, char **);
-    char *err_str = NULL;
+    const char *err_str = NULL;
 
     const RIL_RadioFunctions *funcs;
     char libPath[PROPERTY_VALUE_MAX];
@@ -347,7 +327,7 @@ OpenLib:
     }
 
     rilArgv[argc++] = "-c";
-    rilArgv[argc++] = clientId;
+    rilArgv[argc++] = (char*)clientId;
     RLOGD("RIL_Init argc = %d clientId = %s", argc, rilArgv[argc-1]);
 
     // Make sure there's a reasonable argv[0]
