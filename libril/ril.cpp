@@ -5525,6 +5525,7 @@ requestToString(int request) {
         case RIL_REQUEST_QUERY_CLIP: return "QUERY_CLIP";
         case RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE: return "LAST_DATA_CALL_FAIL_CAUSE";
         case RIL_REQUEST_DATA_CALL_LIST: return "DATA_CALL_LIST";
+        case RIL_REQUEST_NV_RESET_CONFIG: return "NV_RESET_CONFIG";
         case RIL_REQUEST_RESET_RADIO: return "RESET_RADIO";
         case RIL_REQUEST_OEM_HOOK_RAW: return "OEM_HOOK_RAW";
         case RIL_REQUEST_OEM_HOOK_STRINGS: return "OEM_HOOK_STRINGS";
