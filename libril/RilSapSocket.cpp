@@ -248,7 +248,7 @@ void log_hex(const char *who, const uint8_t *buffer, int length) {
     int per_line = 0;
 
     do {
-        dest += sprintf(out, "%8.8s [%8.8x] ", who, source);
+        dest += snprintf(out, sizeof(out), "%8.8s [%8.8x] ", who, source);
         for(; source < length && dest_len - dest > 3 && per_line < BYTES_PER_LINE; source++,
         per_line ++) {
             out[dest++] = HEX_HIGH(buffer[source]);

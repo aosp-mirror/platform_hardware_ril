@@ -532,23 +532,27 @@ static void requestOrSendDataCallList(RIL_Token *t)
         err = at_tok_nextstr(&line, &out);
         if (err < 0)
             goto error;
-        responses[i].type = alloca(strlen(out) + 1);
-        strcpy(responses[i].type, out);
+
+        int type_size = strlen(out) + 1;
+        responses[i].type = alloca(type_size);
+        strlcpy(responses[i].type, out, type_size);
 
         // APN ignored for v5
         err = at_tok_nextstr(&line, &out);
         if (err < 0)
             goto error;
 
-        responses[i].ifname = alloca(strlen(PPP_TTY_PATH) + 1);
-        strcpy(responses[i].ifname, PPP_TTY_PATH);
+        int ifname_size = strlen(PPP_TTY_PATH) + 1;
+        responses[i].ifname = alloca(ifname_size);
+        strlcpy(responses[i].ifname, PPP_TTY_PATH, ifname_size);
 
         err = at_tok_nextstr(&line, &out);
         if (err < 0)
             goto error;
 
-        responses[i].addresses = alloca(strlen(out) + 1);
-        strcpy(responses[i].addresses, out);
+        int addresses_size = strlen(out) + 1;
+        responses[i].addresses = alloca(addresses_size);
+        strlcpy(responses[i].addresses, out, addresses_size);
 
         {
             char  propValue[PROP_VALUE_MAX];
