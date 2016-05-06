@@ -1228,7 +1228,7 @@ typedef struct {
     int lac;    /* 16-bit Location Area Code, 0..65535, INT_MAX if unknown  */
     int cid;    /* 16-bit GSM Cell Identity described in TS 27.007, 0..65535, INT_MAX if unknown  */
     int arfcn;  /* 16-bit GSM Absolute RF channel number, INT_MAX if unknown */
-    uint8_t bsic;/* 6-bit Base Station Identity Code */
+    uint8_t bsic;/* 6-bit Base Station Identity Code, 0xFF if unknown */
 } RIL_CellIdentityGsm_v12;
 
 typedef struct {
