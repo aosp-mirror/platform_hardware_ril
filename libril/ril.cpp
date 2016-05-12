@@ -86,7 +86,7 @@ namespace android {
 #define RESPONSE_UNSOLICITED 1
 
 /* Negative values for private RIL errno's */
-#define RIL_ERRNO_INVALID_RESPONSE -1
+#define RIL_ERRNO_INVALID_RESPONSE (-1)
 
 // request, response, and unsolicited msg print macro
 #define PRINTBUF_SIZE 8096

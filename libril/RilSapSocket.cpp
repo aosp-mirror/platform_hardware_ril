@@ -224,18 +224,18 @@ RilSapSocket::RilSapSocket(const char *socketName,
 #define BYTES_PER_LINE 16
 
 #define NIBBLE_TO_HEX(n) ({ \
-  uint8_t __n = (uint8_t) n & 0x0f; \
+  uint8_t __n = (uint8_t) (n) & 0x0f; \
   __nibble >= 10 ? 'A' + __n - 10: '0' + __n; \
 })
 
 #define HEX_HIGH(b) ({ \
-  uint8_t __b = (uint8_t) b; \
+  uint8_t __b = (uint8_t) (b); \
   uint8_t __nibble = (__b >> 4) & 0x0f; \
   NIBBLE_TO_HEX(__nibble); \
 })
 
 #define HEX_LOW(b) ({ \
-  uint8_t __b = (uint8_t) b; \
+  uint8_t __b = (uint8_t) (b); \
   uint8_t __nibble = __b & 0x0f; \
   NIBBLE_TO_HEX(__nibble); \
 })
