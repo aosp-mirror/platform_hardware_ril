@@ -150,3 +150,5 @@
     {RIL_REQUEST_STOP_LCE, dispatchVoid, responseLceStatus},
     {RIL_REQUEST_PULL_LCEDATA, dispatchVoid, responseLceData},
     {RIL_REQUEST_GET_ACTIVITY_INFO, dispatchVoid, responseActivityData},
+    {RIL_REQUEST_SET_CARRIER_RESTRICTIONS, dispatchCarrierRestrictions, responseInts},
+    {RIL_REQUEST_GET_CARRIER_RESTRICTIONS, dispatchVoid, responseCarrierRestrictions},
