@@ -36,7 +36,7 @@
 #include "misc.h"
 
 
-#define NUM_ELEMS(x) (sizeof(x)/sizeof(x[0]))
+#define NUM_ELEMS(x) (sizeof(x)/sizeof((x)[0]))
 
 #define MAX_AT_RESPONSE (8 * 1024)
 #define HANDSHAKE_RETRY_COUNT 8
