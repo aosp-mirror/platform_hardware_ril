@@ -65,7 +65,10 @@ extern "C" {
  *                    RIL_CellInfoWcdma_v12, RIL_CellInfoLte_v12, RIL_CellInfo_v12.
  *
  * RIL_VERSION = 13 : This version includes new wakelock semantics and as the first
- *                    strongly versioned version it enforces structure use.
+ *                    strongly versioned version it enforces structure use. New
+ *                    data structures are added, namely RIL_CarrierMatchType,
+ *                    RIL_Carrier, RIL_CarrierRestrictions. New commands added:
+ *                    RIL_REQUEST_SET_CARRIER_RESTRICTIONS, RIL_REQUEST_SET_CARRIER_RESTRICTIONS
  */
 #define RIL_VERSION 12
 #define LAST_IMPRECISE_RIL_VERSION 12 // Better self-documented name
@@ -687,6 +690,36 @@ typedef struct {
                                         */
 } RIL_LceDataInfo;
 
+typedef enum {
+    RIL_MATCH_ALL = 0,          /* Apply to all carriers with the same mcc/mnc */
+    RIL_MATCH_SPN = 1,          /* Use SPN and mcc/mnc to identify the carrier */
+    RIL_MATCH_IMSI_PREFIX = 2,  /* Use IMSI prefix and mcc/mnc to identify the carrier */
+    RIL_MATCH_GID1 = 3,         /* Use GID1 and mcc/mnc to identify the carrier */
+    RIL_MATCH_GID2 = 4,         /* Use GID2 and mcc/mnc to identify the carrier */
+} RIL_CarrierMatchType;
+
+typedef struct {
+    const char * mcc;
+    const char * mnc;
+    RIL_CarrierMatchType match_type;   /* Specify match type for the carrier.
+                                        * If it’s RIL_MATCH_ALL, match_data is null;
+                                        * otherwise, match_data is the value for the match type.
+                                        */
+    const char * match_data;
+} RIL_Carrier;
+
+typedef struct {
+  int32_t len_allowed_carriers;         /* length of array allowed_carriers */
+  int32_t len_excluded_carriers;        /* length of array excluded_carriers */
+  RIL_Carrier * allowed_carriers;       /* whitelist for allowed carriers */
+  RIL_Carrier * excluded_carriers;      /* blacklist for explicitly excluded carriers
+                                         * which match allowed_carriers. Eg. allowed_carriers match
+                                         * mcc/mnc, excluded_carriers has same mcc/mnc and gid1
+                                         * is ABCD. It means except the carrier whose gid1 is ABCD,
+                                         * all carriers with the same mcc/mnc are allowed.
+                                         */
+} RIL_CarrierRestrictions;
+
 /* See RIL_REQUEST_LAST_CALL_FAIL_CAUSE */
 typedef enum {
     CALL_FAIL_UNOBTAINABLE_NUMBER = 1,
@@ -894,9 +927,10 @@ typedef struct {
 #define RIL_CARD_MAX_APPS     8
 
 typedef enum {
-    RIL_CARDSTATE_ABSENT   = 0,
-    RIL_CARDSTATE_PRESENT  = 1,
-    RIL_CARDSTATE_ERROR    = 2
+    RIL_CARDSTATE_ABSENT     = 0,
+    RIL_CARDSTATE_PRESENT    = 1,
+    RIL_CARDSTATE_ERROR      = 2,
+    RIL_CARDSTATE_RESTRICTED = 3  /* card is present but not usable due to carrier restrictions.*/
 } RIL_CardState;
 
 typedef enum {
@@ -5076,6 +5110,45 @@ typedef struct {
  * GENERIC_FAILURE
  */
 #define RIL_REQUEST_GET_ACTIVITY_INFO 135
+
+/**
+ * RIL_REQUEST_SET_CARRIER_RESTRICTIONS
+ *
+ * Set carrier restrictions for this sim slot
+ *
+ * "data" is const RIL_CarrierRestrictions *
+ * A list of allowed carriers and possibly a list of excluded carriers.
+ * If data is NULL, means to clear previous carrier restrictions and allow all carriers
+ *
+ * "response" is int *
+ * ((int *)data)[0] contains the number of allowed carriers which have been set correctly.
+ * On success, it should match the length of list data->allowed_carriers.
+ * If data is NULL, the value must be 0.
+ *
+ * Valid errors:
+ *  RIL_E_SUCCESS
+ *  RIL_E_INVALID_ARGUMENTS
+ *  RIL_E_RADIO_NOT_AVAILABLE
+ *  RIL_E_REQUEST_NOT_SUPPORTED
+ */
+#define RIL_REQUEST_SET_CARRIER_RESTRICTIONS 136
+
+/**
+ * RIL_REQUEST_GET_CARRIER_RESTRICTIONS
+ *
+ * Get carrier restrictions for this sim slot
+ *
+ * "data" is NULL
+ *
+ * "response" is const RIL_CarrierRestrictions *.
+ * If response is NULL, it means all carriers are allowed.
+ *
+ * Valid errors:
+ *  RIL_E_SUCCESS
+ *  RIL_E_RADIO_NOT_AVAILABLE
+ *  RIL_E_REQUEST_NOT_SUPPORTED
+ */
+#define RIL_REQUEST_GET_CARRIER_RESTRICTIONS 137
 
 /***********************************************************************/
 
