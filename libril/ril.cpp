@@ -2152,7 +2152,8 @@ static void dispatchCarrierRestrictions(Parcel &p, RequestInfo *pRI) {
     if (s_callbacks.version < 13) {
         RLOGE("Unsuppoted RIL version %d, min version expected %d",
               s_callbacks.version, 13);
-        goto invalid;
+        RIL_onRequestComplete(pRI, RIL_E_REQUEST_NOT_SUPPORTED, NULL, 0);
+        return;
     }
 
     status = p.readInt32(&t);
@@ -2219,6 +2220,7 @@ static void dispatchCarrierRestrictions(Parcel &p, RequestInfo *pRI) {
 
 invalid:
     invalidCommandBlock(pRI);
+    RIL_onRequestComplete(pRI, RIL_E_INVALID_ARGUMENTS, NULL, 0);
 exit:
     if (allowed_carriers != NULL) {
         free(allowed_carriers);
