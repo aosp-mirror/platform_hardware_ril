@@ -316,6 +316,7 @@ static int responseLceStatus(Parcel &p, void *response, size_t responselen);
 static int responseLceData(Parcel &p, void *response, size_t responselen);
 static int responseActivityData(Parcel &p, void *response, size_t responselen);
 static int responseCarrierRestrictions(Parcel &p, void *response, size_t responselen);
+static int responsePcoData(Parcel &p, void *response, size_t responselen);
 
 static int decodeVoiceRadioTechnology (RIL_RadioState radioState);
 static int decodeCdmaSubscriptionSource (RIL_RadioState radioState);
@@ -2149,9 +2150,9 @@ static void dispatchCarrierRestrictions(Parcel &p, RequestInfo *pRI) {
 
     memset(&cr, 0, sizeof(RIL_CarrierRestrictions));
 
-    if (s_callbacks.version < 13) {
+    if (s_callbacks.version < 14) {
         RLOGE("Unsuppoted RIL version %d, min version expected %d",
-              s_callbacks.version, 13);
+              s_callbacks.version, 14);
         RIL_onRequestComplete(pRI, RIL_E_REQUEST_NOT_SUPPORTED, NULL, 0);
         return;
     }
@@ -4063,7 +4064,7 @@ static int responseCarrierRestrictions(Parcel &p, void *response, size_t respons
   }
   if (responselen != sizeof(RIL_CarrierRestrictions)) {
     RLOGE("responseCarrierRestrictions: invalid response length %d expecting len: %d",
-          sizeof(RIL_CarrierRestrictions), responselen);
+          responselen, sizeof(RIL_CarrierRestrictions));
     return RIL_ERRNO_INVALID_RESPONSE;
   }
 
@@ -4088,6 +4089,32 @@ static int responseCarrierRestrictions(Parcel &p, void *response, size_t respons
   startResponse;
   appendPrintBuf("CarrierRestrictions received: len_allowed_carriers %d len_excluded_carriers %d",
                   p_cr->len_allowed_carriers,p_cr->len_excluded_carriers);
+  closeResponse;
+
+  return 0;
+}
+
+static int responsePcoData(Parcel &p, void *response, size_t responselen) {
+  if (response == NULL) {
+    RLOGE("responsePcoData: invalid NULL response");
+    return RIL_ERRNO_INVALID_RESPONSE;
+  }
+  if (responselen != sizeof(RIL_PCO_Data)) {
+    RLOGE("responsePcoData: invalid response length %d, expecting %d",
+          responselen, sizeof(RIL_PCO_Data));
+    return RIL_ERRNO_INVALID_RESPONSE;
+  }
+
+  RIL_PCO_Data *p_cur = (RIL_PCO_Data *)response;
+  p.writeInt32(p_cur->cid);
+  writeStringToParcel(p, p_cur->bearer_proto);
+  p.writeInt32(p_cur->pco_id);
+  p.writeInt32(p_cur->contents_length);
+  p.write(p_cur->contents, p_cur->contents_length);
+
+  startResponse;
+      appendPrintBuf("PCO data received: cid %d, id %d, length %d",
+                     p_cur->cid, p_cur->pco_id, p_cur->contents_length);
   closeResponse;
 
   return 0;
@@ -5768,6 +5795,7 @@ requestToString(int request) {
         case RIL_REQUEST_SHUTDOWN: return "SHUTDOWN";
         case RIL_UNSOL_RADIO_CAPABILITY: return "RIL_UNSOL_RADIO_CAPABILITY";
         case RIL_RESPONSE_ACKNOWLEDGEMENT: return "RIL_RESPONSE_ACKNOWLEDGEMENT";
+        case RIL_UNSOL_PCO_DATA: return "RIL_UNSOL_PCO_DATA";
         default: return "<unknown request>";
     }
 }
