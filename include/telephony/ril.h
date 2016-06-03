@@ -65,10 +65,12 @@ extern "C" {
  *                    RIL_CellInfoWcdma_v12, RIL_CellInfoLte_v12, RIL_CellInfo_v12.
  *
  * RIL_VERSION = 13 : This version includes new wakelock semantics and as the first
- *                    strongly versioned version it enforces structure use. New
- *                    data structures are added, namely RIL_CarrierMatchType,
- *                    RIL_Carrier, RIL_CarrierRestrictions. New commands added:
- *                    RIL_REQUEST_SET_CARRIER_RESTRICTIONS, RIL_REQUEST_SET_CARRIER_RESTRICTIONS
+ *                    strongly versioned version it enforces structure use.
+ * RIL_VERSION = 14 : New data structures are added, namely RIL_CarrierMatchType,
+ *                    RIL_Carrier, RIL_CarrierRestrictions and RIL_PCO_Data.
+ *                    New commands added: RIL_REQUEST_SET_CARRIER_RESTRICTIONS,
+ *                    RIL_REQUEST_SET_CARRIER_RESTRICTIONS and
+ *                    RIL_UNSOL_PCO_DATA
  */
 #define RIL_VERSION 12
 #define LAST_IMPRECISE_RIL_VERSION 12 // Better self-documented name
@@ -5765,6 +5767,19 @@ typedef struct {
  */
 #define RIL_UNSOL_LCEDATA_RECV 1045
 
+ /**
+  * RIL_UNSOL_PCO_DATA
+  *
+  * Called when there is new Carrier PCO data received for a data call.  Ideally
+  * only new data will be forwarded, though this is not required.  Multiple
+  * boxes of carrier PCO data for a given call should result in a series of
+  * RIL_UNSOL_PCO_DATA calls.
+  *
+  * "data" is the RIL_PCO_Data structure.
+  *
+  */
+#define RIL_UNSOL_PCO_DATA 1046
+
 /***********************************************************************/
 
 
@@ -6030,6 +6045,18 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
 void RIL_requestTimedCallback (RIL_TimedCallback callback,
                                void *param, const struct timeval *relativeTime);
 
+typedef struct {
+  int cid;             /* Context ID, uniquely identifies this call */
+  char *bearer_proto;  /* One of the PDP_type values in TS 27.007 section 10.1.1.
+                          For example, "IP", "IPV6", "IPV4V6" */
+  int pco_id;          /* The protocol ID for this box.  Note that only IDs from
+                          FF00H - FFFFH are accepted.  If more than one is included
+                          from the network, multiple calls should be made to send all
+                          of them. */
+  int contents_length; /* The number of octets in the contents. */
+  char *contents;      /* Carrier-defined content.  It is binary, opaque and
+                          loosely defined in LTE Layer 3 spec 24.008 */
+} RIL_PCO_Data;
 
 #endif /* RIL_SHLIB */
 
