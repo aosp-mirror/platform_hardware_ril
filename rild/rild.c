@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
         }
 
         do {
-            len = read(fd,buffer,sizeof(buffer)); }
+            len = read(fd,buffer,sizeof(buffer) - 1); }
         while (len == -1 && errno == EINTR);
 
         if (len < 0) {
