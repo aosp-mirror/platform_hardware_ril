@@ -207,12 +207,25 @@ int main(int argc, char **argv) {
 #define  REFERENCE_RIL_PATH  "libreference-ril.so"
 
         /* first, read /proc/cmdline into memory */
-        char          buffer[1024] = {'\0'}, *p, *q;
+        char          buffer[2048] = {'\0'}, *p, *q;
         int           len;
+        struct stat   st;
         int           fd = open("/proc/cmdline",O_RDONLY);
 
         if (fd < 0) {
-            RLOGD("could not open /proc/cmdline:%s", strerror(errno));
+            RLOGE("could not open /proc/cmdline:%s", strerror(errno));
+            goto OpenLib;
+        }
+
+        if (fstat(fd, &st)) {
+            RLOGE("fstat error: %s", strerror(errno));
+            close(fd);
+            goto OpenLib;
+        }
+
+        if (st.st_size > sizeof(buffer) - 1) {
+            RLOGE("Size of /proc/cmdline exceeds buffer");
+            close(fd);
             goto OpenLib;
         }
 
@@ -221,7 +234,7 @@ int main(int argc, char **argv) {
         while (len == -1 && errno == EINTR);
 
         if (len < 0) {
-            RLOGD("could not read /proc/cmdline:%s", strerror(errno));
+            RLOGE("could not read /proc/cmdline:%s", strerror(errno));
             close(fd);
             goto OpenLib;
         }
