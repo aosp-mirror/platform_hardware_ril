@@ -2181,33 +2181,38 @@ static void dispatchCarrierRestrictions(Parcel &p, RequestInfo *pRI) {
     cr.len_excluded_carriers = t;
     cr.excluded_carriers = excluded_carriers;
 
+    startRequest;
+    appendPrintBuf("%s len_allowed_carriers:%d, len_excluded_carriers:%d,",
+                   printBuf, cr.len_allowed_carriers, cr.len_excluded_carriers);
+
+    appendPrintBuf("%s allowed_carriers:", printBuf);
     for (int32_t i = 0; i < cr.len_allowed_carriers; i++) {
         RIL_Carrier *p_cr = allowed_carriers + i;
-        p_cr->mcc = p.readCString();
-        p_cr->mnc = p.readCString();
+        p_cr->mcc = strdupReadString(p);
+        p_cr->mnc = strdupReadString(p);
         status = p.readInt32(&t);
         p_cr->match_type = static_cast<RIL_CarrierMatchType>(t);
         if (status != NO_ERROR) {
             goto invalid;
         }
-        p_cr->match_data = p.readCString();
+        p_cr->match_data = strdupReadString(p);
+        appendPrintBuf("%s [%d mcc:%s, mnc:%s, match_type:%d, match_data:%s],",
+                       printBuf, i, p_cr->mcc, p_cr->mnc, p_cr->match_type, p_cr->match_data);
     }
 
     for (int32_t i = 0; i < cr.len_excluded_carriers; i++) {
         RIL_Carrier *p_cr = excluded_carriers + i;
-        p_cr->mcc = p.readCString();
-        p_cr->mnc = p.readCString();
+        p_cr->mcc = strdupReadString(p);
+        p_cr->mnc = strdupReadString(p);
         status = p.readInt32(&t);
         p_cr->match_type = static_cast<RIL_CarrierMatchType>(t);
         if (status != NO_ERROR) {
             goto invalid;
         }
-        p_cr->match_data = p.readCString();
+        p_cr->match_data = strdupReadString(p);
+        appendPrintBuf("%s [%d mcc:%s, mnc:%s, match_type:%d, match_data:%s],",
+                       printBuf, i, p_cr->mcc, p_cr->mnc, p_cr->match_type, p_cr->match_data);
     }
-
-    startRequest;
-    appendPrintBuf("%s [len_allowed_carriers:%d, len_excluded_carriers:%d]",
-                   printBuf, cr.len_allowed_carriers, cr.len_excluded_carriers);
 
     closeRequest;
     printRequest(pRI->token, pRI->pCI->requestNumber);
