@@ -4069,32 +4069,41 @@ static int responseCarrierRestrictions(Parcel &p, void *response, size_t respons
     return RIL_ERRNO_INVALID_RESPONSE;
   }
   if (responselen != sizeof(RIL_CarrierRestrictions)) {
-    RLOGE("responseCarrierRestrictions: invalid response length %d expecting len: %d",
+    RLOGE("responseCarrierRestrictions: invalid response length %lu expecting len: %lu",
           responselen, sizeof(RIL_CarrierRestrictions));
     return RIL_ERRNO_INVALID_RESPONSE;
   }
 
   RIL_CarrierRestrictions *p_cr = (RIL_CarrierRestrictions *)response;
-  p.writeUint32(p_cr->len_allowed_carriers);
-  p.writeUint32(p_cr->len_excluded_carriers);
-  for(uint_t i = 0; i < p_cr->len_allowed_carriers; i++) {
+  startResponse;
+
+  p.writeInt32(p_cr->len_allowed_carriers);
+  p.writeInt32(p_cr->len_excluded_carriers);
+  appendPrintBuf(" %s len_allowed_carriers: %d, len_excluded_carriers: %d,", printBuf,
+                 p_cr->len_allowed_carriers,p_cr->len_excluded_carriers);
+
+  appendPrintBuf(" %s allowed_carriers:", printBuf);
+  for(int32_t i = 0; i < p_cr->len_allowed_carriers; i++) {
     RIL_Carrier *carrier = p_cr->allowed_carriers + i;
-    p.writeCString(carrier->mcc);
-    p.writeCString(carrier->mnc);
+    writeStringToParcel(p, carrier->mcc);
+    writeStringToParcel(p, carrier->mnc);
     p.writeInt32(carrier->match_type);
-    p.writeCString(carrier->match_data);
-  }
-  for(uint_t i = 0; i < p_cr->len_excluded_carriers; i++) {
-    RIL_Carrier *carrier = p_cr->excluded_carriers + i;
-    p.writeCString(carrier->mcc);
-    p.writeCString(carrier->mnc);
-    p.writeInt32(carrier->match_type);
-    p.writeCString(carrier->match_data);
+    writeStringToParcel(p, carrier->match_data);
+    appendPrintBuf(" %s [%d mcc: %s, mnc: %s, match_type: %d, match_data: %s],", printBuf,
+                   i, carrier->mcc, carrier->mnc, carrier->match_type, carrier->match_data);
   }
 
-  startResponse;
-  appendPrintBuf("CarrierRestrictions received: len_allowed_carriers %d len_excluded_carriers %d",
-                  p_cr->len_allowed_carriers,p_cr->len_excluded_carriers);
+  appendPrintBuf(" %s excluded_carriers:", printBuf);
+  for(int32_t i = 0; i < p_cr->len_excluded_carriers; i++) {
+    RIL_Carrier *carrier = p_cr->excluded_carriers + i;
+    writeStringToParcel(p, carrier->mcc);
+    writeStringToParcel(p, carrier->mnc);
+    p.writeInt32(carrier->match_type);
+    writeStringToParcel(p, carrier->match_data);
+    appendPrintBuf(" %s [%d mcc: %s, mnc: %s, match_type: %d, match_data: %s],", printBuf,
+                   i, carrier->mcc, carrier->mnc, carrier->match_type, carrier->match_data);
+  }
+
   closeResponse;
 
   return 0;
