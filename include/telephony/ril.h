@@ -5890,6 +5890,19 @@ typedef struct {
                                    NULL if no value. */
 } RIL_SimAuthentication;
 
+typedef struct {
+    int cid;             /* Context ID, uniquely identifies this call */
+    char *bearer_proto;  /* One of the PDP_type values in TS 27.007 section 10.1.1.
+                            For example, "IP", "IPV6", "IPV4V6" */
+    int pco_id;          /* The protocol ID for this box.  Note that only IDs from
+                            FF00H - FFFFH are accepted.  If more than one is included
+                            from the network, multiple calls should be made to send all
+                            of them. */
+    int contents_length; /* The number of octets in the contents. */
+    char *contents;      /* Carrier-defined content.  It is binary, opaque and
+                            loosely defined in LTE Layer 3 spec 24.008 */
+} RIL_PCO_Data;
+
 #ifdef RIL_SHLIB
 struct RIL_Env {
     /**
@@ -6044,19 +6057,6 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
 
 void RIL_requestTimedCallback (RIL_TimedCallback callback,
                                void *param, const struct timeval *relativeTime);
-
-typedef struct {
-  int cid;             /* Context ID, uniquely identifies this call */
-  char *bearer_proto;  /* One of the PDP_type values in TS 27.007 section 10.1.1.
-                          For example, "IP", "IPV6", "IPV4V6" */
-  int pco_id;          /* The protocol ID for this box.  Note that only IDs from
-                          FF00H - FFFFH are accepted.  If more than one is included
-                          from the network, multiple calls should be made to send all
-                          of them. */
-  int contents_length; /* The number of octets in the contents. */
-  char *contents;      /* Carrier-defined content.  It is binary, opaque and
-                          loosely defined in LTE Layer 3 spec 24.008 */
-} RIL_PCO_Data;
 
 #endif /* RIL_SHLIB */
 
