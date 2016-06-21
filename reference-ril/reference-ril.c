@@ -36,9 +36,9 @@
 #include <cutils/sockets.h>
 #include <termios.h>
 #include <sys/system_properties.h>
+#include <system/qemu_pipe.h>
 
 #include "ril.h"
-#include "hardware/qemu_pipe.h"
 
 #define LOG_TAG "RIL"
 #include <utils/Log.h>
@@ -3304,7 +3304,7 @@ mainLoop(void *param __unused)
                      * now another "legacy" way of communicating with the
                      * emulator), we will try to connecto to gsm service via
                      * qemu pipe. */
-                    fd = qemu_pipe_open("qemud:gsm");
+                    fd = qemu_pipe_open("pipe:qemud:gsm");
                     if (fd < 0) {
                         /* Qemu-specific control socket */
                         fd = socket_local_client( "qemud",
