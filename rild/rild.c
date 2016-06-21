@@ -36,7 +36,7 @@
 #include <libril/ril_ex.h>
 
 #include <private/android_filesystem_config.h>
-#include "hardware/qemu_pipe.h"
+#include <system/qemu_pipe.h>
 
 #define LIB_PATH_PROPERTY   "rild.libpath"
 #define LIB_ARGS_PROPERTY   "rild.libargs"
@@ -253,7 +253,7 @@ int main(int argc, char **argv) {
 
                 sleep(1);
 
-                fd = qemu_pipe_open("qemud:gsm");
+                fd = qemu_pipe_open("pipe:qemud:gsm");
                 if (fd < 0) {
                     fd = socket_local_client(
                                 QEMUD_SOCKET_NAME,
