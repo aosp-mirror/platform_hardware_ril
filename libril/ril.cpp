@@ -1332,7 +1332,7 @@ dispatchImsGsmSms(Parcel &p, RequestInfo *pRI, uint8_t retry, int32_t messageRef
         pStrings = NULL;
         datalen = 0;
     } else {
-        if (countStrings > (INT_MAX/sizeof(char *))) {
+        if ((size_t)countStrings > (INT_MAX/sizeof(char *))) {
             RLOGE("Invalid value of countStrings: \n");
             closeRequest;
             return;
@@ -3985,8 +3985,8 @@ static int responseLceStatus(Parcel &p, void *response, size_t responselen) {
       RLOGE("invalid response: NULL");
     }
     else {
-      RLOGE("responseLceStatus: invalid response length %d expecting len: d%",
-            sizeof(RIL_LceStatusInfo), responselen);
+      RLOGE("responseLceStatus: invalid response length %u expecting len: %u",
+            (unsigned)sizeof(RIL_LceStatusInfo), (unsigned)responselen);
     }
     return RIL_ERRNO_INVALID_RESPONSE;
   }
@@ -4009,8 +4009,8 @@ static int responseLceData(Parcel &p, void *response, size_t responselen) {
       RLOGE("invalid response: NULL");
     }
     else {
-      RLOGE("responseLceData: invalid response length %d expecting len: d%",
-            sizeof(RIL_LceDataInfo), responselen);
+      RLOGE("responseLceData: invalid response length %u expecting len: %u",
+            (unsigned)sizeof(RIL_LceDataInfo), (unsigned)responselen);
     }
     return RIL_ERRNO_INVALID_RESPONSE;
   }
@@ -4038,8 +4038,8 @@ static int responseActivityData(Parcel &p, void *response, size_t responselen) {
       RLOGE("invalid response: NULL");
     }
     else {
-      RLOGE("responseActivityData: invalid response length %d expecting len: d%",
-            sizeof(RIL_ActivityStatsInfo), responselen);
+      RLOGE("responseActivityData: invalid response length %u expecting len: %u",
+            (unsigned)sizeof(RIL_ActivityStatsInfo), (unsigned)responselen);
     }
     return RIL_ERRNO_INVALID_RESPONSE;
   }
@@ -4069,8 +4069,8 @@ static int responseCarrierRestrictions(Parcel &p, void *response, size_t respons
     return RIL_ERRNO_INVALID_RESPONSE;
   }
   if (responselen != sizeof(RIL_CarrierRestrictions)) {
-    RLOGE("responseCarrierRestrictions: invalid response length %lu expecting len: %lu",
-          responselen, sizeof(RIL_CarrierRestrictions));
+    RLOGE("responseCarrierRestrictions: invalid response length %u expecting len: %u",
+          (unsigned)responselen, (unsigned)sizeof(RIL_CarrierRestrictions));
     return RIL_ERRNO_INVALID_RESPONSE;
   }
 
@@ -4115,8 +4115,8 @@ static int responsePcoData(Parcel &p, void *response, size_t responselen) {
     return RIL_ERRNO_INVALID_RESPONSE;
   }
   if (responselen != sizeof(RIL_PCO_Data)) {
-    RLOGE("responsePcoData: invalid response length %d, expecting %d",
-          responselen, sizeof(RIL_PCO_Data));
+    RLOGE("responsePcoData: invalid response length %u, expecting %u",
+          (unsigned)responselen, (unsigned)sizeof(RIL_PCO_Data));
     return RIL_ERRNO_INVALID_RESPONSE;
   }
 
@@ -4281,7 +4281,7 @@ static void listenCallback (int fd, short flags, void *param) {
     int err;
     int is_phone_socket;
     int fdCommand = -1;
-    char* processName;
+    const char* processName;
     RecordStream *p_rs;
     MySocketListenParam* listenParam;
     RilSocket *sapSocket = NULL;
@@ -4783,7 +4783,8 @@ RIL_register (const RIL_RadioFunctions *callbacks) {
                         &s_commands_event,        /* commands_event */
                         &s_listen_event,          /* listen_event */
                         processCommandsCallback,  /* processCommandsCallback */
-                        NULL                      /* p_rs */
+                        NULL,                     /* p_rs */
+                        RIL_TELEPHONY_SOCKET      /* type */
                         };
 
 #if (SIM_COUNT >= 2)
@@ -4795,7 +4796,8 @@ RIL_register (const RIL_RadioFunctions *callbacks) {
                         &s_commands_event_socket2,  /* commands_event */
                         &s_listen_event_socket2,    /* listen_event */
                         processCommandsCallback,    /* processCommandsCallback */
-                        NULL                        /* p_rs */
+                        NULL,                       /* p_rs */
+                        RIL_TELEPHONY_SOCKET        /* type */
                         };
 #endif
 
@@ -4808,7 +4810,8 @@ RIL_register (const RIL_RadioFunctions *callbacks) {
                         &s_commands_event_socket3,  /* commands_event */
                         &s_listen_event_socket3,    /* listen_event */
                         processCommandsCallback,    /* processCommandsCallback */
-                        NULL                        /* p_rs */
+                        NULL,                       /* p_rs */
+                        RIL_TELEPHONY_SOCKET        /* type */
                         };
 #endif
 
@@ -4821,7 +4824,8 @@ RIL_register (const RIL_RadioFunctions *callbacks) {
                         &s_commands_event_socket4,  /* commands_event */
                         &s_listen_event_socket4,    /* listen_event */
                         processCommandsCallback,    /* processCommandsCallback */
-                        NULL                        /* p_rs */
+                        NULL,                       /* p_rs */
+                        RIL_TELEPHONY_SOCKET        /* type */
                         };
 #endif
 
@@ -4924,6 +4928,8 @@ RIL_register_socket (RIL_RadioFunctions *(*Init)(const struct RIL_Env *, int, ch
 #if (SIM_COUNT >= 4)
                 RilSapSocket::initSapSocket("sap_uim_socket4", UimFuncs);
 #endif
+                break;
+            default:;
         }
     }
 }
