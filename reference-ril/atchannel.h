@@ -31,16 +31,16 @@ extern void  AT_DUMP(const char* prefix, const char*  buff, int  len);
 #define  AT_DUMP(prefix,buff,len)  do{}while(0)
 #endif
 
-#define AT_ERROR_GENERIC -1
-#define AT_ERROR_COMMAND_PENDING -2
-#define AT_ERROR_CHANNEL_CLOSED -3
-#define AT_ERROR_TIMEOUT -4
-#define AT_ERROR_INVALID_THREAD -5 /* AT commands may not be issued from
-                                       reader thread (or unsolicited response
-                                       callback */
-#define AT_ERROR_INVALID_RESPONSE -6 /* eg an at_send_command_singleline that
-                                        did not get back an intermediate
-                                        response */
+#define AT_ERROR_GENERIC          (-1)
+#define AT_ERROR_COMMAND_PENDING  (-2)
+#define AT_ERROR_CHANNEL_CLOSED   (-3)
+#define AT_ERROR_TIMEOUT          (-4)
+#define AT_ERROR_INVALID_THREAD   (-5) /* AT commands may not be issued from
+                                          reader thread (or unsolicited response
+                                          callback */
+#define AT_ERROR_INVALID_RESPONSE (-6) /* eg an at_send_command_singleline that
+                                          did not get back an intermediate
+                                          response */
 
 
 typedef enum {
