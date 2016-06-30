@@ -364,7 +364,7 @@ static void onSIMReady()
     at_send_command("AT+CNMI=1,2,2,1,1", NULL);
 }
 
-static void requestRadioPower(void *data, size_t datalen, RIL_Token t)
+static void requestRadioPower(void *data, size_t datalen __unused, RIL_Token t)
 {
     int onOff;
 
@@ -1932,6 +1932,7 @@ static void requestGetCellInfoList(void *data __unused, size_t datalen __unused,
         { // ci[0]
             1, // cellInfoType
             1, // registered
+            RIL_TIMESTAMP_TYPE_MODEM,
             curTime - 1000, // Fake some time in the past
             { // union CellInfo
                 {  // RIL_CellInfoGsm gsm
@@ -1940,7 +1941,6 @@ static void requestGetCellInfoList(void *data __unused, size_t datalen __unused,
                         s_mnc, // mnc
                         s_lac, // lac
                         s_cid, // cid
-                        0  // psc
                     },
                     {  // gsm.signalStrengthGsm
                         10, // signalStrength
@@ -1955,7 +1955,7 @@ static void requestGetCellInfoList(void *data __unused, size_t datalen __unused,
 }
 
 
-static void requestSetCellInfoListRate(void *data, size_t datalen, RIL_Token t)
+static void requestSetCellInfoListRate(void *data, size_t datalen __unused, RIL_Token t)
 {
     // For now we'll save the rate but no RIL_UNSOL_CELL_INFO_LIST messages
     // will be sent.
@@ -3273,7 +3273,7 @@ static void setHardwareConfiguration(int num, RIL_HardwareConfig *cfg)
    RIL_onUnsolicitedResponse(RIL_UNSOL_HARDWARE_CONFIG_CHANGED, cfg, num*sizeof(*cfg));
 }
 
-static void usage(char *s)
+static void usage(char *s __unused)
 {
 #ifdef RIL_SHLIB
     fprintf(stderr, "reference-ril requires: -p <tcp port> or -d /dev/tty_device\n");
