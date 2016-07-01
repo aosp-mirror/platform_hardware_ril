@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
     char **rilArgv;
     void *dlHandle;
     const RIL_RadioFunctions *(*rilInit)(const struct RIL_Env *, int, char **);
-    const RIL_RadioFunctions *(*rilUimInit)(const struct RIL_Env *, int, char **);
+    RIL_RadioFunctions *(*rilUimInit)(const struct RIL_Env *, int, char **);
     const char *err_str = NULL;
 
     const RIL_RadioFunctions *funcs;
@@ -218,7 +218,7 @@ int main(int argc, char **argv) {
 
     dlerror(); // Clear any previous dlerror
     rilUimInit =
-        (const RIL_RadioFunctions *(*)(const struct RIL_Env *, int, char **))
+        (RIL_RadioFunctions *(*)(const struct RIL_Env *, int, char **))
         dlsym(dlHandle, "RIL_SAP_Init");
     err_str = dlerror();
     if (err_str) {
