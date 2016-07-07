@@ -111,6 +111,7 @@ void switchUser() {
                          CAP_MASK_LONG(CAP_NET_RAW));
 
     minijail_enter(j);
+    minijail_destroy(j);
 
     /*
      * Debuggable build only:
