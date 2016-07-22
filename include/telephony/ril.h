@@ -5118,7 +5118,18 @@ typedef struct {
 /**
  * RIL_REQUEST_SET_CARRIER_RESTRICTIONS
  *
- * Set carrier restrictions for this sim slot
+ * Set carrier restrictions for this sim slot. Expected modem behavior:
+ *  If never receives this command
+ *  - Must allow all carriers
+ *  Receives this command with data being NULL
+ *  - Must allow all carriers. If a previously allowed SIM is present, modem must not reload
+ *    the SIM. If a previously disallowed SIM is present, reload the SIM and notify Android.
+ *  Receives this command with a list of carriers
+ *  - Only allow specified carriers, persist across power cycles and FDR. If a present SIM
+ *    is in the allowed list, modem must not reload the SIM. If a present SIM is *not* in
+ *    the allowed list, modem must detach from the registered network and only keep emergency
+ *    service, and notify Android SIM refresh reset with new SIM state being
+ *    RIL_CARDSTATE_RESTRICTED. Emergency service must be enabled.
  *
  * "data" is const RIL_CarrierRestrictions *
  * A list of allowed carriers and possibly a list of excluded carriers.
@@ -5140,7 +5151,8 @@ typedef struct {
 /**
  * RIL_REQUEST_GET_CARRIER_RESTRICTIONS
  *
- * Get carrier restrictions for this sim slot
+ * Get carrier restrictions for this sim slot. Expected modem behavior:
+ *  Return list of allowed carriers, or null if all carriers are allowed.
  *
  * "data" is NULL
  *
