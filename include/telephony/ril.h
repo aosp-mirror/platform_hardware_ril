@@ -543,7 +543,10 @@ typedef struct {
         RIL_CDMA_SMS_Message* cdmaMessage;
 
         /* Valid field if tech is RADIO_TECH_3GPP. See RIL_REQUEST_SEND_SMS */
-        char**                gsmMessage;
+        char**                gsmMessage;   /* This is an array of pointers where pointers
+                                               are contiguous but elements pointed by those pointers
+                                               are not contiguous
+                                            */
     } message;
 } RIL_IMS_SMS_Message;
 
@@ -5804,8 +5807,13 @@ typedef struct {
  * @param request is one of RIL_REQUEST_*
  * @param data is pointer to data defined for that RIL_REQUEST_*
  *        data is owned by caller, and should not be modified or freed by callee
+ *        structures passed as data may contain pointers to non-contiguous memory
  * @param t should be used in subsequent call to RIL_onResponse
- * @param datalen the length of data
+ * @param datalen is the length of "data" which is defined as other argument. It may or may
+ *        not be equal to sizeof(data). Refer to the documentation of individual structures
+ *        to find if pointers listed in the structure are contiguous and counted in the datalen
+ *        length or not.
+ *        (Eg: RIL_IMS_SMS_Message where we don't have datalen equal to sizeof(data))
  *
  */
 typedef void (*RIL_RequestFunc) (int request, void *data,
@@ -5825,8 +5833,13 @@ typedef RIL_RadioState (*RIL_RadioStateRequest)(RIL_SOCKET_ID socket_id);
  * @param request is one of RIL_REQUEST_*
  * @param data is pointer to data defined for that RIL_REQUEST_*
  *        data is owned by caller, and should not be modified or freed by callee
+ *        structures passed as data may contain pointers to non-contiguous memory
  * @param t should be used in subsequent call to RIL_onResponse
- * @param datalen the length of data
+ * @param datalen is the length of "data" which is defined as other argument. It may or may
+ *        not be equal to sizeof(data). Refer to the documentation of individual structures
+ *        to find if pointers listed in the structure are contiguous and counted in the datalen
+ *        length or not.
+ *        (Eg: RIL_IMS_SMS_Message where we don't have datalen equal to sizeof(data))
  *
  */
 typedef void (*RIL_RequestFunc) (int request, void *data,
