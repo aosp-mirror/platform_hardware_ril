@@ -2307,7 +2307,7 @@ typedef struct {
  *                                95 - Semantically incorrect message
  *                                96 - Invalid mandatory information
  *                                97 - Message type non-existent or not implemented
- *                                98 - Message not compatible with protocol state
+ *                                98 - Message type not compatible with protocol state
  *                                99 - Information element non-existent or not implemented
  *                               100 - Conditional IE error
  *                               101 - Message not compatible with protocol state
