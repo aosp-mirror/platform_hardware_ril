@@ -5822,6 +5822,7 @@ requestToString(int request) {
         case RIL_UNSOL_RADIO_CAPABILITY: return "RIL_UNSOL_RADIO_CAPABILITY";
         case RIL_RESPONSE_ACKNOWLEDGEMENT: return "RIL_RESPONSE_ACKNOWLEDGEMENT";
         case RIL_UNSOL_PCO_DATA: return "RIL_UNSOL_PCO_DATA";
+        case RIL_UNSOL_MODEM_RESTART: return "RIL_UNSOL_MODEM_RESTART";
         default: return "<unknown request>";
     }
 }
