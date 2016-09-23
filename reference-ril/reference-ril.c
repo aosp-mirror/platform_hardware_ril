@@ -1588,6 +1588,9 @@ static void requestSendSMS(void *data, size_t datalen, RIL_Token t)
 
     err = at_send_command_sms(cmd1, cmd2, "+CMGS:", &p_response);
 
+    free(cmd1);
+    free(cmd2);
+
     if (err != 0 || p_response->success == 0) goto error;
 
     /* FIXME fill in messageRef and ackPDU */
