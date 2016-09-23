@@ -858,6 +858,10 @@ dispatchDial (Parcel &p, RequestInfo *pRI) {
                 len = 0;
             } else {
                 uusInfo.uusData = (char*) p.readInplace(len);
+                // check if the length is invalid
+                if (uusInfo.uusData == NULL) {
+                    goto invalid;
+                }
             }
 
             uusInfo.uusLength = len;
