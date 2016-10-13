@@ -1722,18 +1722,29 @@ typedef struct {
 /* Tx Power Levels */
 #define RIL_NUM_TX_POWER_LEVELS     5
 
+/**
+ * Aggregate modem activity information
+ */
 typedef struct {
 
-  /* period (in ms) when modem is power collapsed */
+  /* total time (in ms) when modem is in a low power or
+   * sleep state
+   */
   uint32_t sleep_mode_time_ms;
 
-  /* period (in ms) when modem is awake and in idle mode*/
+  /* total time (in ms) when modem is awake but neither
+   * the transmitter nor receiver are active/awake */
   uint32_t idle_mode_time_ms;
 
-  /* period (in ms) for which Tx is active */
+  /* total time (in ms) during which the transmitter is active/awake,
+   * subdivided by manufacturer-defined device-specific
+   * contiguous increasing ranges of transmit power between
+   * 0 and the transmitter's maximum transmit power.
+   */
   uint32_t tx_mode_time_ms[RIL_NUM_TX_POWER_LEVELS];
 
-  /* period (in ms) for which Rx is active */
+  /* total time (in ms) for which receiver is active/awake and
+   * the transmitter is inactive */
   uint32_t rx_mode_time_ms;
 } RIL_ActivityStatsInfo;
 
@@ -5111,11 +5122,11 @@ typedef struct {
 /**
  * RIL_REQUEST_GET_ACTIVITY_INFO
  *
- * Get modem activity statisitics info.
+ * Get modem activity information for power consumption estimation.
  *
- * There can be multiple RIL_REQUEST_GET_ACTIVITY_INFO calls to modem.
- * Once the response for the request is sent modem will clear
- * current statistics information.
+ * Request clear-on-read statistics information that is used for
+ * estimating the per-millisecond power consumption of the cellular
+ * modem.
  *
  * "data" is null
  * "response" is const RIL_ActivityStatsInfo *
