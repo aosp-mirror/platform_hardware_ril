@@ -3315,7 +3315,7 @@ mainLoop(void *param __unused)
             if (isInEmulator()) {
                 fd = qemu_pipe_open("pipe:qemud:gsm");
             } else if (s_port > 0) {
-                fd = socket_loopback_client(s_port, SOCK_STREAM);
+                fd = socket_network_client("localhost", s_port, SOCK_STREAM);
             } else if (s_device_socket) {
                 fd = socket_local_client(s_device_path,
                                          ANDROID_SOCKET_NAMESPACE_FILESYSTEM,
