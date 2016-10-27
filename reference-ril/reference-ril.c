@@ -26,6 +26,7 @@
 #include <sys/cdefs.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <inttypes.h>
 #include <fcntl.h>
 #include <pthread.h>
 #include <alloca.h>
@@ -340,6 +341,22 @@ error:
     return -1;
 }
 
+static int parseSimResponseLine(char* line, RIL_SIM_IO_Response* response) {
+    int err;
+
+    err = at_tok_start(&line);
+    if (err < 0) return err;
+    err = at_tok_nextint(&line, &response->sw1);
+    if (err < 0) return err;
+    err = at_tok_nextint(&line, &response->sw2);
+    if (err < 0) return err;
+
+    if (at_tok_hasmore(&line)) {
+        err = at_tok_nextstr(&line, &response->simResponse);
+        if (err < 0) return err;
+    }
+    return 0;
+}
 
 /** do post-AT+CFUN=1 initialization */
 static void onRadioPowerOn()
@@ -1657,6 +1674,119 @@ error2:
     RIL_onRequestComplete(t, RIL_E_SMS_SEND_FAIL_RETRY, &response, sizeof(response));
 }
 
+static void requestSimOpenChannel(void *data, size_t datalen, RIL_Token t)
+{
+    ATResponse *p_response = NULL;
+    int32_t session_id;
+    int err;
+    char cmd[32];
+    char dummy;
+    char *line;
+
+    // Max length is 16 bytes according to 3GPP spec 27.007 section 8.45
+    if (data == NULL || datalen == 0 || datalen > 16) {
+        ALOGE("Invalid data passed to requestSimOpenChannel");
+        RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
+        return;
+    }
+
+    snprintf(cmd, sizeof(cmd), "AT+CCHO=%s", data);
+
+    err = at_send_command_numeric(cmd, &p_response);
+    if (err < 0 || p_response == NULL || p_response->success == 0) {
+        ALOGE("Error %d opening logical channel: %d",
+              err, p_response ? p_response->success : 0);
+        RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
+        at_response_free(p_response);
+        return;
+    }
+
+    // Ensure integer only by scanning for an extra char but expect one result
+    line = p_response->p_intermediates->line;
+    if (sscanf(line, "%" SCNd32 "%c", &session_id, &dummy) != 1) {
+        ALOGE("Invalid AT response, expected integer, was '%s'", line);
+        RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
+        return;
+    }
+
+    RIL_onRequestComplete(t, RIL_E_SUCCESS, &session_id, sizeof(&session_id));
+    at_response_free(p_response);
+}
+
+static void requestSimCloseChannel(void *data, size_t datalen, RIL_Token t)
+{
+    ATResponse *p_response = NULL;
+    int32_t session_id;
+    int err;
+    char cmd[32];
+
+    if (data == NULL || datalen != sizeof(session_id)) {
+        ALOGE("Invalid data passed to requestSimCloseChannel");
+        RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
+        return;
+    }
+    session_id = ((int32_t *)data)[0];
+    snprintf(cmd, sizeof(cmd), "AT+CCHC=%" PRId32, session_id);
+    err = at_send_command_singleline(cmd, "+CCHC", &p_response);
+
+    if (err < 0 || p_response == NULL || p_response->success == 0) {
+        ALOGE("Error %d closing logical channel %d: %d",
+              err, session_id, p_response ? p_response->success : 0);
+        RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
+        at_response_free(p_response);
+        return;
+    }
+
+    RIL_onRequestComplete(t, RIL_E_SUCCESS, NULL, 0);
+
+    at_response_free(p_response);
+}
+
+static void requestSimTransmitApduChannel(void *data,
+                                          size_t datalen,
+                                          RIL_Token t)
+{
+    ATResponse *p_response = NULL;
+    int err;
+    char *cmd;
+    char *line;
+    size_t cmd_size;
+    RIL_SIM_IO_Response sim_response;
+    RIL_SIM_APDU *apdu = (RIL_SIM_APDU *)data;
+
+    if (apdu == NULL || datalen != sizeof(RIL_SIM_APDU)) {
+        RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
+        return;
+    }
+
+    cmd_size = 10 + (apdu->data ? strlen(apdu->data) : 0);
+    asprintf(&cmd, "AT+CGLA=%d,%d,%02x%02x%02x%02x%02x%s",
+             apdu->sessionid, cmd_size, apdu->cla, apdu->instruction,
+             apdu->p1, apdu->p2, apdu->p3, apdu->data ? apdu->data : "");
+
+    err = at_send_command_singleline(cmd, "+CGLA", &p_response);
+    free(cmd);
+    if (err < 0 || p_response == NULL || p_response->success == 0) {
+        ALOGE("Error %d transmitting APDU: %d",
+              err, p_response ? p_response->success : 0);
+        RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
+        at_response_free(p_response);
+        return;
+    }
+
+    line = p_response->p_intermediates->line;
+    err = parseSimResponseLine(line, &sim_response);
+
+    if (err == 0) {
+        RIL_onRequestComplete(t, RIL_E_SUCCESS,
+                              &sim_response, sizeof(sim_response));
+    } else {
+        ALOGE("Error %d parsing SIM response line: %s", err, line);
+        RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
+    }
+    at_response_free(p_response);
+}
+
 static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
 {
     const char *apn;
@@ -1835,18 +1965,9 @@ static void  requestSIM_IO(void *data, size_t datalen __unused, RIL_Token t)
 
     line = p_response->p_intermediates->line;
 
-    err = at_tok_start(&line);
-    if (err < 0) goto error;
-
-    err = at_tok_nextint(&line, &(sr.sw1));
-    if (err < 0) goto error;
-
-    err = at_tok_nextint(&line, &(sr.sw2));
-    if (err < 0) goto error;
-
-    if (at_tok_hasmore(&line)) {
-        err = at_tok_nextstr(&line, &(sr.simResponse));
-        if (err < 0) goto error;
+    err = parseSimResponseLine(line, &sr);
+    if (err < 0) {
+        goto error;
     }
 
     RIL_onRequestComplete(t, RIL_E_SUCCESS, &sr, sizeof(sr));
@@ -2179,6 +2300,15 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
             break;
         case RIL_REQUEST_IMS_SEND_SMS:
             requestImsSendSMS(data, datalen, t);
+            break;
+        case RIL_REQUEST_SIM_OPEN_CHANNEL:
+            requestSimOpenChannel(data, datalen, t);
+            break;
+        case RIL_REQUEST_SIM_CLOSE_CHANNEL:
+            requestSimCloseChannel(data, datalen, t);
+            break;
+        case RIL_REQUEST_SIM_TRANSMIT_APDU_CHANNEL:
+            requestSimTransmitApduChannel(data, datalen, t);
             break;
         case RIL_REQUEST_SETUP_DATA_CALL:
             requestSetupDataCall(data, datalen, t);
