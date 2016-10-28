@@ -4130,12 +4130,12 @@ static void listenCallback (int fd, short flags, void *param) {
     struct passwd *pwd = NULL;
 
     if(NULL == sapSocket) {
-        assert (*p_info->fdCommand < 0);
-        assert (fd == *p_info->fdListen);
+        assert (p_info->fdCommand < 0);
+        assert (fd == p_info->fdListen);
         processName = PHONE_PROCESS;
     } else {
-        assert (sapSocket->commandFd < 0);
-        assert (fd == sapSocket->listenFd);
+        assert (sapSocket->getCommandFd() < 0);
+        assert (fd == sapSocket->getListenFd());
         processName = BLUETOOTH_PROCESS;
     }
 
