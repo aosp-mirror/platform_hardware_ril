@@ -163,6 +163,7 @@ void RilSapSocket::addSocketToList(const char *socketName, RIL_SOCKET_ID socketi
         RilSapSocketList* listItem = (RilSapSocketList*)malloc(sizeof(RilSapSocketList));
         if (!listItem) {
             RLOGE("addSocketToList: OOM");
+            delete socket;
             return;
         }
         listItem->socket = socket;
