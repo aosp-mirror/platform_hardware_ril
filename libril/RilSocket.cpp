@@ -169,6 +169,10 @@ ril_event* RilSocket::getCallbackEvent(void) {
     return &callbackEvent;
 }
 
+RIL_SOCKET_ID RilSocket::getSocketId(void) {
+    return id;
+}
+
 extern "C"
 void *ril_socket_process_requests_loop(void *arg) {
     RilSocket *socket = (RilSocket *)arg;
