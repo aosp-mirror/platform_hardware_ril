@@ -26,6 +26,7 @@
 #include <utils/Log.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <sap_service.h>
 
 static RilSapSocket::RilSapSocketList *head = NULL;
 
@@ -285,11 +286,13 @@ void RilSapSocket::dispatchRequest(MsgHeader *req) {
     pendingResponseQueue.enqueue(currRequest);
 
     if (uimFuncs) {
-        RLOGI("[%d] > SAP REQUEST type: %d. id: %d. error: %d",
-        req->token,
-        req->type,
-        req->id,
-        req->error );
+        RLOGI("RilSapSocket::dispatchRequest [%d] > SAP REQUEST type: %d. id: %d. error: %d, \
+                token 0x%p",
+                req->token,
+                req->type,
+                req->id,
+                req->error,
+                currRequest );
 
 #if defined(ANDROID_MULTI_SIM)
         uimFuncs->onRequest(req->id, req->payload->bytes, req->payload->size, currRequest, id);
@@ -320,9 +323,10 @@ void RilSapSocket::onRequestComplete(RIL_Token t, RIL_Errno e, void *response,
             rsp.payload->size = 0;
         }
 
-        RLOGE("Token:%d, MessageId:%d", hdr->token, hdr->id);
+        RLOGE("RilSapSocket::onRequestComplete: Token:%d, MessageId:%d ril token 0x%p",
+                hdr->token, hdr->id, t);
 
-        sendResponse(&rsp);
+        sap::processResponse(&rsp, this);
         free(rsp.payload);
     }
 
@@ -399,7 +403,7 @@ void RilSapSocket::onUnsolicitedResponse(int unsolResponse, void *data, size_t d
         rsp.type = MsgType_UNSOL_RESPONSE;
         rsp.id = (MsgId)unsolResponse;
         rsp.error = Error_RIL_E_SUCCESS;
-        sendResponse(&rsp);
+        sap::processUnsolResponse(&rsp, this);
         free(payload);
     }
 }
