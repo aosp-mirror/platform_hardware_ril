@@ -2976,6 +2976,9 @@ static int responseCellInfoListV6(Parcel &p, int slotId, int requestNumber, int 
                 p.writeInt32(p_cur->CellInfo.tdscdma.signalStrengthTdscdma.rscp);
                 break;
             }
+            default: {
+                break;
+            }
         }
         p_cur += 1;
     }
@@ -3070,6 +3073,9 @@ static int responseCellInfoListV12(Parcel &p, int slotId, int requestNumber, int
                 p.writeInt32(p_cur->CellInfo.tdscdma.cellIdentityTdscdma.cid);
                 p.writeInt32(p_cur->CellInfo.tdscdma.cellIdentityTdscdma.cpid);
                 p.writeInt32(p_cur->CellInfo.tdscdma.signalStrengthTdscdma.rscp);
+                break;
+            }
+            default: {
                 break;
             }
         }
