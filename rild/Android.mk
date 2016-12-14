@@ -10,6 +10,7 @@ LOCAL_SHARED_LIBRARIES := \
 	libcutils \
 	libdl \
 	liblog \
+	libminijail \
 	libril
 
 # Temporary hack for broken vendor RILs.
