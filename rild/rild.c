@@ -33,6 +33,7 @@
 #include <sys/prctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <libminijail.h>
 #include <libril/ril_ex.h>
 
 #include <private/android_filesystem_config.h>
@@ -40,6 +41,7 @@
 #define LIB_PATH_PROPERTY   "rild.libpath"
 #define LIB_ARGS_PROPERTY   "rild.libargs"
 #define MAX_LIB_ARGS        16
+#define MAX_CAP_NUM         (CAP_TO_INDEX(CAP_LAST_CAP) + 1)
 
 static void usage(const char *argv0) {
     fprintf(stderr, "Usage: %s -l <ril impl library> [-- <args for impl library>]\n", argv0);
@@ -93,6 +95,31 @@ static int make_argv(char * args, char ** argv) {
         count++;
     }
     return count;
+}
+
+/*
+ * switchUser - Switches UID to radio, preserving CAP_NET_ADMIN capabilities.
+ * Our group, cache, was set by init.
+ */
+void switchUser() {
+    char debuggable[PROP_VALUE_MAX];
+    struct minijail *j = minijail_new();
+    minijail_change_uid(j, AID_RADIO);
+    minijail_use_caps(j, CAP_MASK_LONG(CAP_BLOCK_SUSPEND) |
+                         CAP_MASK_LONG(CAP_NET_ADMIN) |
+                         CAP_MASK_LONG(CAP_NET_RAW));
+
+    minijail_enter(j);
+    minijail_destroy(j);
+
+    /*
+     * Debuggable build only:
+     * Set DUMPABLE that was cleared by setuid() to have tombstone on RIL crash
+     */
+    property_get("ro.debuggable", debuggable, "0");
+    if (strcmp(debuggable, "1") == 0) {
+        prctl(PR_SET_DUMPABLE, 1, 0, 0, 0);
+    }
 }
 
 int main(int argc, char **argv) {
@@ -149,6 +176,8 @@ int main(int argc, char **argv) {
             rilLibPath = libPath;
         }
     }
+
+    switchUser();
 
     dlHandle = dlopen(rilLibPath, RTLD_NOW);
 
