@@ -77,45 +77,12 @@ namespace android {
 
 #define NUM_ELEMS(a)     (sizeof (a) / sizeof (a)[0])
 
-#define MIN(a,b) ((a)<(b) ? (a) : (b))
-
 /* Negative values for private RIL errno's */
 #define RIL_ERRNO_INVALID_RESPONSE (-1)
 #define RIL_ERRNO_NO_MEMORY (-12)
 
 // request, response, and unsolicited msg print macro
 #define PRINTBUF_SIZE 8096
-
-// Enable verbose logging
-#define VDBG 0
-
-// Enable RILC log
-#define RILC_LOG 0
-
-#if RILC_LOG
-    #define startRequest           sprintf(printBuf, "(")
-    #define closeRequest           sprintf(printBuf, "%s)", printBuf)
-    #define printRequest(token, req)           \
-            RLOGD("[%04d]> %s %s", token, requestToString(req), printBuf)
-
-    #define startResponse           sprintf(printBuf, "%s {", printBuf)
-    #define closeResponse           sprintf(printBuf, "%s}", printBuf)
-    #define printResponse           RLOGD("%s", printBuf)
-
-    #define clearPrintBuf           printBuf[0] = 0
-    #define removeLastChar          printBuf[strlen(printBuf)-1] = 0
-    #define appendPrintBuf(x...)    snprintf(printBuf, PRINTBUF_SIZE, x)
-#else
-    #define startRequest
-    #define closeRequest
-    #define printRequest(token, req)
-    #define startResponse
-    #define closeResponse
-    #define printResponse
-    #define clearPrintBuf
-    #define removeLastChar
-    #define appendPrintBuf(x...)
-#endif
 
 enum WakeType {DONT_WAKE, WAKE_PARTIAL};
 
@@ -5306,7 +5273,29 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
     ret = 0;
     switch (unsolResponse) {
         case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED:
-            radio::radioStateChanged(soc_id, responseType, newState);
+            radio::radioStateChangedInd(soc_id, responseType, newState);
+            break;
+        // following are converted to HAL and are handled by responseFunction() above.
+        // todo: Once all unsols are converted this switch and sendResponse() below will be removed
+        case RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED:
+        case RIL_UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED:
+        case RIL_UNSOL_RESPONSE_NEW_SMS:
+        case RIL_UNSOL_RESPONSE_NEW_SMS_STATUS_REPORT:
+        case RIL_UNSOL_RESPONSE_NEW_SMS_ON_SIM:
+        case RIL_UNSOL_ON_USSD:
+        case RIL_UNSOL_NITZ_TIME_RECEIVED:
+        case RIL_UNSOL_DATA_CALL_LIST_CHANGED:
+        case RIL_UNSOL_SUPP_SVC_NOTIFICATION:
+        case RIL_UNSOL_STK_SESSION_END:
+        case RIL_UNSOL_STK_PROACTIVE_COMMAND:
+        case RIL_UNSOL_STK_EVENT_NOTIFY:
+        case RIL_UNSOL_STK_CALL_SETUP:
+        case RIL_UNSOL_SIM_SMS_STORAGE_FULL:
+        case RIL_UNSOL_SIM_REFRESH:
+        case RIL_UNSOL_CALL_RING:
+        case RIL_UNSOL_RESPONSE_SIM_STATUS_CHANGED:
+        case RIL_UNSOL_RESPONSE_CDMA_NEW_SMS:
+            // do nothing
             break;
         default:
             ret = sendResponse(p, soc_id);
