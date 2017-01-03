@@ -56,10 +56,11 @@ typedef struct CommandInfo {
             RIL_Errno e, void *response, size_t responselen);
 } CommandInfo;
 
-int addRequestToList(RequestInfo *pRI, int request, int token, RIL_SOCKET_ID socket_id);
+RequestInfo * addRequestToList(int serial, int slotId, int request);
 
 char * RIL_getRilSocketName();
 
+void releaseWakeLock();
 }   // namespace android
 
 #endif //ANDROID_RIL_INTERNAL_H
