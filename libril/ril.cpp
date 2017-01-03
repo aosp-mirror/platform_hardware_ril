@@ -320,7 +320,7 @@ static int responsePcoData(Parcel &p, int slotId, int requestNumber, int respons
         RIL_Errno e, void *response, size_t responselen);
 
 static void grabPartialWakeLock();
-static void releaseWakeLock();
+void releaseWakeLock();
 static void wakeTimeoutCallback(void *);
 
 static bool isServiceTypeCfQuery(RIL_SsServiceType serType, RIL_SsRequestType reqType);
@@ -557,10 +557,11 @@ processCommandBuffer(void *buffer, size_t buflen, RIL_SOCKET_ID socket_id) {
     return 0;
 }
 
-int
-addRequestToList(RequestInfo *pRI, int request, int token, RIL_SOCKET_ID socket_id) {
-    status_t status;
+RequestInfo *
+addRequestToList(int serial, int slotId, int request) {
+    RequestInfo *pRI;
     int ret;
+    RIL_SOCKET_ID socket_id = (RIL_SOCKET_ID) slotId;
     /* Hook for current context */
     /* pendingRequestsMutextHook refer to &s_pendingRequestsMutex */
     pthread_mutex_t* pendingRequestsMutexHook = &s_pendingRequestsMutex;
@@ -586,12 +587,15 @@ addRequestToList(RequestInfo *pRI, int request, int token, RIL_SOCKET_ID socket_
 #endif
 #endif
 
-    // Received an Ack for the previous result sent to RIL.java,
-    // so release wakelock and exit
-    if (request == RIL_RESPONSE_ACKNOWLEDGEMENT) {
-        releaseWakeLock();
-        return 0;
+    pRI = (RequestInfo *)calloc(1, sizeof(RequestInfo));
+    if (pRI == NULL) {
+        RLOGE("Memory allocation failed for request %s", requestToString(request));
+        return NULL;
     }
+
+    pRI->token = serial;
+    pRI->pCI = &(s_commands[request]);
+    pRI->socket_id = socket_id;
 
     ret = pthread_mutex_lock(pendingRequestsMutexHook);
     assert (ret == 0);
@@ -602,7 +606,7 @@ addRequestToList(RequestInfo *pRI, int request, int token, RIL_SOCKET_ID socket_
     ret = pthread_mutex_unlock(pendingRequestsMutexHook);
     assert (ret == 0);
 
-    return 0;
+    return pRI;
 }
 
 static void
@@ -4807,7 +4811,6 @@ RIL_register (const RIL_RadioFunctions *callbacks) {
     startListen(RIL_SOCKET_4, &s_ril_param_socket4);
 #endif /* (SIM_COUNT == 4) */
 
-    RLOGI("RILHIDL calling registerService");
     radio::registerService(&s_callbacks, s_commands);
     RLOGI("RILHIDL called registerService");
 
@@ -4984,8 +4987,23 @@ RIL_onRequestAck(RIL_Token t) {
         p.writeInt32 (RESPONSE_SOLICITED_ACK);
         p.writeInt32 (pRI->token);
 
+        switch(pRI->pCI->requestNumber) {
+            case RIL_REQUEST_GET_SIM_STATUS:
+            case RIL_REQUEST_ENTER_SIM_PIN:
+            case RIL_REQUEST_ENTER_SIM_PUK:
+            case RIL_REQUEST_ENTER_SIM_PIN2:
+            case RIL_REQUEST_ENTER_SIM_PUK2:
+            case RIL_REQUEST_CHANGE_SIM_PIN:
+            case RIL_REQUEST_CHANGE_SIM_PIN2:
+            case RIL_REQUEST_ENTER_NETWORK_DEPERSONALIZATION:
+            case RIL_REQUEST_GET_CURRENT_CALLS:
+            case RIL_REQUEST_DIAL:
+                radio::acknowledgeRequest((int) socket_id, pRI->token);
+                return;
+        }
+
         if (fd < 0) {
-            RLOGD ("RIL onRequestComplete: Command channel closed");
+            RLOGD ("RIL onRequestAck: Command channel closed");
         }
 
         sendResponse(p, socket_id);
@@ -5042,13 +5060,30 @@ RIL_onRequestComplete(RIL_Token t, RIL_Errno e, void *response, size_t responsel
 
         p.writeInt32 (e);
 
-        if (response != NULL) {
+        bool hidlized = false;
+        switch(pRI->pCI->requestNumber) {
+            case RIL_REQUEST_GET_SIM_STATUS:
+            case RIL_REQUEST_ENTER_SIM_PIN:
+            case RIL_REQUEST_ENTER_SIM_PUK:
+            case RIL_REQUEST_ENTER_SIM_PIN2:
+            case RIL_REQUEST_ENTER_SIM_PUK2:
+            case RIL_REQUEST_CHANGE_SIM_PIN:
+            case RIL_REQUEST_CHANGE_SIM_PIN2:
+            case RIL_REQUEST_ENTER_NETWORK_DEPERSONALIZATION:
+            case RIL_REQUEST_GET_CURRENT_CALLS:
+            case RIL_REQUEST_DIAL:
+                hidlized = true;
+                break;
+        }
+
+        if (response != NULL || hidlized) {
             // there is a response payload, no matter success or not.
             RLOGE ("Calling responseFunction() for token %d", pRI->token);
             ret = pRI->pCI->responseFunction(p, (int) socket_id, pRI->pCI->requestNumber,
                     responseType, pRI->token, e, response, responselen);
 
-            if (pRI->pCI->requestNumber == RIL_REQUEST_GET_SIM_STATUS) {
+            if (hidlized)  {
+                free(pRI);
                 return;
             }
 
@@ -5065,7 +5100,7 @@ RIL_onRequestComplete(RIL_Token t, RIL_Errno e, void *response, size_t responsel
         }
 
         if (fd < 0) {
-            RLOGD ("RIL onRequestComplete: Command channel closed");
+            RLOGD ("RIL_onRequestComplete: Command channel closed");
         }
         sendResponse(p, socket_id);
     }
@@ -5100,7 +5135,7 @@ grabPartialWakeLock() {
     }
 }
 
-static void
+void
 releaseWakeLock() {
     if (s_callbacks.version >= 13) {
         int ret;
@@ -5414,6 +5449,7 @@ failCauseToString(RIL_Errno e) {
         case RIL_E_NO_NETWORK_FOUND: return "E_NO_NETWORK_FOUND";
         case RIL_E_DEVICE_IN_USE: return "E_DEVICE_IN_USE";
         case RIL_E_ABORTED: return "E_ABORTED";
+        case RIL_E_INVALID_RESPONSE: return "INVALID_RESPONSE";
         case RIL_E_OEM_ERROR_1: return "E_OEM_ERROR_1";
         case RIL_E_OEM_ERROR_2: return "E_OEM_ERROR_2";
         case RIL_E_OEM_ERROR_3: return "E_OEM_ERROR_3";
