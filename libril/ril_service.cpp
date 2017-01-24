@@ -1875,7 +1875,7 @@ int radio::cdmaCallWaitingInd(android::Parcel &p, int slotId, int requestNumber,
         callWaitingRecord.name = convertCharPtrToHidlString(callWaitingRil->name);
         convertRilCdmaSignalInfoRecordToHal(&callWaitingRil->signalInfoRecord,
                 callWaitingRecord.signalInfoRecord);
-        callWaitingRecord.numbertype = (CdmaCallWaitingNumberType) callWaitingRil->number_type;
+        callWaitingRecord.numberType = (CdmaCallWaitingNumberType) callWaitingRil->number_type;
         callWaitingRecord.numberPlan = (CdmaCallWaitingNumberPlan) callWaitingRil->number_plan;
 
         RLOGD("radio::cdmaCallWaitingInd");
@@ -2293,7 +2293,7 @@ void convertRilCellInfoListToHal(void *response, size_t responseLen, hidl_vec<Ce
                         rillCellInfo->CellInfo.cdma.cellIdentityCdma.networkId;
                 cellInfoCdma->cellIdentityCdma.systemId =
                         rillCellInfo->CellInfo.cdma.cellIdentityCdma.systemId;
-                cellInfoCdma->cellIdentityCdma.basestationId =
+                cellInfoCdma->cellIdentityCdma.baseStationId =
                         rillCellInfo->CellInfo.cdma.cellIdentityCdma.basestationId;
                 cellInfoCdma->cellIdentityCdma.longitude =
                         rillCellInfo->CellInfo.cdma.cellIdentityCdma.longitude;
@@ -2503,7 +2503,7 @@ void convertRilRadioCapabilityToHal(void *response, size_t responseLen, RadioCap
     RIL_RadioCapability *rilRadioCapability = (RIL_RadioCapability *) response;
     rc.session = rilRadioCapability->session;
     rc.phase = (android::hardware::radio::V1_0::RadioCapabilityPhase) rilRadioCapability->phase;
-    rc.raf = (RadioAccessFamily) rilRadioCapability->rat;
+    rc.raf = rilRadioCapability->rat;
     rc.logicalModemUuid = convertCharPtrToHidlString(rilRadioCapability->logicalModemUuid);
     rc.status = (android::hardware::radio::V1_0::RadioCapabilityStatus) rilRadioCapability->status;
 }
@@ -2559,7 +2559,7 @@ int radio::onSupplementaryServiceIndicationInd(android::Parcel &p, int slotId, i
         ss.serviceType = (SsServiceType) rilSsResponse->serviceType;
         ss.requestType = (SsRequestType) rilSsResponse->requestType;
         ss.teleserviceType = (SsTeleserviceType) rilSsResponse->teleserviceType;
-        ss.serviceClass = (SuppServiceClass) rilSsResponse->serviceClass;
+        ss.serviceClass = rilSsResponse->serviceClass;
         ss.result = (RadioError) rilSsResponse->result;
 
         if (isServiceTypeCfQuery(rilSsResponse->serviceType, rilSsResponse->requestType)) {
