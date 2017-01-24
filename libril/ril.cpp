@@ -4884,7 +4884,16 @@ RIL_onRequestAck(RIL_Token t) {
             case RIL_REQUEST_ENTER_NETWORK_DEPERSONALIZATION:
             case RIL_REQUEST_GET_CURRENT_CALLS:
             case RIL_REQUEST_DIAL:
+                pthread_rwlock_t *radioServiceRwlockPtr = radio::getRadioServiceRwlock(
+                        (int) socket_id);
+                int rwlockRet = pthread_rwlock_rdlock(radioServiceRwlockPtr);
+                assert(rwlockRet == 0);
+
                 radio::acknowledgeRequest((int) socket_id, pRI->token);
+
+                rwlockRet = pthread_rwlock_unlock(radioServiceRwlockPtr);
+                assert(rwlockRet == 0);
+
                 return;
         }
 
@@ -4965,8 +4974,16 @@ RIL_onRequestComplete(RIL_Token t, RIL_Errno e, void *response, size_t responsel
         if (response != NULL || hidlized) {
             // there is a response payload, no matter success or not.
             RLOGE ("Calling responseFunction() for token %d", pRI->token);
+
+            pthread_rwlock_t *radioServiceRwlockPtr = radio::getRadioServiceRwlock((int) socket_id);
+            int rwlockRet = pthread_rwlock_rdlock(radioServiceRwlockPtr);
+            assert(rwlockRet == 0);
+
             ret = pRI->pCI->responseFunction(p, (int) socket_id, pRI->pCI->requestNumber,
                     responseType, pRI->token, e, response, responselen);
+
+            rwlockRet = pthread_rwlock_unlock(radioServiceRwlockPtr);
+            assert(rwlockRet == 0);
 
             if (hidlized)  {
                 free(pRI);
@@ -5131,9 +5148,17 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
         responseType = RESPONSE_UNSOLICITED;
     }
 
+    pthread_rwlock_t *radioServiceRwlockPtr = radio::getRadioServiceRwlock((int) soc_id);
+    int rwlockRet = pthread_rwlock_rdlock(radioServiceRwlockPtr);
+    assert(rwlockRet == 0);
+
     ret = s_unsolResponses[unsolResponseIndex].responseFunction(
             p, (int) soc_id, unsolResponse, responseType, 0, RIL_E_SUCCESS, const_cast<void*>(data),
             datalen);
+
+    rwlockRet = pthread_rwlock_unlock(radioServiceRwlockPtr);
+    assert(rwlockRet == 0);
+
     if (ret != 0) {
         // Problem with the response. Don't continue;
         goto error_exit;
@@ -5171,7 +5196,13 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
     ret = 0;
     switch (unsolResponse) {
         case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED:
+            rwlockRet = pthread_rwlock_rdlock(radioServiceRwlockPtr);
+            assert(rwlockRet == 0);
+
             radio::radioStateChangedInd(soc_id, responseType, newState);
+
+            rwlockRet = pthread_rwlock_unlock(radioServiceRwlockPtr);
+            assert(rwlockRet == 0);
             break;
     }
 
