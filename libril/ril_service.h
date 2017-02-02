@@ -23,10 +23,28 @@
 namespace radio {
 
 void registerService(RIL_RadioFunctions *callbacks, android::CommandInfo *commands);
-int iccCardStatusResponse(android::Parcel &p, int slotId, int requestNumber, int responseType,
+int getIccCardStatusResponse(android::Parcel &p, int slotId, int requestNumber, int responseType,
         int token, RIL_Errno e, void *response, size_t responselen);
+int supplyIccPinForAppResponse(android::Parcel &p, int slotId, int requestNumber,
+        int responseType, int serial, RIL_Errno e, void *response, size_t responselen);
+int supplyIccPukForAppResponse(android::Parcel &p, int slotId, int requestNumber,
+        int responseType, int serial, RIL_Errno e, void *response, size_t responselen);
+int supplyIccPin2ForAppResponse(android::Parcel &p, int slotId, int requestNumber,
+        int responseType, int serial, RIL_Errno e, void *response, size_t responselen);
+int supplyIccPuk2ForAppResponse(android::Parcel &p, int slotId, int requestNumber,
+        int responseType, int serial, RIL_Errno e, void *response, size_t responselen);
+int changeIccPinForAppResponse(android::Parcel &p, int slotId, int requestNumber,
+        int responseType, int serial, RIL_Errno e, void *response, size_t responselen);
+int changeIccPin2ForAppResponse(android::Parcel &p, int slotId, int requestNumber,
+        int responseType, int serial, RIL_Errno e, void *response, size_t responselen);
+int supplyNetworkDepersonalizationResponse(android::Parcel &p, int slotId, int requestNumber,
+        int responseType, int serial, RIL_Errno e, void *response, size_t responselen);
+int getCurrentCallsResponse(android::Parcel &p, int slotId, int requestNumber,
+        int responseType, int serial, RIL_Errno e, void *response, size_t responselen);
+int dialResponse(android::Parcel &p, int slotId, int requestNumber,
+        int responseType, int serial, RIL_Errno e, void *response, size_t responselen);
+void acknowledgeRequest(int slotId, int serial);
 void radioStateChanged(int slotId, int indicationType, RIL_RadioState radioState);
-
-}   // namespace android
+}   // namespace radio
 
 #endif  // RIL_SERVICE_H
