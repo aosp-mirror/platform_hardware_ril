@@ -33,6 +33,39 @@ namespace android {
 #define RESPONSE_SOLICITED_ACK_EXP 3
 #define RESPONSE_UNSOLICITED_ACK_EXP 4
 
+// Enable verbose logging
+#define VDBG 0
+
+#define MIN(a,b) ((a)<(b) ? (a) : (b))
+
+// Enable RILC log
+#define RILC_LOG 0
+
+#if RILC_LOG
+    #define startRequest           sprintf(printBuf, "(")
+    #define closeRequest           sprintf(printBuf, "%s)", printBuf)
+    #define printRequest(token, req)           \
+            RLOGD("[%04d]> %s %s", token, requestToString(req), printBuf)
+
+    #define startResponse           sprintf(printBuf, "%s {", printBuf)
+    #define closeResponse           sprintf(printBuf, "%s}", printBuf)
+    #define printResponse           RLOGD("%s", printBuf)
+
+    #define clearPrintBuf           printBuf[0] = 0
+    #define removeLastChar          printBuf[strlen(printBuf)-1] = 0
+    #define appendPrintBuf(x...)    snprintf(printBuf, PRINTBUF_SIZE, x)
+#else
+    #define startRequest
+    #define closeRequest
+    #define printRequest(token, req)
+    #define startResponse
+    #define closeResponse
+    #define printResponse
+    #define clearPrintBuf
+    #define removeLastChar
+    #define appendPrintBuf(x...)
+#endif
+
 typedef struct CommandInfo CommandInfo;
 
 extern "C" const char * requestToString(int request);
