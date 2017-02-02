@@ -228,6 +228,13 @@ class RilSocket {
          */
         ril_event* getCallbackEvent(void);
 
+        /**
+         * Get socket id.
+         *
+         * @return RIL_SOCKET_ID socket id.
+         */
+        RIL_SOCKET_ID getSocketId(void);
+
         virtual ~RilSocket(){}
 
     protected:
