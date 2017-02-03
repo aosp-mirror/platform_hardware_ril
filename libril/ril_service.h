@@ -208,6 +208,8 @@ int modemResetInd(android::Parcel &p, int slotId, int requestNumber,
                   int indicationType, int token, RIL_Errno e, void *response,
                   size_t responselen);
 
+pthread_rwlock_t * getRadioServiceRwlock(int slotId);
+
 }   // namespace radio
 
 #endif  // RIL_SERVICE_H

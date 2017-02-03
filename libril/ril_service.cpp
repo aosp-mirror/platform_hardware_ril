@@ -49,8 +49,23 @@ sp<RadioImpl> radioService[SIM_COUNT];
 sp<RadioImpl> radioService[1];
 #endif
 
+static pthread_rwlock_t radioServiceRwlock = PTHREAD_RWLOCK_INITIALIZER;
+
+#if (SIM_COUNT >= 2)
+static pthread_rwlock_t radioServiceRwlock2 = PTHREAD_RWLOCK_INITIALIZER;
+#if (SIM_COUNT >= 3)
+static pthread_rwlock_t radioServiceRwlock3 = PTHREAD_RWLOCK_INITIALIZER;
+#if (SIM_COUNT >= 4)
+static pthread_rwlock_t radioServiceRwlock4 = PTHREAD_RWLOCK_INITIALIZER;
+#endif
+#endif
+#endif
+
 struct RadioImpl : public IRadio {
     int32_t mSlotId;
+    // counter used for synchronization. It is incremented every time mRadioResponse or
+    // mRadioIndication value is updated.
+    volatile int32_t mCounter;
     sp<IRadioResponse> mRadioResponse;
     sp<IRadioIndication> mRadioIndication;
 
@@ -445,8 +460,36 @@ void RadioImpl::checkReturnStatus(Return<void>& ret) {
         // Remote process (RIL.java) hosting the callbacks must be dead. Reset the callback objects;
         // there's no other recovery to be done here. When the client process is back up, it will
         // call setResponseFunctions()
-        mRadioResponse = NULL;
-        mRadioIndication = NULL;
+
+        // Caller should already hold rdlock, release that first
+        // note the current counter to avoid overwriting updates made by another thread before
+        // write lock is acquired.
+        int counter = mCounter;
+        pthread_rwlock_t *radioServiceRwlockPtr = radio::getRadioServiceRwlock(mSlotId);
+        int ret = pthread_rwlock_unlock(radioServiceRwlockPtr);
+        assert(ret == 0);
+
+        // acquire wrlock
+        ret = pthread_rwlock_wrlock(radioServiceRwlockPtr);
+        assert(ret == 0);
+
+        // make sure the counter value has not changed
+        if (counter == mCounter) {
+            mRadioResponse = NULL;
+            mRadioIndication = NULL;
+            mCounter++;
+        } else {
+            RLOGE("checkReturnStatus: not resetting responseFunctions as they likely got updated"
+                    "on another thread");
+        }
+
+        // release wrlock
+        ret = pthread_rwlock_unlock(radioServiceRwlockPtr);
+        assert(ret == 0);
+
+        // Reacquire rdlock
+        ret = pthread_rwlock_rdlock(radioServiceRwlockPtr);
+        assert(ret == 0);
     }
 }
 
@@ -454,8 +497,18 @@ Return<void> RadioImpl::setResponseFunctions(
         const ::android::sp<IRadioResponse>& radioResponseParam,
         const ::android::sp<IRadioIndication>& radioIndicationParam) {
     RLOGD("RadioImpl::setResponseFunctions");
+
+    pthread_rwlock_t *radioServiceRwlockPtr = radio::getRadioServiceRwlock(mSlotId);
+    int ret = pthread_rwlock_wrlock(radioServiceRwlockPtr);
+    assert(ret == 0);
+
     mRadioResponse = radioResponseParam;
     mRadioIndication = radioIndicationParam;
+    mCounter++;
+
+    ret = pthread_rwlock_unlock(radioServiceRwlockPtr);
+    assert(ret == 0);
+
     return Status::ok();
 }
 
@@ -1235,7 +1288,7 @@ RadioIndicationType convertIntToRadioIndicationType(int indicationType) {
 }
 
 void radio::radioStateChangedInd(int slotId, int indicationType, RIL_RadioState radioState) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         RLOGD("radio::radioStateChangedInd: radioState %d", radioState);
         Return<void> retStatus = radioService[slotId]->mRadioIndication->radioStateChanged(
                 convertIntToRadioIndicationType(indicationType), (RadioState) radioState);
@@ -1248,7 +1301,7 @@ void radio::radioStateChangedInd(int slotId, int indicationType, RIL_RadioState 
 int radio::callStateChangedInd(android::Parcel &p, int slotId, int requestNumber,
                                int indicationType, int token, RIL_Errno e, void *response,
                                size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         RLOGD("radio::callStateChangedInd");
         Return<void> retStatus = radioService[slotId]->mRadioIndication->callStateChanged(
                 convertIntToRadioIndicationType(indicationType));
@@ -1263,7 +1316,7 @@ int radio::callStateChangedInd(android::Parcel &p, int slotId, int requestNumber
 int radio::voiceNetworkStateChangedInd(android::Parcel &p, int slotId, int requestNumber,
                                        int indicationType, int token, RIL_Errno e, void *response,
                                        size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         RLOGD("radio::voiceNetworkStateChangedInd");
         Return<void> retStatus = radioService[slotId]->mRadioIndication->voiceNetworkStateChanged(
                 convertIntToRadioIndicationType(indicationType));
@@ -1314,7 +1367,7 @@ uint8_t * convertHexStringToBytes(void *response, size_t responseLen) {
 
 int radio::newSmsInd(android::Parcel &p, int slotId, int requestNumber, int indicationType,
                      int token, RIL_Errno e, void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen == 0) {
             RLOGE("radio::newSmsInd: invalid response");
             return 0;
@@ -1343,7 +1396,7 @@ int radio::newSmsInd(android::Parcel &p, int slotId, int requestNumber, int indi
 int radio::newSmsStatusReportInd(android::Parcel &p, int slotId, int requestNumber,
                                  int indicationType, int token, RIL_Errno e, void *response,
                                  size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen == 0) {
             RLOGE("radio::newSmsStatusReportInd: invalid response");
             return 0;
@@ -1371,7 +1424,7 @@ int radio::newSmsStatusReportInd(android::Parcel &p, int slotId, int requestNumb
 
 int radio::newSmsOnSimInd(android::Parcel &p, int slotId, int requestNumber, int indicationType,
                           int token, RIL_Errno e, void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(int)) {
             RLOGE("radio::newSmsOnSimInd: invalid response");
             return 0;
@@ -1390,7 +1443,7 @@ int radio::newSmsOnSimInd(android::Parcel &p, int slotId, int requestNumber, int
 
 int radio::onUssdInd(android::Parcel &p, int slotId, int requestNumber, int indicationType,
                      int token, RIL_Errno e, void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != 2 * sizeof(char *)) {
             RLOGE("radio::onUssdInd: invalid response");
             return 0;
@@ -1413,7 +1466,7 @@ int radio::onUssdInd(android::Parcel &p, int slotId, int requestNumber, int indi
 int radio::nitzTimeReceivedInd(android::Parcel &p, int slotId, int requestNumber,
                                int indicationType, int token, RIL_Errno e, void *response,
                                size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen == 0) {
             RLOGE("radio::nitzTimeReceivedInd: invalid response");
             return 0;
@@ -1478,7 +1531,7 @@ void convertRilSignalStrengthToHal(void *response, size_t responseLen,
 int radio::currentSignalStrengthInd(android::Parcel &p, int slotId, int requestNumber,
                                     int indicationType, int token, RIL_Errno e,
                                     void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(RIL_SignalStrength_v10)) {
             RLOGE("radio::currentSignalStrengthInd: invalid response");
             return 0;
@@ -1528,7 +1581,7 @@ void convertRilDataCallListToHal(void *response, size_t responseLen,
 int radio::dataCallListChangedInd(android::Parcel &p, int slotId, int requestNumber,
                                   int indicationType, int token, RIL_Errno e, void *response,
                                   size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen % sizeof(RIL_Data_Call_Response_v11) != 0) {
             RLOGE("radio::dataCallListChangedInd: invalid response");
             return 0;
@@ -1548,7 +1601,7 @@ int radio::dataCallListChangedInd(android::Parcel &p, int slotId, int requestNum
 
 int radio::suppSvcNotifyInd(android::Parcel &p, int slotId, int requestNumber, int indicationType,
                             int token, RIL_Errno e, void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(RIL_SuppSvcNotification)) {
             RLOGE("radio::suppSvcNotifyInd: invalid response");
             return 0;
@@ -1576,7 +1629,7 @@ int radio::suppSvcNotifyInd(android::Parcel &p, int slotId, int requestNumber, i
 
 int radio::stkSessionEndInd(android::Parcel &p, int slotId, int requestNumber, int indicationType,
                             int token, RIL_Errno e, void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         RLOGD("radio::stkSessionEndInd");
         Return<void> retStatus = radioService[slotId]->mRadioIndication->stkSessionEnd(
                 convertIntToRadioIndicationType(indicationType));
@@ -1591,7 +1644,7 @@ int radio::stkSessionEndInd(android::Parcel &p, int slotId, int requestNumber, i
 int radio::stkProactiveCommandInd(android::Parcel &p, int slotId, int requestNumber,
                                   int indicationType, int token, RIL_Errno e, void *response,
                                   size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen == 0) {
             RLOGE("radio::stkProactiveCommandInd: invalid response");
             return 0;
@@ -1610,7 +1663,7 @@ int radio::stkProactiveCommandInd(android::Parcel &p, int slotId, int requestNum
 
 int radio::stkEventNotifyInd(android::Parcel &p, int slotId, int requestNumber, int indicationType,
                              int token, RIL_Errno e, void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen == 0) {
             RLOGE("radio::stkEventNotifyInd: invalid response");
             return 0;
@@ -1629,7 +1682,7 @@ int radio::stkEventNotifyInd(android::Parcel &p, int slotId, int requestNumber, 
 
 int radio::stkCallSetupInd(android::Parcel &p, int slotId, int requestNumber, int indicationType,
                            int token, RIL_Errno e, void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(int)) {
             RLOGE("radio::stkCallSetupInd: invalid response");
             return 0;
@@ -1649,7 +1702,7 @@ int radio::stkCallSetupInd(android::Parcel &p, int slotId, int requestNumber, in
 int radio::simSmsStorageFullInd(android::Parcel &p, int slotId, int requestNumber,
                                 int indicationType, int token, RIL_Errno e, void *response,
                                 size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         RLOGD("radio::simSmsStorageFullInd");
         Return<void> retStatus = radioService[slotId]->mRadioIndication->simSmsStorageFull(
                 convertIntToRadioIndicationType(indicationType));
@@ -1663,7 +1716,7 @@ int radio::simSmsStorageFullInd(android::Parcel &p, int slotId, int requestNumbe
 
 int radio::simRefreshInd(android::Parcel &p, int slotId, int requestNumber, int indicationType,
                          int token, RIL_Errno e, void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(RIL_SimRefreshResponse_v7)) {
             RLOGE("radio::simRefreshInd: invalid response");
             return 0;
@@ -1697,7 +1750,7 @@ void convertRilCdmaSignalInfoRecordToHal(RIL_CDMA_SignalInfoRecord *signalInfoRe
 
 int radio::callRingInd(android::Parcel &p, int slotId, int requestNumber, int indicationType,
                        int token, RIL_Errno e, void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         bool isGsm;
         CdmaSignalInfoRecord record;
         if (response == NULL || responseLen == 0) {
@@ -1725,7 +1778,7 @@ int radio::callRingInd(android::Parcel &p, int slotId, int requestNumber, int in
 int radio::simStatusChangedInd(android::Parcel &p, int slotId, int requestNumber,
                                int indicationType, int token, RIL_Errno e, void *response,
                                size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         RLOGD("radio::simStatusChangedInd");
         Return<void> retStatus = radioService[slotId]->mRadioIndication->simStatusChanged(
                 convertIntToRadioIndicationType(indicationType));
@@ -1739,7 +1792,7 @@ int radio::simStatusChangedInd(android::Parcel &p, int slotId, int requestNumber
 
 int radio::cdmaNewSmsInd(android::Parcel &p, int slotId, int requestNumber, int indicationType,
                          int token, RIL_Errno e, void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(RIL_CDMA_SMS_Message)) {
             RLOGE("radio::cdmaNewSmsInd: invalid response");
             return 0;
@@ -1786,7 +1839,7 @@ int radio::cdmaNewSmsInd(android::Parcel &p, int slotId, int requestNumber, int 
 int radio::newBroadcastSmsInd(android::Parcel &p, int slotId, int requestNumber,
                               int indicationType, int token, RIL_Errno e, void *response,
                               size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen == 0) {
             RLOGE("radio::newBroadcastSmsInd: invalid response");
             return 0;
@@ -1808,7 +1861,7 @@ int radio::newBroadcastSmsInd(android::Parcel &p, int slotId, int requestNumber,
 int radio::cdmaRuimSmsStorageFullInd(android::Parcel &p, int slotId, int requestNumber,
                                      int indicationType, int token, RIL_Errno e, void *response,
                                      size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         RLOGD("radio::cdmaRuimSmsStorageFullInd");
         Return<void> retStatus = radioService[slotId]->mRadioIndication->cdmaRuimSmsStorageFull(
                 convertIntToRadioIndicationType(indicationType));
@@ -1824,7 +1877,7 @@ int radio::cdmaRuimSmsStorageFullInd(android::Parcel &p, int slotId, int request
 int radio::restrictedStateChangedInd(android::Parcel &p, int slotId, int requestNumber,
                                      int indicationType, int token, RIL_Errno e, void *response,
                                      size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(int)) {
             RLOGE("radio::restrictedStateChangedInd: invalid response");
             return 0;
@@ -1845,7 +1898,7 @@ int radio::restrictedStateChangedInd(android::Parcel &p, int slotId, int request
 int radio::enterEmergencyCallbackModeInd(android::Parcel &p, int slotId, int requestNumber,
                                          int indicationType, int token, RIL_Errno e, void *response,
                                          size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         RLOGD("radio::enterEmergencyCallbackModeInd");
         Return<void> retStatus = radioService[slotId]->mRadioIndication->enterEmergencyCallbackMode(
                 convertIntToRadioIndicationType(indicationType));
@@ -1861,7 +1914,7 @@ int radio::enterEmergencyCallbackModeInd(android::Parcel &p, int slotId, int req
 int radio::cdmaCallWaitingInd(android::Parcel &p, int slotId, int requestNumber,
                               int indicationType, int token, RIL_Errno e, void *response,
                               size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(RIL_CDMA_CallWaiting_v6)) {
             RLOGE("radio::cdmaCallWaitingInd: invalid response");
             return 0;
@@ -1892,7 +1945,7 @@ int radio::cdmaCallWaitingInd(android::Parcel &p, int slotId, int requestNumber,
 int radio::cdmaOtaProvisionStatusInd(android::Parcel &p, int slotId, int requestNumber,
                                      int indicationType, int token, RIL_Errno e, void *response,
                                      size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(int)) {
             RLOGE("radio::cdmaOtaProvisionStatusInd: invalid response");
             return 0;
@@ -1913,7 +1966,7 @@ int radio::cdmaOtaProvisionStatusInd(android::Parcel &p, int slotId, int request
 int radio::cdmaInfoRecInd(android::Parcel &p, int slotId, int requestNumber,
                           int indicationType, int token, RIL_Errno e, void *response,
                           size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(RIL_CDMA_InformationRecords)) {
             RLOGE("radio::cdmaInfoRecInd: invalid response");
             return 0;
@@ -2081,7 +2134,7 @@ int radio::cdmaInfoRecInd(android::Parcel &p, int slotId, int requestNumber,
 int radio::oemHookRawInd(android::Parcel &p, int slotId, int requestNumber,
                          int indicationType, int token, RIL_Errno e, void *response,
                          size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen == 0) {
             RLOGE("radio::oemHookRawInd: invalid response");
             return 0;
@@ -2103,7 +2156,7 @@ int radio::oemHookRawInd(android::Parcel &p, int slotId, int requestNumber,
 int radio::indicateRingbackToneInd(android::Parcel &p, int slotId, int requestNumber,
                                    int indicationType, int token, RIL_Errno e, void *response,
                                    size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(int)) {
             RLOGE("radio::indicateRingbackToneInd: invalid response");
             return 0;
@@ -2123,7 +2176,7 @@ int radio::indicateRingbackToneInd(android::Parcel &p, int slotId, int requestNu
 int radio::resendIncallMuteInd(android::Parcel &p, int slotId, int requestNumber,
                                int indicationType, int token, RIL_Errno e, void *response,
                                size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         RLOGD("radio::resendIncallMuteInd");
         Return<void> retStatus = radioService[slotId]->mRadioIndication->resendIncallMute(
                 convertIntToRadioIndicationType(indicationType));
@@ -2138,7 +2191,7 @@ int radio::resendIncallMuteInd(android::Parcel &p, int slotId, int requestNumber
 int radio::cdmaSubscriptionSourceChangedInd(android::Parcel &p, int slotId, int requestNumber,
                                             int indicationType, int token, RIL_Errno e,
                                             void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(int)) {
             RLOGE("radio::cdmaSubscriptionSourceChangedInd: invalid response");
             return 0;
@@ -2160,7 +2213,7 @@ int radio::cdmaSubscriptionSourceChangedInd(android::Parcel &p, int slotId, int 
 int radio::cdmaPrlChangedInd(android::Parcel &p, int slotId, int requestNumber,
                              int indicationType, int token, RIL_Errno e, void *response,
                              size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(int)) {
             RLOGE("radio::cdmaPrlChangedInd: invalid response");
             return 0;
@@ -2180,7 +2233,7 @@ int radio::cdmaPrlChangedInd(android::Parcel &p, int slotId, int requestNumber,
 int radio::exitEmergencyCallbackModeInd(android::Parcel &p, int slotId, int requestNumber,
                                         int indicationType, int token, RIL_Errno e, void *response,
                                         size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         RLOGD("radio::exitEmergencyCallbackModeInd");
         Return<void> retStatus = radioService[slotId]->mRadioIndication->exitEmergencyCallbackMode(
                 convertIntToRadioIndicationType(indicationType));
@@ -2196,7 +2249,7 @@ int radio::exitEmergencyCallbackModeInd(android::Parcel &p, int slotId, int requ
 int radio::rilConnectedInd(android::Parcel &p, int slotId, int requestNumber,
                            int indicationType, int token, RIL_Errno e, void *response,
                            size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         RLOGD("radio::rilConnectedInd");
         Return<void> retStatus = radioService[slotId]->mRadioIndication->rilConnected(
                 convertIntToRadioIndicationType(indicationType));
@@ -2211,7 +2264,7 @@ int radio::rilConnectedInd(android::Parcel &p, int slotId, int requestNumber,
 int radio::voiceRadioTechChangedInd(android::Parcel &p, int slotId, int requestNumber,
                                     int indicationType, int token, RIL_Errno e, void *response,
                                     size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(int)) {
             RLOGE("radio::voiceRadioTechChangedInd: invalid response");
             return 0;
@@ -2367,7 +2420,7 @@ void convertRilCellInfoListToHal(void *response, size_t responseLen, hidl_vec<Ce
 int radio::cellInfoListInd(android::Parcel &p, int slotId, int requestNumber,
                            int indicationType, int token, RIL_Errno e, void *response,
                            size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen % sizeof(RIL_CellInfo_v12) != 0) {
             RLOGE("radio::cellInfoListInd: invalid response");
             return 0;
@@ -2390,7 +2443,7 @@ int radio::cellInfoListInd(android::Parcel &p, int slotId, int requestNumber,
 int radio::imsNetworkStateChangedInd(android::Parcel &p, int slotId, int requestNumber,
                                      int indicationType, int token, RIL_Errno e, void *response,
                                      size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         RLOGD("radio::imsNetworkStateChangedInd");
         Return<void> retStatus = radioService[slotId]->mRadioIndication->imsNetworkStateChanged(
                 convertIntToRadioIndicationType(indicationType));
@@ -2406,7 +2459,7 @@ int radio::imsNetworkStateChangedInd(android::Parcel &p, int slotId, int request
 int radio::subscriptionStatusChangedInd(android::Parcel &p, int slotId, int requestNumber,
                                         int indicationType, int token, RIL_Errno e, void *response,
                                         size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(int)) {
             RLOGE("radio::subscriptionStatusChangedInd: invalid response");
             return 0;
@@ -2427,7 +2480,7 @@ int radio::subscriptionStatusChangedInd(android::Parcel &p, int slotId, int requ
 int radio::srvccStateNotifyInd(android::Parcel &p, int slotId, int requestNumber,
                                int indicationType, int token, RIL_Errno e, void *response,
                                size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(int)) {
             RLOGE("radio::srvccStateNotifyInd: invalid response");
             return 0;
@@ -2478,7 +2531,7 @@ void convertRilHardwareConfigListToHal(void *response, size_t responseLen,
 int radio::hardwareConfigChangedInd(android::Parcel &p, int slotId, int requestNumber,
                                     int indicationType, int token, RIL_Errno e, void *response,
                                     size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen % sizeof(RIL_HardwareConfig) != 0) {
             RLOGE("radio::hardwareConfigChangedInd: invalid response");
             return 0;
@@ -2511,7 +2564,7 @@ void convertRilRadioCapabilityToHal(void *response, size_t responseLen, RadioCap
 int radio::radioCapabilityIndicationInd(android::Parcel &p, int slotId, int requestNumber,
                                         int indicationType, int token, RIL_Errno e, void *response,
                                         size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(RIL_RadioCapability)) {
             RLOGE("radio::radioCapabilityIndicationInd: invalid response");
             return 0;
@@ -2548,7 +2601,7 @@ bool isServiceTypeCfQuery(RIL_SsServiceType serType, RIL_SsRequestType reqType) 
 int radio::onSupplementaryServiceIndicationInd(android::Parcel &p, int slotId, int requestNumber,
                                                int indicationType, int token, RIL_Errno e,
                                                void *response, size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(RIL_StkCcUnsolSsResponse)) {
             RLOGE("radio::onSupplementaryServiceIndicationInd: invalid response");
             return 0;
@@ -2618,7 +2671,7 @@ int radio::onSupplementaryServiceIndicationInd(android::Parcel &p, int slotId, i
 int radio::stkCallControlAlphaNotifyInd(android::Parcel &p, int slotId, int requestNumber,
                                         int indicationType, int token, RIL_Errno e, void *response,
                                         size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen == 0) {
             RLOGE("radio::stkCallControlAlphaNotifyInd: invalid response");
             return 0;
@@ -2646,7 +2699,7 @@ void convertRilLceDataInfoToHal(void *response, size_t responseLen, LceDataInfo&
 int radio::lceDataInd(android::Parcel &p, int slotId, int requestNumber,
                       int indicationType, int token, RIL_Errno e, void *response,
                       size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(RIL_LceDataInfo)) {
             RLOGE("radio::lceDataInd: invalid response");
             return 0;
@@ -2668,7 +2721,7 @@ int radio::lceDataInd(android::Parcel &p, int slotId, int requestNumber,
 int radio::pcoDataInd(android::Parcel &p, int slotId, int requestNumber,
                       int indicationType, int token, RIL_Errno e, void *response,
                       size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen != sizeof(RIL_PCO_Data)) {
             RLOGE("radio::pcoDataInd: invalid response");
             return 0;
@@ -2695,7 +2748,7 @@ int radio::pcoDataInd(android::Parcel &p, int slotId, int requestNumber,
 int radio::modemResetInd(android::Parcel &p, int slotId, int requestNumber,
                          int indicationType, int token, RIL_Errno e, void *response,
                          size_t responseLen) {
-    if (radioService[slotId]->mRadioIndication != NULL) {
+    if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         if (response == NULL || responseLen == 0) {
             RLOGE("radio::modemResetInd: invalid response");
             return 0;
@@ -2734,10 +2787,17 @@ void radio::registerService(RIL_RadioFunctions *callbacks, CommandInfo *commands
 
     configureRpcThreadpool(1, true /* callerWillJoin */);
     for (int i = 0; i < simCount; i++) {
+        pthread_rwlock_t *radioServiceRwlockPtr = getRadioServiceRwlock(i);
+        int ret = pthread_rwlock_wrlock(radioServiceRwlockPtr);
+        assert(ret == 0);
+
         radioService[i] = new RadioImpl;
         radioService[i]->mSlotId = i;
         RLOGD("radio::registerService: starting IRadio %s", serviceNames[i]);
         android::status_t status = radioService[i]->registerAsService(serviceNames[i]);
+
+        ret = pthread_rwlock_unlock(radioServiceRwlockPtr);
+        assert(ret == 0);
     }
 
     s_callbacks = callbacks;
@@ -2746,4 +2806,20 @@ void radio::registerService(RIL_RadioFunctions *callbacks, CommandInfo *commands
 
 void rilc_thread_pool() {
     joinRpcThreadpool();
+}
+
+pthread_rwlock_t * radio::getRadioServiceRwlock(int slotId) {
+    pthread_rwlock_t *radioServiceRwlockPtr = &radioServiceRwlock;
+
+    #if (SIM_COUNT >= 2)
+    if (slotId == 2) radioServiceRwlockPtr = &radioServiceRwlock2;
+    #if (SIM_COUNT >= 3)
+    if (slotId == 3) radioServiceRwlockPtr = &radioServiceRwlock3;
+    #if (SIM_COUNT >= 4)
+    if (slotId == 4) radioServiceRwlockPtr = &radioServiceRwlock4;
+    #endif
+    #endif
+    #endif
+
+    return radioServiceRwlockPtr;
 }
