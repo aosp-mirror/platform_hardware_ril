@@ -21,6 +21,7 @@
 #include <ril_service.h>
 #include <hidl/HidlTransportSupport.h>
 #include <utils/SystemClock.h>
+#include <inttypes.h>
 
 #define INVALID_HEX_CHAR 16
 
@@ -1340,7 +1341,7 @@ uint8_t * convertHexStringToBytes(void *response, size_t responseLen) {
     }
     uint8_t *hexString = (uint8_t *)response;
 
-    for (int i = 0; i < responseLen; i += 2) {
+    for (size_t i = 0; i < responseLen; i += 2) {
         uint8_t hexChar1 = hexCharToInt(hexString[i]);
         uint8_t hexChar2 = hexCharToInt(hexString[i + 1]);
 
@@ -1464,7 +1465,7 @@ int radio::nitzTimeReceivedInd(android::Parcel &p, int slotId, int requestNumber
         }
         hidl_string nitzTime = convertCharPtrToHidlString((char *) response);
         int64_t timeReceived = android::elapsedRealtime();
-        RLOGD("radio::nitzTimeReceivedInd: nitzTime %s receivedTime %ld", nitzTime.c_str(),
+        RLOGD("radio::nitzTimeReceivedInd: nitzTime %s receivedTime %" PRId64, nitzTime.c_str(),
                 timeReceived);
         Return<void> retStatus = radioService[slotId]->mRadioIndication->nitzTimeReceived(
                 convertIntToRadioIndicationType(indicationType), nitzTime, timeReceived);
