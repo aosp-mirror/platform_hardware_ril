@@ -2480,6 +2480,7 @@ int radio::getLastCallFailCauseResponse(android::Parcel &p, int slotId, int requ
         populateResponseInfo(responseInfo, serial, responseType, e);
         LastCallFailCauseInfo info;
         memset(&info, 0, sizeof(info));
+        info.vendorCause = hidl_string();
         if (response == NULL) {
             RLOGE("radio::getCurrentCallsResponse Invalid response: NULL");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
@@ -2705,6 +2706,7 @@ SendSmsResult makeSendSmsResult(RadioResponseInfo& responseInfo, int serial, int
         RLOGE("Invalid response: NULL");
         if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         memset(&result, 0, sizeof(result));
+        result.ackPDU = hidl_string();
     } else {
         RIL_SMS_Response *resp = (RIL_SMS_Response *) response;
         result.messageRef = resp->messageRef;
@@ -2791,8 +2793,7 @@ IccIoResult responseIccIo(RadioResponseInfo& responseInfo, int serial, int respo
         RLOGE("Invalid response: NULL");
         if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         memset(&result, 0, sizeof(result));
-        hidl_string emptyString;
-        result.simResponse = emptyString;
+        result.simResponse = hidl_string();
     } else {
         RIL_SIM_IO_Response *resp = (RIL_SIM_IO_Response *) response;
         result.sw1 = resp->sw1;
