@@ -1750,7 +1750,7 @@ static void requestSimTransmitApduChannel(void *data,
     }
 
     cmd_size = 10 + (apdu->data ? strlen(apdu->data) : 0);
-    asprintf(&cmd, "AT+CGLA=%d,%d,%02x%02x%02x%02x%02x%s",
+    asprintf(&cmd, "AT+CGLA=%d,%zu,%02x%02x%02x%02x%02x%s",
              apdu->sessionid, cmd_size, apdu->cla, apdu->instruction,
              apdu->p1, apdu->p2, apdu->p3, apdu->data ? apdu->data : "");
 
