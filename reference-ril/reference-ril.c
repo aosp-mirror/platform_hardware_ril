@@ -17,7 +17,6 @@
 
 #include <telephony/ril_cdma_sms.h>
 #include <telephony/librilutils.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
@@ -36,8 +35,8 @@
 #include <getopt.h>
 #include <sys/socket.h>
 #include <cutils/sockets.h>
-#include <termios.h>
 #include <sys/system_properties.h>
+#include <termios.h>
 #include <system/qemu_pipe.h>
 
 #include "ril.h"
@@ -241,15 +240,6 @@ static int s_repollCallsCount = 0;
 static int s_expectAnswer = 0;
 #endif /* WORKAROUND_ERRONEOUS_ANSWER */
 
-// Returns true iff running this process in an emulator VM
-static bool isInEmulator(void) {
-    static int inQemu = -1;
-    if (inQemu < 0) {
-        char propValue[PROP_VALUE_MAX];
-        inQemu = (__system_property_get("ro.kernel.qemu", propValue) != 0);
-    }
-    return inQemu == 1;
-}
 
 static int s_cell_info_rate_ms = INT_MAX;
 static int s_mcc = 0;
@@ -2127,9 +2117,9 @@ static void requestGetHardwareConfig(void *data, size_t datalen, RIL_Token t)
  * RIL_onRequestComplete() may be called from any thread, before or after
  * this function returns.
  *
- * Will always be called from the same thread, so returning here implies
- * that the radio is ready to process another command (whether or not
- * the previous command has completed).
+ * Because onRequest function could be called from multiple different thread,
+ * we must ensure that the underlying at_send_command_* function
+ * is atomic.
  */
 static void
 onRequest (int request, void *data, size_t datalen, RIL_Token t)
