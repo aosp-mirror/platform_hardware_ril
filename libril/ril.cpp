@@ -3700,6 +3700,21 @@ static void processCommandsCallback(int fd, short flags, void *param) {
     }
 }
 
+static void resendLastNITZTimeData(RIL_SOCKET_ID socket_id) {
+    if (s_lastNITZTimeData != NULL) {
+        Parcel p;
+        int responseType = (s_callbacks.version >= 13)
+                           ? RESPONSE_UNSOLICITED_ACK_EXP
+                           : RESPONSE_UNSOLICITED;
+        int ret = radio::nitzTimeReceivedInd(
+            p, (int)socket_id, RIL_UNSOL_NITZ_TIME_RECEIVED, responseType, 0,
+            RIL_E_SUCCESS, s_lastNITZTimeData, s_lastNITZTimeDataSize);
+        if (ret == 0) {
+            free(s_lastNITZTimeData);
+            s_lastNITZTimeData = NULL;
+        }
+    }
+}
 
 static void onNewCommandConnect(RIL_SOCKET_ID socket_id) {
     // Inform we are connected and the ril version
@@ -3713,10 +3728,7 @@ static void onNewCommandConnect(RIL_SOCKET_ID socket_id) {
 
     // Send last NITZ time data, in case it was missed
     if (s_lastNITZTimeData != NULL) {
-        sendResponseRaw(s_lastNITZTimeData, s_lastNITZTimeDataSize, socket_id);
-
-        free(s_lastNITZTimeData);
-        s_lastNITZTimeData = NULL;
+        resendLastNITZTimeData(socket_id);
     }
 
     // Get version string
@@ -4791,11 +4803,6 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
     rwlockRet = pthread_rwlock_unlock(radioServiceRwlockPtr);
     assert(rwlockRet == 0);
 
-    if (ret != 0) {
-        // Problem with the response. Don't continue;
-        goto error_exit;
-    }
-
     // some things get more payload
     switch(unsolResponse) {
         case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED:
@@ -4825,7 +4832,7 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
     RLOGI("%s UNSOLICITED: %s length:%d", rilSocketIdToString(soc_id),
             requestToString(unsolResponse), p.dataSize());
 #endif
-    ret = 0;
+
     switch (unsolResponse) {
         case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED:
             rwlockRet = pthread_rwlock_rdlock(radioServiceRwlockPtr);
@@ -4839,24 +4846,23 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
     }
 
     if (ret != 0 && unsolResponse == RIL_UNSOL_NITZ_TIME_RECEIVED) {
-
         // Unfortunately, NITZ time is not poll/update like everything
         // else in the system. So, if the upstream client isn't connected,
         // keep a copy of the last NITZ response (with receive time noted
         // above) around so we can deliver it when it is connected
 
         if (s_lastNITZTimeData != NULL) {
-            free (s_lastNITZTimeData);
+            free(s_lastNITZTimeData);
             s_lastNITZTimeData = NULL;
         }
 
-        s_lastNITZTimeData = calloc(p.dataSize(), 1);
+        s_lastNITZTimeData = calloc(datalen, 1);
         if (s_lastNITZTimeData == NULL) {
-             RLOGE("Memory allocation failed in RIL_onUnsolicitedResponse");
-             goto error_exit;
+            RLOGE("Memory allocation failed in RIL_onUnsolicitedResponse");
+            goto error_exit;
         }
-        s_lastNITZTimeDataSize = p.dataSize();
-        memcpy(s_lastNITZTimeData, p.data(), p.dataSize());
+        s_lastNITZTimeDataSize = datalen;
+        memcpy(s_lastNITZTimeData, data, datalen);
     }
 
     // Normal exit
