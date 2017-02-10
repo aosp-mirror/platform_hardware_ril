@@ -418,16 +418,16 @@ void memsetAndFreeStrings(int numPointers, ...) {
 }
 
 /**
- * Copies over src to dest. If memory allocation failes, responseFunction() is called for the
+ * Copies over src to dest. If memory allocation fails, responseFunction() is called for the
  * request with error RIL_E_NO_MEMORY.
  * Returns true on success, and false on failure.
  */
-bool copyHidlStringToRil(char **dest, const char *src, RequestInfo *pRI) {
-    if (strcmp(src, "") == 0) {
+bool copyHidlStringToRil(char **dest, const hidl_string &src, RequestInfo *pRI) {
+    size_t len = src.size();
+    if (len == 0) {
         *dest = NULL;
         return true;
     }
-    int len = strlen(src);
     *dest = (char *) calloc(len + 1, sizeof(char));
     if (*dest == NULL) {
         RLOGE("Memory allocation failed for request %s", requestToString(pRI->pCI->requestNumber));
@@ -443,6 +443,7 @@ bool copyHidlStringToRil(char **dest, const char *src, RequestInfo *pRI) {
 hidl_string convertCharPtrToHidlString(const char *ptr) {
     hidl_string ret;
     if (ptr != NULL) {
+        // TODO: replace this with strnlen
         ret.setToExternal(ptr, strlen(ptr));
     }
     return ret;
@@ -537,8 +538,7 @@ bool dispatchStrings(int serial, int slotId, int request, const hidl_vec<hidl_st
     }
 
     for (int i = 0; i < countStrings; i++) {
-        const char* str = (const char *) data[i];
-        if (!copyHidlStringToRil(&pStrings[i], str, pRI)) {
+        if (!copyHidlStringToRil(&pStrings[i], data[i], pRI)) {
             for (int j = 0; j < i; j++) {
                 memsetAndFreeStrings(1, pStrings[j]);
             }
@@ -792,18 +792,15 @@ Return<void> RadioImpl::dial(int32_t serial, const Dial& dialInfo) {
     if (pRI == NULL) {
         return Void();
     }
-    RIL_Dial dial;
-    RIL_UUS_Info uusInfo;
+    RIL_Dial dial = {};
+    RIL_UUS_Info uusInfo = {};
     int32_t sizeOfDial = sizeof(dial);
-
-    memset (&dial, 0, sizeOfDial);
 
     if (!copyHidlStringToRil(&dial.address, dialInfo.address, pRI)) {
         return Void();
     }
-    dial.clir = (int)dialInfo.clir;
+    dial.clir = (int) dialInfo.clir;
 
-    memset(&uusInfo, 0, sizeof(RIL_UUS_Info));
     if (dialInfo.uusInfo.size() != 0) {
         uusInfo.uusType = (RIL_UUS_Type) dialInfo.uusInfo[0].uusType;
         uusInfo.uusDcs = (RIL_UUS_DCS) dialInfo.uusInfo[0].uusDcs;
@@ -816,7 +813,7 @@ Return<void> RadioImpl::dial(int32_t serial, const Dial& dialInfo) {
                 memsetAndFreeStrings(1, dial.address);
                 return Void();
             }
-            uusInfo.uusLength = strlen(dialInfo.uusInfo[0].uusData);
+            uusInfo.uusLength = dialInfo.uusInfo[0].uusData.size();
         }
 
         dial.uusInfo = &uusInfo;
@@ -1393,8 +1390,7 @@ Return<void> RadioImpl::acknowledgeLastIncomingCdmaSms(int32_t serial, const Cdm
         return Void();
     }
 
-    RIL_CDMA_SMS_Ack rcsa;
-    memset(&rcsa, 0, sizeof(rcsa));
+    RIL_CDMA_SMS_Ack rcsa = {};
 
     rcsa.uErrorClass = (RIL_CDMA_SMS_ErrorClass) smsAck.errorClass;
     rcsa.uSMSCauseCode = smsAck.smsCauseCode;
@@ -1497,8 +1493,7 @@ Return<void> RadioImpl::writeSmsToRuim(int32_t serial, const CdmaSmsWriteArgs& c
         return Void();
     }
 
-    RIL_CDMA_SMS_WriteArgs rcsw;
-    memset(&rcsw, 0, sizeof(rcsw));
+    RIL_CDMA_SMS_WriteArgs rcsw = {};
     rcsw.status = (int) cdmaSms.status;
     constructCdmaSms(rcsw.message, cdmaSms.message);
 
@@ -1621,12 +1616,10 @@ Return<void> RadioImpl::getImsRegistrationState(int32_t serial) {
 }
 
 bool dispatchImsGsmSms(const ImsSmsMessage& message, RequestInfo *pRI) {
-    RIL_IMS_SMS_Message rism;
+    RIL_IMS_SMS_Message rism = {};
     char **pStrings;
     int countStrings = 2;
     int dataLen = sizeof(char *) * countStrings;
-
-    memset(&rism, 0, sizeof(rism));
 
     rism.tech = RADIO_TECH_3GPP;
     rism.retry = BOOL_TO_INT(message.retry);
@@ -1813,8 +1806,7 @@ Return<void> RadioImpl::setUiccSubscription(int32_t serial, const SelectUiccSub&
         return Void();
     }
 
-    RIL_SelectUiccSub rilUiccSub;
-    memset(&rilUiccSub, 0, sizeof(rilUiccSub));
+    RIL_SelectUiccSub rilUiccSub = {};
 
     rilUiccSub.slot = uiccSub.slot;
     rilUiccSub.app_index = uiccSub.appIndex;
@@ -1964,11 +1956,9 @@ Return<void> RadioImpl::setAllowedCarriers(int32_t serial, bool allAllowed,
         return Void();
     }
 
-    RIL_CarrierRestrictions cr;
+    RIL_CarrierRestrictions cr = {};
     RIL_Carrier * allowedCarriers = NULL;
     RIL_Carrier * excludedCarriers = NULL;
-
-    memset(&cr, 0, sizeof(RIL_CarrierRestrictions));
 
     cr.len_allowed_carriers = carriers.allowedCarriers.size();
     allowedCarriers = (RIL_Carrier *)calloc(cr.len_allowed_carriers, sizeof(RIL_Carrier));
@@ -2087,13 +2077,12 @@ int radio::getIccCardStatusResponse(android::Parcel &p, int slotId, int requestN
                                    int responseType, int serial, RIL_Errno e,
                                    void *response, size_t responseLen) {
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
-        CardStatus cardStatus;
+        CardStatus cardStatus = {};
         if (response == NULL || responseLen != sizeof(RIL_CardStatus_v6)) {
             RLOGE("radio::getIccCardStatusResponse: Invalid response");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
-            memset(&cardStatus, 0, sizeof(cardStatus));
         } else {
             RIL_CardStatus_v6 *p_cur = ((RIL_CardStatus_v6 *) response);
             cardStatus.cardState = (CardState) p_cur->card_state;
@@ -2135,7 +2124,7 @@ int radio::supplyIccPinForAppResponse(android::Parcel &p, int slotId, int reques
     RLOGD("radio::supplyIccPinForAppResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 supplyIccPinForAppResponse(responseInfo, ret);
@@ -2154,7 +2143,7 @@ int radio::supplyIccPukForAppResponse(android::Parcel &p, int slotId, int reques
     RLOGD("radio::supplyIccPukForAppResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->supplyIccPukForAppResponse(
                 responseInfo, ret);
@@ -2173,7 +2162,7 @@ int radio::supplyIccPin2ForAppResponse(android::Parcel &p, int slotId, int reque
     RLOGD("radio::supplyIccPin2ForAppResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 supplyIccPin2ForAppResponse(responseInfo, ret);
@@ -2192,7 +2181,7 @@ int radio::supplyIccPuk2ForAppResponse(android::Parcel &p, int slotId, int reque
     RLOGD("radio::supplyIccPuk2ForAppResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 supplyIccPuk2ForAppResponse(responseInfo, ret);
@@ -2211,7 +2200,7 @@ int radio::changeIccPinForAppResponse(android::Parcel &p, int slotId, int reques
     RLOGD("radio::changeIccPinForAppResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 changeIccPinForAppResponse(responseInfo, ret);
@@ -2230,7 +2219,7 @@ int radio::changeIccPin2ForAppResponse(android::Parcel &p, int slotId, int reque
     RLOGD("radio::changeIccPin2ForAppResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 changeIccPin2ForAppResponse(responseInfo, ret);
@@ -2249,7 +2238,7 @@ int radio::supplyNetworkDepersonalizationResponse(android::Parcel &p, int slotId
     RLOGD("radio::supplyNetworkDepersonalizationResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 supplyNetworkDepersonalizationResponse(responseInfo, ret);
@@ -2268,7 +2257,7 @@ int radio::getCurrentCallsResponse(android::Parcel &p, int slotId, int requestNu
     RLOGD("radio::getCurrentCallsResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
 
         hidl_vec<Call> calls;
@@ -2322,7 +2311,7 @@ int radio::dialResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::dialResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->dialResponse(responseInfo);
         radioService[slotId]->checkReturnStatus(retStatus);
@@ -2339,7 +2328,7 @@ int radio::getIMSIForAppResponse(android::Parcel &p, int slotId, int requestNumb
     RLOGD("radio::getIMSIForAppResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->getIMSIForAppResponse(
                 responseInfo, convertCharPtrToHidlString((char *) response));
@@ -2358,7 +2347,7 @@ int radio::hangupConnectionResponse(android::Parcel &p, int slotId, int requestN
     RLOGD("radio::hangupConnectionResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->hangupConnectionResponse(
                 responseInfo);
@@ -2377,7 +2366,7 @@ int radio::hangupWaitingOrBackgroundResponse(android::Parcel &p, int slotId, int
     RLOGD("radio::hangupWaitingOrBackgroundResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus =
                 radioService[slotId]->mRadioResponse->hangupWaitingOrBackgroundResponse(
@@ -2398,7 +2387,7 @@ int radio::hangupForegroundResumeBackgroundResponse(android::Parcel &p, int slot
     RLOGD("radio::hangupWaitingOrBackgroundResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus =
                 radioService[slotId]->mRadioResponse->hangupWaitingOrBackgroundResponse(
@@ -2419,7 +2408,7 @@ int radio::switchWaitingOrHoldingAndActiveResponse(android::Parcel &p, int slotI
     RLOGD("radio::switchWaitingOrHoldingAndActiveResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus =
                 radioService[slotId]->mRadioResponse->switchWaitingOrHoldingAndActiveResponse(
@@ -2438,7 +2427,7 @@ int radio::conferenceResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::conferenceResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->conferenceResponse(
                 responseInfo);
@@ -2456,7 +2445,7 @@ int radio::rejectCallResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::rejectCallResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->rejectCallResponse(
                 responseInfo);
@@ -2475,10 +2464,10 @@ int radio::getLastCallFailCauseResponse(android::Parcel &p, int slotId, int requ
     RLOGD("radio::getLastCallFailCauseResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
-        LastCallFailCauseInfo info;
-        memset(&info, 0, sizeof(info));
+
+        LastCallFailCauseInfo info = {};
         info.vendorCause = hidl_string();
         if (response == NULL) {
             RLOGE("radio::getCurrentCallsResponse Invalid response: NULL");
@@ -2512,11 +2501,10 @@ int radio::getVoiceRegistrationStateResponse(android::Parcel &p, int slotId, int
     RLOGD("radio::getVoiceRegistrationStateResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
 
-        VoiceRegStateResult voiceRegResponse;
-        memset(&voiceRegResponse, 0, sizeof(voiceRegResponse));
+        VoiceRegStateResult voiceRegResponse = {};
 
         int numStrings = responseLen / sizeof(char *);
 
@@ -2560,10 +2548,9 @@ int radio::getDataRegistrationStateResponse(android::Parcel &p, int slotId, int 
     RLOGD("radio::getDataRegistrationStateResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
-        DataRegStateResult dataRegResponse;
-        memset(&dataRegResponse, 0, sizeof(dataRegResponse));
+        DataRegStateResult dataRegResponse = {};
         int numStrings = responseLen / sizeof(char *);
         if (response == NULL || (numStrings != 6 && numStrings != 11)) {
             RLOGE("radio::getDataRegistrationStateResponse Invalid response: NULL");
@@ -2600,10 +2587,10 @@ int radio::getDataRegistrationStateResponse(android::Parcel &p, int slotId, int 
 int radio::getOperatorResponse(android::Parcel &p, int slotId, int requestNumber,
                               int responseType, int serial, RIL_Errno e, void *response,
                               size_t responseLen) {
-   RLOGD("radio::getOperatorResponse: serial %d", serial);
+    RLOGD("radio::getOperatorResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_string longName;
         hidl_string shortName;
@@ -2636,7 +2623,7 @@ int radio::setRadioPowerResponse(android::Parcel &p, int slotId, int requestNumb
     RLOGD("radio::setRadioPowerResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->setRadioPowerResponse(
                 responseInfo);
@@ -2655,7 +2642,7 @@ int radio::sendDtmfResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::sendDtmfResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->sendDtmfResponse(
                 responseInfo);
@@ -2671,12 +2658,11 @@ int radio::sendDtmfResponse(android::Parcel &p, int slotId, int requestNumber,
 SendSmsResult makeSendSmsResult(RadioResponseInfo& responseInfo, int serial, int responseType,
                                 RIL_Errno e, void *response, size_t responseLen) {
     populateResponseInfo(responseInfo, serial, responseType, e);
-    SendSmsResult result;
+    SendSmsResult result = {};
 
     if (response == NULL || responseLen != sizeof(RIL_SMS_Response)) {
         RLOGE("Invalid response: NULL");
         if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
-        memset(&result, 0, sizeof(result));
         result.ackPDU = hidl_string();
     } else {
         RIL_SMS_Response *resp = (RIL_SMS_Response *) response;
@@ -2693,7 +2679,7 @@ int radio::sendSmsResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::sendSmsResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         SendSmsResult result = makeSendSmsResult(responseInfo, serial, responseType, e, response,
                 responseLen);
 
@@ -2713,7 +2699,7 @@ int radio::sendSMSExpectMoreResponse(android::Parcel &p, int slotId, int request
     RLOGD("radio::sendSMSExpectMoreResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         SendSmsResult result = makeSendSmsResult(responseInfo, serial, responseType, e, response,
                 responseLen);
 
@@ -2730,12 +2716,11 @@ int radio::sendSMSExpectMoreResponse(android::Parcel &p, int slotId, int request
 IccIoResult responseIccIo(RadioResponseInfo& responseInfo, int serial, int responseType,
                            RIL_Errno e, void *response, size_t responseLen) {
     populateResponseInfo(responseInfo, serial, responseType, e);
-    IccIoResult result;
+    IccIoResult result = {};
 
     if (response == NULL || responseLen != sizeof(RIL_SIM_IO_Response)) {
         RLOGE("Invalid response: NULL");
         if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
-        memset(&result, 0, sizeof(result));
         result.simResponse = hidl_string();
     } else {
         RIL_SIM_IO_Response *resp = (RIL_SIM_IO_Response *) response;
@@ -2752,7 +2737,7 @@ int radio::iccIOForAppResponse(android::Parcel &p, int slotId, int requestNumber
     RLOGD("radio::radio::iccIOForAppResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         IccIoResult result = responseIccIo(responseInfo, serial, responseType, e, response,
                 responseLen);
 
@@ -2772,7 +2757,7 @@ int radio::sendUssdResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::sendUssdResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->sendUssdResponse(
                 responseInfo);
@@ -2791,7 +2776,7 @@ int radio::cancelPendingUssdResponse(android::Parcel &p, int slotId, int request
     RLOGD("radio::cancelPendingUssdResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->cancelPendingUssdResponse(
                 responseInfo);
@@ -2807,10 +2792,10 @@ int radio::cancelPendingUssdResponse(android::Parcel &p, int slotId, int request
 int radio::getClirResponse(android::Parcel &p, int slotId, int requestNumber,
                               int responseType, int serial, RIL_Errno e, void *response,
                               size_t responseLen) {
-   RLOGD("radio::getClirResponse: serial %d", serial);
+    RLOGD("radio::getClirResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         int n = -1, m = -1;
         int numInts = responseLen / sizeof(int);
@@ -2838,7 +2823,7 @@ int radio::setClirResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::setClirResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->setClirResponse(
                 responseInfo);
@@ -2856,7 +2841,7 @@ int radio::getCallForwardStatusResponse(android::Parcel &p, int slotId, int requ
     RLOGD("radio::getCallForwardStatusResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<CallForwardInfo> callForwardInfos;
 
@@ -2894,7 +2879,7 @@ int radio::setCallForwardResponse(android::Parcel &p, int slotId, int requestNum
     RLOGD("radio::setCallForwardResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->setCallForwardResponse(
                 responseInfo);
@@ -2909,10 +2894,10 @@ int radio::setCallForwardResponse(android::Parcel &p, int slotId, int requestNum
 int radio::getCallWaitingResponse(android::Parcel &p, int slotId, int requestNumber,
                                  int responseType, int serial, RIL_Errno e, void *response,
                                  size_t responseLen) {
-   RLOGD("radio::getCallWaitingResponse: serial %d", serial);
+    RLOGD("radio::getCallWaitingResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         bool enable = false;
         int serviceClass = -1;
@@ -2941,7 +2926,7 @@ int radio::setCallWaitingResponse(android::Parcel &p, int slotId, int requestNum
     RLOGD("radio::setCallWaitingResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->setCallWaitingResponse(
                 responseInfo);
@@ -2959,7 +2944,7 @@ int radio::acknowledgeLastIncomingGsmSmsResponse(android::Parcel &p, int slotId,
     RLOGD("radio::acknowledgeLastIncomingGsmSmsResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus =
                 radioService[slotId]->mRadioResponse->acknowledgeLastIncomingGsmSmsResponse(
@@ -2979,7 +2964,7 @@ int radio::acceptCallResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::acceptCallResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->acceptCallResponse(
                 responseInfo);
@@ -2998,7 +2983,7 @@ int radio::deactivateDataCallResponse(android::Parcel &p, int slotId, int reques
     RLOGD("radio::deactivateDataCallResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->deactivateDataCallResponse(
                 responseInfo);
@@ -3017,7 +3002,7 @@ int radio::getFacilityLockForAppResponse(android::Parcel &p, int slotId, int req
     RLOGD("radio::getFacilityLockForAppResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 getFacilityLockForAppResponse(responseInfo, ret);
@@ -3036,7 +3021,7 @@ int radio::setFacilityLockForAppResponse(android::Parcel &p, int slotId, int req
     RLOGD("radio::setFacilityLockForAppResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setFacilityLockForAppResponse(responseInfo,
@@ -3056,7 +3041,7 @@ int radio::setBarringPasswordResponse(android::Parcel &p, int slotId, int reques
     RLOGD("radio::acceptCallResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setBarringPasswordResponse(responseInfo);
@@ -3072,10 +3057,10 @@ int radio::setBarringPasswordResponse(android::Parcel &p, int slotId, int reques
 int radio::getNetworkSelectionModeResponse(android::Parcel &p, int slotId, int requestNumber,
                                           int responseType, int serial, RIL_Errno e, void *response,
                                           size_t responseLen) {
-   RLOGD("radio::getNetworkSelectionModeResponse: serial %d", serial);
+    RLOGD("radio::getNetworkSelectionModeResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         bool manual = false;
         int serviceClass;
@@ -3106,7 +3091,7 @@ int radio::setNetworkSelectionModeAutomaticResponse(android::Parcel &p, int slot
     RLOGD("radio::setNetworkSelectionModeAutomaticResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setNetworkSelectionModeAutomaticResponse(
@@ -3126,7 +3111,7 @@ int radio::setNetworkSelectionModeManualResponse(android::Parcel &p, int slotId,
     RLOGD("radio::setNetworkSelectionModeManualResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setNetworkSelectionModeManualResponse(
@@ -3140,14 +3125,14 @@ int radio::setNetworkSelectionModeManualResponse(android::Parcel &p, int slotId,
     return 0;
 }
 
-int convertOperatorStatusToInt(char * str) {
-    if (strcmp("unknown", str) == 0) {
+int convertOperatorStatusToInt(const char *str) {
+    if (strncmp("unknown", str, 9) == 0) {
         return (int) OperatorStatus::UNKNOWN;
-    } else if (strcmp("available", str) == 0) {
+    } else if (strncmp("available", str, 9) == 0) {
         return (int) OperatorStatus::AVAILABLE;
-    } else if (strcmp("current", str) == 0) {
+    } else if (strncmp("current", str, 9) == 0) {
         return (int) OperatorStatus::CURRENT;
-    } else if (strcmp("forbidden", str) == 0) {
+    } else if (strncmp("forbidden", str, 9) == 0) {
         return (int) OperatorStatus::FORBIDDEN;
     } else {
         return -1;
@@ -3157,10 +3142,10 @@ int convertOperatorStatusToInt(char * str) {
 int radio::getAvailableNetworksResponse(android::Parcel &p, int slotId, int requestNumber,
                               int responseType, int serial, RIL_Errno e, void *response,
                               size_t responseLen) {
-   RLOGD("radio::getAvailableNetworksResponse: serial %d", serial);
+    RLOGD("radio::getAvailableNetworksResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<OperatorInfo> networks;
         if (response == NULL || responseLen % (4 * sizeof(char *))!= 0) {
@@ -3200,7 +3185,7 @@ int radio::startDtmfResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::startDtmfResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->startDtmfResponse(responseInfo);
@@ -3218,7 +3203,7 @@ int radio::stopDtmfResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::stopDtmfResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->stopDtmfResponse(responseInfo);
@@ -3236,7 +3221,7 @@ int radio::getBasebandVersionResponse(android::Parcel &p, int slotId, int reques
     RLOGD("radio::getBasebandVersionResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->getBasebandVersionResponse(responseInfo,
@@ -3255,7 +3240,7 @@ int radio::separateConnectionResponse(android::Parcel &p, int slotId, int reques
     RLOGD("radio::separateConnectionResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->separateConnectionResponse(responseInfo);
@@ -3274,7 +3259,7 @@ int radio::setMuteResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::setMuteResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setMuteResponse(responseInfo);
@@ -3289,10 +3274,10 @@ int radio::setMuteResponse(android::Parcel &p, int slotId, int requestNumber,
 int radio::getMuteResponse(android::Parcel &p, int slotId, int requestNumber,
                           int responseType, int serial, RIL_Errno e, void *response,
                           size_t responseLen) {
-   RLOGD("radio::getMuteResponse: serial %d", serial);
+    RLOGD("radio::getMuteResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         bool enable = false;
         int serviceClass;
@@ -3319,7 +3304,7 @@ int radio::getClipResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::getClipResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->getClipResponse(responseInfo,
                 (ClipStatus) ret);
@@ -3334,10 +3319,10 @@ int radio::getClipResponse(android::Parcel &p, int slotId, int requestNumber,
 int radio::sendOemRilRequestStringsResponse(android::Parcel &p, int slotId, int requestNumber,
                                            int responseType, int serial, RIL_Errno e,
                                            void *response, size_t responseLen) {
-   RLOGD("radio::sendOemRilRequestStringsResponse: serial %d", serial);
+    RLOGD("radio::sendOemRilRequestStringsResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<hidl_string> data;
 
@@ -3370,7 +3355,7 @@ int radio::sendScreenStateResponse(android::Parcel &p, int slotId, int requestNu
     RLOGD("radio::sendScreenStateResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->sendScreenStateResponse(responseInfo);
@@ -3388,7 +3373,7 @@ int radio::setSuppServiceNotificationsResponse(android::Parcel &p, int slotId, i
     RLOGD("radio::setSuppServiceNotificationsResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setSuppServiceNotificationsResponse(
@@ -3408,7 +3393,7 @@ int radio::deleteSmsOnSimResponse(android::Parcel &p, int slotId, int requestNum
     RLOGD("radio::deleteSmsOnSimResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->deleteSmsOnSimResponse(responseInfo);
@@ -3426,7 +3411,7 @@ int radio::setBandModeResponse(android::Parcel &p, int slotId, int requestNumber
     RLOGD("radio::setBandModeResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setBandModeResponse(responseInfo);
@@ -3444,7 +3429,7 @@ int radio::writeSmsToSimResponse(android::Parcel &p, int slotId, int requestNumb
     RLOGD("radio::writeSmsToSimResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->writeSmsToSimResponse(responseInfo, ret);
@@ -3459,10 +3444,10 @@ int radio::writeSmsToSimResponse(android::Parcel &p, int slotId, int requestNumb
 int radio::getAvailableBandModesResponse(android::Parcel &p, int slotId, int requestNumber,
                                         int responseType, int serial, RIL_Errno e, void *response,
                                         size_t responseLen) {
-   RLOGD("radio::getAvailableBandModesResponse: serial %d", serial);
+    RLOGD("radio::getAvailableBandModesResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<RadioBandMode> modes;
         if (response == NULL || responseLen % sizeof(int) != 0) {
@@ -3494,7 +3479,7 @@ int radio::sendEnvelopeResponse(android::Parcel &p, int slotId, int requestNumbe
     RLOGD("radio::sendEnvelopeResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->sendEnvelopeResponse(responseInfo,
@@ -3513,7 +3498,7 @@ int radio::sendTerminalResponseToSimResponse(android::Parcel &p, int slotId, int
     RLOGD("radio::sendTerminalResponseToSimResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->sendTerminalResponseToSimResponse(
@@ -3534,7 +3519,7 @@ int radio::handleStkCallSetupRequestFromSimResponse(android::Parcel &p, int slot
     RLOGD("radio::handleStkCallSetupRequestFromSimResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->handleStkCallSetupRequestFromSimResponse(
@@ -3554,7 +3539,7 @@ int radio::explicitCallTransferResponse(android::Parcel &p, int slotId, int requ
     RLOGD("radio::explicitCallTransferResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->explicitCallTransferResponse(responseInfo);
@@ -3573,7 +3558,7 @@ int radio::setPreferredNetworkTypeResponse(android::Parcel &p, int slotId, int r
     RLOGD("radio::setPreferredNetworkTypeResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setPreferredNetworkTypeResponse(
@@ -3594,7 +3579,7 @@ int radio::getPreferredNetworkTypeResponse(android::Parcel &p, int slotId, int r
     RLOGD("radio::getPreferredNetworkTypeResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->getPreferredNetworkTypeResponse(
@@ -3614,7 +3599,7 @@ int radio::getNeighboringCidsResponse(android::Parcel &p, int slotId, int reques
     RLOGD("radio::getNeighboringCidsResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<NeighboringCell> cells;
 
@@ -3649,7 +3634,7 @@ int radio::setLocationUpdatesResponse(android::Parcel &p, int slotId, int reques
     RLOGD("radio::setLocationUpdatesResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setLocationUpdatesResponse(responseInfo);
@@ -3668,7 +3653,7 @@ int radio::setCdmaSubscriptionSourceResponse(android::Parcel &p, int slotId, int
     RLOGD("radio::setCdmaSubscriptionSourceResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setCdmaSubscriptionSourceResponse(
@@ -3688,7 +3673,7 @@ int radio::setCdmaRoamingPreferenceResponse(android::Parcel &p, int slotId, int 
     RLOGD("radio::setCdmaRoamingPreferenceResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setCdmaRoamingPreferenceResponse(
@@ -3708,7 +3693,7 @@ int radio::getCdmaRoamingPreferenceResponse(android::Parcel &p, int slotId, int 
     RLOGD("radio::getCdmaRoamingPreferenceResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->getCdmaRoamingPreferenceResponse(
@@ -3728,7 +3713,7 @@ int radio::setTTYModeResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::setTTYModeResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setTTYModeResponse(responseInfo);
@@ -3746,7 +3731,7 @@ int radio::getTTYModeResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::getTTYModeResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->getTTYModeResponse(responseInfo,
@@ -3765,7 +3750,7 @@ int radio::setPreferredVoicePrivacyResponse(android::Parcel &p, int slotId, int 
     RLOGD("radio::setPreferredVoicePrivacyResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setPreferredVoicePrivacyResponse(
@@ -3782,10 +3767,10 @@ int radio::setPreferredVoicePrivacyResponse(android::Parcel &p, int slotId, int 
 int radio::getPreferredVoicePrivacyResponse(android::Parcel &p, int slotId, int requestNumber,
                                            int responseType, int serial, RIL_Errno e,
                                            void *response, size_t responseLen) {
-   RLOGD("radio::getPreferredVoicePrivacyResponse: serial %d", serial);
+    RLOGD("radio::getPreferredVoicePrivacyResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         bool enable = false;
         int numInts = responseLen / sizeof(int);
@@ -3814,7 +3799,7 @@ int radio::sendCDMAFeatureCodeResponse(android::Parcel &p, int slotId, int reque
     RLOGD("radio::sendCDMAFeatureCodeResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->sendCDMAFeatureCodeResponse(responseInfo);
@@ -3833,7 +3818,7 @@ int radio::sendBurstDtmfResponse(android::Parcel &p, int slotId, int requestNumb
     RLOGD("radio::sendBurstDtmfResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->sendBurstDtmfResponse(responseInfo);
@@ -3851,7 +3836,7 @@ int radio::sendCdmaSmsResponse(android::Parcel &p, int slotId, int requestNumber
     RLOGD("radio::sendCdmaSmsResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         SendSmsResult result = makeSendSmsResult(responseInfo, serial, responseType, e, response,
                 responseLen);
 
@@ -3871,7 +3856,7 @@ int radio::acknowledgeLastIncomingCdmaSmsResponse(android::Parcel &p, int slotId
     RLOGD("radio::acknowledgeLastIncomingCdmaSmsResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->acknowledgeLastIncomingCdmaSmsResponse(
@@ -3891,7 +3876,7 @@ int radio::getGsmBroadcastConfigResponse(android::Parcel &p, int slotId, int req
     RLOGD("radio::getGsmBroadcastConfigResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<GsmBroadcastSmsConfigInfo> configs;
 
@@ -3930,7 +3915,7 @@ int radio::setGsmBroadcastConfigResponse(android::Parcel &p, int slotId, int req
     RLOGD("radio::setGsmBroadcastConfigResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setGsmBroadcastConfigResponse(responseInfo);
@@ -3949,7 +3934,7 @@ int radio::setGsmBroadcastActivationResponse(android::Parcel &p, int slotId, int
     RLOGD("radio::setGsmBroadcastActivationResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setGsmBroadcastActivationResponse(
@@ -3969,7 +3954,7 @@ int radio::getCdmaBroadcastConfigResponse(android::Parcel &p, int slotId, int re
     RLOGD("radio::getCdmaBroadcastConfigResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<CdmaBroadcastSmsConfigInfo> configs;
 
@@ -4006,7 +3991,7 @@ int radio::setCdmaBroadcastConfigResponse(android::Parcel &p, int slotId, int re
     RLOGD("radio::setCdmaBroadcastConfigResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setCdmaBroadcastConfigResponse(
@@ -4026,7 +4011,7 @@ int radio::setCdmaBroadcastActivationResponse(android::Parcel &p, int slotId, in
     RLOGD("radio::setCdmaBroadcastActivationResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setCdmaBroadcastActivationResponse(
@@ -4043,10 +4028,10 @@ int radio::setCdmaBroadcastActivationResponse(android::Parcel &p, int slotId, in
 int radio::getCDMASubscriptionResponse(android::Parcel &p, int slotId, int requestNumber,
                                       int responseType, int serial, RIL_Errno e, void *response,
                                       size_t responseLen) {
-   RLOGD("radio::getCDMASubscriptionResponse: serial %d", serial);
+    RLOGD("radio::getCDMASubscriptionResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
 
         int numStrings = responseLen / sizeof(char *);
@@ -4084,7 +4069,7 @@ int radio::writeSmsToRuimResponse(android::Parcel &p, int slotId, int requestNum
     RLOGD("radio::writeSmsToRuimResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->writeSmsToRuimResponse(responseInfo, ret);
@@ -4102,7 +4087,7 @@ int radio::deleteSmsOnRuimResponse(android::Parcel &p, int slotId, int requestNu
     RLOGD("radio::deleteSmsOnRuimResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->deleteSmsOnRuimResponse(responseInfo);
@@ -4117,10 +4102,10 @@ int radio::deleteSmsOnRuimResponse(android::Parcel &p, int slotId, int requestNu
 int radio::getDeviceIdentityResponse(android::Parcel &p, int slotId, int requestNumber,
                                     int responseType, int serial, RIL_Errno e, void *response,
                                     size_t responseLen) {
-   RLOGD("radio::getDeviceIdentityResponse: serial %d", serial);
+    RLOGD("radio::getDeviceIdentityResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
 
         int numStrings = responseLen / sizeof(char *);
@@ -4156,7 +4141,7 @@ int radio::exitEmergencyCallbackModeResponse(android::Parcel &p, int slotId, int
     RLOGD("radio::exitEmergencyCallbackModeResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->exitEmergencyCallbackModeResponse(
@@ -4176,7 +4161,7 @@ int radio::getSmscAddressResponse(android::Parcel &p, int slotId, int requestNum
     RLOGD("radio::getSmscAddressResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->getSmscAddressResponse(responseInfo,
@@ -4195,7 +4180,7 @@ int radio::setSmscAddressResponse(android::Parcel &p, int slotId, int requestNum
     RLOGD("radio::setSmscAddressResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setSmscAddressResponse(responseInfo);
@@ -4213,7 +4198,7 @@ int radio::reportSmsMemoryStatusResponse(android::Parcel &p, int slotId, int req
     RLOGD("radio::reportSmsMemoryStatusResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->reportSmsMemoryStatusResponse(responseInfo);
@@ -4232,7 +4217,7 @@ int radio::getCdmaSubscriptionSourceResponse(android::Parcel &p, int slotId, int
     RLOGD("radio::getCdmaSubscriptionSourceResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->getCdmaSubscriptionSourceResponse(
@@ -4252,7 +4237,7 @@ int radio::requestIsimAuthenticationResponse(android::Parcel &p, int slotId, int
     RLOGD("radio::requestIsimAuthenticationResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->requestIsimAuthenticationResponse(
@@ -4274,7 +4259,7 @@ int radio::acknowledgeIncomingGsmSmsWithPduResponse(android::Parcel &p, int slot
     RLOGD("radio::acknowledgeIncomingGsmSmsWithPduResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->acknowledgeIncomingGsmSmsWithPduResponse(
@@ -4294,7 +4279,7 @@ int radio::sendEnvelopeWithStatusResponse(android::Parcel &p, int slotId, int re
     RLOGD("radio::sendEnvelopeWithStatusResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         IccIoResult result = responseIccIo(responseInfo, serial, responseType, e,
                 response, responseLen);
 
@@ -4316,7 +4301,7 @@ int radio::getVoiceRadioTechnologyResponse(android::Parcel &p, int slotId, int r
     RLOGD("radio::getVoiceRadioTechnologyResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->getVoiceRadioTechnologyResponse(
@@ -4337,7 +4322,7 @@ int radio::setCellInfoListRateResponse(android::Parcel &p, int slotId,
     RLOGD("radio::setCellInfoListRateResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setCellInfoListRateResponse(responseInfo);
@@ -4356,7 +4341,7 @@ int radio::setInitialAttachApnResponse(android::Parcel &p, int slotId, int reque
     RLOGD("radio::setInitialAttachApnResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setInitialAttachApnResponse(responseInfo);
@@ -4372,10 +4357,10 @@ int radio::setInitialAttachApnResponse(android::Parcel &p, int slotId, int reque
 int radio::getImsRegistrationStateResponse(android::Parcel &p, int slotId, int requestNumber,
                                            int responseType, int serial, RIL_Errno e,
                                            void *response, size_t responseLen) {
-   RLOGD("radio::getImsRegistrationStateResponse: serial %d", serial);
+    RLOGD("radio::getImsRegistrationStateResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         bool isRegistered = false;
         int ratFamily = 0;
@@ -4406,7 +4391,7 @@ int radio::sendImsSmsResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::sendImsSmsResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         SendSmsResult result = makeSendSmsResult(responseInfo, serial, responseType, e, response,
                 responseLen);
 
@@ -4426,7 +4411,7 @@ int radio::iccTransmitApduBasicChannelResponse(android::Parcel &p, int slotId, i
     RLOGD("radio::iccTransmitApduBasicChannelResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         IccIoResult result = responseIccIo(responseInfo, serial, responseType, e, response,
                 responseLen);
 
@@ -4448,7 +4433,7 @@ int radio::iccOpenLogicalChannelResponse(android::Parcel &p, int slotId, int req
     RLOGD("radio::iccOpenLogicalChannelResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         int channelId = -1;
         hidl_vec<int8_t> selectResponse;
@@ -4482,7 +4467,7 @@ int radio::iccCloseLogicalChannelResponse(android::Parcel &p, int slotId, int re
     RLOGD("radio::iccCloseLogicalChannelResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->iccCloseLogicalChannelResponse(
@@ -4502,7 +4487,7 @@ int radio::iccTransmitApduLogicalChannelResponse(android::Parcel &p, int slotId,
     RLOGD("radio::iccTransmitApduLogicalChannelResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         IccIoResult result = responseIccIo(responseInfo, serial, responseType, e, response,
                 responseLen);
 
@@ -4524,7 +4509,7 @@ int radio::nvReadItemResponse(android::Parcel &p, int slotId, int requestNumber,
     RLOGD("radio::nvReadItemResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->nvReadItemResponse(
                 responseInfo,
@@ -4543,7 +4528,7 @@ int radio::nvWriteItemResponse(android::Parcel &p, int slotId, int requestNumber
     RLOGD("radio::nvWriteItemResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->nvWriteItemResponse(responseInfo);
@@ -4561,7 +4546,7 @@ int radio::nvWriteCdmaPrlResponse(android::Parcel &p, int slotId, int requestNum
     RLOGD("radio::nvWriteCdmaPrlResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->nvWriteCdmaPrlResponse(responseInfo);
@@ -4579,7 +4564,7 @@ int radio::nvResetConfigResponse(android::Parcel &p, int slotId, int requestNumb
     RLOGD("radio::nvResetConfigResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->nvResetConfigResponse(responseInfo);
@@ -4597,7 +4582,7 @@ int radio::setUiccSubscriptionResponse(android::Parcel &p, int slotId, int reque
     RLOGD("radio::setUiccSubscriptionResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setUiccSubscriptionResponse(responseInfo);
@@ -4616,7 +4601,7 @@ int radio::setDataAllowedResponse(android::Parcel &p, int slotId, int requestNum
     RLOGD("radio::setDataAllowedResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setDataAllowedResponse(responseInfo);
@@ -4634,7 +4619,7 @@ int radio::requestIccSimAuthenticationResponse(android::Parcel &p, int slotId, i
     RLOGD("radio::requestIccSimAuthenticationResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         IccIoResult result = responseIccIo(responseInfo, serial, responseType, e, response,
                 responseLen);
 
@@ -4656,7 +4641,7 @@ int radio::setDataProfileResponse(android::Parcel &p, int slotId, int requestNum
     RLOGD("radio::setDataProfileResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setDataProfileResponse(responseInfo);
@@ -4674,7 +4659,7 @@ int radio::requestShutdownResponse(android::Parcel &p, int slotId, int requestNu
     RLOGD("radio::requestShutdownResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->requestShutdownResponse(responseInfo);
@@ -4689,12 +4674,11 @@ int radio::requestShutdownResponse(android::Parcel &p, int slotId, int requestNu
 LceStatusInfo responseLceStatusInfo(RadioResponseInfo& responseInfo, int serial, int responseType,
                                     RIL_Errno e, void *response, size_t responseLen) {
     populateResponseInfo(responseInfo, serial, responseType, e);
-    LceStatusInfo result;
+    LceStatusInfo result = {};
 
     if (response == NULL || responseLen != sizeof(RIL_LceStatusInfo)) {
         RLOGE("Invalid response: NULL");
         if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
-        memset(&result, 0, sizeof(result));
     } else {
         RIL_LceStatusInfo *resp = (RIL_LceStatusInfo *) response;
         result.lceStatus = (LceStatus) resp->lce_status;
@@ -4709,7 +4693,7 @@ int radio::startLceServiceResponse(android::Parcel &p, int slotId, int requestNu
     RLOGD("radio::startLceServiceResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         LceStatusInfo result = responseLceStatusInfo(responseInfo, serial, responseType, e,
                 response, responseLen);
 
@@ -4730,7 +4714,7 @@ int radio::stopLceServiceResponse(android::Parcel &p, int slotId, int requestNum
     RLOGD("radio::stopLceServiceResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         LceStatusInfo result = responseLceStatusInfo(responseInfo, serial, responseType, e,
                 response, responseLen);
 
@@ -4751,13 +4735,12 @@ int radio::getModemActivityInfoResponse(android::Parcel &p, int slotId, int requ
     RLOGD("radio::getModemActivityInfoResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         ActivityStatsInfo info;
         if (response == NULL || responseLen != sizeof(RIL_ActivityStatsInfo)) {
             RLOGE("radio::getModemActivityInfoResponse Invalid response: NULL");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
-            memset(&info, 0, sizeof(info));
         } else {
             RIL_ActivityStatsInfo *resp = (RIL_ActivityStatsInfo *)response;
             info.sleepModeTimeMs = resp->sleep_mode_time_ms;
@@ -4786,7 +4769,7 @@ int radio::setAllowedCarriersResponse(android::Parcel &p, int slotId, int reques
     RLOGD("radio::setAllowedCarriersResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setAllowedCarriersResponse(responseInfo,
@@ -4806,11 +4789,10 @@ int radio::getAllowedCarriersResponse(android::Parcel &p, int slotId, int reques
     RLOGD("radio::getAllowedCarriersResponse: serial %d", serial);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
-        RadioResponseInfo responseInfo;
+        RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
-        CarrierRestrictions carrierInfo;
+        CarrierRestrictions carrierInfo = {};
         bool allAllowed = true;
-        memset(&carrierInfo, 0, sizeof(carrierInfo));
         if (response == NULL || responseLen != sizeof(RIL_CarrierRestrictions)) {
             RLOGE("radio::getAllowedCarriersResponse Invalid response: NULL");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
@@ -5111,7 +5093,7 @@ int radio::currentSignalStrengthInd(android::Parcel &p, int slotId, int requestN
             return 0;
         }
 
-        SignalStrength signalStrength;
+        SignalStrength signalStrength = {};
         convertRilSignalStrengthToHal(response, responseLen, signalStrength);
 
         RLOGD("radio::currentSignalStrengthInd");
@@ -5181,7 +5163,7 @@ int radio::suppSvcNotifyInd(android::Parcel &p, int slotId, int requestNumber, i
             return 0;
         }
 
-        SuppSvcNotification suppSvc;
+        SuppSvcNotification suppSvc = {};
         RIL_SuppSvcNotification *ssn = (RIL_SuppSvcNotification *) response;
         suppSvc.isMT = ssn->notificationType;
         suppSvc.code = ssn->code;
@@ -5296,7 +5278,7 @@ int radio::simRefreshInd(android::Parcel &p, int slotId, int requestNumber, int 
             return 0;
         }
 
-        SimRefreshResult refreshResult;
+        SimRefreshResult refreshResult = {};
         RIL_SimRefreshResponse_v7 *simRefreshResponse = ((RIL_SimRefreshResponse_v7 *) response);
         refreshResult.type =
                 (android::hardware::radio::V1_0::SimRefreshType) simRefreshResponse->result;
@@ -5326,7 +5308,7 @@ int radio::callRingInd(android::Parcel &p, int slotId, int requestNumber, int in
                        int token, RIL_Errno e, void *response, size_t responseLen) {
     if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
         bool isGsm;
-        CdmaSignalInfoRecord record;
+        CdmaSignalInfoRecord record = {};
         if (response == NULL || responseLen == 0) {
             isGsm = true;
         } else {
@@ -5372,7 +5354,7 @@ int radio::cdmaNewSmsInd(android::Parcel &p, int slotId, int requestNumber, int 
             return 0;
         }
 
-        CdmaSmsMessage msg;
+        CdmaSmsMessage msg = {};
         RIL_CDMA_SMS_Message *rilMsg = (RIL_CDMA_SMS_Message *) response;
         msg.teleserviceId = rilMsg->uTeleserviceID;
         msg.isServicePresent = rilMsg->bIsServicePresent;
@@ -5494,7 +5476,7 @@ int radio::cdmaCallWaitingInd(android::Parcel &p, int slotId, int requestNumber,
             return 0;
         }
 
-        CdmaCallWaiting callWaitingRecord;
+        CdmaCallWaiting callWaitingRecord = {};
         RIL_CDMA_CallWaiting_v6 *callWaitingRil = ((RIL_CDMA_CallWaiting_v6 *) response);
         callWaitingRecord.number = convertCharPtrToHidlString(callWaitingRil->number);
         callWaitingRecord.numberPresentation =
@@ -5546,7 +5528,7 @@ int radio::cdmaInfoRecInd(android::Parcel &p, int slotId, int requestNumber,
             return 0;
         }
 
-        CdmaInformationRecords records;
+        CdmaInformationRecords records = {};
         RIL_CDMA_InformationRecords *recordsRil = (RIL_CDMA_InformationRecords *) response;
 
         char* string8 = NULL;
@@ -6161,7 +6143,7 @@ int radio::radioCapabilityIndicationInd(android::Parcel &p, int slotId, int requ
             return 0;
         }
 
-        RadioCapability rc;
+        RadioCapability rc = {};
         convertRilRadioCapabilityToHal(response, responseLen, rc);
 
         RLOGD("radio::radioCapabilityIndicationInd");
@@ -6199,7 +6181,7 @@ int radio::onSupplementaryServiceIndicationInd(android::Parcel &p, int slotId, i
         }
 
         RIL_StkCcUnsolSsResponse *rilSsResponse = (RIL_StkCcUnsolSsResponse *) response;
-        StkCcUnsolSsResult ss;
+        StkCcUnsolSsResult ss = {};
         ss.serviceType = (SsServiceType) rilSsResponse->serviceType;
         ss.requestType = (SsRequestType) rilSsResponse->requestType;
         ss.teleserviceType = (SsTeleserviceType) rilSsResponse->teleserviceType;
@@ -6298,7 +6280,7 @@ int radio::lceDataInd(android::Parcel &p, int slotId, int requestNumber,
             return 0;
         }
 
-        LceDataInfo lce;
+        LceDataInfo lce = {};
         convertRilLceDataInfoToHal(response, responseLen, lce);
         RLOGD("radio::lceDataInd");
         Return<void> retStatus = radioService[slotId]->mRadioIndication->lceData(
@@ -6320,7 +6302,7 @@ int radio::pcoDataInd(android::Parcel &p, int slotId, int requestNumber,
             return 0;
         }
 
-        PcoDataInfo pco;
+        PcoDataInfo pco = {};
         RIL_PCO_Data *rilPcoData = (RIL_PCO_Data *)response;
         pco.cid = rilPcoData->cid;
         pco.bearerProto = convertCharPtrToHidlString(rilPcoData->bearer_proto);
