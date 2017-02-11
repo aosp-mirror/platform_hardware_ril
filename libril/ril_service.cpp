@@ -1455,7 +1455,7 @@ Return<void> RadioImpl::setGsmBroadcastConfig(int32_t serial,
 Return<void> RadioImpl::setGsmBroadcastActivation(int32_t serial, bool activate) {
     RLOGD("RadioImpl::setGsmBroadcastActivation: serial %d", serial);
     dispatchInts(serial, mSlotId, RIL_REQUEST_GSM_SMS_BROADCAST_ACTIVATION,
-            1, BOOL_TO_INT(activate));
+            1, BOOL_TO_INT(!activate));
     return Void();
 }
 
@@ -1494,7 +1494,7 @@ Return<void> RadioImpl::setCdmaBroadcastConfig(int32_t serial,
 Return<void> RadioImpl::setCdmaBroadcastActivation(int32_t serial, bool activate) {
     RLOGD("RadioImpl::setCdmaBroadcastActivation: serial %d", serial);
     dispatchInts(serial, mSlotId, RIL_REQUEST_CDMA_SMS_BROADCAST_ACTIVATION,
-            1, BOOL_TO_INT(activate));
+            1, BOOL_TO_INT(!activate));
     return Void();
 }
 
