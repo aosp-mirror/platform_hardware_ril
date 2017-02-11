@@ -158,6 +158,8 @@ void SapImpl::sendFailedResponse(MsgId msgId, int32_t token, int numPointers, ..
         case MsgId_RIL_SIM_SAP_SET_TRANSFER_PROTOCOL:
             sapCallback->transferProtocolResponse(token, SapResultCode::NOT_SUPPORTED);
             return;
+        default:
+            return;
     }
 }
 
@@ -672,8 +674,9 @@ SapResultCode convertApduResponseProtoToHal(RIL_SIM_SAP_APDU_RSP_Response respon
             return SapResultCode::CARD_ALREADY_POWERED_OFF;
         case RIL_SIM_SAP_APDU_RSP_Response_RIL_E_SIM_ABSENT:
             return SapResultCode::CARD_REMOVED;
+        default:
+            return SapResultCode::GENERIC_FAILURE;
     }
-    return SapResultCode::GENERIC_FAILURE;
 }
 
 SapResultCode convertTransferAtrResponseProtoToHal(
@@ -689,8 +692,9 @@ SapResultCode convertTransferAtrResponseProtoToHal(
             return SapResultCode::CARD_REMOVED;
         case RIL_SIM_SAP_TRANSFER_ATR_RSP_Response_RIL_E_SIM_DATA_NOT_AVAILABLE:
             return SapResultCode::DATA_NOT_AVAILABLE;
+        default:
+            return SapResultCode::GENERIC_FAILURE;
     }
-    return SapResultCode::GENERIC_FAILURE;
 }
 
 SapResultCode convertPowerResponseProtoToHal(RIL_SIM_SAP_POWER_RSP_Response responseProto) {
@@ -705,8 +709,9 @@ SapResultCode convertPowerResponseProtoToHal(RIL_SIM_SAP_POWER_RSP_Response resp
             return SapResultCode::CARD_ALREADY_POWERED_OFF;
         case RIL_SIM_SAP_POWER_RSP_Response_RIL_E_SIM_ALREADY_POWERED_ON:
             return SapResultCode::CARD_ALREADY_POWERED_ON;
+        default:
+            return SapResultCode::GENERIC_FAILURE;
     }
-    return SapResultCode::GENERIC_FAILURE;
 }
 
 SapResultCode convertResetSimResponseProtoToHal(RIL_SIM_SAP_RESET_SIM_RSP_Response responseProto) {
@@ -890,7 +895,7 @@ void sap::processUnsolResponse(MsgHeader *rsp, RilSapSocket *sapSocket) {
 void sap::registerService(RIL_RadioFunctions *callbacks) {
     using namespace android::hardware;
     int simCount = 1;
-    char *serviceNames[] = {
+    const char *serviceNames[] = {
         "sap_uim_socket1"
         #if (SIM_COUNT >= 2)
         , "sap_uim_socket2"
