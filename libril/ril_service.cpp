@@ -4871,7 +4871,7 @@ void responseRadioCapability(RadioResponseInfo& responseInfo, int serial,
         int responseType, RIL_Errno e, void *response, size_t responseLen, RadioCapability& rc) {
     populateResponseInfo(responseInfo, serial, responseType, e);
 
-    if (response == NULL || responseLen != sizeof(RadioCapability)) {
+    if (response == NULL || responseLen != sizeof(RIL_RadioCapability)) {
         RLOGE("responseRadioCapability: Invalid response");
         if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         rc.logicalModemUuid = hidl_string();
