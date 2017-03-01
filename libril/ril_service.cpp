@@ -3084,7 +3084,7 @@ int radio::setupDataCallResponse(android::Parcel &p, int slotId, int requestNumb
         if (response == NULL || responseLen != sizeof(RIL_Data_Call_Response_v11)) {
             RLOGE("radio::setupDataCallResponse: Invalid response");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
-            result.status = 0xFFFF;     // DcFailCause.ERROR_UNSPECIFIED
+            result.status = DataCallFailCause::ERROR_UNSPECIFIED;
             result.type = hidl_string();
             result.ifname = hidl_string();
             result.addresses = hidl_string();
@@ -5728,7 +5728,7 @@ int radio::currentSignalStrengthInd(android::Parcel &p, int slotId, int requestN
 
 void convertRilDataCallToHal(RIL_Data_Call_Response_v11 *dcResponse,
         SetupDataCallResult& dcResult) {
-    dcResult.status = dcResponse->status;
+    dcResult.status = (DataCallFailCause) dcResponse->status;
     dcResult.suggestedRetryTime = dcResponse->suggestedRetryTime;
     dcResult.cid = dcResponse->cid;
     dcResult.active = dcResponse->active;
