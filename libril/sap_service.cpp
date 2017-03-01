@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#define LOG_TAG "RIL_SAP"
+
 #include <android/hardware/radio/1.0/ISap.h>
 
 #include <hwbinder/IPCThreadState.h>

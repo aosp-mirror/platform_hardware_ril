@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#define LOG_TAG "RILC"
+
 #include <android/hardware/radio/1.0/IRadio.h>
 #include <android/hardware/radio/deprecated/1.0/IOemHook.h>
 
