@@ -2288,7 +2288,7 @@ Return<void> RadioImpl::setAllowedCarriers(int32_t serial, bool allAllowed,
         allowedCarriers[i].match_data = (const char *) carriers.allowedCarriers[i].matchData;
     }
 
-    for (int i = 0; i < cr.len_allowed_carriers; i++) {
+    for (int i = 0; i < cr.len_excluded_carriers; i++) {
         excludedCarriers[i].mcc = (const char *) carriers.excludedCarriers[i].mcc;
         excludedCarriers[i].mnc = (const char *) carriers.excludedCarriers[i].mnc;
         excludedCarriers[i].match_type =
