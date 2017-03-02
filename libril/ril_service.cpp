@@ -246,8 +246,6 @@ struct RadioImpl : public IRadio {
 
     Return<void> getDataCallList(int32_t serial);
 
-    Return<void> sendScreenState(int32_t serial, bool enable);
-
     Return<void> setSuppServiceNotifications(int32_t serial, bool enable);
 
     Return<void> writeSmsToSim(int32_t serial,
@@ -1247,13 +1245,6 @@ Return<void> RadioImpl::getClip(int32_t serial) {
 Return<void> RadioImpl::getDataCallList(int32_t serial) {
     RLOGD("RadioImpl::getDataCallList: serial %d", serial);
     dispatchVoid(serial, mSlotId, RIL_REQUEST_DATA_CALL_LIST);
-    return Void();
-}
-
-Return<void> RadioImpl::sendScreenState(int32_t serial, bool enable) {
-    // TODO: Completely remove this from HIDL intreface
-    RequestInfo *pRI = android::addRequestToList(serial, mSlotId, RIL_REQUEST_SCREEN_STATE);
-    sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
     return Void();
 }
 
