@@ -3852,15 +3852,15 @@ int radio::getAvailableNetworksResponse(android::Parcel &p, int slotId, int requ
             char **resp = (char **) response;
             int numStrings = responseLen / sizeof(char *);
             networks.resize(numStrings/4);
-            for (int i = 0; i < numStrings; i = i + 4) {
-                networks[i].alphaLong = convertCharPtrToHidlString(resp[i]);
-                networks[i].alphaShort = convertCharPtrToHidlString(resp[i + 1]);
-                networks[i].operatorNumeric = convertCharPtrToHidlString(resp[i + 2]);
+            for (int i = 0, j = 0; i < numStrings; i = i + 4, j++) {
+                networks[j].alphaLong = convertCharPtrToHidlString(resp[i]);
+                networks[j].alphaShort = convertCharPtrToHidlString(resp[i + 1]);
+                networks[j].operatorNumeric = convertCharPtrToHidlString(resp[i + 2]);
                 int status = convertOperatorStatusToInt(resp[i + 3]);
                 if (status == -1) {
                     if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
                 } else {
-                    networks[i].status = (OperatorStatus) status;
+                    networks[j].status = (OperatorStatus) status;
                 }
             }
         }
