@@ -4443,9 +4443,7 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
 {
     int unsolResponseIndex;
     int ret;
-    int64_t timeReceived = 0;
     bool shouldScheduleTimeout = false;
-    RIL_RadioState newState;
     RIL_SOCKET_ID soc_id = RIL_SOCKET_1;
 
 #if defined(ANDROID_MULTI_SIM)
@@ -4505,14 +4503,6 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
     rwlockRet = pthread_rwlock_unlock(radioServiceRwlockPtr);
     assert(rwlockRet == 0);
 
-    // some things get more payload
-    switch(unsolResponse) {
-        case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED:
-            newState = CALL_ONSTATEREQUEST(soc_id);
-            appendPrintBuf("%s {%s}", printBuf, radioStateToString(newState));
-            break;
-    }
-
     if (s_callbacks.version < 13) {
         if (shouldScheduleTimeout) {
             UserCallbackInfo *p_info = internalRequestTimedCallback(wakeTimeoutCallback, NULL,
@@ -4534,18 +4524,6 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
     RLOGI("%s UNSOLICITED: %s length:%d", rilSocketIdToString(soc_id),
             requestToString(unsolResponse), p.dataSize());
 #endif
-
-    switch (unsolResponse) {
-        case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED:
-            rwlockRet = pthread_rwlock_rdlock(radioServiceRwlockPtr);
-            assert(rwlockRet == 0);
-
-            radio::radioStateChangedInd(soc_id, responseType, newState);
-
-            rwlockRet = pthread_rwlock_unlock(radioServiceRwlockPtr);
-            assert(rwlockRet == 0);
-            break;
-    }
 
     if (ret != 0 && unsolResponse == RIL_UNSOL_NITZ_TIME_RECEIVED) {
         // Unfortunately, NITZ time is not poll/update like everything
