@@ -3064,6 +3064,14 @@ void fillCellIdentityFromVoiceRegStateResponseString(CellIdentity &cellIdentity,
             break;
         }
 
+        case RIL_CELL_INFO_TYPE_LTE:{
+            rilCellIdentity.cellIdentityLte.tac =
+                    convertResponseStringEntryToInt(response, 1, numStrings);
+            rilCellIdentity.cellIdentityLte.ci =
+                    convertResponseStringEntryToInt(response, 2, numStrings);
+            break;
+        }
+
         default: {
             break;
         }
