@@ -3014,7 +3014,7 @@ void fillCellIdentityFromVoiceRegStateResponseString(CellIdentity &cellIdentity,
     RIL_CellIdentity_v16 rilCellIdentity;
     int32_t *tmp = (int32_t*)&rilCellIdentity;
 
-    for (int i = 0; i < sizeof(RIL_CellIdentity_v16)/sizeof(int32_t); i++) {
+    for (size_t i = 0; i < sizeof(RIL_CellIdentity_v16)/sizeof(int32_t); i++) {
         tmp[i] = -1;
     }
 
@@ -3075,7 +3075,7 @@ void fillCellIdentityFromDataRegStateResponseString(CellIdentity &cellIdentity,
     RIL_CellIdentity_v16 rilCellIdentity;
     int32_t *tmp = (int32_t*)&rilCellIdentity;
 
-    for (int i = 0; i < sizeof(RIL_CellIdentity_v16)/sizeof(int32_t); i++) {
+    for (size_t i = 0; i < sizeof(RIL_CellIdentity_v16)/sizeof(int32_t); i++) {
         tmp[i] = -1;
     }
 
