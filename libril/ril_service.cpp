@@ -3607,8 +3607,8 @@ int radio::getCallWaitingResponse(android::Parcel &p, int slotId, int requestNum
             enable = pInt[0] == 1 ? true : false;
             serviceClass = pInt[1];
         }
-        Return<void> retStatus = radioService[slotId]->mRadioResponse->getClirResponse(responseInfo,
-                enable, serviceClass);
+        Return<void> retStatus = radioService[slotId]->mRadioResponse->getCallWaitingResponse(
+                responseInfo, enable, serviceClass);
         radioService[slotId]->checkReturnStatus(retStatus);
     } else {
         RLOGE("radio::getCallWaitingResponse: radioService[%d]->mRadioResponse == NULL", slotId);
