@@ -26,7 +26,6 @@
 
 using namespace android::hardware::radio::V1_0;
 using ::android::hardware::Return;
-using ::android::hardware::Status;
 using ::android::hardware::hidl_vec;
 using ::android::hardware::hidl_array;
 using ::android::hardware::Void;
@@ -88,7 +87,7 @@ void SapImpl::checkReturnStatus(Return<void>& ret) {
 Return<void> SapImpl::setCallback(const ::android::sp<ISapCallback>& sapCallbackParam) {
     RLOGD("SapImpl::setCallback for slotId %d", slotId);
     sapCallback = sapCallbackParam;
-    return Status::ok();
+    return Void();
 }
 
 MsgHeader* SapImpl::createMsgHeader(MsgId msgId, int32_t token) {
@@ -109,7 +108,7 @@ Return<void> SapImpl::addPayloadAndDispatchRequest(MsgHeader *msg, uint16_t reqL
     msg->payload = (pb_bytes_array_t *)malloc(sizeof(pb_bytes_array_t) - 1 + reqLen);
     if (msg->payload == NULL) {
         sendFailedResponse(msg->id, msg->token, 2, reqPtr, msg);
-        return Status::fromExceptionCode(Status::Exception::EX_NULL_POINTER);
+        return Void();
     }
     msg->payload->size = reqLen;
     memcpy(msg->payload->bytes, reqPtr, reqLen);
@@ -121,11 +120,11 @@ Return<void> SapImpl::addPayloadAndDispatchRequest(MsgHeader *msg, uint16_t reqL
     } else {
         RLOGE("SapImpl::addPayloadAndDispatchRequest: sapSocket is null");
         sendFailedResponse(msg->id, msg->token, 3, msg->payload, reqPtr, msg);
-        return Status::fromExceptionCode(Status::Exception::EX_NULL_POINTER);
+        return Void();
     }
     free(msg->payload);
     free(reqPtr);
-    return Status::ok();
+    return Void();
 }
 
 void SapImpl::sendFailedResponse(MsgId msgId, int32_t token, int numPointers, ...) {
@@ -188,7 +187,7 @@ Return<void> SapImpl::connectReq(int32_t token, int32_t maxMsgSize) {
     if (msg == NULL) {
         RLOGE("SapImpl::connectReq: Error allocating memory for msg");
         sendFailedResponse(MsgId_RIL_SIM_SAP_CONNECT, token, 0);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     /***** Encode RIL_SIM_SAP_CONNECT_REQ *****/
@@ -200,14 +199,14 @@ Return<void> SapImpl::connectReq(int32_t token, int32_t maxMsgSize) {
     if (!pb_get_encoded_size(&encodedSize, RIL_SIM_SAP_CONNECT_REQ_fields, &req)) {
         RLOGE("SapImpl::connectReq: Error getting encoded size for RIL_SIM_SAP_CONNECT_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_CONNECT, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     uint8_t *buffer = (uint8_t *)calloc(1, encodedSize);
     if (buffer == NULL) {
         RLOGE("SapImpl::connectReq: Error allocating memory for buffer");
         sendFailedResponse(MsgId_RIL_SIM_SAP_CONNECT, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, encodedSize);
 
@@ -215,7 +214,7 @@ Return<void> SapImpl::connectReq(int32_t token, int32_t maxMsgSize) {
     if (!pb_encode(&stream, RIL_SIM_SAP_CONNECT_REQ_fields, &req)) {
         RLOGE("SapImpl::connectReq: Error encoding RIL_SIM_SAP_CONNECT_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_CONNECT, token, 2, buffer, msg);
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_ARGUMENT);
+        return Void();
     }
     /***** Encode RIL_SIM_SAP_CONNECT_REQ done *****/
 
@@ -229,7 +228,7 @@ Return<void> SapImpl::disconnectReq(int32_t token) {
     if (msg == NULL) {
         RLOGE("SapImpl::disconnectReq: Error allocating memory for msg");
         sendFailedResponse(MsgId_RIL_SIM_SAP_DISCONNECT, token, 0);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     /***** Encode RIL_SIM_SAP_DISCONNECT_REQ *****/
@@ -240,14 +239,14 @@ Return<void> SapImpl::disconnectReq(int32_t token) {
     if (!pb_get_encoded_size(&encodedSize, RIL_SIM_SAP_DISCONNECT_REQ_fields, &req)) {
         RLOGE("SapImpl::disconnectReq: Error getting encoded size for RIL_SIM_SAP_DISCONNECT_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_DISCONNECT, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     uint8_t *buffer = (uint8_t *)calloc(1, encodedSize);
     if (buffer == NULL) {
         RLOGE("SapImpl::disconnectReq: Error allocating memory for buffer");
         sendFailedResponse(MsgId_RIL_SIM_SAP_DISCONNECT, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, encodedSize);
@@ -256,7 +255,7 @@ Return<void> SapImpl::disconnectReq(int32_t token) {
     if (!pb_encode(&stream, RIL_SIM_SAP_DISCONNECT_REQ_fields, &req)) {
         RLOGE("SapImpl::disconnectReq: Error encoding RIL_SIM_SAP_DISCONNECT_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_DISCONNECT, token, 2, buffer, msg);
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_ARGUMENT);
+        return Void();
     }
     /***** Encode RIL_SIM_SAP_DISCONNECT_REQ done *****/
 
@@ -270,7 +269,7 @@ Return<void> SapImpl::apduReq(int32_t token, SapApduType type, const hidl_vec<ui
     if (msg == NULL) {
         RLOGE("SapImpl::apduReq: Error allocating memory for msg");
         sendFailedResponse(MsgId_RIL_SIM_SAP_APDU, token, 0);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     /***** Encode RIL_SIM_SAP_APDU_REQ *****/
@@ -283,7 +282,7 @@ Return<void> SapImpl::apduReq(int32_t token, SapApduType type, const hidl_vec<ui
         if (req.command == NULL) {
             RLOGE("SapImpl::apduReq: Error allocating memory for req.command");
             sendFailedResponse(MsgId_RIL_SIM_SAP_APDU, token, 1, msg);
-            return Status::fromStatusT(android::NO_MEMORY);
+            return Void();
         }
         req.command->size = command.size();
         memcpy(req.command->bytes, command.data(), command.size());
@@ -293,14 +292,14 @@ Return<void> SapImpl::apduReq(int32_t token, SapApduType type, const hidl_vec<ui
     if (!pb_get_encoded_size(&encodedSize, RIL_SIM_SAP_APDU_REQ_fields, &req)) {
         RLOGE("SapImpl::apduReq: Error getting encoded size for RIL_SIM_SAP_APDU_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_APDU, token, 2, req.command, msg);
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_ARGUMENT);
+        return Void();
     }
 
     uint8_t *buffer = (uint8_t *)calloc(1, encodedSize);
     if (buffer == NULL) {
         RLOGE("SapImpl::apduReq: Error allocating memory for buffer");
         sendFailedResponse(MsgId_RIL_SIM_SAP_APDU, token, 2, req.command, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, encodedSize);
@@ -309,7 +308,7 @@ Return<void> SapImpl::apduReq(int32_t token, SapApduType type, const hidl_vec<ui
     if (!pb_encode(&stream, RIL_SIM_SAP_APDU_REQ_fields, &req)) {
         RLOGE("SapImpl::apduReq: Error encoding RIL_SIM_SAP_APDU_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_APDU, token, 3, req.command, buffer, msg);
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_ARGUMENT);
+        return Void();
     }
     /***** Encode RIL_SIM_SAP_APDU_REQ done *****/
 
@@ -323,7 +322,7 @@ Return<void> SapImpl::transferAtrReq(int32_t token) {
     if (msg == NULL) {
         RLOGE("SapImpl::transferAtrReq: Error allocating memory for msg");
         sendFailedResponse(MsgId_RIL_SIM_SAP_TRANSFER_ATR, token, 0);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     /***** Encode RIL_SIM_SAP_TRANSFER_ATR_REQ *****/
@@ -335,14 +334,14 @@ Return<void> SapImpl::transferAtrReq(int32_t token) {
         RLOGE("SapImpl::transferAtrReq: Error getting encoded size for "
                 "RIL_SIM_SAP_TRANSFER_ATR_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_TRANSFER_ATR, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     uint8_t *buffer = (uint8_t *)calloc(1, encodedSize);
     if (buffer == NULL) {
         RLOGE("SapImpl::transferAtrReq: Error allocating memory for buffer");
         sendFailedResponse(MsgId_RIL_SIM_SAP_TRANSFER_ATR, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, encodedSize);
@@ -351,7 +350,7 @@ Return<void> SapImpl::transferAtrReq(int32_t token) {
     if (!pb_encode(&stream, RIL_SIM_SAP_TRANSFER_ATR_REQ_fields, &req)) {
         RLOGE("SapImpl::transferAtrReq: Error encoding RIL_SIM_SAP_TRANSFER_ATR_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_TRANSFER_ATR, token, 2, buffer, msg);
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_ARGUMENT);
+        return Void();
     }
     /***** Encode RIL_SIM_SAP_TRANSFER_ATR_REQ done *****/
 
@@ -365,7 +364,7 @@ Return<void> SapImpl::powerReq(int32_t token, bool state) {
     if (msg == NULL) {
         RLOGE("SapImpl::powerReq: Error allocating memory for msg");
         sendFailedResponse(MsgId_RIL_SIM_SAP_POWER, token, 0);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     /***** Encode RIL_SIM_SAP_POWER_REQ *****/
@@ -377,14 +376,14 @@ Return<void> SapImpl::powerReq(int32_t token, bool state) {
     if (!pb_get_encoded_size(&encodedSize, RIL_SIM_SAP_POWER_REQ_fields, &req)) {
         RLOGE("SapImpl::powerReq: Error getting encoded size for RIL_SIM_SAP_POWER_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_POWER, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     uint8_t *buffer = (uint8_t *)calloc(1, encodedSize);
     if (buffer == NULL) {
         RLOGE("SapImpl::powerReq: Error allocating memory for buffer");
         sendFailedResponse(MsgId_RIL_SIM_SAP_POWER, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, encodedSize);
@@ -393,7 +392,7 @@ Return<void> SapImpl::powerReq(int32_t token, bool state) {
     if (!pb_encode(&stream, RIL_SIM_SAP_POWER_REQ_fields, &req)) {
         RLOGE("SapImpl::powerReq: Error encoding RIL_SIM_SAP_POWER_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_POWER, token, 2, buffer, msg);
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_ARGUMENT);
+        return Void();
     }
     /***** Encode RIL_SIM_SAP_POWER_REQ done *****/
 
@@ -407,7 +406,7 @@ Return<void> SapImpl::resetSimReq(int32_t token) {
     if (msg == NULL) {
         RLOGE("SapImpl::resetSimReq: Error allocating memory for msg");
         sendFailedResponse(MsgId_RIL_SIM_SAP_RESET_SIM, token, 0);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     /***** Encode RIL_SIM_SAP_RESET_SIM_REQ *****/
@@ -418,14 +417,14 @@ Return<void> SapImpl::resetSimReq(int32_t token) {
     if (!pb_get_encoded_size(&encodedSize, RIL_SIM_SAP_RESET_SIM_REQ_fields, &req)) {
         RLOGE("SapImpl::resetSimReq: Error getting encoded size for RIL_SIM_SAP_RESET_SIM_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_RESET_SIM, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     uint8_t *buffer = (uint8_t *)calloc(1, encodedSize);
     if (buffer == NULL) {
         RLOGE("SapImpl::resetSimReq: Error allocating memory for buffer");
         sendFailedResponse(MsgId_RIL_SIM_SAP_RESET_SIM, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, encodedSize);
@@ -434,7 +433,7 @@ Return<void> SapImpl::resetSimReq(int32_t token) {
     if (!pb_encode(&stream, RIL_SIM_SAP_RESET_SIM_REQ_fields, &req)) {
         RLOGE("SapImpl::resetSimReq: Error encoding RIL_SIM_SAP_RESET_SIM_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_RESET_SIM, token, 2, buffer, msg);
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_ARGUMENT);
+        return Void();
     }
     /***** Encode RIL_SIM_SAP_RESET_SIM_REQ done *****/
 
@@ -448,7 +447,7 @@ Return<void> SapImpl::transferCardReaderStatusReq(int32_t token) {
     if (msg == NULL) {
         RLOGE("SapImpl::transferCardReaderStatusReq: Error allocating memory for msg");
         sendFailedResponse(MsgId_RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS, token, 0);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     /***** Encode RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS_REQ *****/
@@ -461,14 +460,14 @@ Return<void> SapImpl::transferCardReaderStatusReq(int32_t token) {
         RLOGE("SapImpl::transferCardReaderStatusReq: Error getting encoded size for "
                 "RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     uint8_t *buffer = (uint8_t *)calloc(1, encodedSize);
     if (buffer == NULL) {
         RLOGE("SapImpl::transferCardReaderStatusReq: Error allocating memory for buffer");
         sendFailedResponse(MsgId_RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, encodedSize);
@@ -478,7 +477,7 @@ Return<void> SapImpl::transferCardReaderStatusReq(int32_t token) {
         RLOGE("SapImpl::transferCardReaderStatusReq: Error encoding "
                 "RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS, token, 2, buffer, msg);
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_ARGUMENT);
+        return Void();
     }
     /***** Encode RIL_SIM_SAP_TRANSFER_CARD_READER_STATUS_REQ done *****/
 
@@ -492,7 +491,7 @@ Return<void> SapImpl::setTransferProtocolReq(int32_t token, SapTransferProtocol 
     if (msg == NULL) {
         RLOGE("SapImpl::setTransferProtocolReq: Error allocating memory for msg");
         sendFailedResponse(MsgId_RIL_SIM_SAP_SET_TRANSFER_PROTOCOL, token, 0);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     /***** Encode RIL_SIM_SAP_SET_TRANSFER_PROTOCOL_REQ *****/
@@ -505,14 +504,14 @@ Return<void> SapImpl::setTransferProtocolReq(int32_t token, SapTransferProtocol 
         RLOGE("SapImpl::setTransferProtocolReq: Error getting encoded size for "
                 "RIL_SIM_SAP_SET_TRANSFER_PROTOCOL_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_SET_TRANSFER_PROTOCOL, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     uint8_t *buffer = (uint8_t *)calloc(1, encodedSize);
     if (buffer == NULL) {
         RLOGE("SapImpl::setTransferProtocolReq: Error allocating memory for buffer");
         sendFailedResponse(MsgId_RIL_SIM_SAP_SET_TRANSFER_PROTOCOL, token, 1, msg);
-        return Status::fromStatusT(android::NO_MEMORY);
+        return Void();
     }
 
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, encodedSize);
@@ -522,7 +521,7 @@ Return<void> SapImpl::setTransferProtocolReq(int32_t token, SapTransferProtocol 
         RLOGE("SapImpl::setTransferProtocolReq: Error encoding "
                 "RIL_SIM_SAP_SET_TRANSFER_PROTOCOL_REQ");
         sendFailedResponse(MsgId_RIL_SIM_SAP_SET_TRANSFER_PROTOCOL, token, 2, buffer, msg);
-        return Status::fromExceptionCode(Status::Exception::EX_ILLEGAL_ARGUMENT);
+        return Void();
     }
     /***** Encode RIL_SIM_SAP_SET_TRANSFER_PROTOCOL_REQ done *****/
 
