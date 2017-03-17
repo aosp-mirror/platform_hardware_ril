@@ -33,7 +33,6 @@ using namespace android::hardware::radio::deprecated::V1_0;
 using ::android::hardware::configureRpcThreadpool;
 using ::android::hardware::joinRpcThreadpool;
 using ::android::hardware::Return;
-using ::android::hardware::Status;
 using ::android::hardware::hidl_string;
 using ::android::hardware::hidl_vec;
 using ::android::hardware::hidl_array;
