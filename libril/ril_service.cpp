@@ -2413,6 +2413,25 @@ void populateResponseInfo(RadioResponseInfo& responseInfo, int serial, int respo
     responseInfo.error = (RadioError) e;
 }
 
+int responseIntOrEmpty(RadioResponseInfo& responseInfo, int serial, int responseType, RIL_Errno e,
+               void *response, size_t responseLen) {
+    populateResponseInfo(responseInfo, serial, responseType, e);
+    int ret = -1;
+
+    if (response == NULL && responseLen == 0) {
+        // Earlier RILs did not send a response for some cases although the interface
+        // expected an integer as response. Do not return error if response is empty. Instead
+        // Return -1 in those cases to maintain backward compatibility.
+    } else if (response == NULL || responseLen != sizeof(int)) {
+        RLOGE("responseIntOrEmpty: Invalid response");
+        if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
+    } else {
+        int *p_int = (int *) response;
+        ret = p_int[0];
+    }
+    return ret;
+}
+
 int responseInt(RadioResponseInfo& responseInfo, int serial, int responseType, RIL_Errno e,
                void *response, size_t responseLen) {
     populateResponseInfo(responseInfo, serial, responseType, e);
@@ -2480,7 +2499,7 @@ int radio::supplyIccPinForAppResponse(int slotId,
 
     if (radioService[slotId]->mRadioResponse != NULL) {
         RadioResponseInfo responseInfo = {};
-        int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
+        int ret = responseIntOrEmpty(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 supplyIccPinForAppResponse(responseInfo, ret);
         radioService[slotId]->checkReturnStatus(retStatus);
@@ -2499,7 +2518,7 @@ int radio::supplyIccPukForAppResponse(int slotId,
 
     if (radioService[slotId]->mRadioResponse != NULL) {
         RadioResponseInfo responseInfo = {};
-        int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
+        int ret = responseIntOrEmpty(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->supplyIccPukForAppResponse(
                 responseInfo, ret);
         radioService[slotId]->checkReturnStatus(retStatus);
@@ -2518,7 +2537,7 @@ int radio::supplyIccPin2ForAppResponse(int slotId,
 
     if (radioService[slotId]->mRadioResponse != NULL) {
         RadioResponseInfo responseInfo = {};
-        int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
+        int ret = responseIntOrEmpty(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 supplyIccPin2ForAppResponse(responseInfo, ret);
         radioService[slotId]->checkReturnStatus(retStatus);
@@ -2537,7 +2556,7 @@ int radio::supplyIccPuk2ForAppResponse(int slotId,
 
     if (radioService[slotId]->mRadioResponse != NULL) {
         RadioResponseInfo responseInfo = {};
-        int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
+        int ret = responseIntOrEmpty(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 supplyIccPuk2ForAppResponse(responseInfo, ret);
         radioService[slotId]->checkReturnStatus(retStatus);
@@ -2556,7 +2575,7 @@ int radio::changeIccPinForAppResponse(int slotId,
 
     if (radioService[slotId]->mRadioResponse != NULL) {
         RadioResponseInfo responseInfo = {};
-        int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
+        int ret = responseIntOrEmpty(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 changeIccPinForAppResponse(responseInfo, ret);
         radioService[slotId]->checkReturnStatus(retStatus);
@@ -2575,7 +2594,7 @@ int radio::changeIccPin2ForAppResponse(int slotId,
 
     if (radioService[slotId]->mRadioResponse != NULL) {
         RadioResponseInfo responseInfo = {};
-        int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
+        int ret = responseIntOrEmpty(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 changeIccPin2ForAppResponse(responseInfo, ret);
         radioService[slotId]->checkReturnStatus(retStatus);
@@ -2594,7 +2613,7 @@ int radio::supplyNetworkDepersonalizationResponse(int slotId,
 
     if (radioService[slotId]->mRadioResponse != NULL) {
         RadioResponseInfo responseInfo = {};
-        int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
+        int ret = responseIntOrEmpty(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus = radioService[slotId]->mRadioResponse->
                 supplyNetworkDepersonalizationResponse(responseInfo, ret);
         radioService[slotId]->checkReturnStatus(retStatus);
@@ -3719,7 +3738,7 @@ int radio::setFacilityLockForAppResponse(int slotId,
 
     if (radioService[slotId]->mRadioResponse != NULL) {
         RadioResponseInfo responseInfo = {};
-        int ret = responseInt(responseInfo, serial, responseType, e, response, responseLen);
+        int ret = responseIntOrEmpty(responseInfo, serial, responseType, e, response, responseLen);
         Return<void> retStatus
                 = radioService[slotId]->mRadioResponse->setFacilityLockForAppResponse(responseInfo,
                 ret);
