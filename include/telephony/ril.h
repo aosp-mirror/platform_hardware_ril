@@ -2072,7 +2072,6 @@ typedef enum {
  *
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *  PASSWORD_INCORRECT
  *     (PUK is invalid)
  */
@@ -2096,7 +2095,6 @@ typedef enum {
  *
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *  PASSWORD_INCORRECT
  */
 
@@ -2119,7 +2117,6 @@ typedef enum {
  *
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *  PASSWORD_INCORRECT
  *     (PUK2 is invalid)
  */
@@ -2143,7 +2140,6 @@ typedef enum {
  *
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *  PASSWORD_INCORRECT
  *     (old PIN is invalid)
  *
@@ -2169,7 +2165,6 @@ typedef enum {
  *
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *  PASSWORD_INCORRECT
  *     (old PIN2 is invalid)
  *
@@ -2192,7 +2187,6 @@ typedef enum {
  *
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *  PASSWORD_INCORRECT
  *     (code is invalid)
  */
@@ -2213,7 +2207,6 @@ typedef enum {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
  *  NO_MEMORY
- *  GENERIC_FAILURE
  *      (request will be made again in a few hundred msec)
  */
 
@@ -2249,7 +2242,6 @@ typedef enum {
  *  DEVICE_IN_USE
  *  MODE_NOT_SUPPORTED
  *  ABORTED
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_DIAL 10
 
@@ -2267,7 +2259,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_GET_IMSI 11
@@ -2296,7 +2287,6 @@ typedef enum {
  *  NO_MEMORY
  *  INVALID_CALL_ID
  *  INVALID_ARGUMENTS
- *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_HANGUP 12
@@ -2324,7 +2314,6 @@ typedef enum {
  *  NO_RESOURCES
  *  OPERATION_NOT_ALLOWED
  *  INVALID_ARGUMENTS
- *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_HANGUP_WAITING_OR_BACKGROUND 13
@@ -2351,7 +2340,6 @@ typedef enum {
  *  OPERATION_NOT_ALLOWED
  *  INVALID_ARGUMENTS
  *  NO_RESOURCES
- *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_HANGUP_FOREGROUND_RESUME_BACKGROUND 14
@@ -2387,7 +2375,6 @@ typedef enum {
  *  INVALID_ARGUMENTS
  *  INVALID_CALL_ID
  *  OPERATION_NOT_ALLOWED
- *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_SWITCH_WAITING_OR_HOLDING_AND_ACTIVE 15
@@ -2411,7 +2398,6 @@ typedef enum {
  *  INVALID_CALL_ID
  *  INVALID_ARGUMENTS
  *  OPERATION_NOT_ALLOWED
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_CONFERENCE 16
 
@@ -2435,7 +2421,6 @@ typedef enum {
  *  INVALID_CALL_ID
  *  OPERATION_NOT_ALLOWED
  *  INVALID_ARGUMENTS
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_UDUB 17
 
@@ -2485,7 +2470,6 @@ typedef enum {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  NO_MEMORY
- *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE
  */
@@ -2519,7 +2503,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_VOICE_REGISTRATION_STATE 20
 
@@ -2534,7 +2517,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_DATA_REGISTRATION_STATE 21
 
@@ -2556,7 +2538,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_OPERATOR 22
 
@@ -2582,7 +2563,6 @@ typedef enum {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  OPERATION_NOT_ALLOWED
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_RADIO_POWER 23
 
@@ -2610,7 +2590,6 @@ typedef enum {
  *  MODEM_ERR
  *  INTERNAL_ERR
  *  INVALID_CALL_ID
- *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_DTMF_STOP, RIL_REQUEST_DTMF_START
  *
@@ -2652,7 +2631,6 @@ typedef enum {
  *  MODEM_ERR
  *  NETWORK_ERR
  *  MODE_NOT_SUPPORTED
- *  GENERIC_FAILURE
  *
  * FIXME how do we specify TP-Message-Reference if we need to resend?
  */
@@ -2696,7 +2674,6 @@ typedef enum {
  *  ENCODING_ERR
  *  INVALID_SMSC_ADDRESS
  *  MODE_NOT_SUPPORTED
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_SEND_SMS_EXPECT_MORE 26
@@ -2800,7 +2777,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *  SIM_PIN2
  *  SIM_PUK2
  */
@@ -2841,7 +2817,6 @@ typedef enum {
  *  ABORTED
  *  SYSTEM_ERR
  *  INVALID_STATE
- *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_CANCEL_USSD, RIL_UNSOL_ON_USSD
  */
@@ -2865,7 +2840,6 @@ typedef enum {
  *  INTERNAL_ERR
  *  NO_MEMORY
  *  INVALID_STATE
- *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_CANCEL_USSD 30
@@ -2890,7 +2864,6 @@ typedef enum {
  *  INTERNAL_ERR
  *  FDN_CHECK_FAILURE
  *  SYSTEM_ERR
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_GET_CLIR 31
 
@@ -2910,7 +2883,6 @@ typedef enum {
  *  SS_MODIFIED_TO_SS
  *  INVALID_ARGUMENTS
  *  SYSTEM_ERR
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_CLIR 32
 
@@ -2943,7 +2915,6 @@ typedef enum {
  *  INTERNAL_ERR
  *  NO_MEMORY
  *  FDN_CHECK_FAILURE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_QUERY_CALL_FORWARD_STATUS 33
 
@@ -2969,7 +2940,6 @@ typedef enum {
  *  INTERNAL_ERR
  *  INVALID_STATE
  *  FDN_CHECK_FAILURE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_CALL_FORWARD 34
 
@@ -3004,7 +2974,6 @@ typedef enum {
  *  NO_MEMORY
  *  FDN_CHECK_FAILURE
  *  INVALID_ARGUMENTS
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_QUERY_CALL_WAITING 35
 
@@ -3032,7 +3001,6 @@ typedef enum {
  *  INTERNAL_ERR
  *  INVALID_STATE
  *  FDN_CHECK_FAILURE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_CALL_WAITING 36
 
@@ -3059,7 +3027,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SMS_ACKNOWLEDGE  37
 
@@ -3077,7 +3044,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_GET_IMEI 38
@@ -3096,7 +3062,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_GET_IMEISV 39
@@ -3123,7 +3088,6 @@ typedef enum {
  *  MODEM_ERR
  *  INTERNAL_ERR
  *  INVALID_CALL_ID
- *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_ANSWER 40
@@ -3150,7 +3114,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_SETUP_DATA_CALL
  */
@@ -3189,7 +3152,6 @@ typedef enum {
  *  SYSTEM_ERR
  *  MODEM_ERR
  *  FDN_CHECK_FAILURE
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_QUERY_FACILITY_LOCK 42
@@ -3227,7 +3189,6 @@ typedef enum {
  *  MODEM_ERR
  *  INVALID_STATE
  *  FDN_CHECK_FAILURE
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_SET_FACILITY_LOCK 43
@@ -3258,7 +3219,6 @@ typedef enum {
  *  INTERNAL_ERR
  *  SYSTEM_ERR
  *  FDN_CHECK_FAILURE
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_CHANGE_BARRING_PASSWORD 44
@@ -3278,7 +3238,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE 45
@@ -3299,7 +3258,6 @@ typedef enum {
  *  RADIO_NOT_AVAILABLE
  *  ILLEGAL_SIM_OR_ME
  *  OPERATION_NOT_ALLOWED
- *  GENERIC_FAILURE
  *
  * Note: Returns ILLEGAL_SIM_OR_ME when the failure is permanent and
  *       no retries needed, such as illegal SIM or ME.
@@ -3325,7 +3283,6 @@ typedef enum {
  *  RADIO_NOT_AVAILABLE
  *  ILLEGAL_SIM_OR_ME
  *  OPERATION_NOT_ALLOWED
- *  GENERIC_FAILURE
  *
  * Note: Returns ILLEGAL_SIM_OR_ME when the failure is permanent and
  *       no retries needed, such as illegal SIM or ME.
@@ -3390,7 +3347,6 @@ typedef enum {
  *  MODEM_ERR
  *  INTERNAL_ERR
  *  INVALID_CALL_ID
- *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_DTMF, RIL_REQUEST_DTMF_STOP
  */
@@ -3415,7 +3371,6 @@ typedef enum {
  *  MODEM_ERR
  *  INTERNAL_ERR
  *  INVALID_CALL_ID
- *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_DTMF, RIL_REQUEST_DTMF_START
  */
@@ -3434,7 +3389,6 @@ typedef enum {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  EMPTY_RECORD
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_BASEBAND_VERSION 51
@@ -3470,7 +3424,6 @@ typedef enum {
  *  INVALID_CALL_ID
  *  INVALID_STATE
  *  OPERATION_NOT_ALLOWED
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SEPARATE_CONNECTION 52
 
@@ -3494,7 +3447,6 @@ typedef enum {
  *  INVALID_ARGUMENTS
  *  NO_MEMORY
  *  REQUEST_RATE_LIMITED
- *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_SET_MUTE 53
@@ -3516,7 +3468,6 @@ typedef enum {
  *  SS_MODIFIED_TO_SS
  *  NO_MEMORY
  *  REQUEST_RATE_LIMITED
- *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_GET_MUTE 54
@@ -3542,7 +3493,6 @@ typedef enum {
  *  MODEM_ERR
  *  INTERNAL_ERR
  *  FDN_CHECK_FAILURE
- *  GENERIC_FAILURE
  */
 
 #define RIL_REQUEST_QUERY_CLIP 55
@@ -3570,7 +3520,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_LAST_CALL_FAIL_CAUSE
  *
@@ -3593,7 +3542,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *
  * See also: RIL_UNSOL_DATA_CALL_LIST_CHANGED
  */
@@ -3615,7 +3563,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *  REQUEST_NOT_SUPPORTED
  */
 
@@ -3696,7 +3643,6 @@ typedef enum {
  *
  * Valid errors:
  *  SUCCESS
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SCREEN_STATE 61
 
@@ -3724,7 +3670,6 @@ typedef enum {
  *  SYSTEM_ERR
  *  MODEM_ERR
  *  INTERNAL_ERR
- *  GENERIC_FAILURE
  *
  * See also: RIL_UNSOL_SUPP_SVC_NOTIFICATION.
  */
@@ -3753,7 +3698,6 @@ typedef enum {
  *  INVALID_MODEM_STATE
  *  MODE_NOT_SUPPORTED
  *  INVALID_SMSC_ADDRESS
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_WRITE_SMS_TO_SIM 63
@@ -3777,7 +3721,6 @@ typedef enum {
  *  SYSTEM_ERR
  *  MODEM_ERR
  *  NO_SUCH_ENTRY
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_DELETE_SMS_ON_SIM 64
@@ -3796,7 +3739,6 @@ typedef enum {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  OPERATION_NOT_ALLOWED
- *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_QUERY_AVAILABLE_BAND_MODE
  */
@@ -3816,7 +3758,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_SET_BAND_MODE
  */
@@ -3943,7 +3884,6 @@ typedef enum {
  *  INVALID_CALL_ID
  *  INVALID_STATE
  *  OPERATION_NOT_ALLOWED
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_EXPLICIT_CALL_TRANSFER 72
 
@@ -3960,7 +3900,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *  OPERATION_NOT_ALLOWED
  *  MODE_NOT_SUPPORTED
  */
@@ -3980,7 +3919,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_SET_PREFERRED_NETWORK_TYPE
  */
@@ -3997,7 +3935,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_GET_NEIGHBORING_CELL_IDS 75
 
@@ -4020,7 +3957,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_SCREEN_STATE, RIL_UNSOL_RESPONSE_NETWORK_STATE_CHANGED
  */
@@ -4040,7 +3976,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *  SIM_ABSENT
  *  SUBSCRIPTION_NOT_AVAILABLE
  *
@@ -4063,7 +3998,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_CDMA_SET_ROAMING_PREFERENCE 78
 
@@ -4084,7 +4018,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_CDMA_QUERY_ROAMING_PREFERENCE 79
 
@@ -4112,7 +4045,6 @@ typedef enum {
  *  MODEM_ERR
  *  INTERNAL_ERR
  *  NO_MEMORYY
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_TTY_MODE 80
 
@@ -4138,7 +4070,6 @@ typedef enum {
  *  INTERNAL_ERR
  *  NO_MEMORY
  *  INVALID_ARGUMENTS
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_QUERY_TTY_MODE 81
 
@@ -4163,7 +4094,6 @@ typedef enum {
  *  INTERNAL_ERR
  *  NO_MEMORY
  *  INVALID_CALL_ID
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_CDMA_SET_PREFERRED_VOICE_PRIVACY_MODE 82
 
@@ -4187,7 +4117,6 @@ typedef enum {
  *  INTERNAL_ERR
  *  NO_MEMORY
  *  INVALID_ARGUMENTS
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_CDMA_QUERY_PREFERRED_VOICE_PRIVACY_MODE 83
 
@@ -4211,7 +4140,6 @@ typedef enum {
  *  INTERNAL_ERR
  *  INVALID_CALL_ID
  *  INVALID_STATE
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_CDMA_FLASH 84
@@ -4239,7 +4167,6 @@ typedef enum {
  *  MODEM_ERR
  *  INTERNAL_ERR
  *  INVALID_CALL_ID
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_CDMA_BURST_DTMF 85
@@ -4263,7 +4190,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_CDMA_VALIDATE_AND_WRITE_AKEY 86
@@ -4300,7 +4226,6 @@ typedef enum {
  *  ENCODING_ERR
  *  INVALID_SMSC_ADDRESS
  *  MODE_NOT_SUPPORTED
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_CDMA_SEND_SMS 87
@@ -4329,7 +4254,6 @@ typedef enum {
  *  MODE_NOT_SUPPORTED
  *  NETWORK_NOT_READY
  *  INVALID_MODEM_STATE
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_CDMA_SMS_ACKNOWLEDGE 88
@@ -4354,7 +4278,6 @@ typedef enum {
  *  NO_RESOURCES
  *  MODEM_ERR
  *  SYSTEM_ERR
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_GSM_GET_BROADCAST_SMS_CONFIG 89
@@ -4379,7 +4302,6 @@ typedef enum {
  *  REQUEST_RATE_LIMITED
  *  MODEM_ERR
  *  SYSTEM_ERR
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_GSM_SET_BROADCAST_SMS_CONFIG 90
@@ -4405,7 +4327,6 @@ typedef enum {
  *  SYSTEM_ERR
  *  REQUEST_RATE_LIMITED
  *  MODEM_ERR
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_GSM_SMS_BROADCAST_ACTIVATION 91
@@ -4430,7 +4351,6 @@ typedef enum {
  *  NO_RESOURCES
  *  MODEM_ERR
  *  SYSTEM_ERR
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_CDMA_GET_BROADCAST_SMS_CONFIG 92
@@ -4455,7 +4375,6 @@ typedef enum {
  *  REQUEST_RATE_LIMITED
  *  MODEM_ERR
  *  SYSTEM_ERR
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_CDMA_SET_BROADCAST_SMS_CONFIG 93
@@ -4481,7 +4400,6 @@ typedef enum {
  *  SYSTEM_ERR
  *  REQUEST_RATE_LIMITED
  *  MODEM_ERR
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_CDMA_SMS_BROADCAST_ACTIVATION 94
@@ -4538,7 +4456,6 @@ typedef enum {
  *  INVALID_MODEM_STATE
  *  MODE_NOT_SUPPORTED
  *  INVALID_SMSC_ADDRESS
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_CDMA_WRITE_SMS_TO_RUIM 96
@@ -4562,7 +4479,6 @@ typedef enum {
  *  SYSTEM_ERR
  *  MODEM_ERR
  *  NO_SUCH_ENTRY
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_CDMA_DELETE_SMS_ON_RUIM 97
@@ -4591,7 +4507,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_DEVICE_IDENTITY 98
 
@@ -4610,7 +4525,6 @@ typedef enum {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  OPERATION_NOT_ALLOWED
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_EXIT_EMERGENCY_CALLBACK_MODE 99
@@ -4635,7 +4549,6 @@ typedef enum {
  *  INVALID_ARGUMENTS
  *  INVALID_MODEM_STATE
  *  NOT_PROVISIONED
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_GET_SMSC_ADDRESS 100
@@ -4659,7 +4572,6 @@ typedef enum {
  *  REQUEST_RATE_LIMITED
  *  MODEM_ERR
  *  NO_RESOURCES
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_SET_SMSC_ADDRESS 101
@@ -4684,7 +4596,6 @@ typedef enum {
  *  SYSTEM_ERR
  *  REQUEST_RATE_LIMITED
  *  MODEM_ERR
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_REPORT_SMS_MEMORY_STATUS 102
@@ -4701,7 +4612,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_REPORT_STK_SERVICE_IS_RUNNING 103
@@ -4720,7 +4630,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *  SUBSCRIPTION_NOT_AVAILABLE
  *
  * See also: RIL_REQUEST_CDMA_SET_SUBSCRIPTION_SOURCE
@@ -4739,7 +4648,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_ISIM_AUTHENTICATION 105
 
@@ -4760,7 +4668,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_ACKNOWLEDGE_INCOMING_GSM_SMS_WITH_PDU 106
 
@@ -4805,7 +4712,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_VOICE_RADIO_TECH 108
 
@@ -4839,7 +4745,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_UNSOL_CELL_INFO_LIST_RATE 110
 
@@ -4866,7 +4771,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *  SUBSCRIPTION_NOT_AVAILABLE
  */
 #define RIL_REQUEST_SET_INITIAL_ATTACH_APN 111
@@ -4894,7 +4798,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_IMS_REGISTRATION_STATE 112
 
@@ -4928,7 +4831,6 @@ typedef enum {
  *  ENCODING_ERR
  *  INVALID_SMSC_ADDRESS
  *  MODE_NOT_SUPPORTED
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_IMS_SEND_SMS 113
@@ -4949,7 +4851,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SIM_TRANSMIT_APDU_BASIC 114
 
@@ -4969,7 +4870,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *  MISSING_RESOURCE
  *  NO_SUCH_ELEMENT
  */
@@ -4989,7 +4889,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SIM_CLOSE_CHANNEL 116
 
@@ -5008,7 +4907,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SIM_TRANSMIT_APDU_CHANNEL 117
 
@@ -5025,7 +4923,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_NV_READ_ITEM 118
 
@@ -5042,7 +4939,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_NV_WRITE_ITEM 119
 
@@ -5059,7 +4955,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_NV_WRITE_CDMA_PRL 120
 
@@ -5079,7 +4974,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_NV_RESET_CONFIG 121
 
@@ -5095,7 +4989,6 @@ typedef enum {
  *  Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *  SUBSCRIPTION_NOT_SUPPORTED
  *
  */
@@ -5117,7 +5010,6 @@ typedef enum {
  *
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *
  */
 #define RIL_REQUEST_ALLOW_DATA  123
@@ -5168,7 +5060,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  GENERIC_FAILURE
  *
  * See also: RIL_UNSOL_DC_RT_INFO_CHANGED
  */
@@ -5204,7 +5095,6 @@ typedef enum {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  GENERIC_FAILURE
  *  SUBSCRIPTION_NOT_AVAILABLE
  */
 #define RIL_REQUEST_SET_DATA_PROFILE 128
@@ -5222,7 +5112,6 @@ typedef enum {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  OPERATION_NOT_ALLOWED
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SHUTDOWN 129
 
@@ -5237,7 +5126,6 @@ typedef enum {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  OPERATION_NOT_ALLOWED
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_GET_RADIO_CAPABILITY 130
 
@@ -5257,7 +5145,6 @@ typedef enum {
  *  SUCCESS means a RIL_UNSOL_RADIO_CAPABILITY will be sent within 30 seconds.
  *  RADIO_NOT_AVAILABLE
  *  OPERATION_NOT_ALLOWED
- *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_RADIO_CAPABILITY 131
 
