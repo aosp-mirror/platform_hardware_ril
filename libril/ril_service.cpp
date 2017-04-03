@@ -482,7 +482,7 @@ bool copyHidlStringToRil(char **dest, const hidl_string &src, RequestInfo *pRI) 
         sendErrorResponse(pRI, RIL_E_NO_MEMORY);
         return false;
     }
-    strncpy(*dest, src, len + 1);
+    strncpy(*dest, src.c_str(), len + 1);
     return true;
 }
 
@@ -784,7 +784,7 @@ Return<void> RadioImpl::supplyIccPinForApp(int32_t serial, const hidl_string& pi
     RLOGD("supplyIccPinForApp: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_ENTER_SIM_PIN,
-            2, (const char *)pin, (const char *)aid);
+            2, pin.c_str(), aid.c_str());
     return Void();
 }
 
@@ -794,7 +794,7 @@ Return<void> RadioImpl::supplyIccPukForApp(int32_t serial, const hidl_string& pu
     RLOGD("supplyIccPukForApp: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_ENTER_SIM_PUK,
-            3, (const char *)puk, (const char *)pin, (const char *)aid);
+            3, puk.c_str(), pin.c_str(), aid.c_str());
     return Void();
 }
 
@@ -804,7 +804,7 @@ Return<void> RadioImpl::supplyIccPin2ForApp(int32_t serial, const hidl_string& p
     RLOGD("supplyIccPin2ForApp: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_ENTER_SIM_PIN2,
-            2, (const char *)pin2, (const char *)aid);
+            2, pin2.c_str(), aid.c_str());
     return Void();
 }
 
@@ -814,7 +814,7 @@ Return<void> RadioImpl::supplyIccPuk2ForApp(int32_t serial, const hidl_string& p
     RLOGD("supplyIccPuk2ForApp: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_ENTER_SIM_PUK2,
-            3, (const char *)puk2, (const char *)pin2, (const char *)aid);
+            3, puk2.c_str(), pin2.c_str(), aid.c_str());
     return Void();
 }
 
@@ -824,7 +824,7 @@ Return<void> RadioImpl::changeIccPinForApp(int32_t serial, const hidl_string& ol
     RLOGD("changeIccPinForApp: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_CHANGE_SIM_PIN,
-            3, (const char *)oldPin, (const char *)newPin, (const char *)aid);
+            3, oldPin.c_str(), newPin.c_str(), aid.c_str());
     return Void();
 }
 
@@ -834,7 +834,7 @@ Return<void> RadioImpl::changeIccPin2ForApp(int32_t serial, const hidl_string& o
     RLOGD("changeIccPin2ForApp: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_CHANGE_SIM_PIN2,
-            3, (const char *)oldPin2, (const char *)newPin2, (const char *)aid);
+            3, oldPin2.c_str(), newPin2.c_str(), aid.c_str());
     return Void();
 }
 
@@ -844,7 +844,7 @@ Return<void> RadioImpl::supplyNetworkDepersonalization(int32_t serial,
     RLOGD("supplyNetworkDepersonalization: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_ENTER_NETWORK_DEPERSONALIZATION,
-            1, (const char *)netPin);
+            1, netPin.c_str());
     return Void();
 }
 
@@ -903,7 +903,7 @@ Return<void> RadioImpl::getImsiForApp(int32_t serial, const hidl_string& aid) {
     RLOGD("getImsiForApp: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_GET_IMSI,
-            1, (const char *) aid);
+            1, aid.c_str());
     return Void();
 }
 
@@ -1005,7 +1005,7 @@ Return<void> RadioImpl::sendDtmf(int32_t serial, const hidl_string& s) {
 #if VDBG
     RLOGD("sendDtmf: serial %d", serial);
 #endif
-    dispatchString(serial, mSlotId, RIL_REQUEST_DTMF, (const char *) s);
+    dispatchString(serial, mSlotId, RIL_REQUEST_DTMF, s.c_str());
     return Void();
 }
 
@@ -1014,7 +1014,7 @@ Return<void> RadioImpl::sendSms(int32_t serial, const GsmSmsMessage& message) {
     RLOGD("sendSms: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_SEND_SMS,
-            2, (const char *) message.smscPdu, (const char *) message.pdu);
+            2, message.smscPdu.c_str(), message.pdu.c_str());
     return Void();
 }
 
@@ -1023,7 +1023,7 @@ Return<void> RadioImpl::sendSMSExpectMore(int32_t serial, const GsmSmsMessage& m
     RLOGD("sendSMSExpectMore: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_SEND_SMS_EXPECT_MORE,
-            2, (const char *) message.smscPdu, (const char *) message.pdu);
+            2, message.smscPdu.c_str(), message.pdu.c_str());
     return Void();
 }
 
@@ -1138,7 +1138,7 @@ Return<void> RadioImpl::sendUssd(int32_t serial, const hidl_string& ussd) {
 #if VDBG
     RLOGD("sendUssd: serial %d", serial);
 #endif
-    dispatchString(serial, mSlotId, RIL_REQUEST_SEND_USSD, (const char *) ussd);
+    dispatchString(serial, mSlotId, RIL_REQUEST_SEND_USSD, ussd.c_str());
     return Void();
 }
 
@@ -1225,7 +1225,7 @@ Return<void> RadioImpl::deactivateDataCall(int32_t serial,
     RLOGD("deactivateDataCall: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_DEACTIVATE_DATA_CALL,
-            2, (const char *) (std::to_string(cid)).c_str(), reasonRadioShutDown ? "1" : "0");
+            2, (std::to_string(cid)).c_str(), reasonRadioShutDown ? "1" : "0");
     return Void();
 }
 
@@ -1236,8 +1236,8 @@ Return<void> RadioImpl::getFacilityLockForApp(int32_t serial, const hidl_string&
     RLOGD("getFacilityLockForApp: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_QUERY_FACILITY_LOCK,
-            4, (const char *) facility, (const char *) password,
-            (const char *) (std::to_string(serviceClass)).c_str(), (const char *) appId);
+            4, facility.c_str(), password.c_str(),
+            (std::to_string(serviceClass)).c_str(), appId.c_str());
     return Void();
 }
 
@@ -1248,8 +1248,8 @@ Return<void> RadioImpl::setFacilityLockForApp(int32_t serial, const hidl_string&
     RLOGD("setFacilityLockForApp: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_SET_FACILITY_LOCK,
-            5, (const char *) facility, lockState ? "1" : "0", (const char *) password,
-            (const char *) (std::to_string(serviceClass)).c_str(), (const char *) appId);
+            5, facility.c_str(), lockState ? "1" : "0", password.c_str(),
+            (std::to_string(serviceClass)).c_str(), appId.c_str() );
     return Void();
 }
 
@@ -1260,7 +1260,7 @@ Return<void> RadioImpl::setBarringPassword(int32_t serial, const hidl_string& fa
     RLOGD("setBarringPassword: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_CHANGE_BARRING_PASSWORD,
-            2, (const char *) oldPassword,  (const char *) newPassword);
+            2, oldPassword.c_str(), newPassword.c_str());
     return Void();
 }
 
@@ -1286,7 +1286,7 @@ Return<void> RadioImpl::setNetworkSelectionModeManual(int32_t serial,
     RLOGD("setNetworkSelectionModeManual: serial %d", serial);
 #endif
     dispatchString(serial, mSlotId, RIL_REQUEST_SET_NETWORK_SELECTION_MANUAL,
-            (const char *) operatorNumeric);
+            operatorNumeric.c_str());
     return Void();
 }
 
@@ -1303,7 +1303,7 @@ Return<void> RadioImpl::startDtmf(int32_t serial, const hidl_string& s) {
     RLOGD("startDtmf: serial %d", serial);
 #endif
     dispatchString(serial, mSlotId, RIL_REQUEST_DTMF_START,
-            (const char *) s);
+            s.c_str());
     return Void();
 }
 
@@ -1430,7 +1430,7 @@ Return<void> RadioImpl::sendEnvelope(int32_t serial, const hidl_string& command)
     RLOGD("sendEnvelope: serial %d", serial);
 #endif
     dispatchString(serial, mSlotId, RIL_REQUEST_STK_SEND_ENVELOPE_COMMAND,
-            (const char *) command);
+            command.c_str());
     return Void();
 }
 
@@ -1440,7 +1440,7 @@ Return<void> RadioImpl::sendTerminalResponseToSim(int32_t serial,
     RLOGD("sendTerminalResponseToSim: serial %d", serial);
 #endif
     dispatchString(serial, mSlotId, RIL_REQUEST_STK_SEND_TERMINAL_RESPONSE,
-            (const char *) commandResponse);
+            commandResponse.c_str());
     return Void();
 }
 
@@ -1555,7 +1555,7 @@ Return<void> RadioImpl::sendCDMAFeatureCode(int32_t serial, const hidl_string& f
     RLOGD("sendCDMAFeatureCode: serial %d", serial);
 #endif
     dispatchString(serial, mSlotId, RIL_REQUEST_CDMA_FLASH,
-            (const char *) featureCode);
+            featureCode.c_str());
     return Void();
 }
 
@@ -1565,8 +1565,8 @@ Return<void> RadioImpl::sendBurstDtmf(int32_t serial, const hidl_string& dtmf, i
     RLOGD("sendBurstDtmf: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_CDMA_BURST_DTMF,
-            3, (const char *) dtmf, (const char *) (std::to_string(on)).c_str(),
-            (const char *) (std::to_string(off)).c_str());
+            3, dtmf.c_str(), (std::to_string(on)).c_str(),
+            (std::to_string(off)).c_str());
     return Void();
 }
 
@@ -1792,7 +1792,7 @@ Return<void> RadioImpl::setSmscAddress(int32_t serial, const hidl_string& smsc) 
     RLOGD("setSmscAddress: serial %d", serial);
 #endif
     dispatchString(serial, mSlotId, RIL_REQUEST_SET_SMSC_ADDRESS,
-            (const char *) smsc);
+            smsc.c_str());
     return Void();
 }
 
@@ -1826,7 +1826,7 @@ Return<void> RadioImpl::requestIsimAuthentication(int32_t serial, const hidl_str
     RLOGD("requestIsimAuthentication: serial %d", serial);
 #endif
     dispatchString(serial, mSlotId, RIL_REQUEST_ISIM_AUTHENTICATION,
-            (const char *) challenge);
+            challenge.c_str());
     return Void();
 }
 
@@ -1836,7 +1836,7 @@ Return<void> RadioImpl::acknowledgeIncomingGsmSmsWithPdu(int32_t serial, bool su
     RLOGD("acknowledgeIncomingGsmSmsWithPdu: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_ACKNOWLEDGE_INCOMING_GSM_SMS_WITH_PDU,
-            2, success ? "1" : "0", (const char *) ackPdu);
+            2, success ? "1" : "0", ackPdu.c_str());
     return Void();
 }
 
@@ -1845,7 +1845,7 @@ Return<void> RadioImpl::sendEnvelopeWithStatus(int32_t serial, const hidl_string
     RLOGD("sendEnvelopeWithStatus: serial %d", serial);
 #endif
     dispatchString(serial, mSlotId, RIL_REQUEST_STK_SEND_ENVELOPE_WITH_STATUS,
-            (const char *) contents);
+            contents.c_str());
     return Void();
 }
 
@@ -2075,8 +2075,7 @@ Return<void> RadioImpl::iccOpenLogicalChannel(int32_t serial, const hidl_string&
 #if VDBG
     RLOGD("iccOpenLogicalChannel: serial %d", serial);
 #endif
-    dispatchString(serial, mSlotId, RIL_REQUEST_SIM_OPEN_CHANNEL,
-            (const char *) aid);
+    dispatchString(serial, mSlotId, RIL_REQUEST_SIM_OPEN_CHANNEL, aid.c_str());
     return Void();
 }
 
@@ -2451,7 +2450,7 @@ Return<void> RadioImpl::setRadioCapability(int32_t serial, const RadioCapability
     rilRc.phase = (int) rc.phase;
     rilRc.rat = (int) rc.raf;
     rilRc.status = (int) rc.status;
-    strncpy(rilRc.logicalModemUuid, (const char *) rc.logicalModemUuid, MAX_UUID_LENGTH);
+    strncpy(rilRc.logicalModemUuid, rc.logicalModemUuid.c_str(), MAX_UUID_LENGTH);
 
     s_vendorFunctions->onRequest(pRI->pCI->requestNumber, &rilRc, sizeof(rilRc), pRI);
 
@@ -2531,18 +2530,18 @@ Return<void> RadioImpl::setAllowedCarriers(int32_t serial, bool allAllowed,
     cr.excluded_carriers = excludedCarriers;
 
     for (int i = 0; i < cr.len_allowed_carriers; i++) {
-        allowedCarriers[i].mcc = (const char *) carriers.allowedCarriers[i].mcc;
-        allowedCarriers[i].mnc = (const char *) carriers.allowedCarriers[i].mnc;
+        allowedCarriers[i].mcc = carriers.allowedCarriers[i].mcc.c_str();
+        allowedCarriers[i].mnc = carriers.allowedCarriers[i].mnc.c_str();
         allowedCarriers[i].match_type = (RIL_CarrierMatchType) carriers.allowedCarriers[i].matchType;
-        allowedCarriers[i].match_data = (const char *) carriers.allowedCarriers[i].matchData;
+        allowedCarriers[i].match_data = carriers.allowedCarriers[i].matchData.c_str();
     }
 
     for (int i = 0; i < cr.len_excluded_carriers; i++) {
-        excludedCarriers[i].mcc = (const char *) carriers.excludedCarriers[i].mcc;
-        excludedCarriers[i].mnc = (const char *) carriers.excludedCarriers[i].mnc;
+        excludedCarriers[i].mcc = carriers.excludedCarriers[i].mcc.c_str();
+        excludedCarriers[i].mnc = carriers.excludedCarriers[i].mnc.c_str();
         excludedCarriers[i].match_type =
                 (RIL_CarrierMatchType) carriers.excludedCarriers[i].matchType;
-        excludedCarriers[i].match_data = (const char *) carriers.excludedCarriers[i].matchData;
+        excludedCarriers[i].match_data = carriers.excludedCarriers[i].matchData.c_str();
     }
 
     s_vendorFunctions->onRequest(pRI->pCI->requestNumber, &cr, sizeof(RIL_CarrierRestrictions), pRI);
