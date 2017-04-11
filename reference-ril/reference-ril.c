@@ -803,9 +803,11 @@ static void requestGetCurrentCalls(void *data __unused, size_t datalen __unused,
     }
 
     return;
+#ifdef WORKAROUND_ERRONEOUS_ANSWER
 error:
     RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
     at_response_free(p_response);
+#endif
 }
 
 static void requestDial(void *data, size_t datalen __unused, RIL_Token t)
@@ -1079,12 +1081,6 @@ static void requestCdmaDeviceIdentity(int request __unused, void *data __unused,
 
     RIL_onRequestComplete(t, RIL_E_SUCCESS, responseStr, count*sizeof(char*));
     at_response_free(p_response);
-
-    return;
-error:
-    RLOGE("requestCdmaDeviceIdentity must never return an error when radio is on");
-    at_response_free(p_response);
-    RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
 }
 
 static void requestCdmaGetSubscriptionSource(int request __unused, void *data,
@@ -1173,11 +1169,6 @@ static void requestCdmaSubscription(int request __unused, void *data __unused,
     responseStr[3] = "8587777777"; // MIN
     responseStr[4] = "1"; // PRL Version
     RIL_onRequestComplete(t, RIL_E_SUCCESS, responseStr, count*sizeof(char*));
-
-    return;
-error:
-    RLOGE("requestRegistrationState must never return an error when radio is on");
-    RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
 }
 
 static void requestCdmaGetRoamingPreference(int request __unused, void *data __unused,
