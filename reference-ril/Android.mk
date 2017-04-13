@@ -18,6 +18,7 @@ LOCAL_STATIC_LIBRARIES := libqemu_pipe libbase
 
 # for asprinf
 LOCAL_CFLAGS := -D_GNU_SOURCE
+LOCAL_CFLAGS += -Wall -Wextra -Wno-unused-variable -Wno-unused-function -Werror
 
 LOCAL_C_INCLUDES :=
 
