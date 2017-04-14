@@ -451,8 +451,8 @@ void memsetAndFreeStrings(int numPointers, ...) {
         char *ptr = va_arg(ap, char *);
         if (ptr) {
 #ifdef MEMSET_FREED
-            // TODO: Should pass in the maximum length of the string
-            memsetString(ptr);
+#define MAX_STRING_LENGTH 4096
+            memset(ptr, 0, strnlen(ptr, MAX_STRING_LENGTH));
 #endif
             free(ptr);
         }
@@ -1992,7 +1992,7 @@ bool dispatchImsGsmSms(const ImsSmsMessage& message, RequestInfo *pRI) {
 
     if (!copyHidlStringToRil(&pStrings[0], message.gsmMessage[0].smscPdu, pRI)) {
 #ifdef MEMSET_FREED
-        memset(pStrings, 0, datalen);
+        memset(pStrings, 0, dataLen);
 #endif
         free(pStrings);
         return false;
@@ -2001,7 +2001,7 @@ bool dispatchImsGsmSms(const ImsSmsMessage& message, RequestInfo *pRI) {
     if (!copyHidlStringToRil(&pStrings[1], message.gsmMessage[0].pdu, pRI)) {
         memsetAndFreeStrings(1, pStrings[0]);
 #ifdef MEMSET_FREED
-        memset(pStrings, 0, datalen);
+        memset(pStrings, 0, dataLen);
 #endif
         free(pStrings);
         return false;
@@ -2016,7 +2016,7 @@ bool dispatchImsGsmSms(const ImsSmsMessage& message, RequestInfo *pRI) {
     }
 
 #ifdef MEMSET_FREED
-    memset(pStrings, 0, datalen);
+    memset(pStrings, 0, dataLen);
 #endif
     free(pStrings);
 
