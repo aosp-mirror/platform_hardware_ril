@@ -1218,6 +1218,7 @@ static void requestDeviceIdentity(int request __unused, void *data __unused,
     responseStr[0] = "----";
     responseStr[1] = "----";
     responseStr[2] = "77777777";
+    responseStr[3] = ""; // default empty for non-CDMA
 
     err = at_send_command_numeric("AT+CGSN", &p_response);
     if (err < 0 || p_response->success == 0) {
