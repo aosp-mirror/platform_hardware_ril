@@ -2183,10 +2183,28 @@ Return<void> RadioImpl::nvWriteCdmaPrl(int32_t serial, const hidl_vec<uint8_t>& 
 }
 
 Return<void> RadioImpl::nvResetConfig(int32_t serial, ResetNvType resetType) {
+    int rilResetType = -1;
 #if VDBG
     RLOGD("nvResetConfig: serial %d", serial);
 #endif
-    dispatchInts(serial, mSlotId, RIL_REQUEST_NV_RESET_CONFIG, 1, (int) resetType);
+    /* Convert ResetNvType to RIL.h values
+     * RIL_REQUEST_NV_RESET_CONFIG
+     * 1 - reload all NV items
+     * 2 - erase NV reset (SCRTN)
+     * 3 - factory reset (RTN)
+     */
+    switch(resetType) {
+      case ResetNvType::RELOAD:
+        rilResetType = 1;
+        break;
+      case ResetNvType::ERASE:
+        rilResetType = 2;
+        break;
+      case ResetNvType::FACTORY_RESET:
+        rilResetType = 3;
+        break;
+    }
+    dispatchInts(serial, mSlotId, RIL_REQUEST_NV_RESET_CONFIG, 1, rilResetType);
     return Void();
 }
 
@@ -6182,8 +6200,14 @@ int radio::getAllowedCarriersResponse(int slotId,
         populateResponseInfo(responseInfo, serial, responseType, e);
         CarrierRestrictions carrierInfo = {};
         bool allAllowed = true;
-        if (response == NULL || responseLen != sizeof(RIL_CarrierRestrictions)) {
-            RLOGE("getAllowedCarriersResponse Invalid response: NULL");
+        if (response == NULL) {
+#if VDBG
+            RLOGD("getAllowedCarriersResponse response is NULL: all allowed");
+#endif
+            carrierInfo.allowedCarriers.resize(0);
+            carrierInfo.excludedCarriers.resize(0);
+        } else if (responseLen != sizeof(RIL_CarrierRestrictions)) {
+            RLOGE("getAllowedCarriersResponse Invalid response");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
             RIL_CarrierRestrictions *pCr = (RIL_CarrierRestrictions *)response;
