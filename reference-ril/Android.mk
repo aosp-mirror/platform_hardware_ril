@@ -34,6 +34,8 @@ ifeq ($(TARGET_DEVICE),dream)
   LOCAL_CFLAGS += -DPOLL_CALL_STATE -DUSE_QMI
 endif
 
+LOCAL_VENDOR_MODULE:= true
+
 ifeq (foo,foo)
   #build shared library
   LOCAL_SHARED_LIBRARIES += \
@@ -48,5 +50,3 @@ else
   LOCAL_MODULE:= reference-ril
   include $(BUILD_EXECUTABLE)
 endif
-
-LOCAL_VENDOR_MODULE:= true
