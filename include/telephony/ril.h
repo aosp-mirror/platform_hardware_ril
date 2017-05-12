@@ -73,6 +73,7 @@ extern "C" {
  *                    RIL_REQUEST_SET_CARRIER_RESTRICTIONS and RIL_UNSOL_PCO_DATA.
  *
  * RIL_VERSION = 15 : New commands added:
+ *                    RIL_UNSOL_MODEM_RESTART,
  *                    RIL_REQUEST_SEND_DEVICE_STATE,
  *                    RIL_REQUEST_SET_UNSOLICITED_RESPONSE_FILTER,
  *                    RIL_REQUEST_SET_SIM_CARD_POWER,
@@ -5981,18 +5982,41 @@ typedef struct {
  */
 #define RIL_UNSOL_LCEDATA_RECV 1045
 
- /**
-  * RIL_UNSOL_PCO_DATA
-  *
-  * Called when there is new Carrier PCO data received for a data call.  Ideally
-  * only new data will be forwarded, though this is not required.  Multiple
-  * boxes of carrier PCO data for a given call should result in a series of
-  * RIL_UNSOL_PCO_DATA calls.
-  *
-  * "data" is the RIL_PCO_Data structure.
-  *
-  */
+/**
+ * RIL_UNSOL_PCO_DATA
+ *
+ * Called when there is new Carrier PCO data received for a data call.  Ideally
+ * only new data will be forwarded, though this is not required.  Multiple
+ * boxes of carrier PCO data for a given call should result in a series of
+ * RIL_UNSOL_PCO_DATA calls.
+ *
+ * "data" is the RIL_PCO_Data structure.
+ *
+ */
 #define RIL_UNSOL_PCO_DATA 1046
+
+/**
+ * RIL_UNSOL_MODEM_RESTART
+ *
+ * Called when there is a modem reset.
+ *
+ * "reason" is "const char *" containing the reason for the reset. It
+ * could be a crash signature if the restart was due to a crash or some
+ * string such as "user-initiated restart" or "AT command initiated
+ * restart" that explains the cause of the modem restart.
+ *
+ * When modem restarts, one of the following radio state transitions will happen
+ * 1) RADIO_STATE_ON->RADIO_STATE_UNAVAILABLE->RADIO_STATE_ON or
+ * 2) RADIO_STATE_OFF->RADIO_STATE_UNAVAILABLE->RADIO_STATE_OFF
+ * This message can be sent either just before the RADIO_STATE changes to RADIO_STATE_UNAVAILABLE
+ * or just after but should never be sent after the RADIO_STATE changes from UNAVAILABLE to
+ * AVAILABLE(RADIO_STATE_ON/RADIO_STATE_OFF) again.
+ *
+ * It should NOT be sent after the RADIO_STATE changes to AVAILABLE after the
+ * modem restart as that could be interpreted as a second modem reset by the
+ * framework.
+ */
+#define RIL_UNSOL_MODEM_RESTART 1047
 
 /**
  * RIL_UNSOL_CARRIER_INFO_IMSI_ENCRYPTION
@@ -6003,7 +6027,7 @@ typedef struct {
  * "data" is NULL
  *
  */
-#define RIL_UNSOL_CARRIER_INFO_IMSI_ENCRYPTION 1047
+#define RIL_UNSOL_CARRIER_INFO_IMSI_ENCRYPTION 1048
 
 /***********************************************************************/
 
