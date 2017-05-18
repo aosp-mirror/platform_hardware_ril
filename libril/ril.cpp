@@ -192,12 +192,8 @@ extern "C" void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
 
 #if defined(ANDROID_MULTI_SIM)
 #define RIL_UNSOL_RESPONSE(a, b, c, d) RIL_onUnsolicitedResponse((a), (b), (c), (d))
-#define CALL_ONREQUEST(a, b, c, d, e) s_callbacks.onRequest((a), (b), (c), (d), (e))
-#define CALL_ONSTATEREQUEST(a) s_callbacks.onStateRequest(a)
 #else
 #define RIL_UNSOL_RESPONSE(a, b, c, d) RIL_onUnsolicitedResponse((a), (b), (c))
-#define CALL_ONREQUEST(a, b, c, d, e) s_callbacks.onRequest((a), (b), (c), (d))
-#define CALL_ONSTATEREQUEST(a) s_callbacks.onStateRequest()
 #endif
 
 static UserCallbackInfo * internalRequestTimedCallback
