@@ -741,13 +741,17 @@ typedef struct {
 } RIL_CarrierRestrictions;
 
 typedef struct {
-  const uint8_t * carrierKey;            /* Public Key from the Carrier used to encrypt the
-                                          * IMSI/IMPI.
-                                          */
-  const char * KeyIdentifier;            /* The keyIdentifier Attribute value pair that helps
-                                          * a server locate the private key to decrypt the
-                                          * permanent identity.
-                                          */
+  char * mcc;                         /* MCC of the Carrier. */
+  char * mnc ;                        /* MNC of the Carrier. */
+  uint8_t * carrierKey;               /* Public Key from the Carrier used to encrypt the
+                                       * IMSI/IMPI.
+                                       */
+  char * keyIdentifier;               /* The keyIdentifier Attribute value pair that helps
+                                       * a server locate the private key to decrypt the
+                                       * permanent identity.
+                                       */
+  int64_t expirationTime;             /* Date-Time (in UTC) when the key will expire. */
+
 } RIL_CarrierInfoForImsiEncryption;
 
 /* See RIL_REQUEST_LAST_CALL_FAIL_CAUSE */
