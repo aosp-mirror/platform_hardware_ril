@@ -1289,7 +1289,7 @@ Return<void> RadioImpl::setBarringPassword(int32_t serial, const hidl_string& fa
     RLOGD("setBarringPassword: serial %d", serial);
 #endif
     dispatchStrings(serial, mSlotId, RIL_REQUEST_CHANGE_BARRING_PASSWORD,
-            2, oldPassword.c_str(), newPassword.c_str());
+            3, facility.c_str(), oldPassword.c_str(), newPassword.c_str());
     return Void();
 }
 
