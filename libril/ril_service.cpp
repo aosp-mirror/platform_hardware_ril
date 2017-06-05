@@ -1385,8 +1385,8 @@ Return<void> RadioImpl::startNetworkScan(int32_t serial, const NetworkScanReques
         std::memcpy(&ras_to.bands.geran_bands, bands, ras_to.bands_length * sizeof(uint32_t));
     }
 
-    s_vendorFunctions->onRequest(
-            RIL_REQUEST_START_NETWORK_SCAN, &scan_request, sizeof(scan_request), pRI);
+    CALL_ONREQUEST(RIL_REQUEST_START_NETWORK_SCAN, &scan_request, sizeof(scan_request), pRI,
+            mSlotId);
 
     return Void();
 }
