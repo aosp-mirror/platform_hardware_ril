@@ -3489,6 +3489,20 @@ int convertResponseStringEntryToInt(char **response, int index, int numStrings) 
     return -1;
 }
 
+int convertResponseHexStringEntryToInt(char **response, int index, int numStrings) {
+    const int hexBase = 16;
+    if ((response != NULL) &&  (numStrings > index) && (response[index] != NULL)) {
+        return strtol(response[index], NULL, hexBase);
+    }
+
+    return -1;
+}
+
+/* Fill Cell Identity info from Voice Registration State Response.
+ * This fucntion is applicable only for RIL Version < 15.
+ * Response is a  "char **".
+ * First and Second entries are in hex string format
+ * and rest are integers represented in ascii format. */
 void fillCellIdentityFromVoiceRegStateResponseString(CellIdentity &cellIdentity,
         int numStrings, char** response) {
 
@@ -3499,28 +3513,37 @@ void fillCellIdentityFromVoiceRegStateResponseString(CellIdentity &cellIdentity,
     switch(rilCellIdentity.cellInfoType) {
 
         case RIL_CELL_INFO_TYPE_GSM: {
+            /* valid LAC are hexstrings in the range 0x0000 - 0xffff */
             rilCellIdentity.cellIdentityGsm.lac =
-                    convertResponseStringEntryToInt(response, 1, numStrings);
+                    convertResponseHexStringEntryToInt(response, 1, numStrings);
+
+            /* valid CID are hexstrings in the range 0x00000000 - 0xffffffff */
             rilCellIdentity.cellIdentityGsm.cid =
-                    convertResponseStringEntryToInt(response, 2, numStrings);
+                    convertResponseHexStringEntryToInt(response, 2, numStrings);
             break;
         }
 
         case RIL_CELL_INFO_TYPE_WCDMA: {
+            /* valid LAC are hexstrings in the range 0x0000 - 0xffff */
             rilCellIdentity.cellIdentityWcdma.lac =
-                    convertResponseStringEntryToInt(response, 1, numStrings);
+                    convertResponseHexStringEntryToInt(response, 1, numStrings);
+
+            /* valid CID are hexstrings in the range 0x00000000 - 0xffffffff */
             rilCellIdentity.cellIdentityWcdma.cid =
-                    convertResponseStringEntryToInt(response, 2, numStrings);
+                    convertResponseHexStringEntryToInt(response, 2, numStrings);
             rilCellIdentity.cellIdentityWcdma.psc =
                     convertResponseStringEntryToInt(response, 14, numStrings);
             break;
         }
 
         case RIL_CELL_INFO_TYPE_TD_SCDMA:{
+            /* valid LAC are hexstrings in the range 0x0000 - 0xffff */
             rilCellIdentity.cellIdentityTdscdma.lac =
-                    convertResponseStringEntryToInt(response, 1, numStrings);
+                    convertResponseHexStringEntryToInt(response, 1, numStrings);
+
+            /* valid CID are hexstrings in the range 0x00000000 - 0xffffffff */
             rilCellIdentity.cellIdentityTdscdma.cid =
-                    convertResponseStringEntryToInt(response, 2, numStrings);
+                    convertResponseHexStringEntryToInt(response, 2, numStrings);
             break;
         }
 
@@ -3539,10 +3562,13 @@ void fillCellIdentityFromVoiceRegStateResponseString(CellIdentity &cellIdentity,
         }
 
         case RIL_CELL_INFO_TYPE_LTE:{
+            /* valid TAC are hexstrings in the range 0x0000 - 0xffff */
             rilCellIdentity.cellIdentityLte.tac =
-                    convertResponseStringEntryToInt(response, 1, numStrings);
+                    convertResponseHexStringEntryToInt(response, 1, numStrings);
+
+            /* valid CID are hexstrings in the range 0x00000000 - 0xffffffff */
             rilCellIdentity.cellIdentityLte.ci =
-                    convertResponseStringEntryToInt(response, 2, numStrings);
+                    convertResponseHexStringEntryToInt(response, 2, numStrings);
             break;
         }
 
@@ -3554,6 +3580,11 @@ void fillCellIdentityFromVoiceRegStateResponseString(CellIdentity &cellIdentity,
     fillCellIdentityResponse(cellIdentity, rilCellIdentity);
 }
 
+/* Fill Cell Identity info from Data Registration State Response.
+ * This fucntion is applicable only for RIL Version < 15.
+ * Response is a  "char **".
+ * First and Second entries are in hex string format
+ * and rest are integers represented in ascii format. */
 void fillCellIdentityFromDataRegStateResponseString(CellIdentity &cellIdentity,
         int numStrings, char** response) {
 
@@ -3563,24 +3594,33 @@ void fillCellIdentityFromDataRegStateResponseString(CellIdentity &cellIdentity,
     rilCellIdentity.cellInfoType = getCellInfoTypeRadioTechnology(response[3]);
     switch(rilCellIdentity.cellInfoType) {
         case RIL_CELL_INFO_TYPE_GSM: {
+            /* valid LAC are hexstrings in the range 0x0000 - 0xffff */
             rilCellIdentity.cellIdentityGsm.lac =
-                    convertResponseStringEntryToInt(response, 1, numStrings);
+                    convertResponseHexStringEntryToInt(response, 1, numStrings);
+
+            /* valid CID are hexstrings in the range 0x00000000 - 0xffffffff */
             rilCellIdentity.cellIdentityGsm.cid =
-                    convertResponseStringEntryToInt(response, 2, numStrings);
+                    convertResponseHexStringEntryToInt(response, 2, numStrings);
             break;
         }
         case RIL_CELL_INFO_TYPE_WCDMA: {
+            /* valid LAC are hexstrings in the range 0x0000 - 0xffff */
             rilCellIdentity.cellIdentityWcdma.lac =
-                    convertResponseStringEntryToInt(response, 1, numStrings);
+                    convertResponseHexStringEntryToInt(response, 1, numStrings);
+
+            /* valid CID are hexstrings in the range 0x00000000 - 0xffffffff */
             rilCellIdentity.cellIdentityWcdma.cid =
-                    convertResponseStringEntryToInt(response, 2, numStrings);
+                    convertResponseHexStringEntryToInt(response, 2, numStrings);
             break;
         }
         case RIL_CELL_INFO_TYPE_TD_SCDMA:{
+            /* valid LAC are hexstrings in the range 0x0000 - 0xffff */
             rilCellIdentity.cellIdentityTdscdma.lac =
-                    convertResponseStringEntryToInt(response, 1, numStrings);
+                    convertResponseHexStringEntryToInt(response, 1, numStrings);
+
+            /* valid CID are hexstrings in the range 0x00000000 - 0xffffffff */
             rilCellIdentity.cellIdentityTdscdma.cid =
-                    convertResponseStringEntryToInt(response, 2, numStrings);
+                    convertResponseHexStringEntryToInt(response, 2, numStrings);
             break;
         }
         case RIL_CELL_INFO_TYPE_LTE: {
