@@ -3075,7 +3075,8 @@ int radio::getCurrentCallsResponse(int slotId,
         populateResponseInfo(responseInfo, serial, responseType, e);
 
         hidl_vec<Call> calls;
-        if (response == NULL || (responseLen % sizeof(RIL_Call *)) != 0) {
+        if ((response == NULL && responseLen != 0)
+                || (responseLen % sizeof(RIL_Call *)) != 0) {
             RLOGE("getCurrentCallsResponse: Invalid response");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
@@ -3911,9 +3912,11 @@ int radio::setupDataCallResponse(int slotId,
         populateResponseInfo(responseInfo, serial, responseType, e);
 
         SetupDataCallResult result = {};
-        if (response == NULL || responseLen != sizeof(RIL_Data_Call_Response_v11)) {
-            RLOGE("setupDataCallResponse: Invalid response");
-            if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
+        if (response == NULL || (responseLen % sizeof(RIL_Data_Call_Response_v11)) != 0) {
+            if (response != NULL) {
+                RLOGE("setupDataCallResponse: Invalid response");
+                if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
+            }
             result.status = DataCallFailCause::ERROR_UNSPECIFIED;
             result.type = hidl_string();
             result.ifname = hidl_string();
@@ -4079,7 +4082,8 @@ int radio::getCallForwardStatusResponse(int slotId,
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<CallForwardInfo> callForwardInfos;
 
-        if (response == NULL || responseLen % sizeof(RIL_CallForwardInfo *) != 0) {
+        if ((response == NULL && responseLen != 0)
+                || responseLen % sizeof(RIL_CallForwardInfo *) != 0) {
             RLOGE("getCallForwardStatusResponse Invalid response: NULL");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
@@ -4407,7 +4411,8 @@ int radio::getAvailableNetworksResponse(int slotId,
         RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<OperatorInfo> networks;
-        if (response == NULL || responseLen % (4 * sizeof(char *))!= 0) {
+        if ((response == NULL && responseLen != 0)
+                || responseLen % (4 * sizeof(char *))!= 0) {
             RLOGE("getAvailableNetworksResponse Invalid response: NULL");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
@@ -4601,7 +4606,8 @@ int radio::getDataCallListResponse(int slotId,
         populateResponseInfo(responseInfo, serial, responseType, e);
 
         hidl_vec<SetupDataCallResult> ret;
-        if (response == NULL || responseLen % sizeof(RIL_Data_Call_Response_v11) != 0) {
+        if ((response == NULL && responseLen != 0)
+                || responseLen % sizeof(RIL_Data_Call_Response_v11) != 0) {
             RLOGE("getDataCallListResponse: invalid response");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
@@ -4711,7 +4717,7 @@ int radio::getAvailableBandModesResponse(int slotId,
         RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<RadioBandMode> modes;
-        if (response == NULL || responseLen % sizeof(int) != 0) {
+        if ((response == NULL && responseLen != 0)|| responseLen % sizeof(int) != 0) {
             RLOGE("getAvailableBandModesResponse Invalid response: NULL");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
@@ -4878,7 +4884,8 @@ int radio::getNeighboringCidsResponse(int slotId,
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<NeighboringCell> cells;
 
-        if (response == NULL || responseLen % sizeof(RIL_NeighboringCell *) != 0) {
+        if ((response == NULL && responseLen != 0)
+                || responseLen % sizeof(RIL_NeighboringCell *) != 0) {
             RLOGE("getNeighboringCidsResponse Invalid response: NULL");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
@@ -5181,7 +5188,8 @@ int radio::getGsmBroadcastConfigResponse(int slotId,
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<GsmBroadcastSmsConfigInfo> configs;
 
-        if (response == NULL || responseLen % sizeof(RIL_GSM_BroadcastSmsConfigInfo *) != 0) {
+        if ((response == NULL && responseLen != 0)
+                || responseLen % sizeof(RIL_GSM_BroadcastSmsConfigInfo *) != 0) {
             RLOGE("getGsmBroadcastConfigResponse Invalid response: NULL");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
@@ -5265,7 +5273,8 @@ int radio::getCdmaBroadcastConfigResponse(int slotId,
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<CdmaBroadcastSmsConfigInfo> configs;
 
-        if (response == NULL || responseLen % sizeof(RIL_CDMA_BroadcastSmsConfigInfo *) != 0) {
+        if ((response == NULL && responseLen != 0)
+                || responseLen % sizeof(RIL_CDMA_BroadcastSmsConfigInfo *) != 0) {
             RLOGE("getCdmaBroadcastConfigResponse Invalid response: NULL");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
@@ -5686,7 +5695,8 @@ int radio::getCellInfoListResponse(int slotId,
         populateResponseInfo(responseInfo, serial, responseType, e);
 
         hidl_vec<CellInfo> ret;
-        if (response == NULL || responseLen % sizeof(RIL_CellInfo_v12) != 0) {
+        if ((response == NULL && responseLen != 0)
+                || responseLen % sizeof(RIL_CellInfo_v12) != 0) {
             RLOGE("getCellInfoListResponse: Invalid response");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
@@ -5840,7 +5850,9 @@ int radio::iccOpenLogicalChannelResponse(int slotId,
         int numInts = responseLen / sizeof(int);
         if (response == NULL || responseLen % sizeof(int) != 0) {
             RLOGE("iccOpenLogicalChannelResponse Invalid response: NULL");
-            if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
+            if (response != NULL) {
+                if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
+            }
         } else {
             int *pInt = (int *) response;
             channelId = pInt[0];
@@ -6041,7 +6053,8 @@ int radio::getHardwareConfigResponse(int slotId,
         populateResponseInfo(responseInfo, serial, responseType, e);
 
         hidl_vec<HardwareConfig> result;
-        if (response == NULL || responseLen % sizeof(RIL_HardwareConfig) != 0) {
+        if ((response == NULL && responseLen != 0)
+                || responseLen % sizeof(RIL_HardwareConfig) != 0) {
             RLOGE("hardwareConfigChangedInd: invalid response");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
@@ -6580,7 +6593,7 @@ int radio::sendRequestStringsResponse(int slotId,
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<hidl_string> data;
 
-        if (response == NULL || responseLen % sizeof(char *) != 0) {
+        if ((response == NULL && responseLen != 0) || responseLen % sizeof(char *) != 0) {
             RLOGE("sendRequestStringsResponse Invalid response: NULL");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
@@ -6928,7 +6941,8 @@ int radio::dataCallListChangedInd(int slotId,
                                   int indicationType, int token, RIL_Errno e, void *response,
                                   size_t responseLen) {
     if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
-        if (response == NULL || responseLen % sizeof(RIL_Data_Call_Response_v11) != 0) {
+        if ((response == NULL && responseLen != 0)
+                || responseLen % sizeof(RIL_Data_Call_Response_v11) != 0) {
             RLOGE("dataCallListChangedInd: invalid response");
             return 0;
         }
@@ -7811,7 +7825,7 @@ int radio::cellInfoListInd(int slotId,
                            int indicationType, int token, RIL_Errno e, void *response,
                            size_t responseLen) {
     if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
-        if (response == NULL || responseLen % sizeof(RIL_CellInfo_v12) != 0) {
+        if ((response == NULL && responseLen != 0) || responseLen % sizeof(RIL_CellInfo_v12) != 0) {
             RLOGE("cellInfoListInd: invalid response");
             return 0;
         }
@@ -7932,7 +7946,8 @@ int radio::hardwareConfigChangedInd(int slotId,
                                     int indicationType, int token, RIL_Errno e, void *response,
                                     size_t responseLen) {
     if (radioService[slotId] != NULL && radioService[slotId]->mRadioIndication != NULL) {
-        if (response == NULL || responseLen % sizeof(RIL_HardwareConfig) != 0) {
+        if ((response == NULL && responseLen != 0)
+                || responseLen % sizeof(RIL_HardwareConfig) != 0) {
             RLOGE("hardwareConfigChangedInd: invalid response");
             return 0;
         }
