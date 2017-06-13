@@ -443,8 +443,7 @@ struct RadioImpl : public ::android::hardware::radio::V1_1::IRadio {
     Return<void> responseAcknowledgement();
 
     Return<void> setCarrierInfoForImsiEncryption(int32_t serial,
-            const ::android::hardware::hidl_vec<uint8_t>& carrierKey,
-            const hidl_string& keyIdentifier);
+            const ::android::hardware::radio::V1_1::ImsiEncryptionInfo& message);
 
     void checkReturnStatus(Return<void>& ret);
 };
@@ -2511,7 +2510,6 @@ Return<void> RadioImpl::setDataProfile(int32_t serial, const hidl_vec<DataProfil
                     pRI)) {
                 success = false;
             }
-
             if (success && !copyHidlStringToRil(&dataProfiles[i].mvnoMatchData,
                     profiles[i].mvnoMatchData, pRI)) {
                 success = false;
@@ -2796,10 +2794,28 @@ Return<void> OemHookImpl::sendRequestStrings(int32_t serial,
 }
 
 Return<void> RadioImpl::setCarrierInfoForImsiEncryption(int32_t serial,
-        const ::android::hardware::hidl_vec<uint8_t>& carrierKey,
-        const hidl_string& keyIdentifier) {
+        const ::android::hardware::radio::V1_1::ImsiEncryptionInfo& data) {
     RLOGD("setCarrierInfoForImsiEncryption: serial %d", serial);
-    dispatchRaw(serial, mSlotId, RIL_REQUEST_SET_CARRIER_INFO_IMSI_ENCRYPTION, carrierKey);
+    RequestInfo *pRI = android::addRequestToList(serial, mSlotId, RIL_REQUEST_SET_CARRIER_INFO_IMSI_ENCRYPTION);
+    RIL_CarrierInfoForImsiEncryption imsiEncryption = {};
+
+    if (!copyHidlStringToRil(&imsiEncryption.mnc, data.mnc, pRI)) {
+        return Void();
+    }
+    if (!copyHidlStringToRil(&imsiEncryption.mcc, data.mcc, pRI)) {
+        memsetAndFreeStrings(1, imsiEncryption.mnc);
+        return Void();
+    }
+    if (!copyHidlStringToRil(&imsiEncryption.keyIdentifier, data.keyIdentifier, pRI)) {
+        memsetAndFreeStrings(2, imsiEncryption.mnc, imsiEncryption.mcc);
+        return Void();
+    }
+    int32_t lSize = data.carrierKey.size();
+    imsiEncryption.carrierKey = new uint8_t[lSize];
+    memcpy(imsiEncryption.carrierKey, data.carrierKey.data(), lSize);
+    imsiEncryption.expirationTime = data.expirationTime;
+    s_vendorFunctions->onRequest(pRI->pCI->requestNumber, &imsiEncryption, sizeof(RIL_CarrierInfoForImsiEncryption), pRI);
+    delete(imsiEncryption.carrierKey);
     return Void();
 }
 
