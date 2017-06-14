@@ -2814,7 +2814,8 @@ Return<void> RadioImpl::setCarrierInfoForImsiEncryption(int32_t serial,
     imsiEncryption.carrierKey = new uint8_t[lSize];
     memcpy(imsiEncryption.carrierKey, data.carrierKey.data(), lSize);
     imsiEncryption.expirationTime = data.expirationTime;
-    s_vendorFunctions->onRequest(pRI->pCI->requestNumber, &imsiEncryption, sizeof(RIL_CarrierInfoForImsiEncryption), pRI);
+    CALL_ONREQUEST(pRI->pCI->requestNumber, &imsiEncryption,
+            sizeof(RIL_CarrierInfoForImsiEncryption), pRI, mSlotId);
     delete(imsiEncryption.carrierKey);
     return Void();
 }
