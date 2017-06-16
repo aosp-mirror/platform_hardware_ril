@@ -2889,11 +2889,14 @@ int radio::getIccCardStatusResponse(int slotId,
         RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         CardStatus cardStatus = {};
-        if (response == NULL || responseLen != sizeof(RIL_CardStatus_v6)) {
+        RIL_CardStatus_v6 *p_cur = ((RIL_CardStatus_v6 *) response);
+        if (response == NULL || responseLen != sizeof(RIL_CardStatus_v6)
+                || p_cur->gsm_umts_subscription_app_index >= p_cur->num_applications
+                || p_cur->cdma_subscription_app_index >= p_cur->num_applications
+                || p_cur->ims_subscription_app_index >= p_cur->num_applications) {
             RLOGE("getIccCardStatusResponse: Invalid response");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
-            RIL_CardStatus_v6 *p_cur = ((RIL_CardStatus_v6 *) response);
             cardStatus.cardState = (CardState) p_cur->card_state;
             cardStatus.universalPinState = (PinState) p_cur->universal_pin_state;
             cardStatus.gsmUmtsSubscriptionAppIndex = p_cur->gsm_umts_subscription_app_index;
