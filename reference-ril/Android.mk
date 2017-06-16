@@ -45,3 +45,5 @@ else
   LOCAL_MODULE:= reference-ril
   include $(BUILD_EXECUTABLE)
 endif
+
+LOCAL_VENDOR_MODULE:= true
