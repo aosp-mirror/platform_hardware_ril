@@ -41,6 +41,7 @@ using ::android::hardware::hidl_string;
 using ::android::hardware::hidl_vec;
 using ::android::hardware::hidl_array;
 using ::android::hardware::radio::V1_1::NetworkScanRequest;
+using ::android::hardware::radio::V1_1::KeepaliveRequest;
 using ::android::hardware::Void;
 using android::CommandInfo;
 using android::RequestInfo;
@@ -435,6 +436,10 @@ struct RadioImpl : public ::android::hardware::radio::V1_1::IRadio {
     Return<void> sendDeviceState(int32_t serial, DeviceStateType deviceStateType, bool state);
 
     Return<void> setIndicationFilter(int32_t serial, int32_t indicationFilter);
+
+    Return<void> startKeepalive(int32_t serial, const KeepaliveRequest& keepalive);
+
+    Return<void> stopKeepalive(int32_t serial, int32_t sessionHandle);
 
     Return<void> setSimCardPower(int32_t serial, bool powerUp);
     Return<void> setSimCardPower_1_1(int32_t serial,
@@ -2820,6 +2825,17 @@ Return<void> RadioImpl::setCarrierInfoForImsiEncryption(int32_t serial,
     return Void();
 }
 
+Return<void> RadioImpl::startKeepalive(int32_t serial, const KeepaliveRequest& keepalive) {
+    RLOGD("startKeepalive: serial %d", serial);
+    return Void();
+}
+
+Return<void> RadioImpl::stopKeepalive(int32_t serial, int32_t sessionHandle) {
+    RLOGD("stopKeepalive: serial %d", serial);
+    return Void();
+}
+
+
 /***************************************************************************************************
  * RESPONSE FUNCTIONS
  * Functions above are used for requests going from framework to vendor code. The ones below are
@@ -2890,11 +2906,14 @@ int radio::getIccCardStatusResponse(int slotId,
         RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         CardStatus cardStatus = {};
-        if (response == NULL || responseLen != sizeof(RIL_CardStatus_v6)) {
+        RIL_CardStatus_v6 *p_cur = ((RIL_CardStatus_v6 *) response);
+        if (response == NULL || responseLen != sizeof(RIL_CardStatus_v6)
+                || p_cur->gsm_umts_subscription_app_index >= p_cur->num_applications
+                || p_cur->cdma_subscription_app_index >= p_cur->num_applications
+                || p_cur->ims_subscription_app_index >= p_cur->num_applications) {
             RLOGE("getIccCardStatusResponse: Invalid response");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
-            RIL_CardStatus_v6 *p_cur = ((RIL_CardStatus_v6 *) response);
             cardStatus.cardState = (CardState) p_cur->card_state;
             cardStatus.universalPinState = (PinState) p_cur->universal_pin_state;
             cardStatus.gsmUmtsSubscriptionAppIndex = p_cur->gsm_umts_subscription_app_index;
