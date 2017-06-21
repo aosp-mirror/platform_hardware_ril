@@ -2001,8 +2001,19 @@ Return<void> RadioImpl::setInitialAttachApn(int32_t serial, const DataProfileInf
     if (s_vendorFunctions->version <= 14) {
         RIL_InitialAttachApn iaa = {};
 
-        if (!copyHidlStringToRil(&iaa.apn, dataProfileInfo.apn, pRI)) {
-            return Void();
+        if (dataProfileInfo.apn.size() == 0) {
+            iaa.apn = (char *) calloc(1, sizeof(char));
+            if (iaa.apn == NULL) {
+                RLOGE("Memory allocation failed for request %s",
+                        requestToString(pRI->pCI->requestNumber));
+                sendErrorResponse(pRI, RIL_E_NO_MEMORY);
+                return Void();
+            }
+            iaa.apn[0] = '\0';
+        } else {
+            if (!copyHidlStringToRil(&iaa.apn, dataProfileInfo.apn, pRI)) {
+                return Void();
+            }
         }
 
         const hidl_string &protocol =
@@ -2028,9 +2039,21 @@ Return<void> RadioImpl::setInitialAttachApn(int32_t serial, const DataProfileInf
     } else {
         RIL_InitialAttachApn_v15 iaa = {};
 
-        if (!copyHidlStringToRil(&iaa.apn, dataProfileInfo.apn, pRI)) {
-            return Void();
+        if (dataProfileInfo.apn.size() == 0) {
+            iaa.apn = (char *) calloc(1, sizeof(char));
+            if (iaa.apn == NULL) {
+                RLOGE("Memory allocation failed for request %s",
+                        requestToString(pRI->pCI->requestNumber));
+                sendErrorResponse(pRI, RIL_E_NO_MEMORY);
+                return Void();
+            }
+            iaa.apn[0] = '\0';
+        } else {
+            if (!copyHidlStringToRil(&iaa.apn, dataProfileInfo.apn, pRI)) {
+                return Void();
+            }
         }
+
         if (!copyHidlStringToRil(&iaa.protocol, dataProfileInfo.protocol, pRI)) {
             memsetAndFreeStrings(1, iaa.apn);
             return Void();
