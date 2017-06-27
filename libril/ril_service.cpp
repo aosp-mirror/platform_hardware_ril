@@ -2136,9 +2136,13 @@ bool dispatchImsGsmSms(const ImsSmsMessage& message, RequestInfo *pRI) {
     return true;
 }
 
+struct ImsCdmaSms {
+    RIL_IMS_SMS_Message imsSms;
+    RIL_CDMA_SMS_Message cdmaSms;
+};
+
 bool dispatchImsCdmaSms(const ImsSmsMessage& message, RequestInfo *pRI) {
-    RIL_IMS_SMS_Message rism = {};
-    RIL_CDMA_SMS_Message rcsm = {};
+    ImsCdmaSms temp = {};
 
     if (message.cdmaMessage.size() != 1) {
         RLOGE("dispatchImsCdmaSms: Invalid len %s", requestToString(pRI->pCI->requestNumber));
@@ -2146,15 +2150,20 @@ bool dispatchImsCdmaSms(const ImsSmsMessage& message, RequestInfo *pRI) {
         return false;
     }
 
-    rism.tech = RADIO_TECH_3GPP2;
-    rism.retry = BOOL_TO_INT(message.retry);
-    rism.messageRef = message.messageRef;
-    rism.message.cdmaMessage = &rcsm;
+    temp.imsSms.tech = RADIO_TECH_3GPP2;
+    temp.imsSms.retry = BOOL_TO_INT(message.retry);
+    temp.imsSms.messageRef = message.messageRef;
+    temp.imsSms.message.cdmaMessage = &temp.cdmaSms;
 
-    constructCdmaSms(rcsm, message.cdmaMessage[0]);
+    constructCdmaSms(temp.cdmaSms, message.cdmaMessage[0]);
 
-    CALL_ONREQUEST(pRI->pCI->requestNumber, &rism, sizeof(RIL_RadioTechnologyFamily) +
-            sizeof(uint8_t) + sizeof(int32_t) + sizeof(rcsm), pRI, pRI->socket_id);
+    // Vendor code expects payload length to include actual msg payload
+    // (sizeof(RIL_CDMA_SMS_Message)) instead of (RIL_CDMA_SMS_Message *) + size of other fields in
+    // RIL_IMS_SMS_Message
+    int payloadLen = sizeof(RIL_RadioTechnologyFamily) + sizeof(uint8_t) + sizeof(int32_t)
+            + sizeof(RIL_CDMA_SMS_Message);
+
+    CALL_ONREQUEST(pRI->pCI->requestNumber, &temp.imsSms, payloadLen, pRI, pRI->socket_id);
 
     return true;
 }
