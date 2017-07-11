@@ -3631,9 +3631,10 @@ void fillCellIdentityFromVoiceRegStateResponseString(CellIdentity &cellIdentity,
         case RIL_CELL_INFO_TYPE_CDMA:{
             rilCellIdentity.cellIdentityCdma.basestationId =
                     convertResponseStringEntryToInt(response, 4, numStrings);
-            rilCellIdentity.cellIdentityCdma.longitude =
-                    convertResponseStringEntryToInt(response, 5, numStrings);
+            /* Order of Lat. and Long. swapped between RIL and HIDL interface versions. */
             rilCellIdentity.cellIdentityCdma.latitude =
+                    convertResponseStringEntryToInt(response, 5, numStrings);
+            rilCellIdentity.cellIdentityCdma.longitude =
                     convertResponseStringEntryToInt(response, 6, numStrings);
             rilCellIdentity.cellIdentityCdma.systemId =
                     convertResponseStringEntryToInt(response, 8, numStrings);
