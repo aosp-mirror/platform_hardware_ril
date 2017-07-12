@@ -2845,9 +2845,9 @@ static int getCardStatus(RIL_CardStatus_v6 **pp_card_status) {
     RIL_CardStatus_v6 *p_card_status = malloc(sizeof(RIL_CardStatus_v6));
     p_card_status->card_state = card_state;
     p_card_status->universal_pin_state = RIL_PINSTATE_UNKNOWN;
-    p_card_status->gsm_umts_subscription_app_index = RIL_CARD_MAX_APPS;
-    p_card_status->cdma_subscription_app_index = RIL_CARD_MAX_APPS;
-    p_card_status->ims_subscription_app_index = RIL_CARD_MAX_APPS;
+    p_card_status->gsm_umts_subscription_app_index = -1;
+    p_card_status->cdma_subscription_app_index = -1;
+    p_card_status->ims_subscription_app_index = -1;
     p_card_status->num_applications = num_apps;
 
     // Initialize application status
