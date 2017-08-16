@@ -2717,11 +2717,6 @@ getSIMStatus()
     char *cpinResult;
 
     RLOGD("getSIMStatus(). sState: %d",sState);
-    if (sState == RADIO_STATE_OFF || sState == RADIO_STATE_UNAVAILABLE) {
-        ret = SIM_NOT_READY;
-        goto done;
-    }
-
     err = at_send_command_singleline("AT+CPIN?", "+CPIN:", &p_response);
 
     if (err != 0) {
@@ -2777,7 +2772,7 @@ getSIMStatus()
     p_response = NULL;
     cpinResult = NULL;
 
-    ret = SIM_READY;
+    ret = (sState == RADIO_STATE_ON) ? SIM_READY : SIM_NOT_READY;
 
 done:
     at_response_free(p_response);
