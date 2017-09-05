@@ -775,6 +775,13 @@ void processResponse(MsgHeader *rsp, RilSapSocket *sapSocket, MsgType msgType) {
         return;
     }
 
+    if (messagePtr == NULL) {
+        RLOGE("processResponse: *messagePtr == NULL; msgId = %d; msgType = %d",
+                msgId, msgType);
+        sapImpl->sendFailedResponse(msgId, rsp->token, 0);
+        return;
+    }
+
     RLOGD("processResponse: sapCallback != NULL; msgId = %d; msgType = %d",
             msgId, msgType);
 
