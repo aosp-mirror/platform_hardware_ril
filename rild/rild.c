@@ -58,8 +58,6 @@ extern void RIL_onRequestComplete(RIL_Token t, RIL_Errno e,
 
 extern void RIL_onRequestAck(RIL_Token t);
 
-extern void RIL_setServiceName(char *);
-
 #if defined(ANDROID_MULTI_SIM)
 extern void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
         size_t datalen, RIL_SOCKET_ID socket_id);
@@ -148,7 +146,6 @@ int main(int argc, char **argv) {
     if (strncmp(clientId, "0", MAX_CLIENT_ID_LENGTH)) {
         strncpy(ril_service_name, ril_service_name_base, MAX_SERVICE_NAME_LENGTH);
         strncat(ril_service_name, clientId, MAX_SERVICE_NAME_LENGTH);
-        RIL_setServiceName(ril_service_name);
     }
 
     if (rilLibPath == NULL) {
