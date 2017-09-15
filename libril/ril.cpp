@@ -4245,12 +4245,12 @@ static void debugCallback (int fd, short flags, void *param) {
     int data;
     unsigned int qxdm_data[6];
     const char *deactData[1] = {"1"};
-    char *actData[1];
     RIL_Dial dialData;
     int hangupData[1] = {1};
     int number;
     char **args;
     RIL_SOCKET_ID socket_id = RIL_SOCKET_1;
+    int MAX_DIAL_ADDRESS = 128;
     int sim_id = 0;
 
     RLOGI("debugCallback for socket %s", rilSocketIdToString(socket_id));
@@ -4397,12 +4397,6 @@ static void debugCallback (int fd, short flags, void *param) {
             // Set network selection automatic.
             issueLocalRequest(RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC, NULL, 0, socket_id);
             break;
-        case 6:
-            RLOGI("Debug port: Setup Data Call, Apn :%s\n", args[1]);
-            actData[0] = args[1];
-            issueLocalRequest(RIL_REQUEST_SETUP_DATA_CALL, &actData,
-                              sizeof(actData), socket_id);
-            break;
         case 7:
             RLOGI("Debug port: Deactivate Data Call");
             issueLocalRequest(RIL_REQUEST_DEACTIVATE_DATA_CALL, &deactData,
@@ -4411,6 +4405,12 @@ static void debugCallback (int fd, short flags, void *param) {
         case 8:
             RLOGI("Debug port: Dial Call");
             dialData.clir = 0;
+            if (strlen(args[1]) > MAX_DIAL_ADDRESS) {
+                RLOGE("Debug port: Error calling Dial");
+                freeDebugCallbackArgs(number, args);
+                close(acceptFD);
+                return;
+            }
             dialData.address = args[1];
             issueLocalRequest(RIL_REQUEST_DIAL, &dialData, sizeof(dialData), socket_id);
             break;
