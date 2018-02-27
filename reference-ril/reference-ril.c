@@ -50,7 +50,10 @@ static void *noopRemoveWarning( void *a ) { return a; }
 #define MAX_AT_RESPONSE 0x1000
 
 /* pathname returned from RIL_REQUEST_SETUP_DATA_CALL / RIL_REQUEST_SETUP_DEFAULT_PDP */
-#define PPP_TTY_PATH "eth0"
+// This is used if Wifi is not supported, plain old eth0
+#define PPP_TTY_PATH_ETH0 "eth0"
+// This is used if Wifi is supported to separate radio and wifi interface
+#define PPP_TTY_PATH_RADIO0 "radio0"
 
 // Default MTU value
 #define DEFAULT_MTU 1500
@@ -508,6 +511,13 @@ static void requestCallSelection(
     RIL_onRequestComplete(t, RIL_E_SUCCESS, NULL, 0);
 }
 
+static bool hasWifi()
+{
+    char propValue[PROP_VALUE_MAX];
+    return __system_property_get("ro.kernel.qemu.wifi", propValue) != 0 &&
+           strcmp("1", propValue) == 0;
+}
+
 static void requestOrSendDataCallList(RIL_Token *t)
 {
     ATResponse *p_response;
@@ -515,6 +525,8 @@ static void requestOrSendDataCallList(RIL_Token *t)
     int err;
     int n = 0;
     char *out;
+    char propValue[PROP_VALUE_MAX];
+    bool has_wifi = hasWifi();
 
     err = at_send_command_multiline ("AT+CGACT?", "+CGACT:", &p_response);
     if (err != 0 || p_response->success == 0) {
@@ -620,9 +632,15 @@ static void requestOrSendDataCallList(RIL_Token *t)
         if (err < 0)
             goto error;
 
-        int ifname_size = strlen(PPP_TTY_PATH) + 1;
-        responses[i].ifname = alloca(ifname_size);
-        strlcpy(responses[i].ifname, PPP_TTY_PATH, ifname_size);
+        if (has_wifi) {
+            int ifname_size = strlen(PPP_TTY_PATH_RADIO0) + 1;
+            responses[i].ifname = alloca(ifname_size);
+            strlcpy(responses[i].ifname, PPP_TTY_PATH_RADIO0, ifname_size);
+        } else {
+            int ifname_size = strlen(PPP_TTY_PATH_ETH0) + 1;
+            responses[i].ifname = alloca(ifname_size);
+            strlcpy(responses[i].ifname, PPP_TTY_PATH_ETH0, ifname_size);
+        }
 
         err = at_tok_nextstr(&line, &out);
         if (err < 0)
@@ -666,7 +684,10 @@ static void requestOrSendDataCallList(RIL_Token *t)
             }
             responses[i].dnses = dnslist;
 
-            responses[i].gateways = "10.0.2.2 fe80::2";
+            /* There is only one gateway in the emulator. If WiFi is
+             * configured the interface visible to RIL will be behind a NAT
+             * where the gateway is different. */
+            responses[i].gateways = has_wifi ? "192.168.200.1" : "10.0.2.2";
             responses[i].mtu = DEFAULT_MTU;
         }
         else {
