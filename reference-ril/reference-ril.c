@@ -38,6 +38,10 @@
 #include <sys/system_properties.h>
 #include <termios.h>
 #include <qemu_pipe.h>
+#include <sys/wait.h>
+#include <stdbool.h>
+#include <net/if.h>
+#include <netinet/in.h>
 
 #include "ril.h"
 
@@ -357,6 +361,55 @@ static int parseSimResponseLine(char* line, RIL_SIM_IO_Response* response) {
     return 0;
 }
 
+enum InterfaceState {
+    kInterfaceUp,
+    kInterfaceDown,
+};
+
+static RIL_Errno setInterfaceState(const char* interfaceName,
+                                   enum InterfaceState state) {
+    struct ifreq request;
+    int status = 0;
+    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+    if (sock == -1) {
+        RLOGE("Failed to open interface socket: %s (%d)",
+              strerror(errno), errno);
+        return RIL_E_GENERIC_FAILURE;
+    }
+
+    memset(&request, 0, sizeof(request));
+    strncpy(request.ifr_name, interfaceName, sizeof(request.ifr_name));
+    request.ifr_name[sizeof(request.ifr_name) - 1] = '\0';
+    status = ioctl(sock, SIOCGIFFLAGS, &request);
+    if (status != 0) {
+        RLOGE("Failed to get interface flags for %s: %s (%d)",
+              interfaceName, strerror(errno), errno);
+        close(sock);
+        return RIL_E_RADIO_NOT_AVAILABLE;
+    }
+
+    bool isUp = (request.ifr_flags & IFF_UP);
+    if ((state == kInterfaceUp && isUp) || (state == kInterfaceDown && !isUp)) {
+        // Interface already in desired state
+        close(sock);
+        return RIL_E_SUCCESS;
+    }
+
+    // Simply toggle the flag since we know it's the opposite of what we want
+    request.ifr_flags ^= IFF_UP;
+
+    status = ioctl(sock, SIOCSIFFLAGS, &request);
+    if (status != 0) {
+        RLOGE("Failed to set interface flags for %s: %s (%d)",
+              interfaceName, strerror(errno), errno);
+        close(sock);
+        return RIL_E_GENERIC_FAILURE;
+    }
+
+    close(sock);
+    return RIL_E_SUCCESS;
+}
+
 /** do post-AT+CFUN=1 initialization */
 static void onRadioPowerOn()
 {
@@ -511,11 +564,16 @@ static void requestCallSelection(
     RIL_onRequestComplete(t, RIL_E_SUCCESS, NULL, 0);
 }
 
-static bool hasWifi()
+static bool hasWifiCapability()
 {
     char propValue[PROP_VALUE_MAX];
     return __system_property_get("ro.kernel.qemu.wifi", propValue) != 0 &&
            strcmp("1", propValue) == 0;
+}
+
+static const char* getRadioInterfaceName(bool hasWifi)
+{
+    return hasWifi ? PPP_TTY_PATH_RADIO0 : PPP_TTY_PATH_ETH0;
 }
 
 static void requestOrSendDataCallList(RIL_Token *t)
@@ -526,7 +584,8 @@ static void requestOrSendDataCallList(RIL_Token *t)
     int n = 0;
     char *out;
     char propValue[PROP_VALUE_MAX];
-    bool has_wifi = hasWifi();
+    bool hasWifi = hasWifiCapability();
+    const char* radioInterfaceName = getRadioInterfaceName(hasWifi);
 
     err = at_send_command_multiline ("AT+CGACT?", "+CGACT:", &p_response);
     if (err != 0 || p_response->success == 0) {
@@ -632,15 +691,9 @@ static void requestOrSendDataCallList(RIL_Token *t)
         if (err < 0)
             goto error;
 
-        if (has_wifi) {
-            int ifname_size = strlen(PPP_TTY_PATH_RADIO0) + 1;
-            responses[i].ifname = alloca(ifname_size);
-            strlcpy(responses[i].ifname, PPP_TTY_PATH_RADIO0, ifname_size);
-        } else {
-            int ifname_size = strlen(PPP_TTY_PATH_ETH0) + 1;
-            responses[i].ifname = alloca(ifname_size);
-            strlcpy(responses[i].ifname, PPP_TTY_PATH_ETH0, ifname_size);
-        }
+        int ifname_size = strlen(radioInterfaceName) + 1;
+        responses[i].ifname = alloca(ifname_size);
+        strlcpy(responses[i].ifname, radioInterfaceName, ifname_size);
 
         err = at_tok_nextstr(&line, &out);
         if (err < 0)
@@ -687,7 +740,7 @@ static void requestOrSendDataCallList(RIL_Token *t)
             /* There is only one gateway in the emulator. If WiFi is
              * configured the interface visible to RIL will be behind a NAT
              * where the gateway is different. */
-            responses[i].gateways = has_wifi ? "192.168.200.1" : "10.0.2.2";
+            responses[i].gateways = hasWifi ? "192.168.200.1" : "10.0.2.2";
             responses[i].mtu = DEFAULT_MTU;
         }
         else {
@@ -1951,6 +2004,11 @@ static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
         if (qmistatus < 0) goto error;
 
     } else {
+        bool hasWifi = hasWifiCapability();
+        const char* radioInterfaceName = getRadioInterfaceName(hasWifi);
+        if (setInterfaceState(radioInterfaceName, kInterfaceUp) != RIL_E_SUCCESS) {
+            goto error;
+        }
 
         if (datalen > 6 * sizeof(char *)) {
             pdp_type = ((const char **)data)[6];
@@ -1992,6 +2050,14 @@ error:
     RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
     at_response_free(p_response);
 
+}
+
+static void requestDeactivateDataCall(RIL_Token t)
+{
+    bool hasWifi = hasWifiCapability();
+    const char* radioInterfaceName = getRadioInterfaceName(hasWifi);
+    RIL_Errno rilErrno = setInterfaceState(radioInterfaceName, kInterfaceDown);
+    RIL_onRequestComplete(t, rilErrno, NULL, 0);
 }
 
 static void requestSMSAcknowledge(void *data, size_t datalen __unused, RIL_Token t)
@@ -2440,6 +2506,9 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
             break;
         case RIL_REQUEST_SETUP_DATA_CALL:
             requestSetupDataCall(data, datalen, t);
+            break;
+        case RIL_REQUEST_DEACTIVATE_DATA_CALL:
+            requestDeactivateDataCall(t);
             break;
         case RIL_REQUEST_SMS_ACKNOWLEDGE:
             requestSMSAcknowledge(data, datalen, t);
