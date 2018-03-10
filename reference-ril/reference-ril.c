@@ -1200,7 +1200,7 @@ static void requestCdmaBaseBandVersion(int request __unused, void *data __unused
     free(responseStr);
 }
 
-static void requestCdmaDeviceIdentity(int request __unused, void *data __unused,
+static void requestDeviceIdentity(int request __unused, void *data __unused,
                                         size_t datalen __unused, RIL_Token t)
 {
     int err;
@@ -1224,7 +1224,11 @@ static void requestCdmaDeviceIdentity(int request __unused, void *data __unused,
         RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
         return;
     } else {
-        responseStr[3] = p_response->p_intermediates->line;
+        if (TECH_BIT(sMdmInfo) == MDM_CDMA) {
+            responseStr[3] = p_response->p_intermediates->line;
+        } else {
+            responseStr[0] = p_response->p_intermediates->line;
+        }
     }
 
     RIL_onRequestComplete(t, RIL_E_SUCCESS, responseStr, count*sizeof(char*));
@@ -2723,7 +2727,7 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
             break;
 
         case RIL_REQUEST_DEVICE_IDENTITY:
-            requestCdmaDeviceIdentity(request, data, datalen, t);
+            requestDeviceIdentity(request, data, datalen, t);
             break;
 
         case RIL_REQUEST_CDMA_SUBSCRIPTION:
