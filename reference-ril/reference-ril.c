@@ -34,8 +34,8 @@
 #include "misc.h"
 #include <getopt.h>
 #include <sys/socket.h>
+#include <cutils/properties.h>
 #include <cutils/sockets.h>
-#include <sys/system_properties.h>
 #include <termios.h>
 #include <qemu_pipe.h>
 #include <sys/wait.h>
@@ -567,7 +567,7 @@ static void requestCallSelection(
 static bool hasWifiCapability()
 {
     char propValue[PROP_VALUE_MAX];
-    return __system_property_get("ro.kernel.qemu.wifi", propValue) != 0 &&
+    return property_get("ro.kernel.qemu.wifi", propValue, "") > 0 &&
            strcmp("1", propValue) == 0;
 }
 
@@ -726,7 +726,7 @@ static void requestOrSendDataCallList(RIL_Token *t)
                 snprintf(propName, sizeof propName, "net.eth0.dns%d", nn);
 
                 /* Ignore if undefined */
-                if (__system_property_get(propName, propValue) == 0) {
+                if (property_get(propName, propValue, "") <= 0) {
                     continue;
                 }
 
@@ -740,7 +740,13 @@ static void requestOrSendDataCallList(RIL_Token *t)
             /* There is only one gateway in the emulator. If WiFi is
              * configured the interface visible to RIL will be behind a NAT
              * where the gateway is different. */
-            responses[i].gateways = hasWifi ? "192.168.200.1" : "10.0.2.2";
+            if (hasWifi) {
+                responses[i].gateways = "192.168.200.1";
+            } else if (property_get("net.eth0.gw", propValue, "") > 0) {
+                responses[i].gateways = propValue;
+            } else {
+                responses[i].gateways = "";
+            }
             responses[i].mtu = DEFAULT_MTU;
         }
         else {
@@ -1194,7 +1200,7 @@ static void requestCdmaBaseBandVersion(int request __unused, void *data __unused
     free(responseStr);
 }
 
-static void requestCdmaDeviceIdentity(int request __unused, void *data __unused,
+static void requestDeviceIdentity(int request __unused, void *data __unused,
                                         size_t datalen __unused, RIL_Token t)
 {
     int err;
@@ -1218,7 +1224,11 @@ static void requestCdmaDeviceIdentity(int request __unused, void *data __unused,
         RIL_onRequestComplete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
         return;
     } else {
-        responseStr[3] = p_response->p_intermediates->line;
+        if (TECH_BIT(sMdmInfo) == MDM_CDMA) {
+            responseStr[3] = p_response->p_intermediates->line;
+        } else {
+            responseStr[0] = p_response->p_intermediates->line;
+        }
     }
 
     RIL_onRequestComplete(t, RIL_E_SUCCESS, responseStr, count*sizeof(char*));
@@ -2717,7 +2727,7 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
             break;
 
         case RIL_REQUEST_DEVICE_IDENTITY:
-            requestCdmaDeviceIdentity(request, data, datalen, t);
+            requestDeviceIdentity(request, data, datalen, t);
             break;
 
         case RIL_REQUEST_CDMA_SUBSCRIPTION:
