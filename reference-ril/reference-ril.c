@@ -2230,7 +2230,7 @@ static int techFromModemType(int mdmtype)
 static void requestGetCellInfoList(void *data __unused, size_t datalen __unused, RIL_Token t)
 {
     uint64_t curTime = ril_nano_time();
-    RIL_CellInfo ci[1] =
+    RIL_CellInfo_v12 ci[1] =
     {
         { // ci[0]
             1, // cellInfoType
@@ -2244,10 +2244,13 @@ static void requestGetCellInfoList(void *data __unused, size_t datalen __unused,
                         s_mnc, // mnc
                         s_lac, // lac
                         s_cid, // cid
+                        0, //arfcn unknown
+                        0xFF, // bsic unknown
                     },
                     {  // gsm.signalStrengthGsm
                         10, // signalStrength
                         0  // bitErrorRate
+                        , INT_MAX // timingAdvance invalid value
                     }
                 }
             }
