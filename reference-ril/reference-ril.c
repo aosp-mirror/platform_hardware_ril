@@ -1218,6 +1218,7 @@ static void requestDeviceIdentity(int request __unused, void *data __unused,
     responseStr[0] = "----";
     responseStr[1] = "----";
     responseStr[2] = "77777777";
+    responseStr[3] = ""; // default empty for non-CDMA
 
     err = at_send_command_numeric("AT+CGSN", &p_response);
     if (err < 0 || p_response->success == 0) {
@@ -2229,7 +2230,7 @@ static int techFromModemType(int mdmtype)
 static void requestGetCellInfoList(void *data __unused, size_t datalen __unused, RIL_Token t)
 {
     uint64_t curTime = ril_nano_time();
-    RIL_CellInfo ci[1] =
+    RIL_CellInfo_v12 ci[1] =
     {
         { // ci[0]
             1, // cellInfoType
@@ -2243,10 +2244,13 @@ static void requestGetCellInfoList(void *data __unused, size_t datalen __unused,
                         s_mnc, // mnc
                         s_lac, // lac
                         s_cid, // cid
+                        0, //arfcn unknown
+                        0xFF, // bsic unknown
                     },
                     {  // gsm.signalStrengthGsm
                         10, // signalStrength
                         0  // bitErrorRate
+                        , INT_MAX // timingAdvance invalid value
                     }
                 }
             }
@@ -3055,19 +3059,19 @@ static int getCardStatus(RIL_CardStatus_v6 **pp_card_status) {
         { RIL_APPTYPE_UNKNOWN, RIL_APPSTATE_UNKNOWN, RIL_PERSOSUBSTATE_UNKNOWN,
           NULL, NULL, 0, RIL_PINSTATE_UNKNOWN, RIL_PINSTATE_UNKNOWN },
         // SIM_NOT_READY = 1
-        { RIL_APPTYPE_SIM, RIL_APPSTATE_DETECTED, RIL_PERSOSUBSTATE_UNKNOWN,
+        { RIL_APPTYPE_USIM, RIL_APPSTATE_DETECTED, RIL_PERSOSUBSTATE_UNKNOWN,
           NULL, NULL, 0, RIL_PINSTATE_UNKNOWN, RIL_PINSTATE_UNKNOWN },
         // SIM_READY = 2
-        { RIL_APPTYPE_SIM, RIL_APPSTATE_READY, RIL_PERSOSUBSTATE_READY,
+        { RIL_APPTYPE_USIM, RIL_APPSTATE_READY, RIL_PERSOSUBSTATE_READY,
           NULL, NULL, 0, RIL_PINSTATE_UNKNOWN, RIL_PINSTATE_UNKNOWN },
         // SIM_PIN = 3
-        { RIL_APPTYPE_SIM, RIL_APPSTATE_PIN, RIL_PERSOSUBSTATE_UNKNOWN,
+        { RIL_APPTYPE_USIM, RIL_APPSTATE_PIN, RIL_PERSOSUBSTATE_UNKNOWN,
           NULL, NULL, 0, RIL_PINSTATE_ENABLED_NOT_VERIFIED, RIL_PINSTATE_UNKNOWN },
         // SIM_PUK = 4
-        { RIL_APPTYPE_SIM, RIL_APPSTATE_PUK, RIL_PERSOSUBSTATE_UNKNOWN,
+        { RIL_APPTYPE_USIM, RIL_APPSTATE_PUK, RIL_PERSOSUBSTATE_UNKNOWN,
           NULL, NULL, 0, RIL_PINSTATE_ENABLED_BLOCKED, RIL_PINSTATE_UNKNOWN },
         // SIM_NETWORK_PERSONALIZATION = 5
-        { RIL_APPTYPE_SIM, RIL_APPSTATE_SUBSCRIPTION_PERSO, RIL_PERSOSUBSTATE_SIM_NETWORK,
+        { RIL_APPTYPE_USIM, RIL_APPSTATE_SUBSCRIPTION_PERSO, RIL_PERSOSUBSTATE_SIM_NETWORK,
           NULL, NULL, 0, RIL_PINSTATE_ENABLED_NOT_VERIFIED, RIL_PINSTATE_UNKNOWN },
         // RUIM_ABSENT = 6
         { RIL_APPTYPE_UNKNOWN, RIL_APPSTATE_UNKNOWN, RIL_PERSOSUBSTATE_UNKNOWN,
