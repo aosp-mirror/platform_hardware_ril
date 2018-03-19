@@ -3533,7 +3533,7 @@ static void onUnsolicited (const char *s, const char *sms_pdu)
         } else {
             RIL_onUnsolicitedResponse (
                 RIL_UNSOL_NITZ_TIME_RECEIVED,
-                response, strlen(response));
+                response, strlen(response) + 1);
         }
         free(line);
     } else if (strStartsWith(s,"+CRING:")
