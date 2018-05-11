@@ -2183,6 +2183,7 @@ typedef struct {
     RIL_ScanStatus status;              // The status of the scan
     uint32_t network_infos_length;      // Total length of RIL_CellInfo
     RIL_CellInfo_v12* network_infos;    // List of network information
+    RIL_Errno error;
 } RIL_NetworkScanResult;
 
 /**
