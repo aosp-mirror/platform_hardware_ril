@@ -8386,7 +8386,7 @@ int radio::networkScanResultInd(int slotId,
 
         V1_1::NetworkScanResult result;
         result.status = (V1_1::ScanStatus) networkScanResult->status;
-        result.error = (RadioError) e;
+        result.error = (RadioError) networkScanResult->error;
         convertRilCellInfoListToHal(
                 networkScanResult->network_infos,
                 networkScanResult->network_infos_length * sizeof(RIL_CellInfo_v12),
