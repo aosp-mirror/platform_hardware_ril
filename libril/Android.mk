@@ -20,7 +20,6 @@ LOCAL_SHARED_LIBRARIES := \
     librilutils \
     android.hardware.radio@1.0 \
     android.hardware.radio@1.1 \
-    android.hardware.radio.deprecated@1.0 \
     libhidlbase \
 
 LOCAL_STATIC_LIBRARIES := \
