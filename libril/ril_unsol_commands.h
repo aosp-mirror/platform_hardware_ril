@@ -42,7 +42,7 @@
     {RIL_UNSOL_CDMA_CALL_WAITING, radio::cdmaCallWaitingInd, WAKE_PARTIAL},
     {RIL_UNSOL_CDMA_OTA_PROVISION_STATUS, radio::cdmaOtaProvisionStatusInd, WAKE_PARTIAL},
     {RIL_UNSOL_CDMA_INFO_REC, radio::cdmaInfoRecInd, WAKE_PARTIAL},
-    {RIL_UNSOL_OEM_HOOK_RAW, radio::oemHookRawInd, WAKE_PARTIAL},
+    {RIL_UNSOL_OEM_HOOK_RAW, NULL, WAKE_PARTIAL},
     {RIL_UNSOL_RINGBACK_TONE, radio::indicateRingbackToneInd, WAKE_PARTIAL},
     {RIL_UNSOL_RESEND_INCALL_MUTE, radio::resendIncallMuteInd, WAKE_PARTIAL},
     {RIL_UNSOL_CDMA_SUBSCRIPTION_SOURCE_CHANGED, radio::cdmaSubscriptionSourceChangedInd, WAKE_PARTIAL},
