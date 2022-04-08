@@ -741,10 +741,15 @@ static int at_send_command_full (const char *command, ATCommandType type,
                     long long timeoutMsec, ATResponse **pp_outResponse)
 {
     int err;
+    bool inEmulator;
 
     if (0 != pthread_equal(s_tid_reader, pthread_self())) {
         /* cannot be called from reader thread */
         return AT_ERROR_INVALID_THREAD;
+    }
+    inEmulator = isInEmulator();
+    if (inEmulator) {
+        pthread_mutex_lock(&s_writeMutex);
     }
     pthread_mutex_lock(&s_commandmutex);
 
@@ -753,6 +758,9 @@ static int at_send_command_full (const char *command, ATCommandType type,
                     timeoutMsec, pp_outResponse);
 
     pthread_mutex_unlock(&s_commandmutex);
+    if (inEmulator) {
+        pthread_mutex_unlock(&s_writeMutex);
+    }
 
     if (err == AT_ERROR_TIMEOUT && s_onTimeout != NULL) {
         s_onTimeout();
@@ -892,10 +900,15 @@ int at_handshake()
 {
     int i;
     int err = 0;
+    bool inEmulator;
 
     if (0 != pthread_equal(s_tid_reader, pthread_self())) {
         /* cannot be called from reader thread */
         return AT_ERROR_INVALID_THREAD;
+    }
+    inEmulator = isInEmulator();
+    if (inEmulator) {
+        pthread_mutex_lock(&s_writeMutex);
     }
     pthread_mutex_lock(&s_commandmutex);
 
@@ -917,6 +930,9 @@ int at_handshake()
     }
 
     pthread_mutex_unlock(&s_commandmutex);
+    if (inEmulator) {
+        pthread_mutex_unlock(&s_writeMutex);
+    }
 
     return err;
 }

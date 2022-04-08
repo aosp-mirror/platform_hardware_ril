@@ -73,8 +73,8 @@
     {RIL_REQUEST_LAST_DATA_CALL_FAIL_CAUSE, NULL},
     {RIL_REQUEST_DATA_CALL_LIST, radio::getDataCallListResponse},
     {RIL_REQUEST_RESET_RADIO, NULL},
-    {RIL_REQUEST_OEM_HOOK_RAW, NULL},
-    {RIL_REQUEST_OEM_HOOK_STRINGS, NULL},
+    {RIL_REQUEST_OEM_HOOK_RAW, radio::sendRequestRawResponse},
+    {RIL_REQUEST_OEM_HOOK_STRINGS, radio::sendRequestStringsResponse},
     {RIL_REQUEST_SCREEN_STATE, radio::sendDeviceStateResponse},   // Note the response function is different.
     {RIL_REQUEST_SET_SUPP_SVC_NOTIFICATION, radio::setSuppServiceNotificationsResponse},
     {RIL_REQUEST_WRITE_SMS_TO_SIM, radio::writeSmsToSimResponse},

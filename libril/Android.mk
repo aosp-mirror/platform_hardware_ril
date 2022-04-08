@@ -20,6 +20,7 @@ LOCAL_SHARED_LIBRARIES := \
     librilutils \
     android.hardware.radio@1.0 \
     android.hardware.radio@1.1 \
+    android.hardware.radio.deprecated@1.0 \
     libhidlbase \
 
 LOCAL_STATIC_LIBRARIES := \
@@ -42,9 +43,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/../include
 LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/../include
 
 LOCAL_MODULE:= libril
-LOCAL_LICENSE_KINDS:= SPDX-license-identifier-Apache-2.0
-LOCAL_LICENSE_CONDITIONS:= notice
-LOCAL_NOTICE_FILE:= $(LOCAL_PATH)/NOTICE
 LOCAL_SANITIZE := integer
 
 include $(BUILD_SHARED_LIBRARY)
+
