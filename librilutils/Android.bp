@@ -45,4 +45,8 @@ java_library {
     },
     min_sdk_version: "30",
     sdk_version: "current",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+    ],
 }
