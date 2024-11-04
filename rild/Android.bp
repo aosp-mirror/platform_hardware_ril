@@ -1,0 +1,66 @@
+// Copyright (C) 2006 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: [
+        "hardware_ril_rild_license",
+    ],
+}
+
+license {
+    name: "hardware_ril_rild_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_binary {
+    name: "rild",
+    srcs: ["rild.c"],
+
+    shared_libs: [
+        "libcutils",
+        "libdl",
+        "liblog",
+        "libril",
+    ],
+
+    // Temporary hack for broken vendor RILs.
+    whole_static_libs: ["librilutils"],
+    cflags: [
+        "-DRIL_SHLIB",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-DPRODUCT_COMPATIBLE_PROPERTY",
+    ] + select(soong_config_variable("ril", "sim_count"), {
+        "2": [
+            "-DANDROID_MULTI_SIM",
+            "-DANDROID_SIM_COUNT_2",
+        ],
+        default: [],
+    }),
+    relative_install_path: "hw",
+    proprietary: true,
+    init_rc: ["rild.rc"],
+    enabled: select(soong_config_variable("ril", "use_aosp_rild"), {
+        true: true,
+        default: false,
+    }),
+}
